@@ -96,7 +96,10 @@ def plotCorrelation(correlationMatrix):
     sns.heatmap(correlationMatrix, annot=True, fmt=".001f",ax=ax)
     plt.show()
 
-
+def trackDataProcessing(df, noOutlierdf, filterdf):
+    print("Initial dataframe size", df.shape)
+    print("dataframe without outliers", noOutlierdf.shape)
+    print("dataframe without uncorrelated features", filterdf.shape)
 
 def computeYLabelCor(correlationMatrix, yLabel = 'Calculated tCO2e_per_m2'):
 
