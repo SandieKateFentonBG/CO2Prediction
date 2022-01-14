@@ -25,7 +25,7 @@ def normalize(xdf, ydf):
     x_in = pd.DataFrame(x_normalized, columns = xdf.keys())
     y_in = pd.DataFrame(y_normalized, columns = ydf.keys())
 
-    return x_in, y_in
+    return (x_in, y_in), (x_scaler, y_scaler)
 
 def crossvalidationSplit(x, y, batchCount=5):
     cutoffIndex = [0] + [int(x.shape[0]/batchCount * i) for i in range(1, batchCount)] if x.shape[0] % batchCount == 0\
