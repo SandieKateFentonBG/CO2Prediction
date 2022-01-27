@@ -36,6 +36,13 @@ def crossvalidationSplit(x, y, batchCount=5):
 
     return xsets, ysets
 
+def TrainTestSets(filterDf, yLabels):
+    """Normalize and split Train-Test """
+    xdf, ydf = XYsplit(filterDf, yLabels)
+    (x, y), (xScaler, yScaler) = normalize(xdf, ydf)
+    xs, ys = crossvalidationSplit(x, y)
+    return xs, ys, (xScaler, yScaler)
+
 def TrainTestSplit(xSets, ySets, testSetIndex=1):
 
     xTrain = pd.concat([batch for batch in xSets if batch is not xSets[testSetIndex]])

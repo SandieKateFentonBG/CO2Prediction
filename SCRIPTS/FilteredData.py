@@ -97,9 +97,13 @@ def plotCorrelation(correlationMatrix):
     plt.show()
 
 def trackDataProcessing(df, noOutlierdf, filterdf):
-    print("Initial dataframe size", df.shape)
-    print("dataframe without outliers", noOutlierdf.shape)
-    print("dataframe without uncorrelated features", filterdf.shape)
+    print("")
+    print("DATAFRAME DIMENSION", df.shape)
+    print("")
+    print("initial size", df.shape)
+    print("without outliers", noOutlierdf.shape)
+    print("without uncorrelated features", filterdf.shape)
+    print("")
 
 def computeYLabelCor(correlationMatrix, yLabel = 'Calculated tCO2e_per_m2'):
 

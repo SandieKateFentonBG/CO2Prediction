@@ -11,6 +11,7 @@ def buildLinearRegressionModel():
 def buildRandomForestModel():
     from sklearn.ensemble import RandomForestRegressor
     model = RandomForestRegressor()
+    # model = RandomForestRegressor(max_depth=2, random_state=0,n_estimators=100)
     return model
 
 def buildSVMRegressionModel():
@@ -18,10 +19,13 @@ def buildSVMRegressionModel():
     model=SVR()
     return model
 
-# def buildXGBOOSTRegModel():
-#     import xgboost as xgb #todo : import xgboost
-#     model = xgb.XGBRegressor(objective ='reg:linear', colsample_bytree = 0.3, learning_rate = 0.1,max_depth = 5, alpha = 10, n_estimators = 300)
-#     return model
+def buildXGBOOSTRegModel(regul = 'reg:squarederror'):#'reg:linear'
+    import xgboost as xgb
+    model = xgb.XGBRegressor(objective = regul, colsample_bytree = 0.3, learning_rate = 0.1,max_depth = 5, alpha = 10, n_estimators = 300)
+    #TODO : question : where do these come from?
+    # objective = 'reg:linear', colsample_bytree = 0.3, learning_rate = 0.1, max_depth = 5, alpha = 10, n_estimators = 300)
+
+    return model
 
 
 def buildNormalModel():

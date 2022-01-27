@@ -2,7 +2,8 @@ from RawData import RawData
 from Data import *
 from FilteredData import *
 from Dashboard import *
-from ModelAssessor import *
+from PrepData import *
+from Model import *
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -28,41 +29,48 @@ noOutlierDf = removeOutliers(df, labels = ['GIFA (m2)','Storeys','Typical Span (
 filterDf = filteredData(noOutlierDf, xQuantLabels, yLabels, plot = False)
 
 trackDataProcessing(df, noOutlierDf, filterDf)
-#print(filterDf.keys())
+print(filterDf.keys())
 
+"""Normalize and split Train-Test """
+
+xdf, ydf = XYsplit(filterDf, yLabels)
+(x, y), (xScaler, yScaler) = normalize(xdf, ydf)
+xs, ys = crossvalidationSplit(x, y)
+(xTrain, yTrain), (xTest, yTest) = TrainTestSplit(xs, ys,  testSetIndex=1)
+#print(xTrain.keys())
 """
 ------------------------------------------------------------------------------------------------------------------------
 2. MODEL
 ------------------------------------------------------------------------------------------------------------------------
 """
-method = 'LRmodel' #'RFmodel','SVMmodel', 'LRmodel'
 
-
-run = execute(filterDf,yLabels, method, epochs=None, singleTest = 1)
-plot(run['yTest'],run['model'].predict(run['xTest']))
-xScaler, yScaler = run['scaler']
-yPredScaled = yScaler.inverse_transform(run['model'].predict(run['xTest'].reshape(-1, 1)))
-yTestScaled = yScaler.inverse_transform(run['yTest'])
-plot(yTestScaled,yPredScaled)
-
-# methods = ['LRmodel', 'SVMmodel', 'RFmodel', 'XGBmodel']
-# for m in methods:
-#     run = execute(filterDf, yLabels, m, epochs=None, singleTest=1)
-#     print('Method:', run['method'], 'Evaluation:', run['evalu'], 'Accuracy:', run['acc'],'MSE:', run['mse'] )
-#     plot(run['yTest'],run['model'].predict(run['xTest']))
-
-
+#todo: move all this next part to another script - model assessor
+#todo: add my own evaluator/accuracy
+#todo: add the rotation/crossvalidation
 #todo: understand how to regularize linear regression
-#todo: understand attributes of model classes
 #todo: look into kernel regresssion
 #todo: look into lasso/ ridge - these also allow for feature selection -
 # modularize feature selection either earlier with pearson or later with lasso
 #todo: look into constrained optim
 #todo: understand model saving
 
+"""Build Model """
 
+LRmodel = buildLinearRegressionModel()
+#RFmodel = buildRandomForestModel()
+#SVMmodel=buildSVMRegressionModel()
+#XGBRmodel=buildXGBOOSTRegModel()
+#Nmodel=buildNormalModel()
+model = LRmodel  #todo: what is this for?
 
-"""yPred = model.predict(xTest)
+"""Train Model """
+model.fit(xTrain, yTrain) #for keras : model.fit(xTrain, yTrain, epochs=8)
+
+"""Evaluate Model """
+model.score(xTest, yTest) #Return the coefficient of determination of the prediction
+#model.evaluate(xTest, yTest) #for keras : Returns the loss value & metrics values for the model in test mode.
+
+yPred = model.predict(xTest)
 print(yPred)
 yPredScaled = yScaler.inverse_transform(yPred)
 yTestScaled = yScaler.inverse_transform(yTest)
@@ -74,4 +82,4 @@ plt.rcParams['figure.figsize'] = [18, 18]
 l1, = plt.plot(yTestScaled, 'g')
 l2, = plt.plot(yPredScaled, 'r', alpha=0.7)
 plt.legend(['Ground truth', 'Predicted'])
-plt.show()"""
+plt.show()
