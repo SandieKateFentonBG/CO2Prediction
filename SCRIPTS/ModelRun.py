@@ -3,7 +3,7 @@ from Data import *
 from FilteredData import *
 from Dashboard import *
 from PrepData import *
-from Model import *
+from ModelConstructor import *
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -67,13 +67,13 @@ model = LRmodel  #todo: what is this for?
 model.fit(xTrain, yTrain) #for keras : model.fit(xTrain, yTrain, epochs=8)
 
 """Evaluate Model """
-model.score(xTest, yTest) #Return the coefficient of determination of the prediction
+a = model.score(xTest, yTest) #Return the coefficient of determination of the prediction
 #model.evaluate(xTest, yTest) #for keras : Returns the loss value & metrics values for the model in test mode.
-
 yPred = model.predict(xTest)
-print(yPred)
+print("a", type(yPred), yPred.shape, yPred) #<class 'numpy.ndarray'> (14, 1)
 yPredScaled = yScaler.inverse_transform(yPred)
-yTestScaled = yScaler.inverse_transform(yTest)
+print("b", type(yPredScaled),  yPredScaled.shape, yPredScaled)
+yTestScaled = yScaler.inverse_transform(yTest) #<class 'numpy.ndarray'> (14, 1)
 from sklearn.metrics import mean_squared_error
 mse = mean_squared_error(yPredScaled, yTestScaled)
 print(mse)
@@ -83,3 +83,9 @@ l1, = plt.plot(yTestScaled, 'g')
 l2, = plt.plot(yPredScaled, 'r', alpha=0.7)
 plt.legend(['Ground truth', 'Predicted'])
 plt.show()
+
+# plt.rcParams['figure.figsize'] = [18, 18]
+# l3, = plt.plot(yTest, 'g')
+# l4, = plt.plot(yPred, 'r', alpha=0.7)
+# plt.legend(['Ground truth', 'Predicted'])
+# plt.show()

@@ -35,21 +35,16 @@ trackDataProcessing(df, noOutlierDf, filterDf)
 2. MODEL
 ------------------------------------------------------------------------------------------------------------------------
 """
-method = 'LRmodel' #'RFmodel','SVMmodel', 'LRmodel'
+#single run
+# method = 'LRmodel' #'RFmodel','SVMmodel', 'LRmodel'
+# run = execute(filterDf,yLabels, method, epochs=None, singleTest = 1, display = True)
 
-
-run = execute(filterDf,yLabels, method, epochs=None, singleTest = 1)
-plot(run['yTest'],run['model'].predict(run['xTest']))
-xScaler, yScaler = run['scaler']
-yPredScaled = yScaler.inverse_transform(run['model'].predict(run['xTest'].reshape(-1, 1)))
-yTestScaled = yScaler.inverse_transform(run['yTest'])
-plot(yTestScaled,yPredScaled)
-
-# methods = ['LRmodel', 'SVMmodel', 'RFmodel', 'XGBmodel']
-# for m in methods:
-#     run = execute(filterDf, yLabels, m, epochs=None, singleTest=1)
-#     print('Method:', run['method'], 'Evaluation:', run['evalu'], 'Accuracy:', run['acc'],'MSE:', run['mse'] )
-#     plot(run['yTest'],run['model'].predict(run['xTest']))
+#multiple run
+methods = ['LRmodel', 'SVMmodel', 'RFmodel', 'XGBmodel']
+for m in methods:
+    run = execute(filterDf, yLabels, m, epochs=None, singleTest=1, display = False)
+    print('Method:', run['method'], 'Evaluation:', run['evalu'], 'Accuracy:', run['acc'],'MSE:', run['mse'] )
+    # plot(run['yTest'],run['model'].predict(run['xTest']))
 
 
 #todo: understand how to regularize linear regression
@@ -60,18 +55,3 @@ plot(yTestScaled,yPredScaled)
 #todo: look into constrained optim
 #todo: understand model saving
 
-
-
-"""yPred = model.predict(xTest)
-print(yPred)
-yPredScaled = yScaler.inverse_transform(yPred)
-yTestScaled = yScaler.inverse_transform(yTest)
-from sklearn.metrics import mean_squared_error
-mse = mean_squared_error(yPredScaled, yTestScaled)
-print(mse)
-
-plt.rcParams['figure.figsize'] = [18, 18]
-l1, = plt.plot(yTestScaled, 'g')
-l2, = plt.plot(yPredScaled, 'r', alpha=0.7)
-plt.legend(['Ground truth', 'Predicted'])
-plt.show()"""
