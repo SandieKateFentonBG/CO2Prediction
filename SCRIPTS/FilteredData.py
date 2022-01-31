@@ -1,4 +1,5 @@
 #todo : convert to a class? or simplify to one single function?
+import pandas as pd
 
 def removeOutliers(dataframe, labels, cutOffThreshhold=1.5):
     """
@@ -41,39 +42,42 @@ def removeOutlier(df, colName, cutOffThreshhold = 1.5):
     # print(fence_low, fence_high)
     return df.loc[(df[colName] > fence_low) & (df[colName] < fence_high)]
 
-def filteredData(noOutlierDf, xQuantLabels, yLabels, plot = False, threshhold = 0.1, yLabel ='Calculated tCO2e_per_m2'):
+def filteredData(noOutlierDf, xQuantLabels, yLabels, plot = False, lt = 0.1, ht = 0.5, yLabel ='Calculated tCO2e_per_m2',
+                 removeLabels = None):
 
     """Discard features with close to 0 correlation coefficient to CO2"""
 
     correlationMatrix = computeCorrelation(noOutlierDf, round = 2)
 
-    highMat, lowMat = filterCorrelation(correlationMatrix, threshhold = threshhold, yLabel = yLabel)
+    highMat, lowMat = filterCorrelation(correlationMatrix, lowThreshhold = lt, yLabel = yLabel)
     keep, drop = filteredLabels(highMat.index, lowMat.index, xQuantLabels, yLabels)
 
     filteredData = noOutlierDf.drop(columns = drop)
+
+    if removeLabels:
+        filteredData = filteredData.drop(columns = removeLabels)
 
     if plot:
         plotCorrelation(computeCorrelation(filteredData))
 
     return filteredData
 
-
-
 def computeCorrelation(df, round = 2):
 
-    return df.corr().round(round)
+    return df.corr().round(round) #Method :pearson standard correlation coefficient
 
-def filterCorrelation(correlationMatrix, threshhold = 0.1, yLabel ='Calculated tCO2e_per_m2'):
+def filterCorrelation(correlationMatrix, lowThreshhold = 0.1, yLabel ='Calculated tCO2e_per_m2'):
 
     """
     :param correlationMatrix: correlation matrix identifies linear relation between pairs of variables
     :param threshhold:features with a PCC > 0.1 are depicted
     :return: labels with high correlation to output
     """
+    #
+    highCorMatrix = correlationMatrix.loc[abs((correlationMatrix[yLabel])) >= lowThreshhold]
+    lowCorMatrix = correlationMatrix.loc[(abs((correlationMatrix[yLabel])) < lowThreshhold)] + correlationMatrix.loc[correlationMatrix['Calculated tCO2e_per_m2'].isna()]
 
-    highCorMatrix = correlationMatrix.loc[abs((correlationMatrix[yLabel])) >= threshhold]
-    lowCorMatrix = correlationMatrix.loc[(abs((correlationMatrix[yLabel])) < threshhold)] + correlationMatrix.loc[correlationMatrix['Calculated tCO2e_per_m2'].isna()]
-
+    #todo : remove muticol not with y !!
     #todo : this filters outmy GIFA !! I should scale everything before starting?
     #todo : use this only for filtering out qualitative features?
 
@@ -86,23 +90,31 @@ def filteredLabels(hihCorLabels, lowCorLabels, xQuantLabels, yLabel):
 
     return keep, drop
 
+
+
 def plotCorrelation(correlationMatrix):
 
     import matplotlib.pyplot as plt
     import seaborn as sns
+    import numpy as np
 
-    fig, ax = plt.subplots(figsize=(18,18))
-
-    sns.heatmap(correlationMatrix, annot=True, fmt=".001f",ax=ax)
+    mask = np.zeros_like(correlationMatrix)
+    mask[np.triu_indices_from(mask)] = True
+    fig, ax = plt.subplots(figsize=(20,20))
+    sns.heatmap(correlationMatrix, annot=True, mask = mask, fmt=".001f",ax=ax, cmap="bwr", center = 0, vmin=-1, vmax=1, square = True)
     plt.show()
+    # plt.clf()
 
-def trackDataProcessing(df, noOutlierdf, filterdf):
+def trackDataProcessing(df, noOutlierdf, filterdf, removeLabelsdf = pd.Series([])):
     print("")
     print("DATAFRAME DIMENSION", df.shape)
     print("")
     print("initial size", df.shape)
     print("without outliers", noOutlierdf.shape)
     print("without uncorrelated features", filterdf.shape)
+    if not removeLabelsdf.empty:
+        print("without multicorrelated features", removeLabelsdf.shape)
+
     print("")
 
 def computeYLabelCor(correlationMatrix, yLabel = 'Calculated tCO2e_per_m2'):

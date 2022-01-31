@@ -8,7 +8,7 @@ displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DA
 
 # DATA
 
-xQualLabels = ['Sector','Type','Basement' ,'Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating']
+xQualLabels = ['Sector','Type','Basement', 'Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating']#
 xQuantLabels = ['GIFA (m2)','Storeys','Typical Span (m)', 'Typ Qk (kN_per_m2)']
 
 yLabels = ['Calculated tCO2e_per_m2'] #'Calculated Total tCO2e',
