@@ -58,12 +58,12 @@ class FilterData:
 
         """Discard features with close to 0 correlation coefficient to CO2"""
 
-        correlationMatrix = computeCorrelation(self.noOutlierDf, round = 2)
+        correlationMatrix = computeCorrelation(self.ValidDf, round = 2)
 
         highMat, lowMat = self.filterCorrelation(correlationMatrix, threshhold = threshhold, yLabel = yLabel)
         keep, drop = self.filteredLabels(highMat.index, lowMat.index, xQuantLabels, yLabels)
 
-        filteredData = self.noOutlierDf.drop(columns = drop)
+        filteredData = self.ValidDf.drop(columns = drop)
 
         if plot:
             plotCorrelation(computeCorrelation(filteredData))
@@ -78,7 +78,7 @@ class FilterData:
         :param threshhold:features with a PCC > 0.1 are depicted
         :return: labels with high correlation to output
         """
-        correlationMatrix = self.computeCorrelation(self.noOutlierDf, round = 2)
+        correlationMatrix = self.computeCorrelation(self.ValidDf, round = 2)
         highCorMatrix = correlationMatrix.loc[abs((correlationMatrix[yLabel])) >= threshhold]
         lowCorMatrix = correlationMatrix.loc[(abs((correlationMatrix[yLabel])) < threshhold)] + correlationMatrix.loc[correlationMatrix['Calculated tCO2e_per_m2'].isna()]
 

@@ -1,31 +1,22 @@
 from sklearn import preprocessing
 
-def trackdataprocessing(df, noOutlierdf, filterdf):
-    print("Initial dataframe size", df.shape())
-    print("dataframe without outliers", noOutlierdf.shape())
-    print("dataframe without filtered out features", filterdf.shape())
-
 import pandas as pd
+
+def normalize(df):
+    x = df.values
+    Scaler = preprocessing.MinMaxScaler()
+    x_normalized = Scaler.fit_transform(x)
+    xScaled = pd.DataFrame(x_normalized, columns = df.keys())
+
+    return (xScaled, Scaler)
+
+def unscale(elem, scaler):
+    return pd.DataFrame(scaler.inverse_transform(elem), columns = elem.keys())
 
 def XYsplit(df, yLabels):
     ydf = df[yLabels]
     xdf = df.drop(columns = yLabels)
     return xdf, ydf
-
-def normalize(xdf, ydf):
-    x = xdf.values
-    y = ydf.values.reshape(-1, 1)
-
-    x_scaler = preprocessing.MinMaxScaler()
-    x_normalized = x_scaler.fit_transform(x)
-
-    y_scaler = preprocessing.MinMaxScaler()
-    y_normalized = y_scaler.fit_transform(y)
-
-    x_in = pd.DataFrame(x_normalized, columns = xdf.keys())
-    y_in = pd.DataFrame(y_normalized, columns = ydf.keys())
-
-    return (x_in, y_in), (x_scaler, y_scaler)
 
 def crossvalidationSplit(x, y, batchCount=5):
     cutoffIndex = [0] + [int(x.shape[0]/batchCount * i) for i in range(1, batchCount)] if x.shape[0] % batchCount == 0\
@@ -39,12 +30,19 @@ def crossvalidationSplit(x, y, batchCount=5):
 def TrainTestSets(filterDf, yLabels):
     """Normalize and split Train-Test """
     xdf, ydf = XYsplit(filterDf, yLabels)
-    (x, y), (xScaler, yScaler) = normalize(xdf, ydf)
-    xs, ys = crossvalidationSplit(x, y)
-    return xs, ys, (xScaler, yScaler)
+    xs, ys = crossvalidationSplit(xdf, ydf)
+    return xs, ys
 
-def TrainTestSplit(xSets, ySets, testSetIndex=1):
+def TrainTestDf(xSets, ySets, testSetIndex=1):
 
     xTrain = pd.concat([batch for batch in xSets if batch is not xSets[testSetIndex]])
     yTrain = pd.concat([batch for batch in ySets if batch is not ySets[testSetIndex]])
     return (xTrain, yTrain), (xSets[testSetIndex], ySets[testSetIndex])
+
+def TrainTestArray(filterDf, yLabels, testSetIndex):
+    #todo : shuffle data...
+    xs, ys = TrainTestSets(filterDf, yLabels)
+    (xTrain, yTrain), (xTest, yTest) = TrainTestDf(xs, ys, testSetIndex)
+    return (xTrain.values, yTrain.values.reshape(-1, 1)), (xTest.values, yTest.values.reshape(-1, 1))
+
+

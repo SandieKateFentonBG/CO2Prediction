@@ -42,7 +42,7 @@ def removeOutlier(df, colName, cutOffThreshhold = 1.5):
     # print(fence_low, fence_high)
     return df.loc[(df[colName] > fence_low) & (df[colName] < fence_high)]
 
-def filteredData(noOutlierDf, xQuantLabels, yLabels, plot = False, lt = 0.1, ht = 0.5, yLabel ='Calculated tCO2e_per_m2',
+def filteredData(noOutlierDf, baseLabels, yLabels, plot = False, lt = 0.1, ht = 0.5, yLabel ='Calculated tCO2e_per_m2',
                  removeLabels = None):
 
     """Discard features with close to 0 correlation coefficient to CO2"""
@@ -50,7 +50,7 @@ def filteredData(noOutlierDf, xQuantLabels, yLabels, plot = False, lt = 0.1, ht 
     correlationMatrix = computeCorrelation(noOutlierDf, round = 2)
 
     highMat, lowMat = filterCorrelation(correlationMatrix, lowThreshhold = lt, yLabel = yLabel)
-    keep, drop = filteredLabels(highMat.index, lowMat.index, xQuantLabels, yLabels)
+    keep, drop = filteredLabels(highMat.index, lowMat.index, baseLabels, yLabels)
 
     filteredData = noOutlierDf.drop(columns = drop)
 
@@ -59,7 +59,7 @@ def filteredData(noOutlierDf, xQuantLabels, yLabels, plot = False, lt = 0.1, ht 
 
     if plot:
         plotCorrelation(computeCorrelation(filteredData))
-
+    Labels = {"baseLabels": baseLabels,"HighCorr": keep, "LowCorr": drop, "MultiCorr/Removed": removeLabels}
     return filteredData
 
 def computeCorrelation(df, round = 2):
