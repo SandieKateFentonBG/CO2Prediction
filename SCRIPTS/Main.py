@@ -66,23 +66,36 @@ models = [lassoReg, ridgeReg, elasticNetReg, supportVector, kernelRidgeReg, kern
 3. HYPERPARAM GRID SEARCH
 ------------------------------------------------------------------------------------------------------------------------
 """
-kernelVal = ['linear', 'rbf', 'polynomial']
-paramVal = [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100]
-grid = GridSearch()
+# kernelVal = ['linear', 'rbf', 'polynomial']
+# paramVal = [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100]
+# grid = GridSearch()
 
 # m = {'model' : SVR(), 'param' : 'C'}
 # bestModel = grid.searchCV(m['model'], m['param'], paramVal, xTrainArr, yTrainArr, xTestArr, yTestArr)
 
 # bestModel = grid.searchCV(SVR(), parameters, xTrainArr, yTrainArr, xTestArr, yTestArr)
-#
-store = dict()
-for m in models:
-    grid = GridSearch()
-    bestModel = grid.searchCV(m['model'], m['param'], paramVal, xTrainArr, yTrainArr, xTestArr, yTestArr)
-    # store[m['model']] = bestModel
-    # m['bestModel'] = bestModel(bestModel)
-    m['bestModel'] = bestModel.best_estimator_
 
+# def tuneModels(modelingParams, displayParams, models):
+#     # store = dict()
+#     for m in models:
+#         grid = GridSearch()
+#         bestModel = grid.paramSearch(m['model'], m['param'], modelingParams['RegulVal'], xTrainArr, yTrainArr)
+#         # store[m['model']] = bestModel
+#         # m['bestModel'] = bestModel(bestModel)
+#     #     m['bestModel'] = bestModel.best_estimator_
+#     # for m in models:
+#         m['bestParam'] = bestModel.best_params_
+#         model, accuracy, mse, r2 = grid.paramEval(m['model'], xTrainArr, yTrainArr, xTestArr, yTestArr, displayParams)
+#         m['accuracy'] = accuracy
+#         m['mse'] = mse
+#         m['r2'] = r2
+#         print(m)
+#     if displayParams["archive"]:
+#         saveStudy(displayParams, models)
+
+searchEval(modelingParams, displayParams, models, xTrainArr, yTrainArr, xTestArr, yTestArr)
+
+# tuneModels(modelingParams, displayParams, models)
 # print('bestModel', bestModel)
 
 #3.2.5.1. Model specific cross-validation : https://scikit-learn.org/stable/modules/grid_search.html#alternative-cv
@@ -95,13 +108,13 @@ for m in models:
 
 # bestModel = grid.run(SVR(C = 1), xTrainArr, yTrainArr, xTestArr, yTestArr, display = True, tolerance=0.05)
 
-for m in models:
-    model, accuracy, mse = grid.run(m['model'], xTrainArr, yTrainArr, xTestArr, yTestArr, display = False)
-    m['accuracy'] = accuracy
-    m['mse'] = mse
-
-for m in models:
-    print(m)
+# for m in models:
+#     model, accuracy, mse = grid.run(m['model'], xTrainArr, yTrainArr, xTestArr, yTestArr, displayParams)
+#     m['accuracy'] = accuracy
+#     m['mse'] = mse
+#
+# for m in models:
+#     print(m)
 
 
 #Accuracy : 'accuracy': 0.07142857142857142 means 1 good out of 14
@@ -109,6 +122,7 @@ for m in models:
 #todo : about tuning hyperparams :https://scikit-learn.org/stable/modules/grid_search.html -
 #todo : read abput kernels/rbf : sklearn.kernel_ridge.KernelRidge¶
 #todo : about comparing results Statistical comparison of models using grid search - displaying order
+#todo : saving function
 
 #todo: ASK feature selection - how much? forward or backward stepwise search?
 #todo: ASK normalize/unnormalize - what? when?
