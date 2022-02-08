@@ -4,12 +4,16 @@ from FilteredData import *
 from PrepData import *
 from Dashboard import *
 from GridSearch import *
+from Helpers import *
 
 """
 ------------------------------------------------------------------------------------------------------------------------
 1.DATA
 ------------------------------------------------------------------------------------------------------------------------
 """
+"""Save input"""
+saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
+          powers, mixVariables)
 
 """Import libraries & Load data"""
 rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
@@ -21,26 +25,31 @@ df = dat.asDataframe(powers)
 baseLabels = xQuantLabels # if higher orders : ['GIFA (m2)_exp1', 'Storeys_exp1', 'Typical Span (m)_exp1','Typ Qk (kN_per_m2)_exp1']
 
 """ Remove outliers"""
-ValidDf = removeOutliers(df, labels = xQuantLabels, cutOffThreshhold=3)
+ValidDf = removeOutliers(df, labels = xQuantLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
 
 # """Correlation of variables & Feature selection"""
-HighCorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = 0.1)
+HighCorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = processingParams['lowThreshold'])
 #
 # """Remove Multi-correlated Features """
-CorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = 0.1,
-                     removeLabels=['Basement_None', 'Foundations_Raft'])
-
-trackDataProcessing(df, ValidDf, CorDf)
+CorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = processingParams['lowThreshold'],
+                     removeLabels=processingParams['removeLabels'])
 
 """Scale Data"""#todo : check this..
 
 (ScaledDf, Scaler) = normalize(CorDf)
 UnscaledDf = unscale(ScaledDf, Scaler)
+if processingParams['scaling']:
+    fullDf = ScaledDf
+else:
+    fullDf = CorDf
+
+"""Save Data Processing"""
+trackDataProcessing(displayParams = displayParams, df = df, noOutlierdf = ValidDf, filterdf=HighCorDf , removeLabelsdf = CorDf)
+
 
 """Split"""
 
-# xSets, ySets = TrainTestSets(CorDf, yLabels)
-xSets, ySets = TrainTestSets(ScaledDf, yLabels)
+xSets, ySets = TrainTestSets(fullDf, yLabels)
 (xTrain, yTrain), (xTest, yTest) = TrainTestDf(xSets, ySets, testSetIndex=1)
 (xTrainArr, yTrainArr), (xTestArr, yTestArr) = (xTrain.values, yTrain.values.reshape(-1, 1)), (xTest.values, yTest.values.reshape(-1, 1))
 

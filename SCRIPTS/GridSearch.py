@@ -3,7 +3,7 @@ from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
-
+from Helpers import *
 """
 Docum
 
@@ -23,7 +23,7 @@ def computeAccuracy(yTrue, yPred):
     validated = [1 if abs(yPred[i] - yTrue[i]) < abs(yTrue[i]) * tolerance else 0 for i in range(len(yTrue))]
     return sum(validated) / len(validated)
 
-def plot(yTest, yPred, displayParams, modelWithParam):
+def plotPredTruth(yTest, yPred, displayParams, modelWithParam):
     import matplotlib.pyplot as plt
     plt.rcParams['figure.figsize'] = [18, 18]
     l1, = plt.plot(yTest, 'g')
@@ -33,7 +33,7 @@ def plot(yTest, yPred, displayParams, modelWithParam):
 
     if displayParams['archive']:
         import os
-        outputFigPath = displayParams["outputPath"] + '/Pred_Truth'
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Pred_Truth'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
@@ -42,22 +42,22 @@ def plot(yTest, yPred, displayParams, modelWithParam):
         plt.show()
     plt.close()
 
-def saveStudy(displayParams, Results):
-
-    import os
-    if not os.path.isdir(displayParams["outputPath"]):
-        os.makedirs(displayParams["outputPath"])
-
-    with open(displayParams["outputPath"] + displayParams["reference"] + ".txt", 'a') as f:
-        print('', file=f)
-        if type(Results) == dict:
-            for k,v in Results.items():
-                print(k, ":", v, file=f)
-        else:
-            for r in Results:
-                print(r, file=f)
-
-    f.close()
+# def saveStudy(displayParams, Results):
+#
+#     import os
+#     if not os.path.isdir(displayParams["outputPath"]):
+#         os.makedirs(displayParams["outputPath"])
+#
+#     with open(displayParams["outputPath"] + displayParams["reference"] + ".txt", 'a') as f:
+#         print('', file=f)
+#         if type(Results) == dict:
+#             for k,v in Results.items():
+#                 print(k, ":", v, file=f)
+#         else:
+#             for r in Results:
+#                 print(r, file=f)
+#
+#     f.close()
 
 class GridSearch:
 
@@ -118,7 +118,7 @@ def paramEval(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams):
     mse = mean_squared_error(yTest, clf.predict(xTest))
     r2 = r2_score(yTest, clf.predict(xTest))
     if displayParams['showPlot']:
-        plot(yTest, yPred, displayParams, modelWithParam)
+        plotPredTruth(yTest, yPred, displayParams, modelWithParam)
 
     return clf, accuracy, mse, r2
 

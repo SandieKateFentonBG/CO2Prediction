@@ -1,5 +1,6 @@
 #todo : convert to a class? or simplify to one single function?
 import pandas as pd
+from Helpers import *
 
 def removeOutliers(dataframe, labels, cutOffThreshhold=1.5):
     """
@@ -105,17 +106,35 @@ def plotCorrelation(correlationMatrix):
     plt.show()
     # plt.clf()
 
-def trackDataProcessing(df, noOutlierdf, filterdf, removeLabelsdf = pd.Series([])):
-    print("")
-    print("DATAFRAME DIMENSION", df.shape)
-    print("")
-    print("initial size", df.shape)
-    print("without outliers", noOutlierdf.shape)
-    print("without uncorrelated features", filterdf.shape)
-    if not removeLabelsdf.empty:
-        print("without multicorrelated features", removeLabelsdf.shape)
+def trackDataProcessing(displayParams, df, noOutlierdf, filterdf, removeLabelsdf = pd.Series([]) ):
+    # print("")
+    # print("DATAFRAME DIMENSION", df.shape)
+    # print("")
+    # print("initial size", df.shape)
+    # print("without outliers", noOutlierdf.shape)
+    # print("without uncorrelated features", filterdf.shape)
+    # if not removeLabelsdf.empty:
+    #     print("without multicorrelated features", removeLabelsdf.shape)
+    # print("")
 
-    print("")
+    Content = dict()
+    Content["DATAFRAME DIMENSION"] = df.shape
+    Content["df initial size"] = df.shape
+    Content["initial keys"] = df.keys()
+    Content["df without outliers"] = noOutlierdf.shape
+    Content["keys without outliers"] = noOutlierdf.keys()
+    Content["df without uncorrelated features"] = filterdf.shape
+    Content["keys without uncorrelated features"] = filterdf.keys()
+    if not removeLabelsdf.empty:
+        Content["df without multicorrelated features"] = removeLabelsdf.shape
+        Content["keys without multicorrelated features"] = removeLabelsdf.keys()
+
+    if displayParams["showResults"]:
+        for k, v in Content.items():
+            print(k, ":", v)
+    if displayParams["archive"]:
+        saveStudy(displayParams, Content)
+
 
 def computeYLabelCor(correlationMatrix, yLabel = 'Calculated tCO2e_per_m2'):
 

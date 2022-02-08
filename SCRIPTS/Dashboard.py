@@ -4,23 +4,23 @@ csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_d
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data", "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/',
-                  'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220208'}
+                  'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220208_test4'}
 
 # DATA
 
 xQualLabels = ['Sector','Type','Basement', 'Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating']#
 xQuantLabels = ['GIFA (m2)','Storeys','Typical Span (m)', 'Typ Qk (kN_per_m2)']
-
 yLabels = ['Calculated tCO2e_per_m2'] #'Calculated Total tCO2e',
 
-scaling = False #True
+# FORMAT
 
-scalers = {'scaling': False, 'method': 'skl_standardscale','positiveValue': 5, 'qinf': 0.25, 'qsup': 0.75 }#methods : 'standardize', 'robustscale', 'skl_robustscale'
+processingParams = {'scaling': True, 'cutOffThreshhold' : 3, 'lowThreshold' : 0.1, 'highThreshold' : 0.5,
+                    'removeLabels' : ['Basement_None', 'Foundations_Raft'] } #, 'method': 'skl_standardscale','positiveValue': 5, 'qinf': 0.25, 'qsup': 0.75 #methods : 'standardize', 'robustscale', 'skl_robustscale'
 
 # PARAMS
 
 # modelingParams = {"regularisation": 20, "tolerance": 0.1, "method": "accuracy"} #'mse'; "mae"
-modelingParams = {'kernelVal': ['linear', 'rbf', 'polynomial'], 'RegulVal' : [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100]}
+modelingParams = {'RegulVal' : [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100]}#'kernelVal': ['linear', 'rbf', 'polynomial'],
 
 powers = {}#'GIFA (m2)': [1], 'Storeys':[1], 'Typical Span (m)': [1],'Typ Qk (kN_per_m2)': [1],
 # 'GIFA (m2)': [1, 0.5], 'Storeys':[1, 2, 3], 0.5 ,, 1/3, 1/4  1/5, 1/6,'Storeys':[1, 2, 3] ,'Typical Span (m)': [1, 2, 3],'Typ Qk (kN_per_m2)': [1, 2, 3] }
