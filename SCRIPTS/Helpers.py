@@ -19,7 +19,7 @@ def saveStudy(displayParams, Content):
                 for r in Content:
                     print(r, file=f)
 
-    f.close()
+        f.close()
 
 def saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams, powers, mixVariables   ):
 

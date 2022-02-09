@@ -134,7 +134,7 @@ def searchEval(modelingParams, displayParams, models, xTrainArr, yTrainArr, xTes
         m['r2'] = round(r2, 3)
         if displayParams["showResults"]:
             print(m)
-    if displayParams["archive"]:
+    if displayParams["archive"] or displayParams["showPlot"]:
         saveStudy(displayParams, models)
 
     return models

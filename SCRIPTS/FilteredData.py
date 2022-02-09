@@ -91,8 +91,6 @@ def filteredLabels(hihCorLabels, lowCorLabels, xQuantLabels, yLabel):
 
     return keep, drop
 
-
-
 def plotCorrelation(correlationMatrix):
 
     import matplotlib.pyplot as plt

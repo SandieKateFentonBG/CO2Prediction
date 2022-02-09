@@ -2,21 +2,44 @@ from sklearn import preprocessing
 
 import pandas as pd
 
-def normalize(df):
-    x = df.values
-    Scaler = preprocessing.MinMaxScaler()
-    x_normalized = Scaler.fit_transform(x)
-    xScaled = pd.DataFrame(x_normalized, columns = df.keys())
+def scale(df, scalerParam):
 
-    return (xScaled, Scaler)
+    if scalerParam:
+        x = df.values
+        if scalerParam == 'MinMaxScaler':
+            Scaler = preprocessing.MinMaxScaler()
+            x_normalized = Scaler.fit_transform(x)
+            xScaled = pd.DataFrame(x_normalized, columns = df.keys())
+        if scalerParam == 'MinMaxScaler':
+            Scaler = preprocessing.StandardScaler()
+            x_normalized = Scaler.fit_transform(x)
+            xScaled = pd.DataFrame(x_normalized, columns = df.keys())
+        return (xScaled, Scaler)
+    else :
+        return (df, scalerParam)
 
-def unscale(elem, scaler):
-    return pd.DataFrame(scaler.inverse_transform(elem), columns = elem.keys())
+def unscale(elem, scaler, scalerParam):
 
-def XYsplit(df, yLabels):
+    if scalerParam:
+        return pd.DataFrame(scaler.inverse_transform(elem), columns = elem.keys())
+    else :
+        return elem
+
+def XScaleYSplit(df, yLabels, scalerParam):
     ydf = df[yLabels]
     xdf = df.drop(columns = yLabels)
-    return xdf, ydf
+    xScaler = None
+    if scalerParam:
+        if scalerParam == 'MinMaxScaler':
+            xScaler = preprocessing.MinMaxScaler()
+            x_normalized = xScaler.fit_transform(xdf)
+            xScaled = pd.DataFrame(x_normalized, columns = xdf.keys())
+        if scalerParam == 'StandardScaler':
+            xScaler = preprocessing.StandardScaler()
+            x_normalized = xScaler.fit_transform(xdf)
+            xScaled = pd.DataFrame(x_normalized, columns = xdf.keys())
+        xdf = xScaled
+    return xdf, ydf, xScaler
 
 def crossvalidationSplit(x, y, batchCount=5):
     cutoffIndex = [0] + [int(x.shape[0]/batchCount * i) for i in range(1, batchCount)] if x.shape[0] % batchCount == 0\
@@ -27,21 +50,21 @@ def crossvalidationSplit(x, y, batchCount=5):
 
     return xsets, ysets
 
-def TrainTestSets(filterDf, yLabels):
+def TrainTestSets(filterDf, yLabels, scalerParam):
     """Normalize and split Train-Test """
-    xdf, ydf = XYsplit(filterDf, yLabels)
+    xdf, ydf, xScaler = XScaleYSplit(filterDf, yLabels, scalerParam)
     xs, ys = crossvalidationSplit(xdf, ydf)
-    return xs, ys
+    return xs, ys, xScaler
 
-def TrainTestDf(xSets, ySets, testSetIndex=1):
+def TrainTestDf(xSets, ySets, testIdParam=1):
 
-    xTrain = pd.concat([batch for batch in xSets if batch is not xSets[testSetIndex]])
-    yTrain = pd.concat([batch for batch in ySets if batch is not ySets[testSetIndex]])
-    return (xTrain, yTrain), (xSets[testSetIndex], ySets[testSetIndex])
+    xTrain = pd.concat([batch for batch in xSets if batch is not xSets[testIdParam]])
+    yTrain = pd.concat([batch for batch in ySets if batch is not ySets[testIdParam]])
+    return (xTrain, yTrain), (xSets[testIdParam], ySets[testIdParam])
 
 def TrainTestArray(filterDf, yLabels, testSetIndex):
     #todo : shuffle data...
-    xs, ys = TrainTestSets(filterDf, yLabels)
+    xs, ys, xScaler = TrainTestSets(filterDf, yLabels)
     (xTrain, yTrain), (xTest, yTest) = TrainTestDf(xs, ys, testSetIndex)
     return (xTrain.values, yTrain.values.reshape(-1, 1)), (xTest.values, yTest.values.reshape(-1, 1))
 

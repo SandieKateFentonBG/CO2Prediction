@@ -4,7 +4,7 @@ csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_d
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data", "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/',
-                  'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220208_test4'}
+                  'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220209_scale'}
 
 # DATA
 
@@ -14,8 +14,9 @@ yLabels = ['Calculated tCO2e_per_m2'] #'Calculated Total tCO2e',
 
 # FORMAT
 
-processingParams = {'scaling': True, 'cutOffThreshhold' : 3, 'lowThreshold' : 0.1, 'highThreshold' : 0.5,
-                    'removeLabels' : ['Basement_None', 'Foundations_Raft'] } #, 'method': 'skl_standardscale','positiveValue': 5, 'qinf': 0.25, 'qsup': 0.75 #methods : 'standardize', 'robustscale', 'skl_robustscale'
+processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.1, 'highThreshold' : 0.5,
+                    'removeLabels' : ['Basement_None', 'Foundations_Raft']} #, 'method': 'skl_standardscale','positiveValue': 5, 'qinf': 0.25, 'qsup': 0.75 #methods : 'standardize', 'robustscale', 'skl_robustscale'
+#'scaler': None, 'MinMaxScaler', 'StandardScaler'
 
 # PARAMS
 
