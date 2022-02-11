@@ -6,6 +6,7 @@ from Dashboard import *
 from GridSearch import *
 from Helpers import *
 
+
 """
 ------------------------------------------------------------------------------------------------------------------------
 1.DATA
@@ -22,10 +23,10 @@ rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
 dat = Data(rdat)
 df = dat.asDataframe(powers)
 
-baseLabels = xQuantLabels # if higher orders : ['GIFA (m2)_exp1', 'Storeys_exp1', 'Typical Span (m)_exp1','Typ Qk (kN_per_m2)_exp1']
-
+baseLabels = ['GIFA (m2)_exp1', 'Storeys_exp1', 'Typical Span (m)_exp1','Typ Qk (kN_per_m2)_exp1']
+ #xQuantLabels if higher orders :
 """ Remove outliers"""
-ValidDf = removeOutliers(df, labels = xQuantLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
+ValidDf = removeOutliers(df, labels = baseLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
 
 """Correlation of variables & Feature selection"""
 HighCorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = processingParams['lowThreshold'])
@@ -33,13 +34,12 @@ HighCorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = proces
 """Remove Multi-correlated Features """
 CorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = processingParams['lowThreshold'],
                      removeLabels=processingParams['removeLabels'])
-
 """Scale"""
-xSets, ySets, xScaler = TrainTestSets(CorDf, yLabels, processingParams['scaler'])
+xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
 
-"""Split"""
-(xTrain, yTrain), (xTest, yTest) = TrainTestDf(xSets, ySets, testIdParam=1)
-(xTrainArr, yTrainArr), (xTestArr, yTestArr) = (xTrain.values, yTrain.values.reshape(-1, 1)), (xTest.values, yTest.values.reshape(-1, 1))
+
+"""Train Test Split"""
+xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=0.2, random_state=8)
 
 """Save Data Processing"""
 trackDataProcessing(displayParams = displayParams, df = df, noOutlierdf = ValidDf, filterdf=HighCorDf , removeLabelsdf = CorDf)
@@ -50,7 +50,8 @@ trackDataProcessing(displayParams = displayParams, df = df, noOutlierdf = ValidD
 ------------------------------------------------------------------------------------------------------------------------
 """
 
-# linearReg = {'model' : LinearRegression(), 'param' : 'alpha'}
+"""Models"""
+linearReg = {'model' : LinearRegression(), 'param' : None} #why doies this not have a regul param?
 lassoReg = {'model' : Lasso() , 'param': 'alpha'} # for overfitting
 ridgeReg = {'model' : Ridge(), 'param': 'alpha'}
 elasticNetReg = {'model' : ElasticNet(), 'param': 'alpha'}
@@ -59,31 +60,24 @@ kernelRidgeReg = {'model' : KernelRidge(), 'param': 'alpha'}
 kernelRidgeLinReg = {'model' : KernelRidge(kernel='linear'), 'param': 'alpha'}
 kernelRidgeRbfReg = {'model' : KernelRidge(kernel='rbf'), 'param': 'alpha'}
 kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha'}
-models = [lassoReg, ridgeReg, elasticNetReg, supportVector, kernelRidgeReg, kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg] #linearReg,
-
+models = [ lassoReg, ridgeReg, elasticNetReg, supportVector, kernelRidgeReg, kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg] #linearReg,
+#linearReg,
 """
 ------------------------------------------------------------------------------------------------------------------------
 3. HYPERPARAM GRID SEARCH
 ------------------------------------------------------------------------------------------------------------------------
 """
-searchEval(modelingParams, displayParams, models, xTrainArr, yTrainArr, xTestArr, yTestArr)
+
+searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest)
+# paramResiduals(Ridge(), xTrain, yTrain, xTest, yTest, displayParams, bestParam = None)
+
 
 """
 ------------------------------------------------------------------------------------------------------------------------
 3. Plot
 ------------------------------------------------------------------------------------------------------------------------
 """
-
-# bestModel = grid.run(SVR(C = 1), xTrainArr, yTrainArr, xTestArr, yTestArr, display = True, tolerance=0.05)
-
-# for m in models:
-#     model, accuracy, mse = grid.run(m['model'], xTrainArr, yTrainArr, xTestArr, yTestArr, displayParams)
-#     m['accuracy'] = accuracy
-#     m['mse'] = mse
-#
-# for m in models:
-#     print(m)
-
+             # Finalize and render the figure
 
 #Accuracy : 'accuracy': 0.07142857142857142 means 1 good out of 14
 #todo : for a wider variety of params : sklearn.model_selection.ParameterGrid

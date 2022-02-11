@@ -1,22 +1,8 @@
 from sklearn import preprocessing
-
+from sklearn.model_selection import train_test_split
 import pandas as pd
 
-def scale(df, scalerParam):
 
-    if scalerParam:
-        x = df.values
-        if scalerParam == 'MinMaxScaler':
-            Scaler = preprocessing.MinMaxScaler()
-            x_normalized = Scaler.fit_transform(x)
-            xScaled = pd.DataFrame(x_normalized, columns = df.keys())
-        if scalerParam == 'MinMaxScaler':
-            Scaler = preprocessing.StandardScaler()
-            x_normalized = Scaler.fit_transform(x)
-            xScaled = pd.DataFrame(x_normalized, columns = df.keys())
-        return (xScaled, Scaler)
-    else :
-        return (df, scalerParam)
 
 def unscale(elem, scaler, scalerParam):
 
@@ -40,6 +26,13 @@ def XScaleYSplit(df, yLabels, scalerParam):
             xScaled = pd.DataFrame(x_normalized, columns = xdf.keys())
         xdf = xScaled
     return xdf, ydf, xScaler
+
+def TrainTest(xdf, ydf, test_size=0.2, random_state=8):
+
+    XTrain, XTest, yTrain, yTest = train_test_split(xdf.values, ydf.values, test_size=test_size, random_state=random_state)
+    return XTrain, XTest, yTrain, yTest
+
+
 
 def crossvalidationSplit(x, y, batchCount=5):
     cutoffIndex = [0] + [int(x.shape[0]/batchCount * i) for i in range(1, batchCount)] if x.shape[0] % batchCount == 0\
@@ -68,4 +61,18 @@ def TrainTestArray(filterDf, yLabels, testSetIndex):
     (xTrain, yTrain), (xTest, yTest) = TrainTestDf(xs, ys, testSetIndex)
     return (xTrain.values, yTrain.values.reshape(-1, 1)), (xTest.values, yTest.values.reshape(-1, 1))
 
-
+# def scale(df, scalerParam):
+#
+#     if scalerParam:
+#         x = df.values
+#         if scalerParam == 'MinMaxScaler':
+#             Scaler = preprocessing.MinMaxScaler()
+#             x_normalized = Scaler.fit_transform(x)
+#             xScaled = pd.DataFrame(x_normalized, columns = df.keys())
+#         if scalerParam == 'MinMaxScaler':
+#             Scaler = preprocessing.StandardScaler()
+#             x_normalized = Scaler.fit_transform(x)
+#             xScaled = pd.DataFrame(x_normalized, columns = df.keys())
+#         return (xScaled, Scaler)
+#     else :
+#         return (df, scalerParam)

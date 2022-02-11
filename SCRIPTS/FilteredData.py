@@ -105,27 +105,23 @@ def plotCorrelation(correlationMatrix):
     # plt.clf()
 
 def trackDataProcessing(displayParams, df, noOutlierdf, filterdf, removeLabelsdf = pd.Series([]) ):
-    # print("")
-    # print("DATAFRAME DIMENSION", df.shape)
-    # print("")
-    # print("initial size", df.shape)
-    # print("without outliers", noOutlierdf.shape)
-    # print("without uncorrelated features", filterdf.shape)
-    # if not removeLabelsdf.empty:
-    #     print("without multicorrelated features", removeLabelsdf.shape)
-    # print("")
 
     Content = dict()
     Content["DATAFRAME DIMENSION"] = df.shape
     Content["df initial size"] = df.shape
-    Content["initial keys"] = df.keys()
-    Content["df without outliers"] = noOutlierdf.shape
-    Content["keys without outliers"] = noOutlierdf.keys()
+    Content["df without outlier samples"] = noOutlierdf.shape
     Content["df without uncorrelated features"] = filterdf.shape
-    Content["keys without uncorrelated features"] = filterdf.keys()
     if not removeLabelsdf.empty:
         Content["df without multicorrelated features"] = removeLabelsdf.shape
-        Content["keys without multicorrelated features"] = removeLabelsdf.keys()
+
+    if not removeLabelsdf.empty:
+        Content["Remaining features"] = [k for k in removeLabelsdf.keys()]
+    else:
+        Content["Remaining features"] = [k for k in filterdf.keys()]
+    Content["outlier samples"] = [df.shape[0]-noOutlierdf.shape[0]]
+    Content["uncorrelated features"] = [k for k in noOutlierdf.keys() if k not in filterdf.keys()]
+    if not removeLabelsdf.empty:
+        Content["multicorrelated"] = [k for k in filterdf.keys() if k not in removeLabelsdf.keys()]
 
     if displayParams["showResults"]:
         for k, v in Content.items():

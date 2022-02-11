@@ -1,9 +1,10 @@
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from Helpers import *
+from PrepData import TrainTestDf
 """
 Docum
 
@@ -23,21 +24,22 @@ def computeAccuracy(yTrue, yPred):
     validated = [1 if abs(yPred[i] - yTrue[i]) < abs(yTrue[i]) * tolerance else 0 for i in range(len(yTrue))]
     return sum(validated) / len(validated)
 
-def plotPredTruth(yTest, yPred, displayParams, modelWithParam):
+def plotPredTruth(yTest, yPred, displayParams, modeldict):
     import matplotlib.pyplot as plt
     plt.rcParams['figure.figsize'] = [18, 18]
     l1, = plt.plot(yTest, 'g')
     l2, = plt.plot(yPred, 'r', alpha=0.7)
     plt.legend(['Ground truth', 'Predicted'])
-    plt.title(str(modelWithParam))
-
+    title = str(modeldict['model'])+ '- BEST PARAM (%s) ' % modeldict['bestParam'] \
+            + '- SCORE : ACC(%s) ' % modeldict['accuracy'] + 'MSE(%s) ' % modeldict['mse'] + 'R2(%s)' % modeldict['r2']
+    plt.title(title)
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Pred_Truth'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
-        plt.savefig(outputFigPath + '/' + str(modelWithParam) + '.png')
+        plt.savefig(outputFigPath + '/' + str(modeldict['model']) + '.png')
     if displayParams['showPlot']:
         plt.show()
     plt.close()
@@ -58,83 +60,90 @@ def plotPredTruth(yTest, yPred, displayParams, modelWithParam):
 #                 print(r, file=f)
 #
 #     f.close()
-
-class GridSearch:
-
-    """
-    Goal - for each model
-    - build it
-    - run it with different parameters
-    - store the best parameter and score
-    """
-
-    def __init__(self):
-        self.linearReg = LinearRegression()
-        self.lassoReg = Lasso() #for overfitting
-        self.ridgeReg = Ridge()
-        self.elasticNetReg = ElasticNet()
-        self.supportVector = SVR()
-        self.kernelRidgeReg = KernelRidge() #for underfitting
-        #self.normalModel = buildNormalModel()
-
-    def update(self, modelName, model, bestParameters):
-        update = model(bestParameters)
-        self.modelName = update
-        # if modelName == 'linearReg':
-        #     self.linearReg = update
-        # if modelName == 'lassoReg':
-        #     self.lassoReg = update
-        # if modelName == 'ridgeReg':
-        #     self.ridgeReg = update
-        # if modelName == 'elasticNetReg':
-        #     self.elasticNetReg = update
-        # if modelName == 'supportVector':
-        #     self.supportVector = update
-        # if modelName == 'kernelRidgeReg':
-        #     self.kernelRidgeReg = update
-          #todo : how to do this in a generic way?
-        pass
-
-def paramSearch(model, paramkey, paramValues, xTrain, yTrain, custom = False):
+def paramSearch(model, paramkey, paramValues, cv, xTrain, yTrain, custom = False):
 
     parameters = dict()
-    parameters[paramkey] = paramValues
+    if paramkey:
+        parameters[paramkey] = paramValues
     if custom:
         score = make_scorer(computeAccuracy(), greater_is_better=True)
-        grid = GridSearchCV(model, scoring=score, param_grid=parameters)
-
+        grid = GridSearchCV(model, scoring=score, param_grid=parameters, cv = cv)
     else:
-        grid = GridSearchCV(model, param_grid=parameters)
+        grid = GridSearchCV(model, param_grid=parameters, cv = cv)
     grid.fit(xTrain, yTrain.ravel())
+
     return grid
 
-def paramEval(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams):
+def paramEval(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None):
 
     clf = modelWithParam
     clf.fit(xTrain, yTrain.ravel())
-    scores = clf.score(xTest, yTest.ravel())
+    trainScore = clf.score(xTest, yTest.ravel())
+    testScore = clf.score(xTest, yTest.ravel())
     yPred = clf.predict(xTest)
     accuracy = computeAccuracy(yTest, clf.predict(xTest))
     mse = mean_squared_error(yTest, clf.predict(xTest))
     r2 = r2_score(yTest, clf.predict(xTest))
+    modeldict = {'model': clf,'trainScore': trainScore, 'testScore': testScore,'bestParam': bestParam,'accuracy': round(accuracy, 3),'mse': round(mse, 3),
+                 'r2':round(r2, 3)}
     if displayParams['showPlot']:
-        plotPredTruth(yTest, yPred, displayParams, modelWithParam)
+        plotPredTruth(yTest, yPred, displayParams, modeldict)
 
-    return clf, accuracy, mse, r2
+    return modeldict
 
-def searchEval(modelingParams, displayParams, models, xTrainArr, yTrainArr, xTestArr, yTestArr):
+def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest):
 
     for m in models:
-        bestModel = paramSearch(m['model'], m['param'], modelingParams['RegulVal'], xTrainArr, yTrainArr)
+        bestModel = paramSearch(m['model'], m['param'], modelingParams['RegulVal'], modelingParams['CVFold'], xTrain, yTrain)
         m['bestParam'] = bestModel.best_params_
-        model, accuracy, mse, r2 = paramEval(m['model'], xTrainArr, yTrainArr, xTestArr, yTestArr,
-                                                  displayParams)
-        m['accuracy'] = round(accuracy, 3)
-        m['mse'] = round(mse, 3)
-        m['r2'] = round(r2, 3)
+        modelDict = paramEval(m['model'], xTrain, yTrain, xTest, yTest,
+                              displayParams, m['bestParam'])
+        m.update(modelDict)
+        resDict = paramResiduals(m['model'], xTrain, yTrain, xTest, yTest, displayParams, m['bestParam'])
+        m.update(resDict)
+
         if displayParams["showResults"]:
             print(m)
     if displayParams["archive"] or displayParams["showPlot"]:
         saveStudy(displayParams, models)
 
     return models
+
+
+
+def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None):
+    from yellowbrick.regressor import ResidualsPlot
+    title = 'Residuals for ' + str(modelWithParam)
+    if bestParam:
+        title += '- BEST PARAM (%s) ' % bestParam
+    visualizer = ResidualsPlot(modelWithParam, title = title)
+    print(xTrain.shape, yTrain.shape)
+    visualizer.fit(xTrain, yTrain.ravel())  # Fit the training data to the visualizer
+    visualizer.score(xTest, yTest.ravel())  # Evaluate the model on the test data
+
+    resDict = {'visualizerTrainScore': visualizer.train_score_, 'visualizerTestScore': visualizer.test_score_}
+
+    if displayParams['archive']:
+        import os
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Residuals'
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+
+        visualizer.show(outpath=outputFigPath + '/' + str(modelWithParam) + '.png')
+
+    if displayParams['showPlot']:
+        visualizer.show()
+
+    return resDict
+
+
+
+
+def rotateSearchEval(xSets, ySets, modelingParams, displayParams, models):
+    for i in range(5):
+
+        (xTrain, yTrain), (xTest, yTest) = TrainTestDf(xSets, ySets, i)
+        (xTrainArr, yTrainArr), (xTestArr, yTestArr) = (xTrain.values, yTrain.values.reshape(-1, 1)), (
+        xTest.values, yTest.values.reshape(-1, 1))
+        print('Rotation', i)
+        searchEval(modelingParams, displayParams, models, xTrainArr, yTrainArr, xTestArr, yTestArr)
