@@ -3,7 +3,7 @@ from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
-from Helpers import *
+from Archiver import *
 from PrepData import TrainTestDf
 """
 Docum
@@ -27,12 +27,18 @@ def computeAccuracy(yTrue, yPred):
 def plotPredTruth(yTest, yPred, displayParams, modeldict):
     import matplotlib.pyplot as plt
     plt.rcParams['figure.figsize'] = [18, 18]
+    plt.grid()
     l1, = plt.plot(yTest, 'g')
     l2, = plt.plot(yPred, 'r', alpha=0.7)
-    plt.legend(['Ground truth', 'Predicted'])
+    plt.legend(['Ground truth', 'Predicted'], fontsize=18)
     title = str(modeldict['model'])+ '- BEST PARAM (%s) ' % modeldict['bestParam'] \
             + '- SCORE : ACC(%s) ' % modeldict['accuracy'] + 'MSE(%s) ' % modeldict['mse'] + 'R2(%s)' % modeldict['r2']
-    plt.title(title)
+    plt.title(title, fontdict = {'fontsize' : 20})
+    plt.xticks(fontsize=14)
+    plt.xlabel('Test Building', fontsize=18)
+    plt.ylim(ymin=0, ymax=0.8)
+    plt.yticks(fontsize=14)
+    plt.ylabel('tCO2e/m2', fontsize=18)
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Pred_Truth'
@@ -84,8 +90,9 @@ def paramEval(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, bestP
     accuracy = computeAccuracy(yTest, clf.predict(xTest))
     mse = mean_squared_error(yTest, clf.predict(xTest))
     r2 = r2_score(yTest, clf.predict(xTest))
-    modeldict = {'model': clf,'trainScore': trainScore, 'testScore': testScore,'bestParam': bestParam,'accuracy': round(accuracy, 3),'mse': round(mse, 3),
-                 'r2':round(r2, 3)}
+    modeldict = {'model': clf,'trainScore':round(trainScore, displayParams['roundNumber']) , 'testScore': round(testScore, displayParams['roundNumber']),
+                 'bestParam': bestParam,'accuracy': round(accuracy, displayParams['roundNumber']),
+                 'mse': round(mse, displayParams['roundNumber']),'r2':round(r2, displayParams['roundNumber'])}
     if displayParams['showPlot']:
         plotPredTruth(yTest, yPred, displayParams, modeldict)
 
@@ -110,18 +117,21 @@ def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTe
     return models
 
 
-
 def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None):
+    import matplotlib.pyplot as plt
     from yellowbrick.regressor import ResidualsPlot
     title = 'Residuals for ' + str(modelWithParam)
     if bestParam:
         title += '- BEST PARAM (%s) ' % bestParam
-    visualizer = ResidualsPlot(modelWithParam, title = title)
+
+    visualizer = ResidualsPlot(modelWithParam, title = title, fig=plt.figure(figsize=(18,18)), fontsize = 18)
+    #todo : ymin = -0.5, ymax = 0.5
     print(xTrain.shape, yTrain.shape)
     visualizer.fit(xTrain, yTrain.ravel())  # Fit the training data to the visualizer
     visualizer.score(xTest, yTest.ravel())  # Evaluate the model on the test data
 
-    resDict = {'visualizerTrainScore': visualizer.train_score_, 'visualizerTestScore': visualizer.test_score_}
+    resDict = {'visualizerTrainScore': round(visualizer.train_score_, displayParams['roundNumber']),
+               'visualizerTestScore': round(visualizer.test_score_, displayParams['roundNumber'])}
 
     if displayParams['archive']:
         import os
@@ -133,6 +143,8 @@ def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, 
 
     if displayParams['showPlot']:
         visualizer.show()
+
+    visualizer.finalize()
 
     return resDict
 

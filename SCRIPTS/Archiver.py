@@ -1,9 +1,5 @@
 def saveStudy(displayParams, Content):
 
-    # import os
-    # if not os.path.isdir(displayParams["outputPath"]):
-    #     os.makedirs(displayParams["outputPath"])
-
     if displayParams['archive']:
         import os
         outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
@@ -20,6 +16,23 @@ def saveStudy(displayParams, Content):
                     print(r, file=f)
 
         f.close()
+
+def exportStudy(displayParams, models):
+    import os
+    outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
+    if not os.path.isdir(outputPathStudy):
+        os.makedirs(outputPathStudy)
+
+    import csv
+    with open(outputPathStudy + '/Results' ".csv", 'w', encoding='UTF8', newline='') as e:
+        writer = csv.writer(e, delimiter = ";")
+
+        k = models[0].keys()
+        writer.writerow(k)
+        for i in range(len(models)):
+            v = models[i].values()
+            writer.writerow(v)
+    e.close()
 
 def saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams, powers, mixVariables   ):
 
