@@ -43,14 +43,14 @@ def removeOutlier(df, colName, cutOffThreshhold = 1.5):
     # print(fence_low, fence_high)
     return df.loc[(df[colName] > fence_low) & (df[colName] < fence_high)]
 
-def filteredData(noOutlierDf, baseLabels, yLabels, plot = False, lt = 0.1, ht = 0.5, yLabel ='Calculated tCO2e_per_m2',
+def filteredData(noOutlierDf, baseLabels, yLabels, plot, lt,
                  removeLabels = None):
 
     """Discard features with close to 0 correlation coefficient to CO2"""
 
     correlationMatrix = computeCorrelation(noOutlierDf, round = 2)
 
-    highMat, lowMat = filterCorrelation(correlationMatrix, lowThreshhold = lt, yLabel = yLabel)
+    highMat, lowMat = filterCorrelation(correlationMatrix, lowThreshhold = lt, yLabel = yLabels[0])
     keep, drop = filteredLabels(highMat.index, lowMat.index, baseLabels, yLabels)
 
     filteredData = noOutlierDf.drop(columns = drop)
@@ -67,7 +67,7 @@ def computeCorrelation(df, round = 2):
 
     return df.corr().round(round) #Method :pearson standard correlation coefficient
 
-def filterCorrelation(correlationMatrix, lowThreshhold = 0.1, yLabel ='Calculated tCO2e_per_m2'):
+def filterCorrelation(correlationMatrix, lowThreshhold, yLabel):
 
     """
     :param correlationMatrix: correlation matrix identifies linear relation between pairs of variables
@@ -76,7 +76,7 @@ def filterCorrelation(correlationMatrix, lowThreshhold = 0.1, yLabel ='Calculate
     """
     #
     highCorMatrix = correlationMatrix.loc[abs((correlationMatrix[yLabel])) >= lowThreshhold]
-    lowCorMatrix = correlationMatrix.loc[(abs((correlationMatrix[yLabel])) < lowThreshhold)] + correlationMatrix.loc[correlationMatrix['Calculated tCO2e_per_m2'].isna()]
+    lowCorMatrix = correlationMatrix.loc[(abs((correlationMatrix[yLabel])) < lowThreshhold)] + correlationMatrix.loc[correlationMatrix[yLabel].isna()]
 
     #todo : remove muticol not with y !!
     #todo : this filters outmy GIFA !! I should scale everything before starting?

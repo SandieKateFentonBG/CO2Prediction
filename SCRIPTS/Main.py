@@ -2,7 +2,8 @@ from RawData import RawData
 from Data import *
 from FilteredData import *
 from PrepData import *
-from Dashboard import *
+# from Dashboard import *
+from Dashboard_V2 import *
 from GridSearch import *
 from Archiver import *
 
@@ -56,41 +57,45 @@ trackDataProcessing(displayParams = displayParams, df = df, noOutlierdf = ValidD
 """Models"""
 linearReg = {'model' : LinearRegression(), 'param' : None} #why doies this not have a regul param?
 lassoReg = {'model' : Lasso() , 'param': 'alpha'} # for overfitting
-# ridgeReg = {'model' : Ridge(), 'param': 'alpha'}
-# elasticNetReg = {'model' : ElasticNet(), 'param': 'alpha'}
-# supportVector = {'model' : SVR(), 'param': 'C'}
-# kernelRidgeReg = {'model' : KernelRidge(), 'param': 'alpha'}
-# kernelRidgeLinReg = {'model' : KernelRidge(kernel='linear'), 'param': 'alpha'}
-# kernelRidgeRbfReg = {'model' : KernelRidge(kernel='rbf'), 'param': 'alpha'}
-# kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha'}
-# models = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVector, kernelRidgeReg, kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg] #linearReg,
+ridgeReg = {'model' : Ridge(), 'param': 'alpha'}
+elasticNetReg = {'model' : ElasticNet(), 'param': 'alpha'}
+supportVector = {'model' : SVR(), 'param': 'C'}
+kernelRidgeReg = {'model' : KernelRidge(), 'param': 'alpha'}
+kernelRidgeLinReg = {'model' : KernelRidge(kernel='linear'), 'param': 'alpha'}
+kernelRidgeRbfReg = {'model' : KernelRidge(kernel='rbf'), 'param': 'alpha'}
+kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha'}
+models = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVector, kernelRidgeReg, kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg] #linearReg,
 # #
-models = [linearReg, lassoReg]
+# models = [linearReg, lassoReg]
 """
 ------------------------------------------------------------------------------------------------------------------------
 3. HYPERPARAM GRID SEARCH
 ------------------------------------------------------------------------------------------------------------------------
 """
 
-searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest)
-# paramResiduals(Ridge(), xTrain, yTrain, xTest, yTest, displayParams, bestParam = None)
+searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest)
 
-import statsmodels.api as sm
-
-xdf1 = sm.add_constant(xdf)
-"""Train Test Split"""
-xTrain1, xTest1, yTrain1, yTest1 = TrainTest(xdf1, ydf, test_size=0.2, random_state=8)
-
-"""Save Data Processing"""
-searchedModels = searchEval(modelingParams, displayParams, models, xTrain1, yTrain1, xTest1, yTest1)
 print(searchedModels)
 exportStudy(displayParams, searchedModels)
-"""
-------------------------------------------------------------------------------------------------------------------------
-3. Plot
-------------------------------------------------------------------------------------------------------------------------
-"""
-             # Finalize and render the figure
+
+# paramResiduals(Ridge(), xTrain, yTrain, xTest, yTest, displayParams, bestParam = None)
+#
+# import statsmodels.api as sm
+#
+# xdf1 = sm.add_constant(xdf)
+# """Train Test Split"""
+# xTrain1, xTest1, yTrain1, yTest1 = TrainTest(xdf1, ydf, test_size=0.2, random_state=8)
+#
+# """Save Data Processing"""
+# searchedModels = searchEval(modelingParams, displayParams, models, xTrain1, yTrain1, xTest1, yTest1)
+# print(searchedModels)
+# exportStudy(displayParams, searchedModels)
+# """
+# ------------------------------------------------------------------------------------------------------------------------
+# 3. Plot
+# ------------------------------------------------------------------------------------------------------------------------
+# """
+#              # Finalize and render the figure
 
 #Accuracy : 'accuracy': 0.07142857142857142 means 1 good out of 14
 #todo : for a wider variety of params : sklearn.model_selection.ParameterGrid

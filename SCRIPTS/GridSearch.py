@@ -27,7 +27,8 @@ def computeAccuracy(yTrue, yPred):
 def plotPredTruth(yTest, yPred, displayParams, modeldict):
     import matplotlib.pyplot as plt
     plt.rcParams['figure.figsize'] = [18, 18]
-    plt.grid()
+    # plt.grid()
+    print(type(yPred[0]))
     l1, = plt.plot(yTest, 'g')
     l2, = plt.plot(yPred, 'r', alpha=0.7)
     plt.legend(['Ground truth', 'Predicted'], fontsize=18)
@@ -36,9 +37,9 @@ def plotPredTruth(yTest, yPred, displayParams, modeldict):
     plt.title(title, fontdict = {'fontsize' : 20})
     plt.xticks(fontsize=14)
     plt.xlabel('Test Building', fontsize=18)
-    plt.ylim(ymin=0, ymax=0.8)
+    plt.ylim(ymin=displayParams['TargetMinMaxVal'][0], ymax=displayParams['TargetMinMaxVal'][1])
     plt.yticks(fontsize=14)
-    plt.ylabel('tCO2e/m2', fontsize=18)
+    plt.ylabel(displayParams['Target'], fontsize=18)
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Pred_Truth'
