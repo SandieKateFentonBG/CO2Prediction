@@ -1,0 +1,10 @@
+csvPath;C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data
+outputPath;C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams;{'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': False, 'archive': True, 'reference': '220218', 'roundNumber': 3, 'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal': [0, 0.8]}
+xQualLabels;['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding', 'BREEAM Rating']
+xQuantLabels;['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']
+yLabels;['Calculated tCO2e_per_m2']
+processingParams;{'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Basement_None', 'Foundations_Raft']}
+modelingParams;{'test_size': 0.2, 'random_state': 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}
+powers;{}
+mixVariables;[]

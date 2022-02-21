@@ -1,0 +1,38 @@
+c,s,v,P,a,t,h
+C,:,/,U,s,e,r,s,/,s,f,e,n,t,o,n,/,C,o,d,e,/,R,e,p,o,s,i,t,o,r,i,e,s,/,C,O,2,P,r,e,d,i,c,t,i,o,n,/,D,A,T,A,/,2,1,0,4,1,3,_,P,M,_,C,O,2,_,d,a,t,a
+o,u,t,p,u,t,P,a,t,h
+C,:,/,U,s,e,r,s,/,s,f,e,n,t,o,n,/,C,o,d,e,/,R,e,p,o,s,i,t,o,r,i,e,s,/,C,O,2,P,r,e,d,i,c,t,i,o,n,/,R,E,S,U,L,T,S,/
+d,i,s,p,l,a,y,P,a,r,a,m,s
+csvPath,outputPath,showResults,showPlot,archive,reference
+x,Q,u,a,l,L,a,b,e,l,s
+Sector,Type,Basement,Foundations,Ground Floor,Superstructure,Cladding,BREEAM Rating
+x,Q,u,a,n,t,L,a,b,e,l,s
+GIFA (m2),Storeys,Typical Span (m),Typ Qk (kN_per_m2)
+y,L,a,b,e,l,s
+Calculated tCO2e_per_m2
+p,r,o,c,e,s,s,i,n,g,P,a,r,a,m,s
+scaler,cutOffThreshhold,lowThreshold,highThreshold,removeLabels
+m,o,d,e,l,i,n,g,P,a,r,a,m,s
+test_size,random_state,RegulVal,TestIndex,CVFold
+p,o,w,e,r,s
+
+m,i,x,V,a,r,i,a,b,l,e,s
+
+D,A,T,A,F,R,A,M,E, ,D,I,M,E,N,S,I,O,N
+80,55
+d,f, ,i,n,i,t,i,a,l, ,s,i,z,e
+80,55
+d,f, ,w,i,t,h,o,u,t, ,o,u,t,l,i,e,r, ,s,a,m,p,l,e,s
+70,55
+d,f, ,w,i,t,h,o,u,t, ,u,n,c,o,r,r,e,l,a,t,e,d, ,f,e,a,t,u,r,e,s
+70,25
+d,f, ,w,i,t,h,o,u,t, ,m,u,l,t,i,c,o,r,r,e,l,a,t,e,d, ,f,e,a,t,u,r,e,s
+70,23
+R,e,m,a,i,n,i,n,g, ,f,e,a,t,u,r,e,s
+GIFA (m2),Storeys,Typical Span (m),Typ Qk (kN_per_m2),Sector_Educational,Type_Mixed New Build/Refurb,Basement_Full Footprint,Foundations_Mass Pads/Strips,Foundations_Piles (Pile Caps),Ground Floor_Suspended RC,Ground Floor_Raft,Ground Floor_Other,Superstructure_In-Situ RC,Superstructure_CLT Frame,"Superstructure_Steel Frame, Precast","Superstructure_Masonry, Concrete","Superstructure_Steel Frame, Timber",Cladding_Stone + Masonry,Cladding_Glazed/Curtain Wall,Cladding_Masonry Only,Cladding_Lightweight + SFS,BREEAM Rating_Very Good,Calculated tCO2e_per_m2
+o,u,t,l,i,e,r, ,s,a,m,p,l,e,s
+10
+u,n,c,o,r,r,e,l,a,t,e,d, ,f,e,a,t,u,r,e,s
+Sector_Other,Sector_Residential,Sector_Cultural,Sector_Mixed Use,Sector_Commercial,Sector_Industrial,Type_New Build (Brownfield),Type_New Build (Greenfield),Basement_Partial Footprint,Foundations_Piled Ground Beams,Foundations_Reinforced Pads/Strips,Foundations_,Ground Floor_Ground Bearing RC,Ground Floor_Suspended Precast,"Superstructure_Steel Frame, Composite","Superstructure_Steel Frame, Other","Superstructure_Masonry, Timber",Superstructure_Other,Superstructure_Timber Frame,Cladding_Masonry + SFS,Cladding_Lightweight Only,Cladding_Stone + SFS,Cladding_Other,Cladding_Timber + SFS,Cladding_Timber Only,BREEAM Rating_Unknown,BREEAM Rating_Excellent,BREEAM Rating_Good,BREEAM Rating_Passivhaus,BREEAM Rating_Outstanding
+m,u,l,t,i,c,o,r,r,e,l,a,t,e,d
+Basement_None,Foundations_Raft

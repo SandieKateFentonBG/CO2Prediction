@@ -1,0 +1,10 @@
+model;param;bestParam;trainScore;testScore;accuracy;mse;r2;visualizerTrainScore;visualizerTestScore
+LinearRegression();;{};0.19;0.19;0.143;19483.07;0.19;0.457;0.19
+Lasso();alpha;{'alpha': 1};0.123;0.123;0.082;21081.424;0.123;0.434;0.123
+Ridge();alpha;{'alpha': 5};0.184;0.184;0.143;19613.733;0.184;0.452;0.184
+ElasticNet();alpha;{'alpha': 0.1};0.08;0.08;0.204;22117.249;0.08;0.199;0.08
+SVR();C;{'C': 100};0.024;0.024;0.082;23480.472;0.024;0.03;0.024
+KernelRidge();alpha;{'alpha': 5};-0.238;-0.238;0.143;29785.504;-0.238;0.226;-0.238
+KernelRidge();alpha;{'alpha': 5};-0.238;-0.238;0.143;29785.504;-0.238;0.226;-0.238
+KernelRidge(kernel='rbf');alpha;{'alpha': 0.1};0.163;0.163;0.061;20130.934;0.163;0.402;0.163
+KernelRidge(kernel='polynomial');alpha;{'alpha': 1};0.161;0.161;0.082;20172.86;0.161;0.445;0.161

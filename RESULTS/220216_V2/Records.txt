@@ -1,0 +1,146 @@
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/P&M Carbon Database for Release 11-02-2022
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': True, 'archive': True, 'reference': '220216_V2', 'roundNumber': 3}
+xQualLabels : ['Calculation Design Stage', 'Value Type', 'Project Sector', 'Construction Type', 'Passivhaus?', 'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type']
+xQuantLabels : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)']
+yLabels : ['A1-A5 Rate (kgCO2e/m2)']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Passivhaus?_No']}
+modelingParams : {'test_size': 0.2, 'random_state': 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (275, 56)
+df initial size : (275, 56)
+df without outlier samples : (243, 56)
+df without uncorrelated features : (243, 24)
+df without multicorrelated features : (243, 23)
+Remaining features : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)', 'Project Sector_Residential (Multi)', 'Construction Type_New Build (Greenfield)', 'Construction Type_Mixed New Build/Refurb', 'Construction Type_Full Refurb', 'Passivhaus?_Yes', 'Basement Type_None', 'Basement Type_Full Footprint', 'Foundation Type_Mass Pads/Strips', 'Foundation Type_Piles (Pile Caps)', 'Foundation Type_Piled Ground Beams', 'Foundation Type_Other', 'Ground Floor Type_Suspended RC', 'Ground Floor Type_Other', 'Ground Floor Type_Timber', 'Superstructure Type_Concrete (In-Situ)', 'Superstructure Type_Steel Frame/Other', 'Superstructure Type_Steel Frame/Composite', 'Superstructure Type_Timber Frame (Glulam/CLT)', 'Superstructure Type_Timber Frame (Softwood)', 'A1-A5 Rate (kgCO2e/m2)']
+outlier samples : [32]
+uncorrelated features : ['Calculation Design Stage_Stage 4', 'Calculation Design Stage_Stage 3', 'Calculation Design Stage_As-Built', 'Calculation Design Stage_Stage 5', 'Calculation Design Stage_Stage 2', 'Value Type_Whole Building', 'Value Type_Structure Only', 'Project Sector_Educational', 'Project Sector_Cultural/Public', 'Project Sector_Commercial', 'Project Sector_Residential (Single)', 'Project Sector_Mixed Use', 'Project Sector_Healthcare', 'Project Sector_Industrial', 'Project Sector_Science/Lab', 'Project Sector_Other', 'Construction Type_New Build (Brownfield)', 'Basement Type_Partial Footprint', 'Basement Type_Other', 'Basement Type_Extended Footprint', 'Foundation Type_Raft', 'Foundation Type_Reinforced Pads/Strips', 'Foundation Type_Corbels', 'Ground Floor Type_Suspended Precast', 'Ground Floor Type_Ground Bearing RC', 'Ground Floor Type_Raft', 'Superstructure Type_Masonry/Timber', 'Superstructure Type_Steel Frame/Precast', 'Superstructure Type_Masonry/Concrete', 'Superstructure Type_Other', 'Superstructure Type_Steel Frame/Timber', 'Superstructure Type_Concrete (Precast)']
+multicorrelated : ['Passivhaus?_No']
+
+{'model': LinearRegression(), 'param': None, 'bestParam': {}, 'trainScore': 0.19, 'testScore': 0.19, 'accuracy': 0.143, 'mse': 19483.07, 'r2': 0.19, 'visualizerTrainScore': 0.457, 'visualizerTestScore': 0.19}
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'trainScore': 0.123, 'testScore': 0.123, 'accuracy': 0.082, 'mse': 21081.424, 'r2': 0.123, 'visualizerTrainScore': 0.434, 'visualizerTestScore': 0.123}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'trainScore': 0.184, 'testScore': 0.184, 'accuracy': 0.143, 'mse': 19613.733, 'r2': 0.184, 'visualizerTrainScore': 0.452, 'visualizerTestScore': 0.184}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.1}, 'trainScore': 0.08, 'testScore': 0.08, 'accuracy': 0.204, 'mse': 22117.249, 'r2': 0.08, 'visualizerTrainScore': 0.199, 'visualizerTestScore': 0.08}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 100}, 'trainScore': 0.024, 'testScore': 0.024, 'accuracy': 0.082, 'mse': 23480.472, 'r2': 0.024, 'visualizerTrainScore': 0.03, 'visualizerTestScore': 0.024}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'trainScore': -0.238, 'testScore': -0.238, 'accuracy': 0.143, 'mse': 29785.504, 'r2': -0.238, 'visualizerTrainScore': 0.226, 'visualizerTestScore': -0.238}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'trainScore': -0.238, 'testScore': -0.238, 'accuracy': 0.143, 'mse': 29785.504, 'r2': -0.238, 'visualizerTrainScore': 0.226, 'visualizerTestScore': -0.238}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 0.1}, 'trainScore': 0.163, 'testScore': 0.163, 'accuracy': 0.061, 'mse': 20130.934, 'r2': 0.163, 'visualizerTrainScore': 0.402, 'visualizerTestScore': 0.163}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'trainScore': 0.161, 'testScore': 0.161, 'accuracy': 0.082, 'mse': 20172.86, 'r2': 0.161, 'visualizerTrainScore': 0.445, 'visualizerTestScore': 0.161}
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/P&M Carbon Database for Release 11-02-2022
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': True, 'archive': True, 'reference': '220216_V2', 'roundNumber': 3}
+xQualLabels : ['Calculation Design Stage', 'Value Type', 'Project Sector', 'Construction Type', 'Passivhaus?', 'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type']
+xQuantLabels : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)']
+yLabels : ['A1-A5 Rate (kgCO2e/m2)']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Passivhaus?_No']}
+modelingParams : {'test_size': 0.2, 'random_state': 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (275, 56)
+df initial size : (275, 56)
+df without outlier samples : (243, 56)
+df without uncorrelated features : (243, 24)
+df without multicorrelated features : (243, 23)
+Remaining features : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)', 'Project Sector_Residential (Multi)', 'Construction Type_New Build (Greenfield)', 'Construction Type_Mixed New Build/Refurb', 'Construction Type_Full Refurb', 'Passivhaus?_Yes', 'Basement Type_None', 'Basement Type_Full Footprint', 'Foundation Type_Mass Pads/Strips', 'Foundation Type_Piles (Pile Caps)', 'Foundation Type_Piled Ground Beams', 'Foundation Type_Other', 'Ground Floor Type_Suspended RC', 'Ground Floor Type_Other', 'Ground Floor Type_Timber', 'Superstructure Type_Concrete (In-Situ)', 'Superstructure Type_Steel Frame/Other', 'Superstructure Type_Steel Frame/Composite', 'Superstructure Type_Timber Frame (Glulam/CLT)', 'Superstructure Type_Timber Frame (Softwood)', 'A1-A5 Rate (kgCO2e/m2)']
+outlier samples : [32]
+uncorrelated features : ['Calculation Design Stage_Stage 4', 'Calculation Design Stage_Stage 3', 'Calculation Design Stage_As-Built', 'Calculation Design Stage_Stage 5', 'Calculation Design Stage_Stage 2', 'Value Type_Whole Building', 'Value Type_Structure Only', 'Project Sector_Educational', 'Project Sector_Cultural/Public', 'Project Sector_Commercial', 'Project Sector_Residential (Single)', 'Project Sector_Mixed Use', 'Project Sector_Healthcare', 'Project Sector_Industrial', 'Project Sector_Science/Lab', 'Project Sector_Other', 'Construction Type_New Build (Brownfield)', 'Basement Type_Partial Footprint', 'Basement Type_Other', 'Basement Type_Extended Footprint', 'Foundation Type_Raft', 'Foundation Type_Reinforced Pads/Strips', 'Foundation Type_Corbels', 'Ground Floor Type_Suspended Precast', 'Ground Floor Type_Ground Bearing RC', 'Ground Floor Type_Raft', 'Superstructure Type_Masonry/Timber', 'Superstructure Type_Steel Frame/Precast', 'Superstructure Type_Masonry/Concrete', 'Superstructure Type_Other', 'Superstructure Type_Steel Frame/Timber', 'Superstructure Type_Concrete (Precast)']
+multicorrelated : ['Passivhaus?_No']
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/P&M Carbon Database for Release 11-02-2022
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': True, 'archive': True, 'reference': '220216_V2', 'roundNumber': 3}
+xQualLabels : ['Calculation Design Stage', 'Value Type', 'Project Sector', 'Construction Type', 'Passivhaus?', 'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type']
+xQuantLabels : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)']
+yLabels : ['A1-A5 Rate (kgCO2e/m2)']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Passivhaus?_No']}
+modelingParams : {'test_size': 0.2, 'random_state': 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (275, 56)
+df initial size : (275, 56)
+df without outlier samples : (243, 56)
+df without uncorrelated features : (243, 24)
+df without multicorrelated features : (243, 23)
+Remaining features : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)', 'Project Sector_Residential (Multi)', 'Construction Type_New Build (Greenfield)', 'Construction Type_Mixed New Build/Refurb', 'Construction Type_Full Refurb', 'Passivhaus?_Yes', 'Basement Type_None', 'Basement Type_Full Footprint', 'Foundation Type_Mass Pads/Strips', 'Foundation Type_Piles (Pile Caps)', 'Foundation Type_Piled Ground Beams', 'Foundation Type_Other', 'Ground Floor Type_Suspended RC', 'Ground Floor Type_Other', 'Ground Floor Type_Timber', 'Superstructure Type_Concrete (In-Situ)', 'Superstructure Type_Steel Frame/Other', 'Superstructure Type_Steel Frame/Composite', 'Superstructure Type_Timber Frame (Glulam/CLT)', 'Superstructure Type_Timber Frame (Softwood)', 'A1-A5 Rate (kgCO2e/m2)']
+outlier samples : [32]
+uncorrelated features : ['Calculation Design Stage_Stage 4', 'Calculation Design Stage_Stage 3', 'Calculation Design Stage_As-Built', 'Calculation Design Stage_Stage 5', 'Calculation Design Stage_Stage 2', 'Value Type_Whole Building', 'Value Type_Structure Only', 'Project Sector_Educational', 'Project Sector_Cultural/Public', 'Project Sector_Commercial', 'Project Sector_Residential (Single)', 'Project Sector_Mixed Use', 'Project Sector_Healthcare', 'Project Sector_Industrial', 'Project Sector_Science/Lab', 'Project Sector_Other', 'Construction Type_New Build (Brownfield)', 'Basement Type_Partial Footprint', 'Basement Type_Other', 'Basement Type_Extended Footprint', 'Foundation Type_Raft', 'Foundation Type_Reinforced Pads/Strips', 'Foundation Type_Corbels', 'Ground Floor Type_Suspended Precast', 'Ground Floor Type_Ground Bearing RC', 'Ground Floor Type_Raft', 'Superstructure Type_Masonry/Timber', 'Superstructure Type_Steel Frame/Precast', 'Superstructure Type_Masonry/Concrete', 'Superstructure Type_Other', 'Superstructure Type_Steel Frame/Timber', 'Superstructure Type_Concrete (Precast)']
+multicorrelated : ['Passivhaus?_No']
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/P&M Carbon Database for Release 11-02-2022
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': True, 'archive': True, 'reference': '220216_V2', 'roundNumber': 3}
+xQualLabels : ['Calculation Design Stage', 'Value Type', 'Project Sector', 'Construction Type', 'Passivhaus?', 'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type']
+xQuantLabels : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)']
+yLabels : ['A1-A5 Rate (kgCO2e/m2)']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Passivhaus?_No']}
+modelingParams : {'test_size': 0.2, 'random_state': 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (275, 56)
+df initial size : (275, 56)
+df without outlier samples : (243, 56)
+df without uncorrelated features : (243, 24)
+df without multicorrelated features : (243, 23)
+Remaining features : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)', 'Project Sector_Residential (Multi)', 'Construction Type_New Build (Greenfield)', 'Construction Type_Mixed New Build/Refurb', 'Construction Type_Full Refurb', 'Passivhaus?_Yes', 'Basement Type_None', 'Basement Type_Full Footprint', 'Foundation Type_Mass Pads/Strips', 'Foundation Type_Piles (Pile Caps)', 'Foundation Type_Piled Ground Beams', 'Foundation Type_Other', 'Ground Floor Type_Suspended RC', 'Ground Floor Type_Other', 'Ground Floor Type_Timber', 'Superstructure Type_Concrete (In-Situ)', 'Superstructure Type_Steel Frame/Other', 'Superstructure Type_Steel Frame/Composite', 'Superstructure Type_Timber Frame (Glulam/CLT)', 'Superstructure Type_Timber Frame (Softwood)', 'A1-A5 Rate (kgCO2e/m2)']
+outlier samples : [32]
+uncorrelated features : ['Calculation Design Stage_Stage 4', 'Calculation Design Stage_Stage 3', 'Calculation Design Stage_As-Built', 'Calculation Design Stage_Stage 5', 'Calculation Design Stage_Stage 2', 'Value Type_Whole Building', 'Value Type_Structure Only', 'Project Sector_Educational', 'Project Sector_Cultural/Public', 'Project Sector_Commercial', 'Project Sector_Residential (Single)', 'Project Sector_Mixed Use', 'Project Sector_Healthcare', 'Project Sector_Industrial', 'Project Sector_Science/Lab', 'Project Sector_Other', 'Construction Type_New Build (Brownfield)', 'Basement Type_Partial Footprint', 'Basement Type_Other', 'Basement Type_Extended Footprint', 'Foundation Type_Raft', 'Foundation Type_Reinforced Pads/Strips', 'Foundation Type_Corbels', 'Ground Floor Type_Suspended Precast', 'Ground Floor Type_Ground Bearing RC', 'Ground Floor Type_Raft', 'Superstructure Type_Masonry/Timber', 'Superstructure Type_Steel Frame/Precast', 'Superstructure Type_Masonry/Concrete', 'Superstructure Type_Other', 'Superstructure Type_Steel Frame/Timber', 'Superstructure Type_Concrete (Precast)']
+multicorrelated : ['Passivhaus?_No']
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/P&M Carbon Database for Release 11-02-2022
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': True, 'archive': True, 'reference': '220216_V2', 'roundNumber': 3}
+xQualLabels : ['Calculation Design Stage', 'Value Type', 'Project Sector', 'Construction Type', 'Passivhaus?', 'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type']
+xQuantLabels : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)']
+yLabels : ['A1-A5 Rate (kgCO2e/m2)']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Passivhaus?_No']}
+modelingParams : {'test_size': 0.2, 'random_state': 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (275, 56)
+df initial size : (275, 56)
+df without outlier samples : (243, 56)
+df without uncorrelated features : (243, 24)
+df without multicorrelated features : (243, 23)
+Remaining features : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)', 'Project Sector_Residential (Multi)', 'Construction Type_New Build (Greenfield)', 'Construction Type_Mixed New Build/Refurb', 'Construction Type_Full Refurb', 'Passivhaus?_Yes', 'Basement Type_None', 'Basement Type_Full Footprint', 'Foundation Type_Mass Pads/Strips', 'Foundation Type_Piles (Pile Caps)', 'Foundation Type_Piled Ground Beams', 'Foundation Type_Other', 'Ground Floor Type_Suspended RC', 'Ground Floor Type_Other', 'Ground Floor Type_Timber', 'Superstructure Type_Concrete (In-Situ)', 'Superstructure Type_Steel Frame/Other', 'Superstructure Type_Steel Frame/Composite', 'Superstructure Type_Timber Frame (Glulam/CLT)', 'Superstructure Type_Timber Frame (Softwood)', 'A1-A5 Rate (kgCO2e/m2)']
+outlier samples : [32]
+uncorrelated features : ['Calculation Design Stage_Stage 4', 'Calculation Design Stage_Stage 3', 'Calculation Design Stage_As-Built', 'Calculation Design Stage_Stage 5', 'Calculation Design Stage_Stage 2', 'Value Type_Whole Building', 'Value Type_Structure Only', 'Project Sector_Educational', 'Project Sector_Cultural/Public', 'Project Sector_Commercial', 'Project Sector_Residential (Single)', 'Project Sector_Mixed Use', 'Project Sector_Healthcare', 'Project Sector_Industrial', 'Project Sector_Science/Lab', 'Project Sector_Other', 'Construction Type_New Build (Brownfield)', 'Basement Type_Partial Footprint', 'Basement Type_Other', 'Basement Type_Extended Footprint', 'Foundation Type_Raft', 'Foundation Type_Reinforced Pads/Strips', 'Foundation Type_Corbels', 'Ground Floor Type_Suspended Precast', 'Ground Floor Type_Ground Bearing RC', 'Ground Floor Type_Raft', 'Superstructure Type_Masonry/Timber', 'Superstructure Type_Steel Frame/Precast', 'Superstructure Type_Masonry/Concrete', 'Superstructure Type_Other', 'Superstructure Type_Steel Frame/Timber', 'Superstructure Type_Concrete (Precast)']
+multicorrelated : ['Passivhaus?_No']
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/P&M Carbon Database for Release 11-02-2022
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': True, 'archive': True, 'reference': '220216_V2', 'roundNumber': 3, 'Target': 'A1-A5 Rate (kgCO2e/m2)', 'TargetMinMaxVal': [0, 1000]}
+xQualLabels : ['Calculation Design Stage', 'Value Type', 'Project Sector', 'Construction Type', 'Passivhaus?', 'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type']
+xQuantLabels : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)']
+yLabels : ['A1-A5 Rate (kgCO2e/m2)']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Passivhaus?_No']}
+modelingParams : {'test_size': 0.2, 'random_state': 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (275, 56)
+df initial size : (275, 56)
+df without outlier samples : (243, 56)
+df without uncorrelated features : (243, 24)
+df without multicorrelated features : (243, 23)
+Remaining features : ['GIFA (m2)', 'Project Value (œm)', 'Storeys (#)', 'Project Sector_Residential (Multi)', 'Construction Type_New Build (Greenfield)', 'Construction Type_Mixed New Build/Refurb', 'Construction Type_Full Refurb', 'Passivhaus?_Yes', 'Basement Type_None', 'Basement Type_Full Footprint', 'Foundation Type_Mass Pads/Strips', 'Foundation Type_Piles (Pile Caps)', 'Foundation Type_Piled Ground Beams', 'Foundation Type_Other', 'Ground Floor Type_Suspended RC', 'Ground Floor Type_Other', 'Ground Floor Type_Timber', 'Superstructure Type_Concrete (In-Situ)', 'Superstructure Type_Steel Frame/Other', 'Superstructure Type_Steel Frame/Composite', 'Superstructure Type_Timber Frame (Glulam/CLT)', 'Superstructure Type_Timber Frame (Softwood)', 'A1-A5 Rate (kgCO2e/m2)']
+outlier samples : [32]
+uncorrelated features : ['Calculation Design Stage_Stage 4', 'Calculation Design Stage_Stage 3', 'Calculation Design Stage_As-Built', 'Calculation Design Stage_Stage 5', 'Calculation Design Stage_Stage 2', 'Value Type_Whole Building', 'Value Type_Structure Only', 'Project Sector_Educational', 'Project Sector_Cultural/Public', 'Project Sector_Commercial', 'Project Sector_Residential (Single)', 'Project Sector_Mixed Use', 'Project Sector_Healthcare', 'Project Sector_Industrial', 'Project Sector_Science/Lab', 'Project Sector_Other', 'Construction Type_New Build (Brownfield)', 'Basement Type_Partial Footprint', 'Basement Type_Other', 'Basement Type_Extended Footprint', 'Foundation Type_Raft', 'Foundation Type_Reinforced Pads/Strips', 'Foundation Type_Corbels', 'Ground Floor Type_Suspended Precast', 'Ground Floor Type_Ground Bearing RC', 'Ground Floor Type_Raft', 'Superstructure Type_Masonry/Timber', 'Superstructure Type_Steel Frame/Precast', 'Superstructure Type_Masonry/Concrete', 'Superstructure Type_Other', 'Superstructure Type_Steel Frame/Timber', 'Superstructure Type_Concrete (Precast)']
+multicorrelated : ['Passivhaus?_No']
+
+{'model': LinearRegression(), 'param': None, 'bestParam': {}, 'trainScore': 0.19, 'testScore': 0.19, 'accuracy': 0.143, 'mse': 19483.07, 'r2': 0.19, 'visualizerTrainScore': 0.457, 'visualizerTestScore': 0.19}
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'trainScore': 0.123, 'testScore': 0.123, 'accuracy': 0.082, 'mse': 21081.424, 'r2': 0.123, 'visualizerTrainScore': 0.434, 'visualizerTestScore': 0.123}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'trainScore': 0.184, 'testScore': 0.184, 'accuracy': 0.143, 'mse': 19613.733, 'r2': 0.184, 'visualizerTrainScore': 0.452, 'visualizerTestScore': 0.184}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.1}, 'trainScore': 0.08, 'testScore': 0.08, 'accuracy': 0.204, 'mse': 22117.249, 'r2': 0.08, 'visualizerTrainScore': 0.199, 'visualizerTestScore': 0.08}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 100}, 'trainScore': 0.024, 'testScore': 0.024, 'accuracy': 0.082, 'mse': 23480.472, 'r2': 0.024, 'visualizerTrainScore': 0.03, 'visualizerTestScore': 0.024}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'trainScore': -0.238, 'testScore': -0.238, 'accuracy': 0.143, 'mse': 29785.504, 'r2': -0.238, 'visualizerTrainScore': 0.226, 'visualizerTestScore': -0.238}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'trainScore': -0.238, 'testScore': -0.238, 'accuracy': 0.143, 'mse': 29785.504, 'r2': -0.238, 'visualizerTrainScore': 0.226, 'visualizerTestScore': -0.238}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 0.1}, 'trainScore': 0.163, 'testScore': 0.163, 'accuracy': 0.061, 'mse': 20130.934, 'r2': 0.163, 'visualizerTrainScore': 0.402, 'visualizerTestScore': 0.163}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'trainScore': 0.161, 'testScore': 0.161, 'accuracy': 0.082, 'mse': 20172.86, 'r2': 0.161, 'visualizerTrainScore': 0.445, 'visualizerTestScore': 0.161}

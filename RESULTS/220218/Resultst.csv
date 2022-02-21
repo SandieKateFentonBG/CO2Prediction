@@ -1,0 +1,21 @@
+csvPath;C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data
+outputPath;C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams;{'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': False, 'showPlot': False, 'archive': True, 'reference': '220218', 'roundNumber': 3, 'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal': [0, 0.8]}
+xQualLabels;['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding', 'BREEAM Rating']
+xQuantLabels;['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']
+yLabels;['Calculated tCO2e_per_m2']
+processingParams;{'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Basement_None', 'Foundations_Raft']}
+modelingParams;{'test_size': 0.2, 'random_state': 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}
+powers;{}
+mixVariables;[]
+
+model;param;bestParam;trainScore;testScore;accuracy;mse;r2;visualizerTrainScore;visualizerTestScore
+LinearRegression();;{};-0.616;-0.616;0.071;0.01;-0.616;0.666;-0.616
+Lasso();alpha;{'alpha': 0.01};-0.034;-0.034;0.143;0.006;-0.034;0.0;-0.034
+Ridge();alpha;{'alpha': 10};-0.242;-0.242;0.214;0.008;-0.242;0.628;-0.242
+ElasticNet();alpha;{'alpha': 0.01};-0.034;-0.034;0.143;0.006;-0.034;0.0;-0.034
+SVR();C;{'C': 0.1};-0.762;-0.762;0.0;0.011;-0.762;0.629;-0.762
+KernelRidge();alpha;{'alpha': 5};-1.425;-1.425;0.0;0.015;-1.425;0.514;-1.425
+KernelRidge();alpha;{'alpha': 5};-1.425;-1.425;0.0;0.015;-1.425;0.514;-1.425
+KernelRidge(kernel='rbf');alpha;{'alpha': 1};0.335;0.335;0.214;0.004;0.335;0.393;0.335
+KernelRidge(kernel='polynomial');alpha;{'alpha': 5};0.143;0.143;0.214;0.005;0.143;0.522;0.143

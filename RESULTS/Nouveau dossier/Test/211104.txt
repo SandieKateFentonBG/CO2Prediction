@@ -1,0 +1,9 @@
+
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 0.001}, 'accuracy': 0.071, 'mse': 0.046, 'r2': -0.001}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.0, 'mse': 0.035, 'r2': 0.248}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.01}, 'accuracy': 0.071, 'mse': 0.046, 'r2': -0.001}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 0.1}, 'accuracy': 0.071, 'mse': 0.042, 'r2': 0.1}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.071, 'mse': 0.034, 'r2': 0.257}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.071, 'mse': 0.034, 'r2': 0.257}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 0.1}, 'accuracy': 0.0, 'mse': 0.037, 'r2': 0.202}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.071, 'mse': 0.033, 'r2': 0.279}

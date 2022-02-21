@@ -1,0 +1,636 @@
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': False, 'archive': True, 'reference': '220211_CV'}
+xQualLabels : ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding', 'BREEAM Rating']
+xQuantLabels : ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']
+yLabels : ['Calculated tCO2e_per_m2']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Basement_None', 'Foundations_Raft']}
+modelingParams : {'CVFold': None, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (80, 55)
+df initial size : (80, 55)
+initial keys : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without outliers : (70, 55)
+keys without outliers : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without uncorrelated features : (70, 25)
+keys without uncorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb', 'Basement_None',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Raft', 'Foundations_Piles (Pile Caps)',
+       'Ground Floor_Suspended RC', 'Ground Floor_Raft', 'Ground Floor_Other',
+       'Superstructure_In-Situ RC', 'Superstructure_CLT Frame',
+       'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without multicorrelated features : (70, 23)
+keys without multicorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Piles (Pile Caps)', 'Ground Floor_Suspended RC',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+
+{'model': LinearRegression(), 'param': None, 'bestParam': {}, 'accuracy': 0.143, 'mse': 0.015, 'r2': 0.194}
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 0.001}, 'accuracy': 0.143, 'mse': 0.019, 'r2': -0.001}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.0, 'mse': 0.014, 'r2': 0.248}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.001}, 'accuracy': 0.143, 'mse': 0.019, 'r2': -0.001}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 0.01}, 'accuracy': 0.214, 'mse': 0.017, 'r2': 0.086}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.143, 'mse': 0.015, 'r2': 0.226}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.143, 'mse': 0.015, 'r2': 0.226}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 0.1}, 'accuracy': 0.143, 'mse': 0.015, 'r2': 0.196}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.071, 'mse': 0.013, 'r2': 0.288}
+
+{'model': LinearRegression(), 'param': None, 'bestParam': {}, 'accuracy': 0.071, 'mse': 0.004, 'r2': -0.149}
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 0.01}, 'accuracy': 0.143, 'mse': 0.003, 'r2': -0.081}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.071, 'mse': 0.003, 'r2': -0.037}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.001}, 'accuracy': 0.143, 'mse': 0.003, 'r2': -0.081}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 0.1}, 'accuracy': 0.071, 'mse': 0.005, 'r2': -0.48}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.0, 'mse': 0.011, 'r2': -2.414}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.0, 'mse': 0.011, 'r2': -2.414}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 0.1}, 'accuracy': 0.214, 'mse': 0.003, 'r2': 0.039}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.286, 'mse': 0.004, 'r2': -0.104}
+
+{'model': LinearRegression(), 'param': None, 'bestParam': {}, 'accuracy': 0.143, 'mse': 0.015, 'r2': 0.194}
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 0.001}, 'accuracy': 0.143, 'mse': 0.019, 'r2': -0.001}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.0, 'mse': 0.014, 'r2': 0.248}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.001}, 'accuracy': 0.143, 'mse': 0.019, 'r2': -0.001}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 0.01}, 'accuracy': 0.214, 'mse': 0.017, 'r2': 0.086}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.143, 'mse': 0.015, 'r2': 0.226}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.143, 'mse': 0.015, 'r2': 0.226}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 0.1}, 'accuracy': 0.143, 'mse': 0.015, 'r2': 0.196}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.071, 'mse': 0.013, 'r2': 0.288}
+
+{'model': LinearRegression(), 'param': None, 'bestParam': {}, 'accuracy': 0.0, 'mse': 0.012, 'r2': -0.205}
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 0.001}, 'accuracy': 0.143, 'mse': 0.011, 'r2': -0.123}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.214, 'mse': 0.007, 'r2': 0.27}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.001}, 'accuracy': 0.143, 'mse': 0.011, 'r2': -0.123}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 0.001}, 'accuracy': 0.143, 'mse': 0.013, 'r2': -0.33}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.214, 'mse': 0.011, 'r2': -0.128}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.214, 'mse': 0.011, 'r2': -0.128}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.286, 'mse': 0.007, 'r2': 0.281}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.286, 'mse': 0.007, 'r2': 0.317}
+
+{'model': LinearRegression(), 'param': None, 'bestParam': {}, 'accuracy': 0.071, 'mse': 0.019, 'r2': -1.441}
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 0.01}, 'accuracy': 0.0, 'mse': 0.008, 'r2': -0.02}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.143, 'mse': 0.011, 'r2': -0.471}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.01}, 'accuracy': 0.0, 'mse': 0.008, 'r2': -0.02}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 0.1}, 'accuracy': 0.143, 'mse': 0.014, 'r2': -0.834}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.071, 'mse': 0.016, 'r2': -1.151}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.071, 'mse': 0.016, 'r2': -1.151}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.143, 'mse': 0.006, 'r2': 0.149}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.143, 'mse': 0.009, 'r2': -0.123}
+
+{'model': LinearRegression(), 'param': None, 'bestParam': {}, 'accuracy': 0.071, 'mse': 0.023, 'r2': -0.088}
+{'model': Lasso(), 'param': 'alpha', 'bestParam': {'alpha': 0.01}, 'accuracy': 0.143, 'mse': 0.023, 'r2': -0.058}
+{'model': Ridge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.071, 'mse': 0.018, 'r2': 0.187}
+{'model': ElasticNet(), 'param': 'alpha', 'bestParam': {'alpha': 0.01}, 'accuracy': 0.143, 'mse': 0.023, 'r2': -0.058}
+{'model': SVR(), 'param': 'C', 'bestParam': {'C': 0.01}, 'accuracy': 0.0, 'mse': 0.023, 'r2': -0.049}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.143, 'mse': 0.017, 'r2': 0.23}
+{'model': KernelRidge(), 'param': 'alpha', 'bestParam': {'alpha': 5}, 'accuracy': 0.143, 'mse': 0.017, 'r2': 0.23}
+{'model': KernelRidge(kernel='rbf'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.071, 'mse': 0.018, 'r2': 0.181}
+{'model': KernelRidge(kernel='polynomial'), 'param': 'alpha', 'bestParam': {'alpha': 1}, 'accuracy': 0.071, 'mse': 0.016, 'r2': 0.266}
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': False, 'archive': True, 'reference': '220211_CV'}
+xQualLabels : ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding', 'BREEAM Rating']
+xQuantLabels : ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']
+yLabels : ['Calculated tCO2e_per_m2']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Basement_None', 'Foundations_Raft']}
+modelingParams : {'CVFold': None, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (80, 55)
+df initial size : (80, 55)
+initial keys : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without outliers : (70, 55)
+keys without outliers : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without uncorrelated features : (70, 25)
+keys without uncorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb', 'Basement_None',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Raft', 'Foundations_Piles (Pile Caps)',
+       'Ground Floor_Suspended RC', 'Ground Floor_Raft', 'Ground Floor_Other',
+       'Superstructure_In-Situ RC', 'Superstructure_CLT Frame',
+       'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without multicorrelated features : (70, 23)
+keys without multicorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Piles (Pile Caps)', 'Ground Floor_Suspended RC',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': False, 'archive': True, 'reference': '220211_CV'}
+xQualLabels : ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding', 'BREEAM Rating']
+xQuantLabels : ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']
+yLabels : ['Calculated tCO2e_per_m2']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Basement_None', 'Foundations_Raft']}
+modelingParams : {'CVFold': None, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (80, 55)
+df initial size : (80, 55)
+initial keys : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without outliers : (70, 55)
+keys without outliers : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without uncorrelated features : (70, 25)
+keys without uncorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb', 'Basement_None',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Raft', 'Foundations_Piles (Pile Caps)',
+       'Ground Floor_Suspended RC', 'Ground Floor_Raft', 'Ground Floor_Other',
+       'Superstructure_In-Situ RC', 'Superstructure_CLT Frame',
+       'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without multicorrelated features : (70, 23)
+keys without multicorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Piles (Pile Caps)', 'Ground Floor_Suspended RC',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': False, 'archive': True, 'reference': '220211_CV'}
+xQualLabels : ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding', 'BREEAM Rating']
+xQuantLabels : ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']
+yLabels : ['Calculated tCO2e_per_m2']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Basement_None', 'Foundations_Raft']}
+modelingParams : {'CVFold': None, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (80, 55)
+df initial size : (80, 55)
+initial keys : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without outliers : (70, 55)
+keys without outliers : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without uncorrelated features : (70, 25)
+keys without uncorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb', 'Basement_None',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Raft', 'Foundations_Piles (Pile Caps)',
+       'Ground Floor_Suspended RC', 'Ground Floor_Raft', 'Ground Floor_Other',
+       'Superstructure_In-Situ RC', 'Superstructure_CLT Frame',
+       'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without multicorrelated features : (70, 23)
+keys without multicorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Piles (Pile Caps)', 'Ground Floor_Suspended RC',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': False, 'archive': True, 'reference': '220211_CV'}
+xQualLabels : ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding', 'BREEAM Rating']
+xQuantLabels : ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']
+yLabels : ['Calculated tCO2e_per_m2']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Basement_None', 'Foundations_Raft']}
+modelingParams : {'CVFold': None, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (80, 55)
+df initial size : (80, 55)
+initial keys : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without outliers : (70, 55)
+keys without outliers : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without uncorrelated features : (70, 25)
+keys without uncorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb', 'Basement_None',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Raft', 'Foundations_Piles (Pile Caps)',
+       'Ground Floor_Suspended RC', 'Ground Floor_Raft', 'Ground Floor_Other',
+       'Superstructure_In-Situ RC', 'Superstructure_CLT Frame',
+       'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without multicorrelated features : (70, 23)
+keys without multicorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Piles (Pile Caps)', 'Ground Floor_Suspended RC',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+
+csvPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data
+outputPath : C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/
+displayParams : {'csvPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data', 'outputPath': 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showResults': True, 'showPlot': False, 'archive': True, 'reference': '220211_CV'}
+xQualLabels : ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding', 'BREEAM Rating']
+xQuantLabels : ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']
+yLabels : ['Calculated tCO2e_per_m2']
+processingParams : {'scaler': 'MinMaxScaler', 'cutOffThreshhold': 3, 'lowThreshold': 0.1, 'highThreshold': 0.5, 'removeLabels': ['Basement_None', 'Foundations_Raft']}
+modelingParams : {'CVFold': None, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1}
+powers : {}
+mixVariables : []
+
+DATAFRAME DIMENSION : (80, 55)
+df initial size : (80, 55)
+initial keys : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without outliers : (70, 55)
+keys without outliers : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Other', 'Sector_Residential', 'Sector_Cultural',
+       'Sector_Educational', 'Sector_Mixed Use', 'Sector_Commercial',
+       'Sector_Industrial', 'Type_New Build (Brownfield)',
+       'Type_New Build (Greenfield)', 'Type_Mixed New Build/Refurb',
+       'Basement_None', 'Basement_Partial Footprint',
+       'Basement_Full Footprint', 'Foundations_Piled Ground Beams',
+       'Foundations_Mass Pads/Strips', 'Foundations_Raft',
+       'Foundations_Piles (Pile Caps)', 'Foundations_Reinforced Pads/Strips',
+       'Foundations_', 'Ground Floor_Suspended RC',
+       'Ground Floor_Ground Bearing RC', 'Ground Floor_Suspended Precast',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Composite',
+       'Superstructure_Steel Frame, Other', 'Superstructure_Masonry, Timber',
+       'Superstructure_Other', 'Superstructure_Timber Frame',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Masonry + SFS',
+       'Cladding_Lightweight Only', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Stone + SFS', 'Cladding_Other', 'Cladding_Lightweight + SFS',
+       'Cladding_Timber + SFS', 'Cladding_Timber Only',
+       'BREEAM Rating_Unknown', 'BREEAM Rating_Very Good',
+       'BREEAM Rating_Excellent', 'BREEAM Rating_Good',
+       'BREEAM Rating_Passivhaus', 'BREEAM Rating_Outstanding',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without uncorrelated features : (70, 25)
+keys without uncorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb', 'Basement_None',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Raft', 'Foundations_Piles (Pile Caps)',
+       'Ground Floor_Suspended RC', 'Ground Floor_Raft', 'Ground Floor_Other',
+       'Superstructure_In-Situ RC', 'Superstructure_CLT Frame',
+       'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
+df without multicorrelated features : (70, 23)
+keys without multicorrelated features : Index(['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)',
+       'Sector_Educational', 'Type_Mixed New Build/Refurb',
+       'Basement_Full Footprint', 'Foundations_Mass Pads/Strips',
+       'Foundations_Piles (Pile Caps)', 'Ground Floor_Suspended RC',
+       'Ground Floor_Raft', 'Ground Floor_Other', 'Superstructure_In-Situ RC',
+       'Superstructure_CLT Frame', 'Superstructure_Steel Frame, Precast',
+       'Superstructure_Masonry, Concrete',
+       'Superstructure_Steel Frame, Timber', 'Cladding_Stone + Masonry',
+       'Cladding_Glazed/Curtain Wall', 'Cladding_Masonry Only',
+       'Cladding_Lightweight + SFS', 'BREEAM Rating_Very Good',
+       'Calculated tCO2e_per_m2'],
+      dtype='object')
