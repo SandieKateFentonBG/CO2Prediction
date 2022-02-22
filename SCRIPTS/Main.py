@@ -2,19 +2,20 @@ from RawData import RawData
 from Data import *
 from FilteredData import *
 from PrepData import *
-# from Dashboard import *
-from Dashboard_V2 import *
+from Dashboard import *
+# from Dashboard_V2 import *
 from GridSearch import *
 from Archiver import *
+from Model import *
 
 
 """
 ------------------------------------------------------------------------------------------------------------------------
-1.DATA
+0.RAW DATA
 ------------------------------------------------------------------------------------------------------------------------
 """
 """Save input"""
-saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
+content = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
           powers, mixVariables)
 
 """Import libraries & Load data"""
@@ -24,12 +25,18 @@ rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
 dat = Data(rdat)
 df = dat.asDataframe(powers)
 
+""" Remove outliers - only exist/removed on Quantitative features"""
+ValidDf = removeOutliers(df, labels = xQuantLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
+
+"""
+------------------------------------------------------------------------------------------------------------------------
+1.DATA
+------------------------------------------------------------------------------------------------------------------------
+"""
 baseLabels = xQuantLabels
 # if higher orders :
 # baseLabels = ['GIFA (m2)_exp1', 'Storeys_exp1', 'Typical Span (m)_exp1','Typ Qk (kN_per_m2)_exp1']
 #  #
-""" Remove outliers"""
-ValidDf = removeOutliers(df, labels = baseLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
 
 """Correlation of variables & Feature selection"""
 HighCorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = processingParams['lowThreshold'])
@@ -39,6 +46,7 @@ CorDf = filteredData(ValidDf, baseLabels, yLabels, plot = False, lt = processing
                      removeLabels=processingParams['removeLabels'])
 """Scale"""
 xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
+
 #import statsmodels.api as sm
 #xdf1 = sm.add_constant(xdf) #todo : add constant?
 
@@ -54,29 +62,38 @@ trackDataProcessing(displayParams = displayParams, df = df, noOutlierdf = ValidD
 ------------------------------------------------------------------------------------------------------------------------
 """
 
-"""Models"""
-linearReg = {'model' : LinearRegression(), 'param' : None} #why doies this not have a regul param?
-lassoReg = {'model' : Lasso() , 'param': 'alpha'} # for overfitting
-ridgeReg = {'model' : Ridge(), 'param': 'alpha'}
-elasticNetReg = {'model' : ElasticNet(), 'param': 'alpha'}
-supportVector = {'model' : SVR(), 'param': 'C'}
-kernelRidgeReg = {'model' : KernelRidge(), 'param': 'alpha'}
-kernelRidgeLinReg = {'model' : KernelRidge(kernel='linear'), 'param': 'alpha'}
-kernelRidgeRbfReg = {'model' : KernelRidge(kernel='rbf'), 'param': 'alpha'}
-kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha'}
-models = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVector, kernelRidgeReg, kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg] #linearReg,
-# #
-# models = [linearReg, lassoReg]
+
+
+
 """
 ------------------------------------------------------------------------------------------------------------------------
-3. HYPERPARAM GRID SEARCH
+3. HYPERPARAM GRID SEARCH - LOOK FOR BEST REGUL
 ------------------------------------------------------------------------------------------------------------------------
 """
 
-searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest)
+"""
+------------------------------------------------------------------------------------------------------------------------
+3. HYPERPARAM GRID SEARCH - LOOK AT WEIGHTS
+------------------------------------------------------------------------------------------------------------------------
+"""
 
-print(searchedModels)
-exportStudy(displayParams, searchedModels)
+searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features = list(xdf.keys()))
+for m in searchedModels:
+    for k, v in m.items():
+        print (k, ':', v)
+
+#
+#
+# for m in searchedModels :
+#     features, weights = m['features'], m['bModelWeights']
+#     print(modelWeightsDict(df, displayParams['Target'], features, weights, 0))
+#     print(modelWeightsList(df, displayParams['Target'], features, weights, 0))
+
+# for m in searchedModels:
+#     for k, v in zip(m['features'], m['weightVals']):
+#         print (k, ':', v)
+
+exportStudy(displayParams, searchedModels, content)
 
 # paramResiduals(Ridge(), xTrain, yTrain, xTest, yTest, displayParams, bestParam = None)
 #
@@ -123,3 +140,4 @@ exportStudy(displayParams, searchedModels)
 # # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 # # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 
+# todo : good display https://stackoverflow.com/questions/37161563/how-to-graph-grid-scores-from-gridsearchcv

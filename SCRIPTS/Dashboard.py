@@ -4,7 +4,7 @@ csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_d
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data", "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/',
-                  'showResults' : True, 'showPlot' : True, 'archive': False, 'reference': '220217', 'roundNumber' : 3,
+                  'showResults' : False, 'showPlot' : False, 'archive': True, 'reference': '220222', 'roundNumber' : 3,
                  'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8]}
 
 # DATA
@@ -22,8 +22,10 @@ processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThresh
 # PARAMS
 
 # modelingParams = {"regularisation": 20, "tolerance": 0.1, "method": "accuracy"} #'mse'; "mae"
-modelingParams = {'test_size': 0.2, 'random_state' : 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100], 'TestIndex': 1, 'CVFold': None}#'kernelVal': ['linear', 'rbf', 'polynomial'],
+modelingParams = {'test_size': 0.2, 'random_state' : 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100, 200, 500], 'TestIndex': 1, 'CVFold': None}#'kernelVal': ['linear', 'rbf', 'polynomial'],
 # None,5
+#list(10.0**np.arange(-5,7))
+#list(np.arange(-5,7))
 
 powers = {}
 # powers = {'GIFA (m2)': [1/3, 0.5, 1, 2, 3], 'Storeys':[1/3, 0.5, 1, 2, 3], 'Typical Span (m)': [1/3, 0.5, 1, 2, 3],'Typ Qk (kN_per_m2)': [1/3, 0.5, 1, 2, 3]}#,

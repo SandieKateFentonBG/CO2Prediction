@@ -1,4 +1,4 @@
- def rfe(len):
+# def rfe(len):
     # # https: // towardsdatascience.com / feature - selection - with-pandas - e3690ad8504b
     # #no of features
     # nof_list=np.arange(1,len)
@@ -20,4 +20,8 @@
     #         nof = nof_list[n]
     # print("Optimum number of features: %d" %nof)
     # print("Score with %d features: %f" % (nof, high_score))
-    pass
+    # pass
+
+import numpy as np
+a = list(np.arange(-5,7))
+print(list(a))

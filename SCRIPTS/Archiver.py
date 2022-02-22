@@ -17,22 +17,26 @@ def saveStudy(displayParams, Content):
 
         f.close()
 
-def exportStudy(displayParams, models):
+
+def exportStudy(displayParams, models, input):
     import os
     outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
     if not os.path.isdir(outputPathStudy):
         os.makedirs(outputPathStudy)
 
     import csv
-    with open(outputPathStudy + '/Results' ".csv", 'w', encoding='UTF8', newline='') as e:
+    with open(outputPathStudy + '/Records' + ".csv", 'w', encoding='UTF8', newline='') as e:
         writer = csv.writer(e, delimiter = ";")
-
+        for inputk, inputv in input.items():
+            writer.writerow([inputk, inputv])
+        writer.writerow('')
         k = models[0].keys()
         writer.writerow(k)
         for i in range(len(models)):
             v = models[i].values()
             writer.writerow(v)
     e.close()
+
 
 def saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams, powers, mixVariables   ):
 
@@ -49,3 +53,5 @@ def saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLa
     Content['mixVariables'] = mixVariables
 
     saveStudy(displayParams, Content)
+
+    return Content

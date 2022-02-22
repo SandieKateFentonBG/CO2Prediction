@@ -40,7 +40,6 @@ def removeOutlier(df, colName, cutOffThreshhold = 1.5):
     iqr = q3 - q1  # Interquartile range
     fence_low = q1 - cutOffThreshhold * iqr
     fence_high = q3 + cutOffThreshhold * iqr
-    # print(fence_low, fence_high)
     return df.loc[(df[colName] > fence_low) & (df[colName] < fence_high)]
 
 def filteredData(noOutlierDf, baseLabels, yLabels, plot, lt,
@@ -107,7 +106,7 @@ def plotCorrelation(correlationMatrix):
 def trackDataProcessing(displayParams, df, noOutlierdf, filterdf, removeLabelsdf = pd.Series([]) ):
 
     Content = dict()
-    Content["DATAFRAME DIMENSION"] = df.shape
+    Content["DATAFRAME DIMENSION (X-y) "] = df.shape #including y
     Content["df initial size"] = df.shape
     Content["df without outlier samples"] = noOutlierdf.shape
     Content["df without uncorrelated features"] = filterdf.shape
