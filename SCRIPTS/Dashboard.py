@@ -4,26 +4,26 @@ csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_d
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
-                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': True,
-                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220223_Run', 'roundNumber': 3,
+                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
+                'showResults' : False, 'showPlot' : True, 'archive': True, 'reference': '220223_dump', 'roundNumber': 3,
                  'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8]}
 
 # DATA
 
 xQualLabels = ['Sector','Type','Basement', 'Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating']#
-xQuantLabels = ['GIFA (m2)','Storeys','Typical Span (m)', 'Typ Qk (kN_per_m2)']
+xQuantLabels = []#'GIFA (m2)','Storeys','Typical Span (m)', 'Typ Qk (kN_per_m2)'
 yLabels = ['Calculated tCO2e_per_m2'] #'Calculated Total tCO2e',
-baseLabels = xQuantLabels
+baseLabels = [] #xQuantLabels
 # if higher orders : baseLabels = ['GIFA (m2)_exp1', 'Storeys_exp1', 'Typical Span (m)_exp1','Typ Qk (kN_per_m2)_exp1']
 
 # FORMAT
 
-processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.1, 'highThreshold' : 0.5,
-                    'removeLabels' : ['Basement_None', 'Foundations_Raft']} #'scaler': None, 'MinMaxScaler', 'StandardScaler'
+processingParams = {'scaler': 'StandardScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.1, 'highThreshold' : 0.5,
+                    'removeLabels' : []} #'Basement_None', 'Foundations_Raft', 'scaler': None, 'MinMaxScaler', 'StandardScaler'
 
 # PARAMS
 
-modelingParams = {'test_size': 0.2, 'random_state' : 8, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100, 200, 500],
+modelingParams = {'test_size': 0.2, 'random_state' : 7, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100, 200, 500],
                   'accuracyTol': 0.05, 'CVFold': None}
 powers = {}
 mixVariables = []
@@ -49,6 +49,6 @@ kernelRidgeLinReg = {'model' : KernelRidge(kernel='linear'), 'param': 'alpha', '
 kernelRidgeRbfReg = {'model' : KernelRidge(kernel='rbf'), 'param': 'alpha', 'Linear' : False}
 kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha', 'Linear' : False}
 
-models = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg,
+modelsa = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg,
         kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg]
-modelsa = [linearReg, lassoReg]
+models = [lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg]

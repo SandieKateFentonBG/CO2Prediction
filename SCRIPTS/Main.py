@@ -5,7 +5,7 @@ from Dashboard import *
 # from Dashboard_V2 import *
 from GridSearch import *
 from Archiver import *
-from PlotWeightsl import *
+from PlotRegul import *
 
 
 """
@@ -13,56 +13,67 @@ from PlotWeightsl import *
 1.RAW DATA
 ------------------------------------------------------------------------------------------------------------------------
 """
-"""Import libraries & Load data"""
-inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
-          powers, mixVariables)
-rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
-
-"""Process data & One hot encoding"""
-dat = Data(rdat)
-df = dat.asDataframe(powers)
-
-""" Remove outliers - only exist/removed on Quantitative features"""
-ValidDf = removeOutliers(df, labels = xQuantLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
-
-"""
-------------------------------------------------------------------------------------------------------------------------
-2.DATA
-------------------------------------------------------------------------------------------------------------------------
-"""
-
-"""Correlation of variables & Feature selection"""
-HighCorDf, _ = filteredData(ValidDf, baseLabels, yLabels, displayParams, lt=processingParams['lowThreshold'])
+# """Import libraries & Load data"""
+# inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
+#           powers, mixVariables)
+# rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
 #
-"""Remove Multi-correlated Features """
-CorDf, prepData = filteredData(ValidDf, baseLabels, yLabels, displayParams, lt=processingParams['lowThreshold'],
-                     removeLabels=processingParams['removeLabels'])
-"""Scale"""
-xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
+# """Process data & One hot encoding"""
+# dat = Data(rdat)
+# df = dat.asDataframe(powers)
+#
+# """ Remove outliers - only exist/removed on Quantitative features"""
+# ValidDf = removeOutliers(df, labels = xQuantLabels+yLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
+#
+# """
+# ------------------------------------------------------------------------------------------------------------------------
+# 2.DATA
+# ------------------------------------------------------------------------------------------------------------------------
+# """
+#
+# """Correlation of variables & Feature selection"""
+# HighCorDf, _ = filteredData(ValidDf, baseLabels, yLabels, displayParams, lt=processingParams['lowThreshold'])
+# #
+# """Remove Multi-correlated Features """
+# CorDf, prepData = filteredData(ValidDf, baseLabels, yLabels, displayParams, lt=processingParams['lowThreshold'],
+#                      removeLabels=processingParams['removeLabels'])
+# """Scale"""
+# xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
+#
+# """Train Test Split"""
+# xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
+#
+# """Save Data Processing"""
+# trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
+#
+# """
+# ------------------------------------------------------------------------------------------------------------------------
+# 3. MODEL
+# ------------------------------------------------------------------------------------------------------------------------
+# """
+# """Search"""
+# searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
 
-"""Train Test Split"""
-xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
+# """Save & Dump"""
+# exportStudy(displayParams, inputData, prepData, searchedModels)
+# pickleDumpMe(displayParams, searchedModels)
 
-"""Save Data Processing"""
-trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
+
+dc = pickleLoadMe('C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/220223_dump', name = '/Records', show = False)
+print(dc)
 
 """
 ------------------------------------------------------------------------------------------------------------------------
-3. MODEL 
+4. RESULTS
 ------------------------------------------------------------------------------------------------------------------------
 """
-print(models)
-"""Search"""
-searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
 
-"""Save"""
-exportStudy(displayParams, inputData, prepData, searchedModels)
+plotRegul(dc, displayParams, metric = 'paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'], xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
+              showgrid = True, max=False, ticks = False, lims = True)
 
-"""
-------------------------------------------------------------------------------------------------------------------------
-3. RESULTS
-------------------------------------------------------------------------------------------------------------------------
-"""
+
+
+# regPts = regulPoints(models)
 
 
 #sklearn.model_selection.ParameterGrid

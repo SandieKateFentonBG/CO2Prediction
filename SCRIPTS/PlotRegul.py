@@ -1,70 +1,115 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Main import *
 
-def unpack_results_for_points(results):
-    rlist = []
-    clist = []
-    vlist = []
+def unpackResPts(results):
+    xli = []
+    yli = []
+    zli = []
     for r in range(len(results)):
         for c in range(len(results[0])):
             # for d in range(len(results[0][0])):
-            rlist.append(results[r][c][0])
-            clist.append(results[r][c][1])
-            vlist.append(results[r][c][2])
-    return rlist, clist, vlist
+            xli.append(results[r][c][0])
+            yli.append(results[r][c][1])
+            zli.append(results[r][c][2])
+    xl, yl, zl = np.array(xli), np.array(yli), np.array(zli)
+    return xl, yl, zl
+
+def unpackResLines(results):
+    rlist = []
+    for r in range(len(results)):
+        row = []
+        x, y, z = [], [], []
+        for c in range(len(results[0])):
+            x.append(results[r][c][0])
+            y.append(results[r][c][1])
+            z.append(results[r][c][2])
+            row = [x, y, z]
+        rlist.append(row)
+    return rlist
+
+def regulPoints(models, metric = 'paramMeanScore'):
+    allModels = []
+    # for m in models:
+    labels =[]
+    for j in range(len(models)):
+        labels.append(models[j]['model'])
+        modelRes = []
+        for i in range(len(models[j]['paramValues'])):
+            paramRes = [j, models[j]['paramValues'][i], models[j][metric][i]]
+
+            # for i in range(len(m['paramValues'])):
+        #     paramRes = [m['model'],m['paramValues'][i],m['paramMeanScore'][i]]
+            modelRes.append(paramRes)
+        allModels.append(modelRes)
+    return allModels, labels
+
+def regulBestPt(points, max = True):
+    best = points[0][0]
+    for i in range(len(points)):
+        for j in range(len(points[0])):
+            if max:
+                if abs(points[i][j][2])>abs(best[2]):
+                    best = points[i][j]
+            else :
+                if abs(points[i][j][2])<abs(best[2]):
+                    best = points[i][j]
+    return best
 
 
-def plot_3DML1M(xs, ys, zs, rlist, best, title, xlabel, ylabel, zlabel, size, showgrid, colors ="b", ticks = False, lim = False,
-            output_path = None, VISU = False):
+
+def plotRegul(models, displayParams, metric = 'paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'],
+              title = 'Influence of Regularization on Model MSE', xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
+              showgrid = False, max=False, ticks = False, lims = False):
 
     # Create figure and axes
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(xs, ys, zs, color=colors)
-    ax.scatter(best[0], best[1], best[2], s = 50, c='r') #, plotnonfinite = False
-    lines = rlist
+
+    regPts, labels = regulPoints(models)
+    print(regPts)
+    xl, yl, zl = unpackResPts(regPts)
+    lines = unpackResLines(regPts)
+    best = regulBestPt(regPts, max=False)
+    xlim, ylim, zlim = [np.amin(xl), np.amax(xl)], [np.amin(yl), np.amax(yl)], [np.amin(zl), np.amax(zl)]
+    lim = xlim, ylim, zlim
+    print(lim)
+    print(xlim, ylim, zlim)
+    ticks = np.arange(0, xlim[1]+1, 1).tolist(), np.arange(round(ylim[0], 0), round(ylim[1], 0), 50).tolist(), np.arange(round(zlim[0]-1, 0), round(zlim[1]+1, 0), 0.5).tolist()
+    print(ticks)
+    print(ticks[0])
+    ax.scatter(xl, yl, zl, color=colorsPtsLsBest[0])
+    ax.scatter(best[0], best[1], best[2], s = 50, c=colorsPtsLsBest[2])
+
     for i in range(len(lines)):
         xls, yls, zls = lines[i][0], lines[i][1], lines[i][2]
-        plt.plot(xls, yls, zls, color=colors)
+        plt.plot(xls, yls, zls, color=colorsPtsLsBest[1])
     ax.set_title(title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_zlabel(zlabel)
-    ax.set_zlim(0.3050, 0.3060)
-    if lim :
+    if lims:
         ax.set_xlim(lim[0][0], lim[0][1])
         ax.set_ylim(lim[1][0], lim[1][1])
         ax.set_zlim(lim[2][0], lim[2][1])
-    if ticks :
+    if ticks:
+        print('ticks')
         ax.set_xticks(ticks[0])
         ax.set_yticks(ticks[1])
         ax.set_zticks(ticks[2])
+    ax.set_xticklabels(labels)
+    plt.setp(ax.get_xticklabels(), rotation=25, ha="right",
+             rotation_mode="anchor")
+    ax.set_ylabel(ylabel)
+    ax.set_zlabel(zlabel)
     fig.set_size_inches(size[0], size[1])
     ax.grid(showgrid)
-    if output_path :
-        plt.savefig(output_path + title + '.png')
-    if VISU:
+
+    if displayParams['archive']:
+        import os
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Regul'
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+
+        plt.savefig(outputFigPath + '/RegulPlot' + '.png')
+    if displayParams['showPlot']:
         plt.show()
+    plt.close()
 
 
-colors = ['r', 'g', 'b', 'y']
-title = 'matrix completion'
-xlabel, ylabel, zlabel = 'Model', 'Regularization', 'MSE'
-size = [6,6]
-showgrid = False
-
-xli = [i for i in range(len(models))] #models
-yli = [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100] #param
-zli = models[i][j]['mse'] for j in reguls for i in models #score
-xli, yli, zli = [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 20, 20, 20, 20, 20, 20, 20, 20, 20, 100, 100, 100, 100, 100, 100, 100, 100, 100, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],[10, 20, 40, 80, 100, 200, 300, 400, 500, 10, 20, 40, 80, 100, 200, 300, 400, 500, 10, 20, 40, 80, 100, 200, 300, 400, 500, 10, 20, 40, 80, 100, 200, 300, 400, 500, 10, 20, 40, 80, 100, 200, 300, 400, 500, 10, 20, 40, 80, 100, 200, 300, 400, 500, 10, 20, 40, 80, 100, 200, 300, 400, 500, 10, 20, 40, 80, 100, 200, 300, 400, 500],[0.8998308181762695, 0.904266357421875, 0.9184490442276001, 0.9189745187759399, 0.9209707379341125, 0.922264575958252, 0.9213234186172485, 0.9226369857788086, 0.9212254285812378, 0.8988103866577148, 0.9113826751708984, 0.9153265357017517, 0.9185622334480286, 0.920066237449646, 0.9213452339172363, 0.9225938320159912, 0.9266828894615173, 0.9223410487174988, 0.906748354434967, 0.9082571268081665, 0.9177031517028809, 0.919774055480957, 0.9195590615272522, 0.9228907227516174, 0.920924961566925, 0.9244608879089355, 0.9222382307052612, 0.9048441648483276, 0.9096971154212952, 0.9149297475814819, 0.9182502627372742, 0.918417751789093, 0.9209059476852417, 0.9218708276748657, 0.9221733212471008, 0.9218764305114746, 0.90146803855896, 0.9080074429512024, 0.9145246744155884, 0.9198074340820312, 0.9216476678848267, 0.9207457900047302, 0.9209406971931458, 0.9212194085121155, 0.9200433492660522, 0.9108366370201111, 0.9079103469848633, 0.9161508083343506, 0.9221482276916504, 0.9192045331001282, 0.9200649261474609, 0.920525312423706, 0.9236586689949036, 0.9191445112228394, 0.9019386172294617, 0.9056298136711121, 0.915471613407135, 0.9176559448242188, 0.9207924008369446, 0.9207082986831665, 0.9194381833076477, 0.9208956360816956, 0.9191671013832092, 0.9072545766830444, 0.9177035689353943, 0.921437680721283, 0.9209294319152832, 0.9240227341651917, 0.9221810698509216, 0.9196587204933167, 0.9200179576873779, 0.9208905100822449]
-xl, yl, zl = np.array(xli), np.array(yli), np.array(zli)
-rl = [[[0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001], [10, 20, 40, 80, 100, 200, 300, 400, 500], [0.8998308181762695, 0.904266357421875, 0.9184490442276001, 0.9189745187759399, 0.9209707379341125, 0.922264575958252, 0.9213234186172485, 0.9226369857788086, 0.9212254285812378]], [[0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01], [10, 20, 40, 80, 100, 200, 300, 400, 500], [0.8988103866577148, 0.9113826751708984, 0.9153265357017517, 0.9185622334480286, 0.920066237449646, 0.9213452339172363, 0.9225938320159912, 0.9266828894615173, 0.9223410487174988]], [[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1], [10, 20, 40, 80, 100, 200, 300, 400, 500], [0.906748354434967, 0.9082571268081665, 0.9177031517028809, 0.919774055480957, 0.9195590615272522, 0.9228907227516174, 0.920924961566925, 0.9244608879089355, 0.9222382307052612]], [[1, 1, 1, 1, 1, 1, 1, 1, 1], [10, 20, 40, 80, 100, 200, 300, 400, 500], [0.9048441648483276, 0.9096971154212952, 0.9149297475814819, 0.9182502627372742, 0.918417751789093, 0.9209059476852417, 0.9218708276748657, 0.9221733212471008, 0.9218764305114746]], [[5, 5, 5, 5, 5, 5, 5, 5, 5], [10, 20, 40, 80, 100, 200, 300, 400, 500], [0.90146803855896, 0.9080074429512024, 0.9145246744155884, 0.9198074340820312, 0.9216476678848267, 0.9207457900047302, 0.9209406971931458, 0.9212194085121155, 0.9200433492660522]], [[20, 20, 20, 20, 20, 20, 20, 20, 20], [10, 20, 40, 80, 100, 200, 300, 400, 500], [0.9108366370201111, 0.9079103469848633, 0.9161508083343506, 0.9221482276916504, 0.9192045331001282, 0.9200649261474609, 0.920525312423706, 0.9236586689949036, 0.9191445112228394]], [[100, 100, 100, 100, 100, 100, 100, 100, 100], [10, 20, 40, 80, 100, 200, 300, 400, 500], [0.9019386172294617, 0.9056298136711121, 0.915471613407135, 0.9176559448242188, 0.9207924008369446, 0.9207082986831665, 0.9194381833076477, 0.9208956360816956, 0.9191671013832092]], [[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000], [10, 20, 40, 80, 100, 200, 300, 400, 500], [0.9072545766830444, 0.9177035689353943, 0.921437680721283, 0.9209294319152832, 0.9240227341651917, 0.9221810698509216, 0.9196587204933167, 0.9200179576873779, 0.9208905100822449]]]
-b = [0.01, 400, 0.9266828894615173]
-xlim, ylim, zlim = [np.amin(xl), np.amax(xl)], [np.amin(yl), np.amax(yl)], [0.890, 0.931] #[np.amin(zs), np.amax(zl)]
-lim = xlim, ylim, zlim
-[xticks, yticks, zticks] = np.arange(0.00, 1001, 200).tolist(), np.arange(0, 511, 50).tolist(), np.arange(0.890, 0.931, 0.005).tolist()
-ticks = [xticks, yticks, zticks]
-#PLOT
-plot_3DML1M(xl, yl, zl, rl, b, title, xlabel, ylabel, zlabel, size, showgrid, colors ="b", ticks = ticks, lim = lim,
-            output_path = None, VISU = True)

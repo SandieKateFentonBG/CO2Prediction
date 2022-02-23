@@ -72,3 +72,29 @@ def saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLa
     saveStudy(displayParams, Content)
 
     return Content
+
+def pickleDumpMe(displayParams, dic):
+
+    if displayParams['archive']:
+        import pickle
+        import os
+        outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
+        if not os.path.isdir(outputPathStudy):
+            os.makedirs(outputPathStudy)
+
+        with open(outputPathStudy + '/Records', 'wb') as handle:
+        # with open(set_up_dict['training_settings'].output_path + set_up_dict['reference'] + name, 'wb') as handle:
+            pickle.dump(dic, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    print('FILE has been saved here :', outputPathStudy + '/Records')
+
+
+def pickleLoadMe(path, name = '/Records', show = False):
+    import pickle
+    with open(path + name, 'rb') as handle:
+        mydict = pickle.load(handle)
+    if show:
+        print(name)
+        for k, v in mydict.items():
+                print(' ', k, ' : ', v)
+    return mydict
