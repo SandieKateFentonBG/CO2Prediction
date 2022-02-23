@@ -1,3 +1,5 @@
+#todo : Wrapper method for filtering
+
 # def rfe(len):
     # # https: // towardsdatascience.com / feature - selection - with-pandas - e3690ad8504b
     # #no of features
@@ -22,6 +24,10 @@
     # print("Score with %d features: %f" % (nof, high_score))
     # pass
 
-import numpy as np
-a = list(np.arange(-5,7))
-print(list(a))
+#todo : add bias term
+# import statsmodels.api as sm
+#
+# xdf1 = sm.add_constant(xdf)
+
+
+

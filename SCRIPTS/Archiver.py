@@ -17,26 +17,43 @@ def saveStudy(displayParams, Content):
 
         f.close()
 
+def printStudy(displayParams, Content):
 
-def exportStudy(displayParams, models, input):
-    import os
-    outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
-    if not os.path.isdir(outputPathStudy):
-        os.makedirs(outputPathStudy)
+    if displayParams['showResults']:
+        for m in Content:
+            for k, v in m.items():
+                print(k, ':', v)
 
-    import csv
-    with open(outputPathStudy + '/Records' + ".csv", 'w', encoding='UTF8', newline='') as e:
-        writer = csv.writer(e, delimiter = ";")
-        for inputk, inputv in input.items():
-            writer.writerow([inputk, inputv])
-        writer.writerow('')
-        k = models[0].keys()
-        writer.writerow(k)
-        for i in range(len(models)):
-            v = models[i].values()
-            writer.writerow(v)
-    e.close()
+def exportStudy(displayParams, inputData, prepData, modelsData):
 
+    if displayParams['archive']:
+
+        import os
+        outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
+        if not os.path.isdir(outputPathStudy):
+            os.makedirs(outputPathStudy)
+
+        import csv
+        with open(outputPathStudy + '/Records' + ".csv", 'w', encoding='UTF8', newline='') as e:
+            writer = csv.writer(e, delimiter = ";")
+
+            writer.writerow('INPUT DATA')
+            for inputk, inputv in inputData.items():
+                writer.writerow([inputk, inputv])
+            writer.writerow('')
+
+            writer.writerow('PREPROCESSED DATA')
+            for inputk, inputv in prepData.items():
+                writer.writerow([inputk, inputv])
+            writer.writerow('')
+
+            writer.writerow('MODELS DATA')
+            k = modelsData[0].keys()
+            writer.writerow(k)
+            for i in range(len(modelsData)):
+                v = modelsData[i].values()
+                writer.writerow(v)
+        e.close()
 
 def saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams, powers, mixVariables   ):
 

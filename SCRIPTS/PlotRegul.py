@@ -2,6 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Main import *
 
+def unpack_results_for_points(results):
+    rlist = []
+    clist = []
+    vlist = []
+    for r in range(len(results)):
+        for c in range(len(results[0])):
+            # for d in range(len(results[0][0])):
+            rlist.append(results[r][c][0])
+            clist.append(results[r][c][1])
+            vlist.append(results[r][c][2])
+    return rlist, clist, vlist
+
 
 def plot_3DML1M(xs, ys, zs, rlist, best, title, xlabel, ylabel, zlabel, size, showgrid, colors ="b", ticks = False, lim = False,
             output_path = None, VISU = False):
