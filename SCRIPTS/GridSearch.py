@@ -4,7 +4,6 @@ from sklearn.kernel_ridge import KernelRidge
 from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from Archiver import *
-# from xx import TrainTestDf
 import numpy as np
 """
 Docum

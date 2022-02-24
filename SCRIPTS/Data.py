@@ -9,7 +9,6 @@ def logitize(xQuali, possibleValues):
             output['_'.join([label, sublabel])] = [1 if value == possibleValues[label].index(sublabel) else 0 for value in column]
     return output
 
-
 def countPowers(powers):
     count = 0
     for powerList in powers.values():
