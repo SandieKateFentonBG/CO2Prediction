@@ -1,48 +1,57 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_search_results(grid):
-    """
-    Params:
-        grid: A trained GridSearchCV object.
-    """
-    ## Results from grid search
-    results = grid.cv_results_
-    means_test = results['mean_test_score']
-    stds_test = results['std_test_score']
-    means_train = results['mean_train_score']
-    stds_train = results['std_train_score']
 
-    ## Getting indexes of values per hyper-parameter
-    masks=[]
-    masks_names= list(grid.best_params_.keys())
-    for p_k, p_v in grid.best_params_.items():
-        masks.append(list(results['param_'+p_k].data==p_v))
-    print(masks_names)
-    params=grid.param_grid
+def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrScore','bModelTeScore','bModelAcc','bModelMSE','bModelr2'],
+            title ='Model Evaluations', xlabel='Evaluation Metric'):
+    import pandas as pd
+    import seaborn as sns
 
-    ## Ploting results
-    fig, ax = plt.subplots(1,len(params),sharex='none', sharey='all',figsize=(20,5))
-    fig.suptitle('Score per parameter')
-    fig.text(0.04, 0.5, 'MEAN SCORE', va='center', rotation='vertical')
-    pram_preformace_in_best = {}
-    for i, p in enumerate(masks_names):
-        m = np.stack(masks[:i] + masks[i+1:])
+    means, _ = averageMetric(models, metricLabels)
+    labels = []
+    metrics = []
+    for m in models:
+        label = m['bModel']
+        metric =[m[label] for label in metricLabels]
+        # metric = [m['bModelTrScore'], m['bModelTeScore'], m['bModelAcc'], m['bModelMSE'],m['bModelr2']]
+        labels.append(label)
+        metrics.append(metric)
+    df = pd.DataFrame(metrics, index=labels, columns=metricLabels)
+    tf = pd.DataFrame([means], index=labels, columns=metricLabels)
 
-        pram_preformace_in_best
-        best_parms_mask = m.all(axis=0)
-        best_index = np.where(best_parms_mask)[0]
-        x = np.array(params[p])
-        y_1 = np.array(means_test[best_index])
-        e_1 = np.array(stds_test[best_index])
-        y_2 = np.array(means_train[best_index])
-        e_2 = np.array(stds_train[best_index])
-        ax[i].errorbar(x, y_1, e_1, linestyle='--', marker='o', label='test')
-        ax[i].errorbar(x, y_2, e_2, linestyle='-', marker='^',label='train' )
-        ax[i].set_xlabel(p.upper())
+    fig = plt.figure(figsize=(10, 10))
+    plt.title(title)
+    sns.scatterplot(data=df.T) #, y=metricLabels, x=metrics, hue=metricLabels)
+    # sns.catplot(data=df.T)
+    # # sns.barplot(data=df, color = 'Grey')
+    # sns.lineplot(data=df.T)
+    # sns.lineplot(data=tf.T)
 
-    plt.legend()
-    plt.show()
+    sns.set_theme(style="whitegrid")
+    plt.xlabel(xlabel)
 
+    if displayParams['archive']:
+        import os
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Metrics'
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
 
+        plt.savefig(outputFigPath + '/Summary.png')
+    if displayParams['showPlot']:
+        plt.show()
 
+    plt.close()
+
+def averageMetric(models, metricLabels = ['bModelTrScore','bModelTeScore','bModelAcc','bModelMSE','bModelr2']):
+    means = []
+    stdvs = []
+    for label in metricLabels:
+        single = []
+        for m in models:
+            single.append(m[label])
+        av = np.mean(single)
+        st = np.std(single)
+        means.append(av)
+        stdvs.append(st)
+
+    return means, stdvs

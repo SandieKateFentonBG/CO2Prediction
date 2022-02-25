@@ -4,10 +4,9 @@ csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_d
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
-                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
-                'showResults' : False, 'showPlot' : False, 'archive': False, 'reference': '220224_weights', 'roundNumber': 3,
+                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': True,
+                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220225', 'roundNumber': 3,
                  'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8]}
-
 # DATA
 
 xQualLabels = ['Sector','Type','Basement', 'Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating']#
@@ -22,12 +21,13 @@ processingParams = {'scaler': 'StandardScaler', 'cutOffThreshhold' : 3, 'lowThre
                     'removeLabels' : ['Basement_None']} #,, 'Foundations_Raft' 'scaler': None, 'MinMaxScaler', 'StandardScaler'
 
 # PARAMS
-
-modelingParams = {'test_size': 0.2, 'random_state' : 7, 'RegulVal': [0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100, 200, 500],
+import numpy as np
+modelingParams = {'test_size': 0.2, 'random_state' : 7, 'RegulVal': list(10.0**np.arange(-4,4)),
                   'accuracyTol': 0.05, 'CVFold': None}
 powers = {}
 mixVariables = []
-#list(10.0**np.arange(-5,7)) #list(np.arange(-5,7))
+#[0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100, 200, 500]
+# list(10.0**np.arange(-4,4)) #list(np.arange(-5,7))
 # powers = {'GIFA (m2)': [1/3, 0.5, 1, 2, 3], 'Storeys':[1/3, 0.5, 1, 2, 3], 'Typical Span (m)': [1/3, 0.5, 1, 2, 3],'Typ Qk (kN_per_m2)': [1/3, 0.5, 1, 2, 3]}#,
 # 'GIFA (m2)': [1, 0.5], 'Storeys':[1, 2, 3], 0.5 ,, 1/3, 1/4  1/5, 1/6,'Storeys':[1, 2, 3] ,'Typical Span (m)': [1, 2, 3],'Typ Qk (kN_per_m2)': [1, 2, 3] }
 #[['GIFA (m2)','Storeys']], 'Typ Qk (kN_per_m2)'],,['Sector','Type','Basement','Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating' ]], ['Typical Span (m)'],['GIFA (m2)','Storeys','Typical Span (m)', 'Typ Qk (kN_per_m2)'], ['Sector_Residential','Basement_Partial Footprint']
@@ -49,6 +49,6 @@ kernelRidgeLinReg = {'model' : KernelRidge(kernel='linear'), 'param': 'alpha', '
 kernelRidgeRbfReg = {'model' : KernelRidge(kernel='rbf'), 'param': 'alpha', 'Linear' : False}
 kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha', 'Linear' : False}
 
-modelsa = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg,
+models = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg,
         kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg]
-models = [lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg]
+modelsa = [lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg]

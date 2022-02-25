@@ -7,6 +7,7 @@ from GridSearch import *
 from Archiver import *
 from PlotRegul import *
 from PlotWeights import *
+from PlotSearch import *
 from Visualizers import *
 
 """
@@ -53,13 +54,12 @@ trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, fil
 ------------------------------------------------------------------------------------------------------------------------
 """
 
+"""Search"""
+searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
 
-# """Search"""
-# searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
-#
-# """Save & Dump"""
-# exportStudy(displayParams, inputData, prepData, searchedModels)
-# pickleDumpMe(displayParams, searchedModels)
+"""Save & Dump"""
+exportStudy(displayParams, inputData, prepData, searchedModels)
+pickleDumpMe(displayParams, searchedModels)
 
 dc = pickleLoadMe('C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/220223_dump', name = '/Records', show = False)
 
@@ -69,17 +69,17 @@ dc = pickleLoadMe('C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/2202
 ------------------------------------------------------------------------------------------------------------------------
 """
 # """Regularization Influence"""
-# plotRegul(dc, displayParams, metric = 'paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'], xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
-#               showgrid = True, max=False, ticks = False, lims = True)
-#
+plotRegul3D(dc, displayParams)
+plotRegul2D(dc, displayParams)
+plotRegul3D(dc, displayParams, lims = True, log = True)
+plotRegul2D(dc, displayParams, log = True)
+
 # """Weights influence"""
-# averageWeight(dc)
-# coefBarDisplayMean(dc, displayParams, sorted = True, yLim = 0.02)
-# coefBarDisplayAll(dc, displayParams)
 
-WeightsPlot(dc)
+WeightsBarplotAll(dc, displayParams)
+WeightsSummaryPlot(dc, displayParams)
 
-plotReguls2D(dc)
+MetricsSummaryPlot(dc, displayParams)
 
 
 
@@ -88,10 +88,7 @@ plotReguls2D(dc)
 
 # todo : good display https://stackoverflow.com/questions/37161563/how-to-graph-grid-scores-from-gridsearchcv
 
-# todo : improve std display
-
-# todo : weights display plot and save
 # todo : use other database?
 # todo : follow regression document
-# todo : log transform y?
+
 

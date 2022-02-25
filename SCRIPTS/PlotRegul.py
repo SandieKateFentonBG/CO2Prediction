@@ -60,18 +60,23 @@ def regulBestPt(points, max = True):
 
 
 
-def plotRegul3d(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'],
+def plotRegul3D(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'],
                 title = 'Influence of Regularization on Model MSE', xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
-                showgrid = False, max=False, ticks = False, lims = False):
+                showgrid = False, log = False, max=False, ticks = False, lims = False):
 
     # Create figure and axes
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-
     regPts, labels = regulPoints(models)
-
+    figTitle = '/RegulPlot3d'
     xl, yl, zl = unpackResPts(regPts)
     lines = unpackResLines(regPts)
+    if log:
+        yl = list(np.log10(yl)) #[log(yl[i]) for i in range(len(yl))]
+        figTitle = '/RegulPlot3d-logy'
+        ylabel = 'log10(Regularization)'
+        for i in range(len(lines)):
+            lines[i][1] = list(np.log10(lines[i][1]))
     best = regulBestPt(regPts, max=False)
     xlim, ylim, zlim = [np.amin(xl), np.amax(xl)], [np.amin(yl), np.amax(yl)], [np.amin(zl), np.amax(zl)]
     lim = xlim, ylim, zlim
@@ -89,7 +94,6 @@ def plotRegul3d(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest
         ax.set_ylim(lim[1][0], lim[1][1])
         ax.set_zlim(lim[2][0], lim[2][1])
     if ticks:
-        print('ticks')
         ax.set_xticks(ticks[0])
         ax.set_yticks(ticks[1])
         ax.set_zticks(ticks[2])
@@ -107,18 +111,44 @@ def plotRegul3d(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
-        plt.savefig(outputFigPath + '/RegulPlot' + '.png')
+        plt.savefig(outputFigPath + figTitle + '.png')
     if displayParams['showPlot']:
         plt.show()
     plt.close()
 
-def plotReguls2D(models):
+def plotRegul2D(models, displayParams, yLim = None, title ='Influence of Regularization on Model MSE',
+                ylabel='MSE', xlabel='Regularization', log = False):
     import seaborn as sns
     regPts, labels = regulPoints(models)
     metric = [[regPts[i][j][2] for j in range(len(regPts[i]))] for i in range(len(regPts))]
-    df = pd.DataFrame(metric, index=labels, columns=[regPts[0][i][1] for i in range(len(regPts[0]))]).T
+    param = [regPts[0][i][1] for i in range(len(regPts[0]))]
+    figTitle = '/RegulPlot2d'
+
+    if log:
+        param = list(np.log10(param))
+        figTitle = '/RegulPlot2d-logy'
+        xlabel = 'log10(Regularization)'
+
+    df = pd.DataFrame(metric, index=labels, columns=param).T
+    fig = plt.figure(figsize=(20, 10))
+    plt.title(title)
+
     sns.lineplot(data=df)
     sns.set_theme(style="whitegrid")
-    plt.show()
-    plt.close()
 
+    if yLim:
+        plt.ylim(-yLim, yLim)
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
+
+    if displayParams['archive']:
+        import os
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Regul'
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+
+        plt.savefig(outputFigPath + figTitle + '.png')
+    if displayParams['showPlot']:
+        plt.show()
+
+    plt.close()
