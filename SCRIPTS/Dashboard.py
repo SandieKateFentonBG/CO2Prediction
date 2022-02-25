@@ -4,8 +4,8 @@ csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_d
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
-                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': True,
-                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220224_weights', 'roundNumber': 3,
+                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
+                'showResults' : False, 'showPlot' : False, 'archive': False, 'reference': '220224_weights', 'roundNumber': 3,
                  'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8]}
 
 # DATA

@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import scipy as sp
 import pandas as pd
@@ -80,6 +79,18 @@ def coefBarDisplayAll(models, displayParams, df=None, yLim = 0.05):
         plt.show()
     plt.close()
 
+def listWeight(models):
+    weights = []
+    labels = []
+    for i in range(len(models[0]['bModelWeights'])):
+        single = []
+        for m in models:
+            single.append(m['bModelWeights'][i])
+        weights.append(single)
+    for m in models:
+        labels.append(m['model'])
+
+    return weights, labels
 
 def averageWeight(models):
     means = []
@@ -134,4 +145,31 @@ def coefBarDisplayMean(models, displayParams, sorted = True, yLim = None):
     if displayParams['showPlot']:
         plt.show()
     plt.close()
+
+
+def WeightsPlot(models):
+
+    import pandas as pd
+
+    import numpy
+    import seaborn as sns
+
+
+    linModels = [m for m in models if m['Linear']==True] #only works/makes sense for linear models
+    weights, modelLabels = listWeight(linModels)
+    features = linModels[0]['features']
+    lineTable = pd.DataFrame(weights, columns=modelLabels, index=features)
+    barTable = lineTable.T
+    sns.set_theme(style="whitegrid")
+    sns.lineplot(data=lineTable)
+    sns.barplot(data=barTable,  palette="Blues_d")
+    plt.xticks(numpy.arange(len(features)), features, rotation=25, ha="right", rotation_mode="anchor", size=8)
+
+    plt.show()
+    plt.close()
+
+    #todo ; add multiple bars/ hue / order along increasing mean value
+    # tab = barTable.loc[modelLabels[3]]
+    # sns.barplot(x=features, y = weights, hue =modelLabels, data=table) #", x=modelLabels, y=weights, hue=weights
+    # sns.catplot(data=table)
 

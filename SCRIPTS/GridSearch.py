@@ -5,6 +5,8 @@ from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from Archiver import *
 import numpy as np
+from PlotSearch import *
+
 """
 Docum
 
@@ -31,7 +33,7 @@ def paramEval(model, paramkey, paramValues, cv, xTrain, yTrain, displayParams, c
         score = make_scorer(computeAccuracy(), greater_is_better=True)
         grid = GridSearchCV(model, scoring=score, param_grid=parameters, cv = cv)
     else:
-        grid = GridSearchCV(model, param_grid=parameters, cv = cv)
+        grid = GridSearchCV(model, param_grid=parameters, cv = cv, return_train_score=True)
     grid.fit(xTrain, yTrain.ravel())
 
     paramDict = {'paramMeanScore': [round(num, displayParams['roundNumber']) for num in list(grid.cv_results_['mean_test_score'])],
@@ -156,6 +158,11 @@ def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, 
 
     return resDict
 
-
+# def searchEvalPlt(modelingParams, displayParams, models, xTrain, yTrain):
+#     for m in models:
+#         bestModel, paramDict = paramEval(m['model'], m['param'], modelingParams['RegulVal'], modelingParams['CVFold'],
+#                                          xTrain, yTrain, displayParams)
+#         plot_search_results(bestModel)
+# searchEvalPlt(modelingParams, displayParams, models, xTrain, yTrain)
 
 

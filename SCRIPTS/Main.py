@@ -7,7 +7,7 @@ from GridSearch import *
 from Archiver import *
 from PlotRegul import *
 from PlotWeights import *
-
+from Visualizers import *
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -52,12 +52,14 @@ trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, fil
 3. MODEL
 ------------------------------------------------------------------------------------------------------------------------
 """
-"""Search"""
-searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
 
-"""Save & Dump"""
-exportStudy(displayParams, inputData, prepData, searchedModels)
-pickleDumpMe(displayParams, searchedModels)
+
+# """Search"""
+# searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
+#
+# """Save & Dump"""
+# exportStudy(displayParams, inputData, prepData, searchedModels)
+# pickleDumpMe(displayParams, searchedModels)
 
 dc = pickleLoadMe('C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/220223_dump', name = '/Records', show = False)
 
@@ -66,18 +68,21 @@ dc = pickleLoadMe('C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/2202
 4. RESULTS
 ------------------------------------------------------------------------------------------------------------------------
 """
-"""Regularization Influence"""
-plotRegul(dc, displayParams, metric = 'paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'], xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
-              showgrid = True, max=False, ticks = False, lims = True)
+# """Regularization Influence"""
+# plotRegul(dc, displayParams, metric = 'paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'], xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
+#               showgrid = True, max=False, ticks = False, lims = True)
+#
+# """Weights influence"""
+# averageWeight(dc)
+# coefBarDisplayMean(dc, displayParams, sorted = True, yLim = 0.02)
+# coefBarDisplayAll(dc, displayParams)
 
-"""Weights influence"""
-averageWeight(dc)
-coefBarDisplayMean(dc, displayParams, sorted = True, yLim = 0.02)
-coefBarDisplayAll(dc, displayParams)
+WeightsPlot(dc)
+
+plotReguls2D(dc)
 
 
-#sklearn.model_selection.ParameterGrid
-#https://scikit-learn.org/stable/modules/grid_search.html -
+
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 
@@ -89,3 +94,4 @@ coefBarDisplayAll(dc, displayParams)
 # todo : use other database?
 # todo : follow regression document
 # todo : log transform y?
+

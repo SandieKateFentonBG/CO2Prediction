@@ -1,4 +1,7 @@
+
 import numpy as np
+import scipy as sp
+import pandas as pd
 import matplotlib.pyplot as plt
 
 def unpackResPts(results):
@@ -57,26 +60,23 @@ def regulBestPt(points, max = True):
 
 
 
-def plotRegul(models, displayParams, metric = 'paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'],
-              title = 'Influence of Regularization on Model MSE', xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
-              showgrid = False, max=False, ticks = False, lims = False):
+def plotRegul3d(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'],
+                title = 'Influence of Regularization on Model MSE', xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
+                showgrid = False, max=False, ticks = False, lims = False):
 
     # Create figure and axes
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     regPts, labels = regulPoints(models)
-    print(regPts)
+
     xl, yl, zl = unpackResPts(regPts)
     lines = unpackResLines(regPts)
     best = regulBestPt(regPts, max=False)
     xlim, ylim, zlim = [np.amin(xl), np.amax(xl)], [np.amin(yl), np.amax(yl)], [np.amin(zl), np.amax(zl)]
     lim = xlim, ylim, zlim
-    print(lim)
-    print(xlim, ylim, zlim)
     ticks = np.arange(0, xlim[1]+1, 1).tolist(), np.arange(round(ylim[0], 0), round(ylim[1], 0), 50).tolist(), np.arange(round(zlim[0]-1, 0), round(zlim[1]+1, 0), 0.5).tolist()
-    print(ticks)
-    print(ticks[0])
+
     ax.scatter(xl, yl, zl, color=colorsPtsLsBest[0])
     ax.scatter(best[0], best[1], best[2], s = 50, c=colorsPtsLsBest[2])
 
@@ -112,4 +112,13 @@ def plotRegul(models, displayParams, metric = 'paramMeanScore', colorsPtsLsBest 
         plt.show()
     plt.close()
 
+def plotReguls2D(models):
+    import seaborn as sns
+    regPts, labels = regulPoints(models)
+    metric = [[regPts[i][j][2] for j in range(len(regPts[i]))] for i in range(len(regPts))]
+    df = pd.DataFrame(metric, index=labels, columns=[regPts[0][i][1] for i in range(len(regPts[0]))]).T
+    sns.lineplot(data=df)
+    sns.set_theme(style="whitegrid")
+    plt.show()
+    plt.close()
 
