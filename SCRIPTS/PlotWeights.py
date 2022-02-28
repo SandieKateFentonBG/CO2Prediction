@@ -48,11 +48,11 @@ def WeightsBarplot(coefPd, displayParams):
 
 def WeightsBarplotAll(models, displayParams, df=None, yLim = 0.05, sorted = True):
     import numpy
+    import math
     linModels = [m for m in models if m['Linear']==True] #only works/makes sense for linear models
     fig = plt.figure(figsize=(20, 10))
     idx = 1
-    count = int(len(linModels)/2)
-
+    count = math.ceil(len(linModels)/2)
     meanWeights, _ = averageWeight(linModels)
 
     for m in linModels:
@@ -193,5 +193,4 @@ def WeightsSummaryPlot(models, displayParams, sorted = True, yLim = None):
     # sns.barplot(x=features, y = weights, hue =modelLabels, data=table) #", x=modelLabels, y=weights, hue=weights
     # sns.catplot(data=table)
 
-def MetricsSummaryPlot(models, displayParams):
-    pass
+

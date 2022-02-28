@@ -6,6 +6,7 @@ from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from Archiver import *
 import numpy as np
 from PlotSearch import *
+from PlotPredTruth import *
 
 """
 Docum
@@ -88,7 +89,8 @@ def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTe
         bModelDict = modelEval(m['model'], m['Linear'], xTrain, yTrain, xTest, yTest,
                               displayParams, modelingParams, m['bModelParam'])
         m.update(bModelDict)
-        resDict = paramResiduals(m['model'], xTrain, yTrain, xTest, yTest, displayParams, m['bModelParam'])
+        resDict = paramResiduals(m['model'], xTrain, yTrain, xTest, yTest, displayParams, m['bModelParam'],
+                                 yLim = displayParams['residualsYLim'], xLim = displayParams['residualsXLim'], fontsize = displayParams['fontsize'])
         m.update(resDict)
 
         if displayParams["showResults"]:
@@ -100,45 +102,32 @@ def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTe
     if displayParams["showResults"]:
         printStudy(displayParams, models)
 
+    MetricsSummaryPlot(models, displayParams)
+    predTruthCombined(displayParams, models, xTrain, yTrain, Train=True)
+
     return models
 
-def plotPredTruth(yTest, yPred, displayParams, modeldict):
-    import matplotlib.pyplot as plt
-    plt.rcParams['figure.figsize'] = [18, 18]
-    # plt.grid()
-    l1, = plt.plot(yTest, 'g')
-    l2, = plt.plot(yPred, 'r', alpha=0.7)
-    plt.legend(['Ground truth', 'Predicted'], fontsize=18)
-    title = str(modeldict['bModel']) + '- BEST PARAM (%s) ' % modeldict['bModelParam'] \
-            + '- SCORE : ACC(%s) ' % modeldict['bModelAcc'] + 'MSE(%s) ' % modeldict['bModelMSE'] + 'R2(%s)' % modeldict['bModelr2']
-    plt.title(title, fontdict = {'fontsize' : 20})
-    plt.xticks(fontsize=14)
-    plt.xlabel('Test Building', fontsize=18)
-    plt.ylim(ymin=displayParams['TargetMinMaxVal'][0], ymax=displayParams['TargetMinMaxVal'][1])
-    plt.yticks(fontsize=14)
-    plt.ylabel(displayParams['Target'], fontsize=18)
-    if displayParams['archive']:
-        import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Pred_Truth'
-        if not os.path.isdir(outputFigPath):
-            os.makedirs(outputFigPath)
-
-        plt.savefig(outputFigPath + '/' + str(modeldict['bModel']) + '.png')
-    if displayParams['showPlot']:
-        plt.show()
-    plt.close()
-
-def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None):
+def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None, yLim = None , xLim = None, fontsize = None):
     import matplotlib.pyplot as plt
     from yellowbrick.regressor import ResidualsPlot
     title = 'Residuals for ' + str(modelWithParam)
     if bestParam:
         title += '- BEST PARAM (%s) ' % bestParam
-
-    visualizer = ResidualsPlot(modelWithParam, title = title, fig=plt.figure(figsize=(18,18)), fontsize = 18)
-    #todo : ymin = -0.5, ymax = 0.5
+    fig = plt.figure()#figsize=(18,10)
+    if fontsize:
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.xlabel('Predicted Value ', fontsize=14)
+        plt.ylabel('Residuals', fontsize=14)
+    ax = plt.gca()
+    if yLim:
+        plt.ylim(yLim[0], yLim[1])
+    if xLim:
+        plt.xlim(xLim[0], xLim[1])
+    visualizer = ResidualsPlot(modelWithParam, title = title, fig=fig, hist =True)#"frequency" qqplot = True
     visualizer.fit(xTrain, yTrain.ravel())  # Fit the training data to the visualizer
     visualizer.score(xTest, yTest.ravel())  # Evaluate the model on the test data
+    # visualizer.hax.grid(False)
 
     resDict = {'bModelResTrScore': round(visualizer.train_score_, displayParams['roundNumber']),
                'bModelResTeScore': round(visualizer.test_score_, displayParams['roundNumber'])}
@@ -158,11 +147,6 @@ def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, 
 
     return resDict
 
-# def searchEvalPlt(modelingParams, displayParams, models, xTrain, yTrain):
-#     for m in models:
-#         bestModel, paramDict = paramEval(m['model'], m['param'], modelingParams['RegulVal'], modelingParams['CVFold'],
-#                                          xTrain, yTrain, displayParams)
-#         plot_search_results(bestModel)
-# searchEvalPlt(modelingParams, displayParams, models, xTrain, yTrain)
+
 
 

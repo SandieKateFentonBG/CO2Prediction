@@ -44,24 +44,24 @@ xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
 
 """Train Test Split"""
 xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
+#
+# """Save Data Processing"""
+# trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
+#
+# """
+# ------------------------------------------------------------------------------------------------------------------------
+# 3. MODEL
+# ------------------------------------------------------------------------------------------------------------------------
+# """
+#
+# """Search"""
+# searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
+#
+# """Save & Dump"""
+# exportStudy(displayParams, inputData, prepData, searchedModels)
+# pickleDumpMe(displayParams, searchedModels)
 
-"""Save Data Processing"""
-trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
-
-"""
-------------------------------------------------------------------------------------------------------------------------
-3. MODEL
-------------------------------------------------------------------------------------------------------------------------
-"""
-
-"""Search"""
-searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
-
-"""Save & Dump"""
-exportStudy(displayParams, inputData, prepData, searchedModels)
-pickleDumpMe(displayParams, searchedModels)
-
-dc = pickleLoadMe('C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/220223_dump', name = '/Records', show = False)
+dc = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"], name = '/Records', show = False)
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -76,13 +76,20 @@ plotRegul2D(dc, displayParams, log = True)
 
 # """Weights influence"""
 
-WeightsBarplotAll(dc, displayParams)
-WeightsSummaryPlot(dc, displayParams)
+# WeightsBarplotAll(dc, displayParams)
+# WeightsSummaryPlot(dc, displayParams)
+# print(len(dc))
 
-MetricsSummaryPlot(dc, displayParams)
+# MetricsSummaryPlot(dc, displayParams, metricLabels=['bModelAcc'])
+# predTruthCombined(displayParams, dc, xTest, yTest, Train=False)
 
-
-
+mod1 = dc[0]['bModel']
+mod2 = dc[0]['model']
+print(mod1 == mod2)
+print(mod1.coef_)
+print(mod2.coef_)
+# paramResiduals(mod1, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None,
+#                yLim = displayParams['residualsYLim'] , xLim = displayParams['residualsXLim'])
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 

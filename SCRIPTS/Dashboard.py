@@ -4,9 +4,10 @@ csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_d
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
-                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': True,
-                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220225', 'roundNumber': 3,
-                 'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8]}
+                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
+                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220228', 'roundNumber': 3,
+                 'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8],
+                 'residualsYLim' : [-0.5, 0.5], 'residualsXLim' : [0, 0.8], 'fontsize': None}
 # DATA
 
 xQualLabels = ['Sector','Type','Basement', 'Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating']#
@@ -22,7 +23,7 @@ processingParams = {'scaler': 'StandardScaler', 'cutOffThreshhold' : 3, 'lowThre
 
 # PARAMS
 import numpy as np
-modelingParams = {'test_size': 0.2, 'random_state' : 7, 'RegulVal': list(10.0**np.arange(-4,4)),
+modelingParams = {'test_size': 0.2, 'random_state' : 6, 'RegulVal': list(10.0**np.arange(-4,4)),
                   'accuracyTol': 0.05, 'CVFold': None}
 powers = {}
 mixVariables = []
