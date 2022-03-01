@@ -30,18 +30,27 @@ def unpackResLines(results):
         rlist.append(row)
     return rlist
 
-def regulPoints(models, metric = 'paramMeanScore'):
+def removeLinReg(dc):
+
+    update = []
+    for m in dc:
+        if m['param']:
+            update.append(m)
+    return update
+
+def regulPoints(dc, metric = 'paramMeanMSETest'): #'paramMeanR2Test
     allModels = []
     # for m in models:
     labels =[]
+
+    models = removeLinReg(dc)
+
     for j in range(len(models)):
         labels.append(models[j]['model'])
         modelRes = []
         for i in range(len(models[j]['paramValues'])):
             paramRes = [j, models[j]['paramValues'][i], models[j][metric][i]]
 
-            # for i in range(len(m['paramValues'])):
-        #     paramRes = [m['model'],m['paramValues'][i],m['paramMeanScore'][i]]
             modelRes.append(paramRes)
         allModels.append(modelRes)
     return allModels, labels
@@ -58,16 +67,22 @@ def regulBestPt(points, max = True):
                     best = points[i][j]
     return best
 
-
-
-def plotRegul3D(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest = ['b', 'g', 'c'],
-                title = 'Influence of Regularization on Model MSE', xlabel = 'Model', ylabel = 'Regularization', zlabel ='MSE', size = [6,6],
+def plotRegul3D(modelWithParams, displayParams, modelingParams, colorsPtsLsBest = ['b', 'g', 'c'],
+                title = 'Influence of Regularization on Model Performance', xlabel = 'Model', ylabel = 'Regularization', size = [6,6],
                 showgrid = False, log = False, max=False, ticks = False, lims = False):
 
+    #todo : remove linear reg from models
+    zlabel = 'Score'
+    metric = modelingParams['plotregulAccordingTo']
+    if metric == 'paramMeanMSETest':
+        zlabel ='MSE'
+    if metric == 'paramMeanR2Test':
+        zlabel ='R2'
     # Create figure and axes
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    regPts, labels = regulPoints(models)
+    regPts, labels = regulPoints(modelWithParams, metric)
+    print(labels)
     figTitle = '/RegulPlot3d'
     xl, yl, zl = unpackResPts(regPts)
     lines = unpackResLines(regPts)
@@ -80,7 +95,7 @@ def plotRegul3D(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest
     best = regulBestPt(regPts, max=False)
     xlim, ylim, zlim = [np.amin(xl), np.amax(xl)], [np.amin(yl), np.amax(yl)], [np.amin(zl), np.amax(zl)]
     lim = xlim, ylim, zlim
-    ticks = np.arange(0, xlim[1]+1, 1).tolist(), np.arange(round(ylim[0], 0), round(ylim[1], 0), 50).tolist(), np.arange(round(zlim[0]-1, 0), round(zlim[1]+1, 0), 0.5).tolist()
+    tick = np.arange(0, xlim[1]+1, 1).tolist(), np.arange(round(ylim[0], 0), round(ylim[1], 0), 100).tolist(), np.arange(round(zlim[0]-1, 0), round(zlim[1]+1, 0), 10).tolist()
 
     ax.scatter(xl, yl, zl, color=colorsPtsLsBest[0])
     ax.scatter(best[0], best[1], best[2], s = 50, c=colorsPtsLsBest[2])
@@ -94,12 +109,13 @@ def plotRegul3D(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest
         ax.set_ylim(lim[1][0], lim[1][1])
         ax.set_zlim(lim[2][0], lim[2][1])
     if ticks:
-        ax.set_xticks(ticks[0])
-        ax.set_yticks(ticks[1])
-        ax.set_zticks(ticks[2])
+        ax.set_xticks(tick[0])
+        ax.set_yticks(tick[1])
+        ax.set_zticks(tick[2])
     ax.set_xticklabels(labels)
+    # ax.set_xlabels(labels)
     plt.setp(ax.get_xticklabels(), rotation=25, ha="right",
-             rotation_mode="anchor")
+             rotation_mode="anchor", size = 8)
     ax.set_ylabel(ylabel)
     ax.set_zlabel(zlabel)
     fig.set_size_inches(size[0], size[1])
@@ -116,10 +132,19 @@ def plotRegul3D(models, displayParams, metric ='paramMeanScore', colorsPtsLsBest
         plt.show()
     plt.close()
 
-def plotRegul2D(models, displayParams, yLim = None, title ='Influence of Regularization on Model MSE',
-                ylabel='MSE', xlabel='Regularization', log = False):
+def plotRegul2D(modelWithParams,  displayParams, modelingParams, yLim = None, title ='Influence of Regularization on Model Performance',
+                xlabel='Regularization', log = False):
     import seaborn as sns
-    regPts, labels = regulPoints(models)
+
+    # todo : remove linear reg from models
+    ylabel = 'score'
+    metric = modelingParams['plotregulAccordingTo']
+    if metric == 'paramMeanMSETest':
+        ylabel ='MSE'
+    if metric == 'paramMeanR2Test':
+        ylabel ='R2'
+
+    regPts, labels = regulPoints(modelWithParams, metric)
     metric = [[regPts[i][j][2] for j in range(len(regPts[i]))] for i in range(len(regPts))]
     param = [regPts[0][i][1] for i in range(len(regPts[0]))]
     figTitle = '/RegulPlot2d'

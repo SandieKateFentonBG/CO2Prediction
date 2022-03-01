@@ -25,8 +25,9 @@ def computeAccuracy(yTrue, yPred, tolerance):
     validated = [1 if abs(yPred[i] - yTrue[i]) < abs(yTrue[i]) * tolerance else 0 for i in range(len(yTrue))]
     return sum(validated) / len(validated)
 
-def paramEval(model, paramkey, paramValues, cv, xTrain, yTrain, displayParams, custom = False):
-
+def paramEval(model, paramkey, paramValues, cv, xTrain, yTrain, displayParams, custom = False, refit = 'r2' ):
+    #https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter
+    #https://scikit-learn.org/stable/auto_examples/model_selection/plot_multi_metric_evaluation.html#sphx-glr-auto-examples-model-selection-plot-multi-metric-evaluation-py
     parameters = dict()
     if paramkey:
         parameters[paramkey] = paramValues
@@ -34,12 +35,18 @@ def paramEval(model, paramkey, paramValues, cv, xTrain, yTrain, displayParams, c
         score = make_scorer(computeAccuracy(), greater_is_better=True)
         grid = GridSearchCV(model, scoring=score, param_grid=parameters, cv = cv)
     else:
-        grid = GridSearchCV(model, param_grid=parameters, cv = cv, return_train_score=True)
+        # grid = GridSearchCV(model, param_grid=parameters,  cv = cv, return_train_score=True)
+        scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
+        grid = GridSearchCV(model, param_grid=parameters, scoring =scoring, refit = refit,  cv = cv, return_train_score=True)
     grid.fit(xTrain, yTrain.ravel())
+    results =grid.cv_results_
 
-    paramDict = {'paramMeanScore': [round(num, displayParams['roundNumber']) for num in list(grid.cv_results_['mean_test_score'])],
-                 'paramStdScore': [round(num, displayParams['roundNumber']) for num in list(grid.cv_results_['std_test_score'])],
-                 'paramRankScore': list(grid.cv_results_['rank_test_score']),
+    paramDict = {'paramMeanMSETest': [round(num, displayParams['roundNumber']) for num in list(grid.cv_results_['mean_test_neg_mean_squared_error'])],
+                 'paramStdSMSETest': [round(num, displayParams['roundNumber']) for num in list(grid.cv_results_['std_test_neg_mean_squared_error'])],
+                 'paramRankMSETest': list(grid.cv_results_['rank_test_neg_mean_squared_error']),
+                 'paramMeanR2Test': [round(num, displayParams['roundNumber']) for num in list(grid.cv_results_['mean_test_r2'])],
+                 'paramStdR2Test': [round(num, displayParams['roundNumber']) for num in list(grid.cv_results_['std_test_r2'])],
+                 'paramRankR2Test': list(grid.cv_results_['rank_test_r2']),
                  'paramValues': paramValues}
 
     return grid, paramDict
@@ -59,7 +66,7 @@ def modelEval(modelWithParam, Linear, xTrain, yTrain, xTest, yTest, displayParam
         val = vals[0]
     else :
         val = 'default'
-    modeldict = {'bModel': clf,'bModelTrScore':round(trainScore, displayParams['roundNumber']) , 'bModelTeScore': round(testScore, displayParams['roundNumber']),
+    modeldict = {'bModel': clf,'bModelTrR2':round(trainScore, displayParams['roundNumber']) , 'bModelTeR2': round(testScore, displayParams['roundNumber']),
                  'bModelParam': val,'bModelAcc': round(accuracy, displayParams['roundNumber']),
                  'bModelMSE': round(mse, displayParams['roundNumber']),'bModelr2': round(r2, displayParams['roundNumber'])}
     # format weight to list
@@ -74,7 +81,7 @@ def modelEval(modelWithParam, Linear, xTrain, yTrain, xTest, yTest, displayParam
 
     modeldict['bModelWeights'] = [round(num, displayParams['roundNumber']) for num in list(content)]
 
-    if displayParams['showPlot']:
+    if displayParams['showPlot'] or displayParams['archive']:
         plotPredTruth(yTest, yPred, displayParams, modeldict)
 
     return modeldict
@@ -83,7 +90,8 @@ def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTe
 
     for m in models:
         m['features'] = features
-        bestModel, paramDict = paramEval(m['model'], m['param'], modelingParams['RegulVal'], modelingParams['CVFold'], xTrain, yTrain, displayParams)
+        bestModel, paramDict = paramEval(m['model'], m['param'], modelingParams['RegulVal'], modelingParams['CVFold'],
+                                         xTrain, yTrain, displayParams, refit = modelingParams['rankGridSearchModelsAccordingto'])
         m.update(paramDict)
         m['bModelParam'] = bestModel.best_params_
         bModelDict = modelEval(m['model'], m['Linear'], xTrain, yTrain, xTest, yTest,
@@ -96,56 +104,18 @@ def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTe
         if displayParams["showResults"]:
             print(m)
 
-    if displayParams["archive"] or displayParams["showPlot"]:
-        saveStudy(displayParams, models)
+    saveStudy(displayParams, models)
 
     if displayParams["showResults"]:
         printStudy(displayParams, models)
 
-    MetricsSummaryPlot(models, displayParams)
-    predTruthCombined(displayParams, models, xTrain, yTrain, Train=True)
+    if displayParams["archive"] or displayParams["showPlot"]:
+        MetricsSummaryPlot(models, displayParams)
+        predTruthCombined(displayParams, models, xTest, yTest, Train=False)
 
     return models
 
-def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None, yLim = None , xLim = None, fontsize = None):
-    import matplotlib.pyplot as plt
-    from yellowbrick.regressor import ResidualsPlot
-    title = 'Residuals for ' + str(modelWithParam)
-    if bestParam:
-        title += '- BEST PARAM (%s) ' % bestParam
-    fig = plt.figure()#figsize=(18,10)
-    if fontsize:
-        plt.xticks(fontsize=14)
-        plt.yticks(fontsize=14)
-        plt.xlabel('Predicted Value ', fontsize=14)
-        plt.ylabel('Residuals', fontsize=14)
-    ax = plt.gca()
-    if yLim:
-        plt.ylim(yLim[0], yLim[1])
-    if xLim:
-        plt.xlim(xLim[0], xLim[1])
-    visualizer = ResidualsPlot(modelWithParam, title = title, fig=fig, hist =True)#"frequency" qqplot = True
-    visualizer.fit(xTrain, yTrain.ravel())  # Fit the training data to the visualizer
-    visualizer.score(xTest, yTest.ravel())  # Evaluate the model on the test data
-    # visualizer.hax.grid(False)
 
-    resDict = {'bModelResTrScore': round(visualizer.train_score_, displayParams['roundNumber']),
-               'bModelResTeScore': round(visualizer.test_score_, displayParams['roundNumber'])}
-
-    if displayParams['archive']:
-        import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Residuals'
-        if not os.path.isdir(outputFigPath):
-            os.makedirs(outputFigPath)
-
-        visualizer.show(outpath=outputFigPath + '/' + str(modelWithParam) + '.png')
-
-    if displayParams['showPlot']:
-        visualizer.show()
-
-    visualizer.finalize()
-
-    return resDict
 
 
 

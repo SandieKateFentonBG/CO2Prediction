@@ -2,29 +2,29 @@
 
 csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data"
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
-
+#220301_Stdsc_nofilt
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
-                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
-                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': '220228', 'roundNumber': 3,
-                 'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8],
+                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': True,
+                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': 'fil-cor-col-bas-lt02',
+                 'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8], 'roundNumber': 3,
                  'residualsYLim' : [-0.5, 0.5], 'residualsXLim' : [0, 0.8], 'fontsize': None}
 # DATA
 
 xQualLabels = ['Sector','Type','Basement', 'Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating']#
 xQuantLabels = ['GIFA (m2)','Storeys','Typical Span (m)', 'Typ Qk (kN_per_m2)']#
 yLabels = ['Calculated tCO2e_per_m2'] #'Calculated Total tCO2e',
-baseLabels = [xQuantLabels] #
+ #
 # if higher orders : baseLabels = ['GIFA (m2)_exp1', 'Storeys_exp1', 'Typical Span (m)_exp1','Typ Qk (kN_per_m2)_exp1']
 
 # FORMAT
 
-processingParams = {'scaler': 'StandardScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.1, 'highThreshold' : 0.5,
-                    'removeLabels' : ['Basement_None']} #,, 'Foundations_Raft' 'scaler': None, 'MinMaxScaler', 'StandardScaler'
+processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.2, 'highThreshold' : 1,
+                    'removeLabels' : ['Basement_None', 'Sector_Industrial'], 'baseLabels' : xQuantLabels} #, 'Foundations_Raft' 'scaler': None, 'MinMaxScaler', 'StandardScaler'
 
 # PARAMS
 import numpy as np
-modelingParams = {'test_size': 0.2, 'random_state' : 6, 'RegulVal': list(10.0**np.arange(-4,4)),
-                  'accuracyTol': 0.05, 'CVFold': None}
+modelingParams = {'test_size': 0.2, 'random_state' : 3, 'RegulVal': list(10.0**np.arange(-4,4)),
+                  'accuracyTol': 0.15, 'CVFold': None, 'rankGridSearchModelsAccordingto' : 'r2', 'plotregulAccordingTo' : 'paramMeanMSETest'} #paramMeanR2Test
 powers = {}
 mixVariables = []
 #[0.001, 0.01, 0.1, 1, 5, 10, 20, 50, 100, 200, 500]
@@ -41,8 +41,10 @@ from sklearn.kernel_ridge import KernelRidge
 
 linearReg = {'model' : LinearRegression(), 'param' : None, 'Linear' : True} #why doies this not have a regul param?
 lassoReg = {'model' : Lasso() , 'param': 'alpha', 'Linear' : True} # for overfitting
+lassoRegNorm = {'model' : Lasso(normalize=True), 'param': 'alpha', 'Linear' : True}
 ridgeReg = {'model' : Ridge(), 'param': 'alpha', 'Linear' : True}
 elasticNetReg = {'model' : ElasticNet(), 'param': 'alpha', 'Linear' : True}
+elasticNetRegNorm = {'model' : ElasticNet(normalize=True), 'param': 'alpha', 'Linear' : True}
 supportVectorLinReg = {'model' : SVR(kernel='linear'), 'param': 'C', 'Linear' : True}
 supportVectorRbfReg = {'model' : SVR(kernel='rbf'), 'param': 'C', 'Linear' : False}
 supportVectorPolReg = {'model' : SVR(kernel='poly'), 'param': 'C', 'Linear' : False}
@@ -50,6 +52,8 @@ kernelRidgeLinReg = {'model' : KernelRidge(kernel='linear'), 'param': 'alpha', '
 kernelRidgeRbfReg = {'model' : KernelRidge(kernel='rbf'), 'param': 'alpha', 'Linear' : False}
 kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha', 'Linear' : False}
 
-models = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg,
-        kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg]
-modelsa = [lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg]
+# modelsa = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg,
+#         kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg]
+models = [linearReg, lassoReg, lassoRegNorm, ridgeReg, elasticNetReg, elasticNetRegNorm,
+          kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg,
+          supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg]

@@ -3,21 +3,23 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-def plotPredTruth(yTest, yPred, displayParams, modeldict):
+def plotPredTruth(yTest, yPred, displayParams, modeldict, fontsize = 10):
 
-    plt.rcParams['figure.figsize'] = [18, 18]
-    # plt.grid()
+    plt.clf()
+    plt.cla()
+    # plt.rcParams['figure.figsize'] = [18, 18]
+    plt.grid()
     l1, = plt.plot(yTest, 'g')
     l2, = plt.plot(yPred, 'r', alpha=0.7)
-    plt.legend(['Ground truth', 'Predicted'], fontsize=18)
+    plt.legend(['Ground truth', 'Predicted'], fontsize=fontsize)
     title = str(modeldict['bModel']) + '- BEST PARAM (%s) ' % modeldict['bModelParam'] \
             + '- SCORE : ACC(%s) ' % modeldict['bModelAcc'] + 'MSE(%s) ' % modeldict['bModelMSE'] + 'R2(%s)' % modeldict['bModelr2']
-    plt.title(title, fontdict = {'fontsize' : 20})
-    plt.xticks(fontsize=14)
-    plt.xlabel('Test Building', fontsize=18)
+    plt.title(title, fontdict = {'fontsize' : fontsize})
+    plt.xticks(fontsize=fontsize+2)
+    plt.xlabel('Test Building', fontsize=fontsize)
     plt.ylim(ymin=displayParams['TargetMinMaxVal'][0], ymax=displayParams['TargetMinMaxVal'][1])
-    plt.yticks(fontsize=14)
-    plt.ylabel(displayParams['Target'], fontsize=18)
+    plt.yticks(fontsize=fontsize)
+    plt.ylabel(displayParams['Target'], fontsize=fontsize)
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Pred_Truth'
@@ -31,8 +33,9 @@ def plotPredTruth(yTest, yPred, displayParams, modeldict):
 
 def predTruthCombined(displayParams, models, x, y, Train = False):
 
-
-    plt.rcParams['figure.figsize'] = [18, 18]
+    plt.clf()
+    # plt.rcParams['figure.figsize'] = [18, 18]
+    fig = plt.figure(figsize=(18,18))
     yPreds = [list(y.T[0])]
     labels = ['Groundtruth']
     for m in models:
@@ -40,13 +43,12 @@ def predTruthCombined(displayParams, models, x, y, Train = False):
         yPreds.append(m['bModel'].predict(x))
 
     df = pd.DataFrame(yPreds, index=labels)  # , columns=yTePreds
-    print(df)
 
     sns.lineplot(data=df.T)
     if Train:
-        title = 'Groundtruth - Predicted values  - Training Set'
+        title = 'Predicted values for various models compared to groundtruth on Training Set'
     else:
-        title = 'Groundtruth - Predicted values - Testing Set'
+        title = 'Predicted values for various models compared to groundtruth on Testing Set'
 
     plt.title(label = title, fontdict = {'fontsize' : 20})
     plt.xlabel('Test Building', fontsize=18)
@@ -62,3 +64,4 @@ def predTruthCombined(displayParams, models, x, y, Train = False):
     if displayParams['showPlot']:
         plt.show()
     plt.close()
+    plt.clf()

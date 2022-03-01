@@ -1,3 +1,0 @@
-model;param;bestParam;trainScore;testScore;accuracy;mse;r2;visualizerTrainScore;visualizerTestScore
-LinearRegression();;{};-0.616;-0.616;0.071;0.01;-0.616;0.666;-0.616
-Lasso();alpha;{'alpha': 0.01};-0.034;-0.034;0.143;0.006;-0.034;0.0;-0.034

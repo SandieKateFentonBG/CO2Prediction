@@ -120,43 +120,14 @@ def sortedListAccordingToGuide(guide, list1, list2=None):
         return sortedG, sortedL1, sortedL2
     return sortedG, sortedL1
 
-def WeightsBarplotMean(models, displayParams, sorted = True, yLim = None):
-    import numpy
-    linModels = [m for m in models if m['Linear']==True] #only works/makes sense for linear models
-    means, stdvs = averageWeight(linModels)
-    labels = linModels[0]['features']
-    if sorted:
-        means, stdvs, labels = sortedListAccordingToGuide(means, stdvs, labels)
 
-    fig = plt.figure(figsize=(20, 10))
-    # plt.grid()
-    plt.bar(numpy.arange(len(means)), means, align='center', color='red', yerr = stdvs, palette="Blues_d")
-    plt.xticks(numpy.arange(len(labels)), labels, rotation=25, ha="right",rotation_mode="anchor", size = 8)
-    if yLim:
-        plt.ylim(-yLim, yLim)
-    plt.ylabel('Weights')
-
-    title = 'Feature Importance'
-    fig.suptitle(title, fontsize="x-large")
-
-    if displayParams['archive']:
-        import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Coef'
-        if not os.path.isdir(outputFigPath):
-            os.makedirs(outputFigPath)
-
-        plt.savefig(outputFigPath + '/CoefImportance.png')
-    if displayParams['showPlot']:
-        plt.show()
-    plt.close()
-
-def WeightsSummaryPlot(models, displayParams, sorted = True, yLim = None):
+def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None):
 
     import pandas as pd
     import numpy
     import seaborn as sns
 
-    linModels = [m for m in models if m['Linear']==True] #only works/makes sense for linear models
+    linModels = [m for m in models if m['Linear'] == True]  # only works/makes sense for linear models
     weights, modelLabels = listWeight(linModels)
     meanWeights, stdvs = averageWeight(linModels)
     features = linModels[0]['features']
@@ -165,17 +136,17 @@ def WeightsSummaryPlot(models, displayParams, sorted = True, yLim = None):
     lineTable = pd.DataFrame(weights, columns=modelLabels, index=features)
     barTable = lineTable.T
 
-    fig = plt.figure(figsize=(20, 10))
+    fig = plt.figure(figsize=(10, 10))
     plt.title("Feature Importance sorted according to mean value")
     sns.set_theme(style="whitegrid")
     sns.lineplot(data=lineTable)
-    sns.barplot(data=barTable,  palette="Blues_d")
-    plt.xticks(numpy.arange(len(features)), features, rotation=25, ha="right", rotation_mode="anchor", size=8)
+    sns.barplot(data=barTable, palette="Blues_d")
+    plt.xticks(numpy.arange(len(features)), features, rotation=55, ha="right", rotation_mode="anchor", size=8)
     if yLim:
         plt.ylim(-yLim, yLim)
     plt.ylabel('Weights')
     plt.xlabel('Features')
-
+    fig.tight_layout()
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Coef'

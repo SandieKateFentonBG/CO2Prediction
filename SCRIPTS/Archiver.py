@@ -6,7 +6,7 @@ def saveStudy(displayParams, Content):
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
 
-        with open(outputPathStudy + '/Records' ".txt", 'a') as f:
+        with open(outputPathStudy + '/Records' + displayParams["reference"] + ".txt", 'a') as f:
             print('', file=f)
             if type(Content) == dict:
                 for k,v in Content.items():
@@ -34,7 +34,7 @@ def exportStudy(displayParams, inputData, prepData, modelsData):
             os.makedirs(outputPathStudy)
 
         import csv
-        with open(outputPathStudy + '/Records' + ".csv", 'w', encoding='UTF8', newline='') as e:
+        with open(outputPathStudy + '/Records_' + displayParams["reference"] + ".csv", 'w', encoding='UTF8', newline='') as e:
             writer = csv.writer(e, delimiter = ";")
 
             writer.writerow('INPUT DATA')

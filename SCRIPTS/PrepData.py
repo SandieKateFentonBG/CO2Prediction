@@ -60,7 +60,9 @@ def filteredData(noOutlierDf, baseLabels, yLabels, displayParams, lt, removeLabe
     filteredData = noOutlierDf.drop(columns = drop)
     filteringName = 'keepcorr'
     if removeLabels:
-        filteredData = filteredData.drop(columns = removeLabels)
+        filteredData = filteredData.drop(columns = [elem for elem in removeLabels if elem in filteredData.keys()])#[removeLabels[i] for i range(len(removeLabels) if removeLabels[i] in )
+
+        # filteredData = filteredData.drop(columns = removeLabels)
         filteringName = 'dropcolin'
 
     if displayParams['showCorr']or displayParams['archive']:
@@ -101,7 +103,9 @@ def plotCorrelation(correlationMatrix, displayParams, filteringName):
     mask = np.zeros_like(correlationMatrix)
     mask[np.triu_indices_from(mask)] = True
     fig, ax = plt.subplots(figsize=(20,20))
+
     sns.heatmap(correlationMatrix, annot=True, mask = mask, fmt=".001f",ax=ax, cmap="bwr", center = 0, vmin=-1, vmax=1, square = True)
+    # sns.set(font_scale=0.5)
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/correlation'
