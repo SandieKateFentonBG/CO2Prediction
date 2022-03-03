@@ -16,53 +16,56 @@ from Visualizers import *
 ------------------------------------------------------------------------------------------------------------------------
 """
 """Import libraries & Load data"""
-# inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
-#           powers, mixVariables)
-# rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
+inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
+          powers, mixVariables)
+rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
+
+"""Process data & One hot encoding"""
+dat = Data(rdat)
+df = dat.asDataframe(powers)
+
+""" Remove outliers - only exist/removed on Quantitative features"""
+ValidDf = removeOutliers(df, labels = xQuantLabels+yLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
+
+"""
+------------------------------------------------------------------------------------------------------------------------
+2.DATA
+------------------------------------------------------------------------------------------------------------------------
+"""
+
+"""Correlation of variables & Feature selection"""
+NoFilterDf, _ = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=0)
+
+HighCorDf, _ = filteredData(NoFilterDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'])
+checkDf, _ = filteredData(HighCorDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'], checkup = True)
+
+"""Remove Multi-correlated Features """
+CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
+                     removeLabels=processingParams['removeLabels'])
+"""Scale"""
+xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
+
+"""Train Test Split"""
+xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
 #
-# """Process data & One hot encoding"""
-# dat = Data(rdat)
-# df = dat.asDataframe(powers)
-#
-# """ Remove outliers - only exist/removed on Quantitative features"""
-# ValidDf = removeOutliers(df, labels = xQuantLabels+yLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
-#
-# """
-# ------------------------------------------------------------------------------------------------------------------------
-# 2.DATA
-# ------------------------------------------------------------------------------------------------------------------------
-# """
-#
-# """Correlation of variables & Feature selection"""
-# HighCorDf, _ = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'])
-# #
-# """Remove Multi-correlated Features """
-# CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
-#                      removeLabels=processingParams['removeLabels'])
-# """Scale"""
-# xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
-#
-# """Train Test Split"""
-# xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
-# #
-# """Save Data Processing"""
-# trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
-#
-# """
-# ------------------------------------------------------------------------------------------------------------------------
-# 3. MODEL
-# ------------------------------------------------------------------------------------------------------------------------
-# """
-#
-# """Search"""
-# searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
-#
-# """Save & Dump"""
-# exportStudy(displayParams, inputData, prepData, searchedModels)
-# pickleDumpMe(displayParams, searchedModels)
+"""Save Data Processing"""
+trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
+
+"""
+------------------------------------------------------------------------------------------------------------------------
+3. MODEL
+------------------------------------------------------------------------------------------------------------------------
+"""
+
+"""Search"""
+searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
+sortedDc = sortGridResults(searchedModels, metric = 'bModelAcc', highest = True)
+"""Save & Dump"""
+exportStudy(displayParams, inputData, prepData, searchedModels, sortedDc)
+pickleDumpMe(displayParams, searchedModels)
 
 dc = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"], name = '/Records', show = False)
-
+sortedDc = sortGridResults(dc, metric = 'bModelAcc', highest = True)
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -70,26 +73,27 @@ dc = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"], name
 ------------------------------------------------------------------------------------------------------------------------
 """
 """Regularization Influence"""
-# WeightsBarplotAll(dc, displayParams)
-# WeightsSummaryPlot(dc, displayParams, sorted=True, yLim=None)
+WeightsBarplotAll(dc, displayParams)
+WeightsSummaryPlot(dc, displayParams, sorted=True, yLim=None)
+
+plotRegul3D(dc, displayParams, modelingParams, lims = True, ticks = True)
+plotRegul2D(dc, displayParams, modelingParams,)
+plotRegul3D(dc, displayParams, modelingParams, lims = True, log = True)
+plotRegul2D(dc, displayParams, modelingParams, log = True)
 #
-# plotRegul3D(dc, displayParams, modelingParams, lims = True, ticks = True)
-# plotRegul2D(dc, displayParams, modelingParams,)
-# plotRegul3D(dc, displayParams, modelingParams, lims = True, log = True)
-# plotRegul2D(dc, displayParams, modelingParams, log = True)
 
-print(dc[10])
-print(dc[10]['model'].kernel)
 
-# mod1 = dc[0]['bModel']
-# paramResiduals(mod1, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None,
-#                yLim = displayParams['residualsYLim'] , xLim = displayParams['residualsXLim'])
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 
-# todo : good display https://stackoverflow.com/questions/37161563/how-to-graph-grid-scores-from-gridsearchcv
+# todo : understand advantage of ridge regression - istructe talk
+#
+#  good display https://stackoverflow.com/questions/37161563/how-to-graph-grid-scores-from-gridsearchcv
+
+#One way to combat heteroscedasticity is through Weighted Least Squares
+
 
 # todo : use other database?
-# todo : follow regression document
-
+# todo : understand residual plot
+# todo : understand LASSO
 

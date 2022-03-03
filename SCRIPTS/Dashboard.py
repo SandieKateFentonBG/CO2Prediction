@@ -4,8 +4,8 @@ csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_d
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 #220301_Stdsc_nofilt
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
-                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': True,
-                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': 'fil-cor-col-bas-lt02',
+                 "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
+                'showResults' : True, 'showPlot' : False, 'archive': True, 'reference': 'fccb-lt015',
                  'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8], 'roundNumber': 3,
                  'residualsYLim' : [-0.5, 0.5], 'residualsXLim' : [0, 0.8], 'fontsize': None}
 # DATA
@@ -18,12 +18,12 @@ yLabels = ['Calculated tCO2e_per_m2'] #'Calculated Total tCO2e',
 
 # FORMAT
 
-processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.2, 'highThreshold' : 1,
+processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.15, 'highThreshold' : 1,
                     'removeLabels' : ['Basement_None', 'Sector_Industrial'], 'baseLabels' : xQuantLabels} #, 'Foundations_Raft' 'scaler': None, 'MinMaxScaler', 'StandardScaler'
-
+#main : 'Basement_None', 'Sector_Industrial', 'Foundations_', 'Ground Floor_Raft'
 # PARAMS
 import numpy as np
-modelingParams = {'test_size': 0.2, 'random_state' : 3, 'RegulVal': list(10.0**np.arange(-4,4)),
+modelingParams = {'test_size': 0.2, 'random_state' : 4, 'RegulVal': list(10.0**np.arange(-4,4)),
                   'accuracyTol': 0.15, 'CVFold': None, 'rankGridSearchModelsAccordingto' : 'r2', 'plotregulAccordingTo' : 'paramMeanMSETest'} #paramMeanR2Test
 powers = {}
 mixVariables = []
@@ -54,6 +54,6 @@ kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha
 
 # modelsa = [linearReg, lassoReg, ridgeReg, elasticNetReg, supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg,
 #         kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg]
-models = [linearReg, lassoReg, lassoRegNorm, ridgeReg, elasticNetReg, elasticNetRegNorm,
+models = [linearReg, lassoReg, ridgeReg, elasticNetReg,
           kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg,
           supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg]

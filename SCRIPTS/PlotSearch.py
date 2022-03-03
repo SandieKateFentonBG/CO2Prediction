@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrR2','bModelTeR2','bModelAcc','bModelMSE','bModelr2'],
-            title ='Model Evaluations', xlabel='Evaluation Metric'):
+def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrR2','bModelTeR2','bModelAcc','bModelMSE'],
+            title ='Model Evaluations', ylabel='Evaluation Metric'):
     import pandas as pd
     import seaborn as sns
 
@@ -16,27 +16,28 @@ def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrR2','bMod
         # metric = [m['bModelTrScore'], m['bModelTeScore'], m['bModelAcc'], m['bModelMSE'],m['bModelr2']]
         labels.append(label)
         metrics.append(metric)
-    df = pd.DataFrame(metrics, index=labels, columns=metricLabels)
-    tf = pd.DataFrame([means], index=labels, columns=metricLabels)
+    df = pd.DataFrame(metrics, index=list(range(len(labels))), columns=metricLabels)
 
     fig = plt.figure(figsize=(10, 10))
+
     plt.title(title)
-    sns.scatterplot(data=df.T) #, y=metricLabels, x=metrics, hue=metricLabels)
-    # sns.catplot(data=df.T)
-    # # sns.barplot(data=df, color = 'Grey')
-    # sns.lineplot(data=df.T)
-    # sns.lineplot(data=tf.T)
-
+    # sns.scatterplot(data=df) #, y=metricLabels, x=metrics, hue=metricLabels)
+    sns.lineplot(data=df)
+    plt.xticks(list(range(len(labels))), labels, rotation=25, ha="right",
+             rotation_mode="anchor", size = 8)
     sns.set_theme(style="whitegrid")
-    plt.xlabel(xlabel)
-
+    plt.ylabel(ylabel)
+    if len(metricLabels)>2 :
+        name = 'Summary'
+    else:
+        name = metricLabels[0]
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Metrics'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
-        plt.savefig(outputFigPath + '/Summary.png')
+        plt.savefig(outputFigPath + '/' + name + '.png')
     if displayParams['showPlot']:
         plt.show()
 

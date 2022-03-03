@@ -48,7 +48,8 @@ def removeOutlier(df, colName, cutOffThreshhold = 1.5):
     fence_high = q3 + cutOffThreshhold * iqr
     return df.loc[(df[colName] > fence_low) & (df[colName] < fence_high)]
 
-def filteredData(noOutlierDf, baseLabels, yLabels, displayParams, lt, removeLabels = None):
+
+def filteredData(noOutlierDf, baseLabels, yLabels, displayParams, lt, removeLabels = None, checkup = False):
 
     """Discard features with close to 0 correlation coefficient to CO2"""
 
@@ -58,15 +59,18 @@ def filteredData(noOutlierDf, baseLabels, yLabels, displayParams, lt, removeLabe
     keep, drop = filteredLabels(highMat.index, lowMat.index, baseLabels, yLabels)
 
     filteredData = noOutlierDf.drop(columns = drop)
-    filteringName = 'keepcorr'
+    filteringName = 'dropuncorr'
     if removeLabels:
         filteredData = filteredData.drop(columns = [elem for elem in removeLabels if elem in filteredData.keys()])#[removeLabels[i] for i range(len(removeLabels) if removeLabels[i] in )
 
         # filteredData = filteredData.drop(columns = removeLabels)
-        filteringName = 'dropcolin'
-
+        filteringName = 'dropcolinear'
+    if lt == 0:
+        filteringName = 'nofilter'
+    if checkup:
+        filteringName = 'checkup'
     if displayParams['showCorr']or displayParams['archive']:
-        plotCorrelation(computeCorrelation(filteredData), displayParams, filteringName)
+        plotCorrelation(computeCorrelation(filteredData), displayParams, filteringName, lt)
     Labels = {"baseLabels": baseLabels,"HighCorr": keep, "LowCorr": drop, "MultiCorr/Removed": removeLabels}
     return filteredData, Labels
 
@@ -94,7 +98,7 @@ def filteredLabels(hihCorLabels, lowCorLabels, xQuantLabels, yLabel):
 
     return keep, drop
 
-def plotCorrelation(correlationMatrix, displayParams, filteringName):
+def plotCorrelation(correlationMatrix, displayParams, filteringName, lt = 0.3, ht = 0.6 ):
 
     import matplotlib.pyplot as plt
     import seaborn as sns
@@ -102,9 +106,34 @@ def plotCorrelation(correlationMatrix, displayParams, filteringName):
 
     mask = np.zeros_like(correlationMatrix)
     mask[np.triu_indices_from(mask)] = True
-    fig, ax = plt.subplots(figsize=(20,20))
+    fig, ax = plt.subplots(figsize=(18,15))
+    xticklabels = list(range(len(correlationMatrix)))
+    if filteringName == 'checkup':
+        xticklabels = "auto"
+        sub = '- Check FEATURES - '
+        cbar= True
+        annot = True
 
-    sns.heatmap(correlationMatrix, annot=True, mask = mask, fmt=".001f",ax=ax, cmap="bwr", center = 0, vmin=-1, vmax=1, square = True)
+    if filteringName == 'nofilter':
+        title = 'Pearson correlation coefficient heatmap'
+        sub = '- UNFILTERED FEATURES - '
+        cbar= False
+        annot = False
+    if filteringName == 'dropuncorr' :
+        title ='Pearson correlation coefficient heatmap'
+        sub = '- UNCORRELATED FEATURES REMOVED - (r2 > %s)' % lt
+        cbar= False
+        annot = False
+    if filteringName == 'dropcolinear':
+        title ='Pearson correlation coefficient heatmap'
+        sub = '- MULTI-COLLINEAR FEATURES REMOVED (r2 < %s) - ' % ht
+        cbar = True
+        annot = True
+    plt.title(label = sub, fontsize = 18, loc='left', va='bottom' )
+    # plt.suptitle(t = sub, fontsize = 14, horizontalalignment='left', verticalalignment = 'bottom')
+    sns.heatmap(correlationMatrix, annot=annot, mask = mask, cbar = cbar, cbar_kws={"shrink": .80},
+                xticklabels = xticklabels, fmt=".001f",ax=ax, cmap="bwr", center = 0, vmin=-1, vmax=1, square = True)
+
     # sns.set(font_scale=0.5)
     if displayParams['archive']:
         import os

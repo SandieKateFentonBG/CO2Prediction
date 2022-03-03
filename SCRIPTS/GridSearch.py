@@ -110,11 +110,20 @@ def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTe
         printStudy(displayParams, models)
 
     if displayParams["archive"] or displayParams["showPlot"]:
-        MetricsSummaryPlot(models, displayParams)
-        predTruthCombined(displayParams, models, xTest, yTest, Train=False)
+        sortedMod = sortGridResults(models, metric = 'bModelAcc', highest = True)
+        MetricsSummaryPlot(sortedMod, displayParams, metricLabels = ['bModelTrR2','bModelTeR2','bModelAcc','bModelMSE'])
+        MetricsSummaryPlot(sortedMod, displayParams, metricLabels = ['bModelTrR2','bModelTeR2'])
+        MetricsSummaryPlot(sortedMod, displayParams, metricLabels = ['bModelAcc'])
+        MetricsSummaryPlot(sortedMod, displayParams, metricLabels = ['bModelMSE'])
+
+        predTruthCombined(displayParams, sortedMod, xTest, yTest, Train=False)
 
     return models
 
+
+
+def sortGridResults(models, metric = 'bModelAcc', highest = True):
+    return sorted(models, key=lambda x: x[metric], reverse=highest)
 
 
 

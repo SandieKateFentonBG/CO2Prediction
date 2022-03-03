@@ -24,7 +24,7 @@ def printStudy(displayParams, Content):
             for k, v in m.items():
                 print(k, ':', v)
 
-def exportStudy(displayParams, inputData, prepData, modelsData):
+def exportStudy(displayParams, inputData, prepData, modelsData, sortedModels):
 
     if displayParams['archive']:
 
@@ -37,22 +37,30 @@ def exportStudy(displayParams, inputData, prepData, modelsData):
         with open(outputPathStudy + '/Records_' + displayParams["reference"] + ".csv", 'w', encoding='UTF8', newline='') as e:
             writer = csv.writer(e, delimiter = ";")
 
-            writer.writerow('INPUT DATA')
+            writer.writerow(['INPUT DATA'])
             for inputk, inputv in inputData.items():
                 writer.writerow([inputk, inputv])
             writer.writerow('')
 
-            writer.writerow('PREPROCESSED DATA')
+            writer.writerow(['PREPROCESSED DATA'])
             for inputk, inputv in prepData.items():
                 writer.writerow([inputk, inputv])
             writer.writerow('')
 
-            writer.writerow('MODELS DATA')
+            writer.writerow(['MODELS DATA'])
             k = modelsData[0].keys()
             writer.writerow(k)
             for i in range(len(modelsData)):
                 v = modelsData[i].values()
                 writer.writerow(v)
+
+            writer.writerow(['SORTED MODELS DATA'])
+            k = sortedModels[0].keys()
+            writer.writerow(k)
+            for i in range(len(sortedModels)):
+                v = sortedModels[i].values()
+                writer.writerow(v)
+
         e.close()
 
 def saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams, powers, mixVariables   ):

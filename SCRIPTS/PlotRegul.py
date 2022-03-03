@@ -67,7 +67,7 @@ def regulBestPt(points, max = True):
                     best = points[i][j]
     return best
 
-def plotRegul3D(modelWithParams, displayParams, modelingParams, colorsPtsLsBest = ['b', 'g', 'c'],
+def plotRegul3D(modelWithParams, displayParams, modelingParams, colorsPtsLsBest = ['b', 'g', 'c', 'y'],
                 title = 'Influence of Regularization on Model Performance', xlabel = 'Model', ylabel = 'Regularization', size = [6,6],
                 showgrid = False, log = False, max=False, ticks = False, lims = False):
 
@@ -98,7 +98,7 @@ def plotRegul3D(modelWithParams, displayParams, modelingParams, colorsPtsLsBest 
     tick = np.arange(0, xlim[1]+1, 1).tolist(), np.arange(round(ylim[0], 0), round(ylim[1], 0), 100).tolist(), np.arange(round(zlim[0]-1, 0), round(zlim[1]+1, 0), 10).tolist()
 
     ax.scatter(xl, yl, zl, color=colorsPtsLsBest[0])
-    ax.scatter(best[0], best[1], best[2], s = 50, c=colorsPtsLsBest[2])
+    ax.scatter(best[0], best[1], best[2], s = 50, c=colorsPtsLsBest[3])
 
     for i in range(len(lines)):
         xls, yls, zls = lines[i][0], lines[i][1], lines[i][2]
@@ -109,9 +109,10 @@ def plotRegul3D(modelWithParams, displayParams, modelingParams, colorsPtsLsBest 
         ax.set_ylim(lim[1][0], lim[1][1])
         ax.set_zlim(lim[2][0], lim[2][1])
     if ticks:
-        ax.set_xticks(tick[0])
+
         ax.set_yticks(tick[1])
         ax.set_zticks(tick[2])
+    ax.set_xticks(tick[0])
     ax.set_xticklabels(labels)
     # ax.set_xlabels(labels)
     plt.setp(ax.get_xticklabels(), rotation=25, ha="right",
