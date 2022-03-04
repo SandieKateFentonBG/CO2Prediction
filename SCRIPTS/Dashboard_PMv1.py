@@ -5,9 +5,9 @@ outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 #220301_Stdsc_nofilt
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
                  "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
-                'showResults' : True, 'showPlot' : False, 'archive': True, 'reference': 'fccb-lt015',
+                'showResults' : False, 'showPlot' : False, 'archive': False, 'reference': 'fccb-lt015-PMv1testing',
                  'Target': 'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8], 'roundNumber': 3,
-                 'residualsYLim' : [-0.5, 0.5], 'residualsXLim' : [0, 0.8], 'fontsize': None}
+                 'residualsYLim': [-0.5, 0.5], 'residualsXLim': [0, 0.8], 'fontsize': None}
 # DATA
 
 xQualLabels = ['Sector','Type','Basement', 'Foundations','Ground Floor','Superstructure','Cladding', 'BREEAM Rating']#
@@ -19,11 +19,11 @@ yLabels = ['Calculated tCO2e_per_m2'] #'Calculated Total tCO2e',
 # FORMAT
 
 processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.15, 'highThreshold' : 1,
-                    'removeLabels' : ['Basement_None', 'Sector_Industrial'], 'baseLabels' : xQuantLabels} #, 'Foundations_Raft' 'scaler': None, 'MinMaxScaler', 'StandardScaler'
+                    'removeLabels' : ['Basement_None', 'Sector_Industrial'], 'baseLabels' : xQuantLabels } #[], 'Foundations_Raft' 'scaler': None, 'MinMaxScaler', 'StandardScaler'
 #main : 'Basement_None', 'Sector_Industrial', 'Foundations_', 'Ground Floor_Raft'
 # PARAMS
 import numpy as np
-modelingParams = {'test_size': 0.2, 'random_state' : 4, 'RegulVal': list(10.0**np.arange(-4,4)),
+modelingParams = {'test_size': 0.2, 'random_state' : 4, 'RegulVal': list(10.0**np.arange(-4,4)), 'epsilonVal': list(10.0**np.arange(-4,4)),
                   'accuracyTol': 0.15, 'CVFold': None, 'rankGridSearchModelsAccordingto' : 'r2', 'plotregulAccordingTo' : 'paramMeanMSETest'} #paramMeanR2Test
 powers = {}
 mixVariables = []
@@ -57,3 +57,9 @@ kernelRidgePolReg = {'model' : KernelRidge(kernel='polynomial'), 'param': 'alpha
 models = [linearReg, lassoReg, ridgeReg, elasticNetReg,
           kernelRidgeLinReg, kernelRidgeRbfReg, kernelRidgePolReg,
           supportVectorLinReg, supportVectorRbfReg, supportVectorPolReg]
+
+# supportVectorLinRege = {'model' : SVR(kernel='linear'), 'param': 'epsilon', 'Linear' : True}
+# supportVectorRbfRege = {'model' : SVR(kernel='rbf'), 'param': 'epsilon', 'Linear' : False}
+# supportVectorPolRege = {'model' : SVR(kernel='poly'), 'param': 'epsilon', 'Linear' : False}
+#
+# models = [supportVectorLinRege, supportVectorRbfRege, supportVectorPolRege]

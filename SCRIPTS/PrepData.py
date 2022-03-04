@@ -195,6 +195,44 @@ def XScaleYSplit(df, yLabels, scalerParam):
         xdf = xScaled
     return xdf, ydf, xScaler
 
+def XScaleYScaleSplit(df, yLabels, scalerParam, yScale = True):
+    ydf = df[yLabels]
+    xdf = df.drop(columns = yLabels)
+    xScaler = None
+    yScaler = None
+    if scalerParam:
+        xdf, xScaler = Vscale(scalerParam, xdf)
+        if yScale:
+            ydf, yScaler = Vscale(scalerParam, ydf)
+        else:
+            return xdf, ydf, xScaler
+
+    return xdf, xScaler, ydf, yScaler
+
+def Vscale(scalerParam, vdf):
+
+    if scalerParam == 'MinMaxScaler':
+        vScaler = preprocessing.MinMaxScaler()
+        v_normalized = vScaler.fit_transform(vdf)
+        vScaled = pd.DataFrame(v_normalized, columns = vdf.keys())
+
+    if scalerParam == 'StandardScaler':
+        vScaler = preprocessing.StandardScaler()
+        v_normalized = vScaler.fit_transform(vdf)
+        vScaled = pd.DataFrame(v_normalized, columns = vdf.keys())
+    vdf = vScaled
+
+    return vdf, vScaler
+
+def unscale(elem, scaler, scalerParam):
+
+    if scalerParam:
+        return pd.DataFrame(scaler.inverse_transform(elem), columns = elem.keys())
+    else :
+        return elem
+
+
+
 def TrainTest(xdf, ydf, test_size, random_state):
 
     XTrain, XTest, yTrain, yTest = train_test_split(xdf.values, ydf.values, test_size=test_size, random_state=random_state)

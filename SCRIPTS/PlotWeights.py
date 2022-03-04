@@ -136,12 +136,12 @@ def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None):
     lineTable = pd.DataFrame(weights, columns=modelLabels, index=features)
     barTable = lineTable.T
 
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(20, 10))
     plt.title("Feature Importance sorted according to mean value")
     sns.set_theme(style="whitegrid")
     sns.lineplot(data=lineTable)
     sns.barplot(data=barTable, palette="Blues_d")
-    plt.xticks(numpy.arange(len(features)), features, rotation=55, ha="right", rotation_mode="anchor", size=8)
+    plt.xticks(numpy.arange(len(features)), features, rotation=15, ha="right", rotation_mode="anchor", size=8)
     if yLim:
         plt.ylim(-yLim, yLim)
     plt.ylabel('Weights')

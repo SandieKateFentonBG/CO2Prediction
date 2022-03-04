@@ -1,8 +1,8 @@
 from RawData import RawData
 from Data import *
 from PrepData import *
-from Dashboard import *
-# from Dashboard_V2 import *
+from Dashboard_PMv1 import *
+# from Dashboard_PMv2 import *
 from GridSearch import *
 from Archiver import *
 from PlotRegul import *
@@ -43,8 +43,18 @@ checkDf, _ = filteredData(HighCorDf, processingParams['baseLabels'], yLabels, di
 CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
                      removeLabels=processingParams['removeLabels'])
 """Scale"""
-xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
+# xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
 
+xdf, xScaler, ydf, yScaler = XScaleYScaleSplit(CorDf, yLabels, processingParams['scaler'], yScale = True)
+
+print(np.array(xdf))
+print(np.array(ydf))
+print('x', xScaler)
+print('y', yScaler)
+
+unscaley = unscale(ydf, yScaler, processingParams['scaler'])
+
+print(np.array(unscaley))
 """Train Test Split"""
 xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
 #
@@ -56,16 +66,16 @@ trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, fil
 3. MODEL
 ------------------------------------------------------------------------------------------------------------------------
 """
-
-"""Search"""
-searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
-sortedDc = sortGridResults(searchedModels, metric = 'bModelAcc', highest = True)
-"""Save & Dump"""
-exportStudy(displayParams, inputData, prepData, searchedModels, sortedDc)
-pickleDumpMe(displayParams, searchedModels)
-
-dc = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"], name = '/Records', show = False)
-sortedDc = sortGridResults(dc, metric = 'bModelAcc', highest = True)
+#
+# """Search"""
+# searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()))
+# sortedDc = sortGridResults(searchedModels, metric = 'bModelAcc', highest = True)
+# """Save & Dump"""
+# exportStudy(displayParams, inputData, prepData, searchedModels, sortedDc)
+# pickleDumpMe(displayParams, searchedModels)
+#
+# dc = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"], name = '/Records', show = False)
+# sortedDc = sortGridResults(dc, metric = 'bModelAcc', highest = True)
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -73,13 +83,13 @@ sortedDc = sortGridResults(dc, metric = 'bModelAcc', highest = True)
 ------------------------------------------------------------------------------------------------------------------------
 """
 """Regularization Influence"""
-WeightsBarplotAll(dc, displayParams)
-WeightsSummaryPlot(dc, displayParams, sorted=True, yLim=None)
-
-plotRegul3D(dc, displayParams, modelingParams, lims = True, ticks = True)
-plotRegul2D(dc, displayParams, modelingParams,)
-plotRegul3D(dc, displayParams, modelingParams, lims = True, log = True)
-plotRegul2D(dc, displayParams, modelingParams, log = True)
+# WeightsBarplotAll(dc, displayParams)
+# WeightsSummaryPlot(dc, displayParams, sorted=True, yLim=None)
+#
+# plotRegul3D(dc, displayParams, modelingParams, lims = True, ticks = True)
+# plotRegul2D(dc, displayParams, modelingParams,)
+# plotRegul3D(dc, displayParams, modelingParams, lims = True, log = True)
+# plotRegul2D(dc, displayParams, modelingParams, log = True)
 #
 
 
