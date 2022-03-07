@@ -57,6 +57,65 @@ def averageMetric(models, metricLabels = ['bModelTrR2','bModelTeR2','bModelAcc',
 
     return means, stdvs
 
+def plotResiduals(m, displayParams, bestParam = None):
+    import seaborn as sns
+    modelWithParam = m['bModel']
+    title = 'Residuals districbution for ' + str(modelWithParam)
+    x= "Residuals [%s]" % displayParams['Target']
+    if bestParam:
+        title += '- BEST PARAM (%s) ' % bestParam
+
+    fig, ax = plt.subplots()
+    ax = sns.histplot(m['bModelResid'], kde=True, bins=14, binrange = (-100, 100), legend = False)
+    plt.setp(ax.patches, linewidth=0)
+
+    plt.title(title, fontsize=14)
+    plt.xlabel("Residuals [%s]" % displayParams['Target'], fontsize=14)
+
+    # sns.displot(m['bModelResid'], x = x, discrete = True, kde=True, kind="kde", bw_adjust=.25)
+    # plt.figure(figsize=(10, 10))
+    # sns.kdeplot(m['bModelResid'], color='orange')
+    #sns.barplot(data=data, x='var1', color='#007b7f'),line_kws={"c":"black", "linewidth":2}, kde_kws={"c":"white", "linewidth":2}
+    # , color = 'white'
+    # , line_kws = {'lw': 3},
+    # color = 'deepskyblue', facecolor = 'lime', edgecolor = 'black'
+     #bins = 10, discrete = True
+    # sns.distplot(m['bModelResid'], kde = True, norm_hist = True)  # you may select the no. of bins
+
+    if displayParams['archive']:
+        import os
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Residuals'
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+
+        plt.savefig(outputFigPath + '/' + str(modelWithParam) + '-histplot.png')
+    if displayParams['showPlot']:
+        plt.show()
+    # fig.tight_layout()
+    plt.close()
+
+def plotAllResiduals(residuals, displayParams):
+    import seaborn as sns
+    for k, v in residuals.items():
+        title = 'Residuals districbution for ' + k
+        x = "Residuals [%s]" % displayParams['Target']
+        fig, ax = plt.subplots()
+        ax = sns.histplot(v, kde=True, bins=14, binrange = (-100, 100), legend = False)
+        plt.setp(ax.patches, linewidth=0)
+
+        plt.title(title, fontsize=14)
+        plt.xlabel("Residuals [%s]" % displayParams['Target'], fontsize=14)
+
+        if displayParams['archive']:
+            import os
+            outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Residuals'
+            if not os.path.isdir(outputFigPath):
+                os.makedirs(outputFigPath)
+            plt.savefig(outputFigPath + '/' + k + '-JointHistplot.png')
+        if displayParams['showPlot']:
+            plt.show()
+        # fig.tight_layout()
+        plt.close()
 
 def paramResiduals(modelWithParam, xTrain, yTrain, xTest, yTest, displayParams, bestParam = None, yLim = None , xLim = None, fontsize = None):
 

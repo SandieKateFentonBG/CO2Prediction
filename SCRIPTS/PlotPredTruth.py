@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-def plotPredTruth(yTest, yPred, displayParams, modeldict, fontsize = 10):
+def plotPredTruth(yTest, yPred, displayParams, modeldict, fontsize = 14):
 
-    plt.clf()
-    plt.cla()
+    # plt.clf()
+    # plt.cla()
     # plt.rcParams['figure.figsize'] = [18, 18]
-    plt.grid()
+    plt.figure(figsize=(10, 8))
+    plt.grid(False)
     l1, = plt.plot(yTest, 'g')
     l2, = plt.plot(yPred, 'r', alpha=0.7)
     plt.legend(['Ground truth', 'Predicted'], fontsize=fontsize)
@@ -27,6 +28,7 @@ def plotPredTruth(yTest, yPred, displayParams, modeldict, fontsize = 10):
             os.makedirs(outputFigPath)
 
         plt.savefig(outputFigPath + '/' + str(modeldict['bModel']) + '.png')
+    # fig.tight_layout()
     if displayParams['showPlot']:
         plt.show()
     plt.close()

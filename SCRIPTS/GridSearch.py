@@ -51,23 +51,39 @@ def paramEval(model, paramkey, paramValues, cv, xTrain, yTrain, displayParams, c
 
     return grid, paramDict
 
+def scaledList(means, type='StandardScaler'):#'MinMaxScaler'
+
+    from sklearn import preprocessing
+
+    if type == 'MinMaxScaler':
+        vScaler = preprocessing.MinMaxScaler()
+        v_normalized = vScaler.fit_transform(np.array(means).reshape(-1, 1)).reshape(1, -1)
+    if type == 'StandardScaler':
+        vScaler = preprocessing.StandardScaler()
+        v_normalized = vScaler.fit_transform(np.array(means).reshape(-1, 1)).reshape(1, -1)
+
+    return v_normalized.tolist()[0]
+
 def modelEval(modelWithParam, Linear, xTrain, yTrain, xTest, yTest, displayParams, modelingParams, bestParam = None):
 
     clf = modelWithParam
     clf.fit(xTrain, yTrain.ravel())
     trainScore = clf.score(xTrain, yTrain.ravel())
     testScore = clf.score(xTest, yTest.ravel())
-    yPred = clf.predict(xTest)
+    yPred = clf.predict(xTest).reshape(-1,1)
+    residual = yTest - yPred
+
     accuracy = computeAccuracy(yTest, clf.predict(xTest),modelingParams['accuracyTol'])
     mse = mean_squared_error(yTest, clf.predict(xTest))
     r2 = r2_score(yTest, clf.predict(xTest))
+
     if bestParam:
         vals = [bestParam[k] for k in bestParam.keys()]
         val = vals[0]
     else :
         val = 'default'
     modeldict = {'bModel': clf,'bModelTrR2':round(trainScore, displayParams['roundNumber']) , 'bModelTeR2': round(testScore, displayParams['roundNumber']),
-                 'bModelParam': val,'bModelAcc': round(accuracy, displayParams['roundNumber']),
+                 'bModelParam': val,'bModelAcc': round(accuracy, displayParams['roundNumber']), 'bModelResid': residual,
                  'bModelMSE': round(mse, displayParams['roundNumber']),'bModelr2': round(r2, displayParams['roundNumber'])}
     # format weight to list
     if Linear:
@@ -78,15 +94,18 @@ def modelEval(modelWithParam, Linear, xTrain, yTrain, xTest, yTest, displayParam
         content = clf.dual_coef_
         if type(content[0]) == np.ndarray:
             content = content[0]
+    weights = [round(num, displayParams['roundNumber']) for num in list(content)]
+    modeldict['bModelWeights'] = weights
+    modeldict['bModelWeightsScaled'] = scaledList(weights)
 
-    modeldict['bModelWeights'] = [round(num, displayParams['roundNumber']) for num in list(content)]
 
+    print('test', modeldict['bModelResid'])
     if displayParams['showPlot'] or displayParams['archive']:
         plotPredTruth(yTest, yPred, displayParams, modeldict)
 
     return modeldict
 
-def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features):
+def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features, resPlot = False, restDist = True):
 
     for m in models:
         m['features'] = features
@@ -97,9 +116,12 @@ def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTe
         bModelDict = modelEval(m['model'], m['Linear'], xTrain, yTrain, xTest, yTest,
                               displayParams, modelingParams, m['bModelParam'])
         m.update(bModelDict)
-        resDict = paramResiduals(m['model'], xTrain, yTrain, xTest, yTest, displayParams, m['bModelParam'],
-                                 yLim = displayParams['residualsYLim'], xLim = displayParams['residualsXLim'], fontsize = displayParams['fontsize'])
-        m.update(resDict)
+        if resPlot:
+            resDict = paramResiduals(m['model'], xTrain, yTrain, xTest, yTest, displayParams, m['bModelParam'],
+                                     yLim = displayParams['residualsYLim'], xLim = displayParams['residualsXLim'], fontsize = displayParams['fontsize'])
+            m.update(resDict)
+        if restDist:
+            plotResiduals(m, displayParams, bestParam=m['bModelParam'])
 
         if displayParams["showResults"]:
             print(m)

@@ -5,7 +5,7 @@ from Archiver import *
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 import pandas as pd
-
+import numpy as np
 
 
 def removeOutliers(dataframe, labels, cutOffThreshhold=1.5):
@@ -195,7 +195,7 @@ def XScaleYSplit(df, yLabels, scalerParam):
         xdf = xScaled
     return xdf, ydf, xScaler
 
-def XScaleYScaleSplit(df, yLabels, scalerParam, yScale = True):
+def XScaleYScaleSplit(df, yLabels, scalerParam, yScale = False, yUnit = None):
     ydf = df[yLabels]
     xdf = df.drop(columns = yLabels)
     xScaler = None
@@ -205,8 +205,9 @@ def XScaleYScaleSplit(df, yLabels, scalerParam, yScale = True):
         if yScale:
             ydf, yScaler = Vscale(scalerParam, ydf)
         else:
-            return xdf, ydf, xScaler
-
+            yScaler = None
+    if yUnit:
+        ydf = np.multiply(ydf,yUnit)
     return xdf, xScaler, ydf, yScaler
 
 def Vscale(scalerParam, vdf):
@@ -224,11 +225,13 @@ def Vscale(scalerParam, vdf):
 
     return vdf, vScaler
 
-def unscale(elem, scaler, scalerParam):
+def unscale(elem, scaler, unitChange = None):
 
-    if scalerParam:
+    if unitChange:
+        elem = np.multiply(elem, 1/unitChange)
+    if scaler:
         return pd.DataFrame(scaler.inverse_transform(elem), columns = elem.keys())
-    else :
+    else:
         return elem
 
 

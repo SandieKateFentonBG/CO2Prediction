@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn import preprocessing
+
 def emptyWeights(df, target): #keys = df.keys()
     # weights = list(df.keys()[0: -1])+['intercept']
     weights = list(df.keys()) #+['intercept']
@@ -46,7 +48,7 @@ def WeightsBarplot(coefPd, displayParams):
         plt.subplots_adjust(left=0.3)
         plt.show()
 
-def WeightsBarplotAll(models, displayParams, df=None, yLim = 0.05, sorted = True):
+def WeightsBarplotAll(models, displayParams, df=None, yLim = None, sorted = True, key = 'bModelWeightsScaled'):
     import numpy
     import math
     linModels = [m for m in models if m['Linear']==True] #only works/makes sense for linear models
@@ -56,7 +58,11 @@ def WeightsBarplotAll(models, displayParams, df=None, yLim = 0.05, sorted = True
     meanWeights, _ = averageWeight(linModels)
 
     for m in linModels:
-        f, v = modelWeightsList(displayParams['Target'], m['features'], m['bModelWeights'], df)
+        f, v = modelWeightsList(displayParams['Target'], m['features'], m[key], df)
+        # print('vl before', v)
+        # if scaled:
+        #     v = scaledList(v)
+        #     print('vl after', v)
         if sorted:
             _, v, f = sortedListAccordingToGuide(meanWeights, v, f)
         plt.subplot(count, 2, idx)
@@ -84,32 +90,59 @@ def WeightsBarplotAll(models, displayParams, df=None, yLim = 0.05, sorted = True
         plt.show()
     plt.close()
 
-def listWeight(models):
+def listWeight(models, key = 'bModelWeightsScaled'):
     weights = []
     labels = []
-    for i in range(len(models[0]['bModelWeights'])):
+    for i in range(len(models[0][key])):
         single = []
         for m in models:
-            single.append(m['bModelWeights'][i])
+            single.append(m[key][i])
+            # print(len(single))
+            # # if scaled:
+            # #     single = scaledList(single)
         weights.append(single)
     for m in models:
         labels.append(m['model'])
 
     return weights, labels
 
-def averageWeight(models):
+def averageWeight(models, key = 'bModelWeightsScaled'):
     means = []
     stdvs = []
-    for i in range(len(models[0]['bModelWeights'])):
+    for i in range(len(models[0][key])):
         single = []
         for m in models:
-            single.append(m['bModelWeights'][i])
+            single.append(m[key][i])
         av = np.mean(single)
         st = np.std(single)
         means.append(av)
         stdvs.append(st)
 
     return means, stdvs
+
+# def averageWeight(models, scaled = True):
+#     means = []
+#     stdvs = []
+#     for i in range(len(models[0]['bModelWeights'])):
+#         single = []
+#         for m in models:
+#             print(m['bModelWeights'])
+#             scaledWeights = scaledList(m['bModelWeights'])
+#             single.append(m['bModelWeights'][i])
+#         av = np.mean(single)
+#         st = np.std(single)
+#         means.append(av)
+#         stdvs.append(st)
+#         if scaled :
+#             means = scaledList(means)
+#
+#     return means, stdvs
+
+# def scaledList(means):
+#
+#     vScaler = preprocessing.MinMaxScaler()
+#     v_normalized = vScaler.fit_transform(np.array(means).reshape(-1, 1)).reshape(1, -1)
+#     return v_normalized.tolist()[0]
 
 def sortedListAccordingToGuide(guide, list1, list2=None):
 
@@ -129,7 +162,9 @@ def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None):
 
     linModels = [m for m in models if m['Linear'] == True]  # only works/makes sense for linear models
     weights, modelLabels = listWeight(linModels)
+    print('weights', len(weights), weights)
     meanWeights, stdvs = averageWeight(linModels)
+
     features = linModels[0]['features']
     if sorted:
         meanWeights, weights, features = sortedListAccordingToGuide(meanWeights, weights, features)
