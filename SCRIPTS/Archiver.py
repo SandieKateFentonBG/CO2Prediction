@@ -2,11 +2,11 @@ def saveStudy(displayParams, Content):
 
     if displayParams['archive']:
         import os
-        outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
+        outputPathStudy = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state'])
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
 
-        with open(outputPathStudy + '/Records' + displayParams["reference"] + ".txt", 'a') as f:
+        with open(outputPathStudy + '/Records' + displayParams["reference"] + str(displayParams['random_state']) +  ".txt", 'a') as f:
             print('', file=f)
             if type(Content) == dict:
                 for k,v in Content.items():
@@ -29,12 +29,12 @@ def exportStudy(displayParams, inputData, prepData, modelsData, sortedModels):
     if displayParams['archive']:
 
         import os
-        outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
+        outputPathStudy = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state'])
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
 
         import csv
-        with open(outputPathStudy + '/Records_' + displayParams["reference"] + ".csv", 'w', encoding='UTF8', newline='') as e:
+        with open(outputPathStudy + '/Records_' + displayParams["reference"] + str(displayParams['random_state']) + ".csv", 'w', encoding='UTF8', newline='') as e:
             writer = csv.writer(e, delimiter = ";")
 
             writer.writerow(['INPUT DATA'])
@@ -86,7 +86,7 @@ def pickleDumpMe(displayParams, dic):
     if displayParams['archive']:
         import pickle
         import os
-        outputPathStudy = displayParams["outputPath"] + displayParams["reference"]
+        outputPathStudy = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state'])
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
 

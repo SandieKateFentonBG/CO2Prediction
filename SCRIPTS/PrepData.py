@@ -137,7 +137,7 @@ def plotCorrelation(correlationMatrix, displayParams, filteringName, lt = 0.3, h
     # sns.set(font_scale=0.5)
     if displayParams['archive']:
         import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/correlation'
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) +'/correlation'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 

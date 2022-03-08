@@ -7,15 +7,16 @@ from GridSearch import *
 from Archiver import *
 from PlotRegul import *
 from PlotWeights import *
-from PlotSearch import *
-from Visualizers import *
+from PlotResiduals import *
+from PlotMetrics import *
+from PlotPredTruth import *
 
 """
 ------------------------------------------------------------------------------------------------------------------------
 1.RAW DATA
 ------------------------------------------------------------------------------------------------------------------------
 """
-"""Import libraries & Load data"""
+# """Import libraries & Load data"""
 # inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
 #           powers, mixVariables)
 # rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
@@ -43,14 +44,10 @@ from Visualizers import *
 # CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
 #                      removeLabels=processingParams['removeLabels'])
 # """Scale"""
-# # xdf, ydf, xScaler = XScaleYSplit(CorDf, yLabels, processingParams['scaler'])
-#
-# print('all', np.array(CorDf))
 #
 # xdf, xScaler, ydf, yScaler = XScaleYScaleSplit(CorDf, yLabels, processingParams['scaler'],
 #                                                processingParams['yScale'], processingParams['yUnit'])
 #
-# unscaley = unscale(ydf, yScaler, processingParams['yUnit'])
 #
 # """Train Test Split"""
 # xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
@@ -72,7 +69,7 @@ from Visualizers import *
 # exportStudy(displayParams, inputData, prepData, searchedModels, sortedDc)
 # pickleDumpMe(displayParams, searchedModels)
 #
-# dc = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"], name = '/Records', show = False)
+# dc = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']), name = '/Records', show = False)
 # sortedDc = sortGridResults(dc, metric = 'bModelAcc', highest = True)
 #
 # """
@@ -91,45 +88,28 @@ from Visualizers import *
 # plotRegul3D(dc, displayParams, modelingParams, lims = True, log = True)
 # plotRegul2D(dc, displayParams, modelingParams, log = True)
 
-"""Regularization Influence"""
+# dc_ = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) , name = '/Records', show = False)
 
-dc_1 = pickleLoadMe(displayParams["outputPath"] + 'fccb-lt015-PMv1' + '_1', name = '/Records', show = False)
-dc_2 = pickleLoadMe(displayParams["outputPath"] + 'fccb-lt015-PMv1' + '_2', name = '/Records', show = False)
-dc_3 = pickleLoadMe(displayParams["outputPath"] + 'fccb-lt015-PMv1' + '_3', name = '/Records', show = False)
+"""Residuals """
 
-studies = [dc_1, dc_2, dc_3]
-print(len(studies[0]))
-print(len(studies[0][0]))
-# print(studies)
-print(studies[0][0]['model'])
-def assembleResid(studies):
-    residuals = dict()
-    for i in range(len(studies[0])):
-        residuals[str(studies[0][i]['model'])] = []
-    print(len(residuals), residuals)
-    for i in range(len(studies)):
-        print(i)
-        for key in residuals.keys():
-            print(len(studies[i]))
-            print(studies[i][key]) #todo :fix!!!
-            residuals[key].append(studies[i][key]['bModelResid'])
-    # for key in residuals.keys():
-    #     print
-    #     for study in studies:
-    #         residuals[key].append(study[key]['bModelResid'])
-    return residuals
+dc_a = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '4' , name = '/Records', show = False)
+dc_b = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '5' , name = '/Records', show = False)
+dc_c = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '6' , name = '/Records', show = False)
 
-residuals = assembleResid(studies)
-plotAllResiduals(residuals, displayParams)
+
+studies = [dc_a, dc_b, dc_c]
+
+
+# plotScaleResDistribution(studies, displayParams)
+
+plotResHistGauss(studies, displayParams, binwidth = 10, setxLim =(-300, 300))# (-150, 150)
+
 
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html
-
-# todo : understand advantage of ridge regression - istructe talk
 #
 #  good display https://stackoverflow.com/questions/37161563/how-to-graph-grid-scores-from-gridsearchcv
 
-#One way to combat heteroscedasticity is through Weighted Least Squares
 
 
 

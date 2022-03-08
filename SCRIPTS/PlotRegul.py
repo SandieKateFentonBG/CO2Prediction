@@ -124,7 +124,7 @@ def plotRegul3D(modelWithParams, displayParams, modelingParams, colorsPtsLsBest 
 
     if displayParams['archive']:
         import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Regul'
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Regul'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
@@ -169,7 +169,7 @@ def plotRegul2D(modelWithParams,  displayParams, modelingParams, yLim = None, ti
 
     if displayParams['archive']:
         import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Regul'
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Regul'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 

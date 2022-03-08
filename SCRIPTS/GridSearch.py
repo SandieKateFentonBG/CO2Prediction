@@ -5,8 +5,9 @@ from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from Archiver import *
 import numpy as np
-from PlotSearch import *
+from PlotMetrics import *
 from PlotPredTruth import *
+from PlotResiduals import *
 
 """
 Docum

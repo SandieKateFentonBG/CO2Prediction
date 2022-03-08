@@ -23,7 +23,7 @@ def plotPredTruth(yTest, yPred, displayParams, modeldict, fontsize = 14):
     plt.ylabel(displayParams['Target'], fontsize=fontsize)
     if displayParams['archive']:
         import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Pred_Truth'
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Pred_Truth'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
@@ -58,7 +58,7 @@ def predTruthCombined(displayParams, models, x, y, Train = False):
     plt.ylabel(displayParams['Target'], fontsize=18)
     if displayParams['archive']:
         import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Pred_Truth'
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Pred_Truth'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 

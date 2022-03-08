@@ -81,7 +81,7 @@ def WeightsBarplotAll(models, displayParams, df=None, yLim = None, sorted = True
 
     if displayParams['archive']:
         import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Coef'
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Coef'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
@@ -162,7 +162,6 @@ def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None):
 
     linModels = [m for m in models if m['Linear'] == True]  # only works/makes sense for linear models
     weights, modelLabels = listWeight(linModels)
-    print('weights', len(weights), weights)
     meanWeights, stdvs = averageWeight(linModels)
 
     features = linModels[0]['features']
@@ -184,7 +183,7 @@ def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None):
     fig.tight_layout()
     if displayParams['archive']:
         import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + '/Coef'
+        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Coef'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
@@ -194,9 +193,5 @@ def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None):
 
     plt.close()
 
-    #todo ; add multiple bars/ hue / order along increasing mean value
-    # tab = barTable.loc[modelLabels[3]]
-    # sns.barplot(x=features, y = weights, hue =modelLabels, data=table) #", x=modelLabels, y=weights, hue=weights
-    # sns.catplot(data=table)
 
 

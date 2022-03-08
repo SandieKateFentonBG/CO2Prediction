@@ -1,13 +1,15 @@
 # PATH
 
+random = 7
+
 csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data"
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 #220301_Stdsc_nofilt
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
                  "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
-                'showResults' : False, 'showPlot' : False, 'archive': True, 'reference': 'fccb-lt015-PMv1_3',
+                'showResults' : True, 'showPlot' : True, 'archive': True, 'reference': 'RUN_fccb_lt015',
                  'Target': 'kgCO2e/m2', 'TargetMinMaxVal' : [0, 800], 'roundNumber': 3,
-                 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800], 'fontsize': 14}
+                 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800], 'fontsize': 14, 'random_state' : random} #fccb-lt015-PMv1_3
 
 #'Calculated tCO2e_per_m2', 'TargetMinMaxVal' : [0, 0.8], 'residualsYLim': [-0.5, 0.5], 'residualsXLim': [0, 0.8], 'fontsize': None
 # DATA
@@ -26,7 +28,7 @@ processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThresh
 #main : 'Basement_None', 'Sector_Industrial', 'Foundations_', 'Ground Floor_Raft'
 # PARAMS
 import numpy as np
-modelingParams = {'test_size': 0.2, 'random_state' : 3, 'RegulVal': list(10.0**np.arange(-4,4)), 'epsilonVal': list(10.0**np.arange(-4,4)),
+modelingParams = {'test_size': 0.2, 'random_state' : random, 'RegulVal': list(10.0**np.arange(-4,4)), 'epsilonVal': list(10.0**np.arange(-4,4)),
                   'accuracyTol': 0.15, 'CVFold': None, 'rankGridSearchModelsAccordingto' : 'r2', 'plotregulAccordingTo' : 'paramMeanMSETest'} #paramMeanR2Test
 powers = {}
 mixVariables = []
