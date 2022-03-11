@@ -154,7 +154,7 @@ def sortedListAccordingToGuide(guide, list1, list2=None):
     return sortedG, sortedL1
 
 
-def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None):
+def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None, fontsize=14):
 
     import pandas as pd
     import numpy
@@ -170,16 +170,17 @@ def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None):
     lineTable = pd.DataFrame(weights, columns=modelLabels, index=features)
     barTable = lineTable.T
 
-    fig = plt.figure(figsize=(20, 10))
-    plt.title("Feature Importance sorted according to mean value")
+    fig = plt.figure(figsize=(12, 10))
+    plt.title("Feature relative weights in calibrated linear models.", fontsize=fontsize)
     sns.set_theme(style="whitegrid")
     sns.lineplot(data=lineTable)
-    sns.barplot(data=barTable, palette="Blues_d")
-    plt.xticks(numpy.arange(len(features)), features, rotation=15, ha="right", rotation_mode="anchor", size=8)
+    cmap = sns.diverging_palette(220, 20, as_cmap=True)
+    sns.barplot(data=barTable, palette="bwr", ci=None) #cmap="Blues_d"palette="gwr"
+    plt.xticks(numpy.arange(len(features)), features, rotation=90, ha="right", rotation_mode="anchor", size=fontsize)
     if yLim:
         plt.ylim(-yLim, yLim)
-    plt.ylabel('Weights')
-    plt.xlabel('Features')
+    plt.ylabel('Weights', fontsize=fontsize)
+    plt.xlabel('Features', fontsize=fontsize)
     fig.tight_layout()
     if displayParams['archive']:
         import os

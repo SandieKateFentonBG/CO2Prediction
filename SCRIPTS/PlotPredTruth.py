@@ -33,29 +33,44 @@ def plotPredTruth(yTest, yPred, displayParams, modeldict, fontsize = 14):
         plt.show()
     plt.close()
 
-def predTruthCombined(displayParams, models, x, y, Train = False):
+def predTruthCombined(displayParams, models, x, y, Train = False, scatter=False, fontsize=14):
 
     plt.clf()
     # plt.rcParams['figure.figsize'] = [18, 18]
     fig = plt.figure(figsize=(18,18))
     yPreds = [list(y.T[0])]
     labels = ['Groundtruth']
+    y = []
+    lab = []
+    groundtruthDf = pd.DataFrame(yPreds, index=labels)
+
     for m in models:
         labels.append(m['bModel'])
         yPreds.append(m['bModel'].predict(x))
+        lab.append(m['bModel'])
+        y.append(m['bModel'].predict(x))
 
-    df = pd.DataFrame(yPreds, index=labels)  # , columns=yTePreds
+    predDf = pd.DataFrame(y, index=lab)
+    combinedDf = pd.DataFrame(yPreds, index=labels)  # , columns=yTePreds
 
-    sns.lineplot(data=df.T)
+    if scatter:
+        sns.lineplot(data=predDf.T)
+        # sns.scatterplot(data=groundtruthDf.T, marker="$\circ$", ec="blue", fc='none', s=100, facecolors="none" )#markers='o'
+
+        sns.scatterplot(data=groundtruthDf.T, marker="$\circ$", ec="face", s=100, facecolors="none" )#markers='o'
+        sns.scatterplot(data=groundtruthDf.T, marker="$\circ$", ec="face", s=40, facecolors="none", palette = ['white'], legend=None )#markers='o'
+
+    else:
+        sns.lineplot(data=combinedDf.T)
     if Train:
         title = 'Predicted values for various models compared to groundtruth on Training Set'
     else:
-        title = 'Predicted values for various models compared to groundtruth on Testing Set'
+        title = 'Predicted values vs Groundtruth'
 
-    plt.title(label = title, fontdict = {'fontsize' : 20})
-    plt.xlabel('Test Building', fontsize=18)
+    plt.title(label = title, fontdict = {'fontsize' : fontsize})
+    plt.xlabel('Test Building', fontsize=fontsize)
 
-    plt.ylabel(displayParams['Target'], fontsize=18)
+    plt.ylabel(displayParams['Target'], fontsize=fontsize)
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Pred_Truth'

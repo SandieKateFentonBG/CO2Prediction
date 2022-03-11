@@ -16,42 +16,42 @@ from PlotPredTruth import *
 1.RAW DATA
 ------------------------------------------------------------------------------------------------------------------------
 """
-# """Import libraries & Load data"""
-# inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
-#           powers, mixVariables)
-# rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
+"""Import libraries & Load data"""
+inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
+          powers, mixVariables)
+rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
+
+"""Process data & One hot encoding"""
+dat = Data(rdat)
+df = dat.asDataframe(powers)
+
+""" Remove outliers - only exist/removed on Quantitative features"""
+ValidDf = removeOutliers(df, labels = xQuantLabels+yLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
+
+"""
+------------------------------------------------------------------------------------------------------------------------
+2.DATA
+------------------------------------------------------------------------------------------------------------------------
+"""
+
+"""Correlation of variables & Feature selection"""
+NoFilterDf, _ = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=0)
+
+HighCorDf, _ = filteredData(NoFilterDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'])
+checkDf, _ = filteredData(HighCorDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'], checkup = True)
+
+"""Remove Multi-correlated Features """
+CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
+                     removeLabels=processingParams['removeLabels'])
+"""Scale"""
+
+xdf, xScaler, ydf, yScaler = XScaleYScaleSplit(CorDf, yLabels, processingParams['scaler'],
+                                               processingParams['yScale'], processingParams['yUnit'])
+
+
+"""Train Test Split"""
+xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
 #
-# """Process data & One hot encoding"""
-# dat = Data(rdat)
-# df = dat.asDataframe(powers)
-#
-# """ Remove outliers - only exist/removed on Quantitative features"""
-# ValidDf = removeOutliers(df, labels = xQuantLabels+yLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
-#
-# """
-# ------------------------------------------------------------------------------------------------------------------------
-# 2.DATA
-# ------------------------------------------------------------------------------------------------------------------------
-# """
-#
-# """Correlation of variables & Feature selection"""
-# NoFilterDf, _ = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=0)
-#
-# HighCorDf, _ = filteredData(NoFilterDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'])
-# checkDf, _ = filteredData(HighCorDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'], checkup = True)
-#
-# """Remove Multi-correlated Features """
-# CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
-#                      removeLabels=processingParams['removeLabels'])
-# """Scale"""
-#
-# xdf, xScaler, ydf, yScaler = XScaleYScaleSplit(CorDf, yLabels, processingParams['scaler'],
-#                                                processingParams['yScale'], processingParams['yUnit'])
-#
-#
-# """Train Test Split"""
-# xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
-# #
 # """Save Data Processing"""
 # trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
 #
@@ -93,16 +93,23 @@ from PlotPredTruth import *
 """Residuals """
 
 dc_a = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '4' , name = '/Records', show = False)
-dc_b = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '5' , name = '/Records', show = False)
-dc_c = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '6' , name = '/Records', show = False)
+# dc_b = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '5' , name = '/Records', show = False)
+# dc_c = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '6' , name = '/Records', show = False)
+#
+#
+# studies = [dc_a, dc_b, dc_c]
 
+WeightsSummaryPlot(dc_a, displayParams, sorted=True, yLim=None, fontsize =14)
 
-studies = [dc_a, dc_b, dc_c]
+# sortedMod = sortGridResults(dc_a, metric='bModelAcc', highest=True)
+# slice = sortedMod[0:5]
 
+# MetricsSummaryPlot(sortedMod, displayParams, metricLabels=['bModelAcc'])
+# predTruthCombined(displayParams, slice, xTest, yTest, Train=False, scatter = True)
 
 # plotScaleResDistribution(studies, displayParams)
 
-plotResHistGauss(studies, displayParams, binwidth = 10, setxLim =(-300, 300))# (-150, 150)
+# plotResHistGauss(studies, displayParams, binwidth = 10, setxLim =(-300, 300))# (-150, 150)
 
 
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html

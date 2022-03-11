@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrR2','bModelTeR2','bModelAcc','bModelMSE'],
-            title ='Model Evaluations', ylabel='Evaluation Metric'):
+            title ='Model Evaluations', ylabel='Evaluation Metric', fontsize = 14, scatter = True):
     import pandas as pd
     import seaborn as sns
 
@@ -18,15 +18,19 @@ def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrR2','bMod
         metrics.append(metric)
     df = pd.DataFrame(metrics, index=list(range(len(labels))), columns=metricLabels)
 
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(10, 12))
 
-    plt.title(title)
+    plt.title(title, fontsize = fontsize)
     # sns.scatterplot(data=df) #, y=metricLabels, x=metrics, hue=metricLabels)
-    sns.lineplot(data=df)
+    if scatter:
+        sns.barplot(data=df.T, color='lightblue')
+        # sns.scatterplot(data=df)
+    else:
+        sns.lineplot(data=df)
     plt.xticks(list(range(len(labels))), labels, rotation=25, ha="right",
-             rotation_mode="anchor", size = 8)
+             rotation_mode="anchor", size = fontsize)
     sns.set_theme(style="whitegrid")
-    plt.ylabel(ylabel)
+    plt.ylabel(ylabel, fontsize = fontsize)
     if len(metricLabels)>2 :
         name = 'Summary'
     else:
@@ -40,7 +44,7 @@ def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrR2','bMod
         plt.savefig(outputFigPath + '/' + name + '.png')
     if displayParams['showPlot']:
         plt.show()
-
+    fig.tight_layout()
     plt.close()
 
 def averageMetric(models, metricLabels = ['bModelTrR2','bModelTeR2','bModelAcc','bModelMSE','bModelr2']):
