@@ -7,7 +7,7 @@ outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 #220301_Stdsc_nofilt
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
                  "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
-                'showResults' : True, 'showPlot' : True, 'archive': False, 'reference': 'RUN_fccb_lt015',
+                'showResults' : True, 'showPlot' : False, 'archive': True, 'reference': 'RUN_fccb_lt015',
                  'Target': 'kgCO2e/m2', 'TargetMinMaxVal' : [0, 800], 'roundNumber': 3,
                  'residualsYLim': [-500, 500], 'residualsXLim': [0, 800], 'fontsize': 14, 'random_state' : random} #fccb-lt015-PMv1_3
 

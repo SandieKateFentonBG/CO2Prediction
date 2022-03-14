@@ -93,13 +93,13 @@ xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['tes
 """Residuals """
 
 dc_a = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '4' , name = '/Records', show = False)
-# dc_b = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '5' , name = '/Records', show = False)
-# dc_c = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '6' , name = '/Records', show = False)
-#
-#
-# studies = [dc_a, dc_b, dc_c]
+dc_b = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '5' , name = '/Records', show = False)
+dc_c = pickleLoadMe(displayParams["outputPath"] + displayParams["reference"] + '6' , name = '/Records', show = False)
 
-WeightsSummaryPlot(dc_a, displayParams, sorted=True, yLim=None, fontsize =14)
+
+studies = [dc_a, dc_b, dc_c]
+
+# WeightsSummaryPlot(dc_a, displayParams, sorted=True, yLim=None, fontsize =14)
 
 # sortedMod = sortGridResults(dc_a, metric='bModelAcc', highest=True)
 # slice = sortedMod[0:5]
@@ -109,7 +109,7 @@ WeightsSummaryPlot(dc_a, displayParams, sorted=True, yLim=None, fontsize =14)
 
 # plotScaleResDistribution(studies, displayParams)
 
-# plotResHistGauss(studies, displayParams, binwidth = 10, setxLim =(-300, 300))# (-150, 150)
+residualsMeanVar = plotResHistGauss(studies, displayParams, binwidth = 10, setxLim =(-300, 300))# (-150, 150)
 
 
 # https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_kernel_ridge_regression.html

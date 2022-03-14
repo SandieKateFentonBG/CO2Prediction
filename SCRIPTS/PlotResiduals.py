@@ -86,13 +86,13 @@ def plotAllResiduals(studies, displayParams):
         # fig.tight_layout()
         plt.close()
 
-def plotResHistGauss(studies, displayParams, binwidth = 25, setxLim = (-150, 150), fontsize = 14):
+def plotResHistGauss(studies, displayParams, binwidth = 25, setxLim = (-150, 150), fontsize = 14, sorted = True):
     from scipy.stats import norm
 
     import seaborn as sns
 
     residualsSplit, residuals = assembleResid(studies)
-
+    residualsMeanVar = dict()
     for k, v in residuals.items():
         title = 'Residuals distribution for ' + k
         x = "Residuals [%s]" % displayParams['Target']
@@ -103,6 +103,7 @@ def plotResHistGauss(studies, displayParams, binwidth = 25, setxLim = (-150, 150
         plt.xlabel("Residuals [%s]" % displayParams['Target'], fontsize=fontsize)
         plt.ylabel("Count", fontsize=fontsize)
         arr = np.array(v)
+
         plt.figure(1)
         if setxLim:
             xLim = setxLim
@@ -111,6 +112,7 @@ def plotResHistGauss(studies, displayParams, binwidth = 25, setxLim = (-150, 150
         plt.xlim(xLim)
         mean = np.mean(arr)
         variance = np.var(arr)
+        residualsMeanVar[k] = [round(mean,displayParams['roundNumber']), round(variance,displayParams['roundNumber'])]
         sigma = np.sqrt(variance)
         x = np.linspace(min(arr), max(arr), 100)
         t = np.linspace(-300, 300, 100)
@@ -127,9 +129,36 @@ def plotResHistGauss(studies, displayParams, binwidth = 25, setxLim = (-150, 150
             if not os.path.isdir(outputFigPath):
                 os.makedirs(outputFigPath)
             plt.savefig(outputFigPath + '/' + k + '-HistGaussPlot.png')
+
         if displayParams['showPlot']:
             plt.show()
         plt.close()
+
+    if sorted:
+        from PlotWeights import sortedListAccordingToGuide
+        sortedDict = {'regressor': [], 'mean': [], 'variance': []}
+        for k, v in residualsMeanVar.items():
+            sortedDict['regressor'].append(k)
+            sortedDict['mean'].append(v[0])
+            sortedDict['variance'].append(v[1])
+
+        sortedDict['variance'], sortedDict['regressor'], sortedDict['mean'] = sortedListAccordingToGuide(sortedDict['variance'], sortedDict['regressor'], sortedDict['mean'])
+
+        residualsMeanVar = sortedDict
+
+    if displayParams['archive']:
+        import csv
+        with open(displayParams["outputPath"] + displayParams["reference"] + '/Residuals' + '/Records_' + displayParams["reference"] + ".csv", 'w', encoding='UTF8',
+                  newline='') as e:
+            writer = csv.writer(e, delimiter=";")
+
+            writer.writerow(['RESIDUALS DATA'])
+
+            writer.writerow(['regressor', 'mean', 'variance'])
+            for a, b, c in zip(residualsMeanVar['regressor'], residualsMeanVar['mean'], residualsMeanVar['variance']):
+                writer.writerow([a, b, c])
+
+    return residualsMeanVar
 
 def plotNormResDistribution(studies, displayParams):
     import matplotlib.pyplot as plt
