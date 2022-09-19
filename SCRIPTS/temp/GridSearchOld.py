@@ -1,9 +1,9 @@
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from SCRIPTS.Archiver import *
-from temp.PlotMetrics import *
-from temp.PlotPredTruth import *
-from temp.PlotResiduals import *
+from PlotMetrics import *
+from PlotPredTruth import *
+from PlotResiduals import *
 
 """
 Docum
@@ -23,21 +23,6 @@ def computeAccuracy(yTrue, yPred, tolerance):
     return sum(validated) / len(validated)
 
 def paramEval(model, paramkey, paramValues, cv, xTrain, yTrain, displayParams, custom = False, refit = 'r2' ):
-
-    """
-    Evaluate the
-    :param model:
-    :param paramkey:
-    :param paramValues:
-    :param cv:
-    :param xTrain:
-    :param yTrain:
-    :param displayParams:
-    :param custom:
-    :param refit:
-    :return:
-    """
-
     #https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter
     #https://scikit-learn.org/stable/auto_examples/model_selection/plot_multi_metric_evaluation.html#sphx-glr-auto-examples-model-selection-plot-multi-metric-evaluation-py
     parameters = dict()
@@ -63,7 +48,18 @@ def paramEval(model, paramkey, paramValues, cv, xTrain, yTrain, displayParams, c
 
     return grid, paramDict
 
+def scaledList(means, type='StandardScaler'):#'MinMaxScaler'
 
+    from sklearn import preprocessing
+
+    if type == 'MinMaxScaler':
+        vScaler = preprocessing.MinMaxScaler()
+        v_normalized = vScaler.fit_transform(np.array(means).reshape(-1, 1)).reshape(1, -1)
+    if type == 'StandardScaler':
+        vScaler = preprocessing.StandardScaler()
+        v_normalized = vScaler.fit_transform(np.array(means).reshape(-1, 1)).reshape(1, -1)
+
+    return v_normalized.tolist()[0]
 
 def modelEval(modelWithParam, Linear, xTrain, yTrain, xTest, yTest, displayParams, modelingParams, bestParam = None):
 
@@ -109,7 +105,7 @@ def modelEval(modelWithParam, Linear, xTrain, yTrain, xTest, yTest, displayParam
 def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features, resPlot = False, restDist = True):
 
     for m in models:
-        m['features'] = featuresk
+        m['features'] = features
         bestModel, paramDict = paramEval(m['model'], m['param'], modelingParams['RegulVal'], modelingParams['CVFold'],
                                          xTrain, yTrain, displayParams, refit = modelingParams['rankGridSearchModelsAccordingto'])
         m.update(paramDict)
@@ -148,18 +144,7 @@ def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTe
 def sortGridResults(models, metric = 'bModelAcc', highest = True):
     return sorted(models, key=lambda x: x[metric], reverse=highest)
 
-# ------------------------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------------------------
 
-# def scaledList(means, type='StandardScaler'):#'MinMaxScaler'
-#
-#     from sklearn import preprocessing
-#
-#     if type == 'MinMaxScaler':
-#         vScaler = preprocessing.MinMaxScaler()
-#         v_normalized = vScaler.fit_transform(np.array(means).reshape(-1, 1)).reshape(1, -1)
-#     if type == 'StandardScaler':
-#         vScaler = preprocessing.StandardScaler()
-#         v_normalized = vScaler.fit_transform(np.array(means).reshape(-1, 1)).reshape(1, -1)
-#
-#     return v_normalized.tolist()[0]
+
+
+

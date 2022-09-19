@@ -3,10 +3,7 @@ from SCRIPTS.Data import *
 from SCRIPTS.PrepData import *
 from Dashboard_PMv1 import *
 # from Dashboard_PMv2 import *
-from Archiver import *
-from GridSearch import *
-from temp.PlotWeights import *
-from temp.PlotRegul import *
+from SCRIPTS.Archiver import *
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -18,79 +15,39 @@ inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLab
           powers, mixVariables)
 rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
 
+"""Process data & One hot encoding"""
+dat = Data(rdat)
+df = dat.asDataframe(powers)
+
+""" Remove outliers - only exist/removed on Quantitative features"""
+ValidDf = removeOutliers(df, labels = xQuantLabels+yLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
+
 """
 ------------------------------------------------------------------------------------------------------------------------
 2.DATA
 ------------------------------------------------------------------------------------------------------------------------
 """
 
-"""Process data & One hot encoding"""
-dat = Data(rdat)
-df = dat.asDataframe(powers)
+"""Correlation of variables & Feature selection"""
+NoFilterDf, _ = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=0)
 
-"""
-------------------------------------------------------------------------------------------------------------------------
-3.PREP DATA
-------------------------------------------------------------------------------------------------------------------------
-"""
+HighCorDf, _ = filteredData(NoFilterDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'])
+checkDf, _ = filteredData(HighCorDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'], checkup = True)
 
-""" Remove outliers - only exist/removed on Quantitative features"""
-""" 
-Dashboard Input : 
-    processingParams - cutOffThreshhold
-"""
-ValidDf = removeOutliers(df, labels = xQuantLabels+yLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
+"""Remove Multi-correlated Features """
+CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
+                     removeLabels=processingParams['removeLabels'])
+"""Scale"""
+
+xdf, xScaler, ydf, yScaler = XScaleYScaleSplit(CorDf, yLabels, processingParams['scaler'],
+                                               processingParams['yScale'], processingParams['yUnit'])
+
 
 """Train Test Split"""
-
-""" 
-Dashboard Input : 
-    modelingParams - test_size
-    modelingParams - random_state
-    processingParams - yUnit
-"""
-
-xTrainUnsc, xTestUnsc, yTrainDf, yTestDf = TrainTestSplitAsDf(ValidDf, yLabels, test_size=modelingParams['test_size'],
-                                         random_state=modelingParams['random_state'], yUnit = processingParams['yUnit'])
-"""Scale"""
-#todo : Should I scale my y values (targets)?
-
-xTrainDf, xTestDf, MeanStdDf = scaleXDf(xTrainUnsc, xTestUnsc, xQuantLabels)
-
-xTrain = xTrainDf.to_numpy()
-xTest = xTestDf.to_numpy()
-yTrain = yTrainDf.to_numpy()
-yTest = yTestDf.to_numpy()
-
-print(type(xTrain), xTrain.shape)
-
-"""
-------------------------------------------------------------------------------------------------------------------------
-4.FILTER FEATURE
-------------------------------------------------------------------------------------------------------------------------
-"""
-
-
-"""Correlation of variables & Feature selection"""
-# NoFilterDf, _ = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=0)
-#
-# HighCorDf, _ = filteredData(NoFilterDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'])
-# checkDf, _ = filteredData(HighCorDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'], checkup = True)
-#
-# """Remove Multi-correlated Features """
-# CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
-#                      removeLabels=processingParams['removeLabels'])
-# """Scale"""
-#
-# xdf, xScaler, ydf, yScaler = XScaleYScaleSplit(CorDf, yLabels, processingParams['scaler'],
-#                                                processingParams['yScale'], processingParams['yUnit'])
-#
-#
-# """Train Test Split"""
-# xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
+xTrain, xTest, yTrain, yTest = TrainTest(xdf, ydf, test_size=modelingParams['test_size'], random_state=modelingParams['random_state'])
 
 """Save Data Processing"""
-# trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
+trackDataProcessing(displayParams=displayParams, df=df, noOutlierdf=ValidDf, filterdf=HighCorDf, removeLabelsdf=CorDf)
 
 # """
 # ------------------------------------------------------------------------------------------------------------------------
@@ -99,17 +56,10 @@ print(type(xTrain), xTrain.shape)
 # """
 #
 # """Search"""
-# print(xTrainDf.keys())
-#
-# searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xTrainDf.keys()),
+# searchedModels = searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features=list(xdf.keys()),
 #                             resPlot=True, restDist=True)
-#
-#
 # sortedDc = sortGridResults(searchedModels, metric = 'bModelAcc', highest = True)
 # """Save & Dump"""
-# prepData = dict()
-# prepData['filtering'] = 'none'
-#
 # exportStudy(displayParams, inputData, prepData, searchedModels, sortedDc)
 # pickleDumpMe(displayParams, searchedModels)
 #

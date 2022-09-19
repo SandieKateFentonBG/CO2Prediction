@@ -187,7 +187,7 @@ def WeightsSummaryPlot(models, displayParams, sorted=True, yLim=None, fontsize=1
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Coef'
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-
+        print(outputFigPath)
         plt.savefig(outputFigPath + '/meanCoefImportance.png')
     if displayParams['showPlot']:
         plt.show()

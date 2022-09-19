@@ -10,8 +10,8 @@ displayParams = {"csvPath":"C:/Users/sfenton/Code/Repositories/CO2Prediction/DAT
                  'residualsYLim': [-5000, 5000], 'residualsXLim': [0, 10000], 'fontsize': None}
 # DATA
 
-xQualLabels = ['Calculation Design Stage','Value Type','Project Sector', 'Construction Type','Passivhaus?',
-               'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type']#,'UK District'
+xQualLabels = ['Calculation Design Stage','Value Type','Project Value (£m)', 'Project Sector', 'Construction Type','Passivhaus?',
+               'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type', 'Cladding Type']#,'UK District'
 xQuantLabels = ['GIFA (m2)','Storeys (#)']
 yLabels = ['A1-A5 Rate (kgCO2e/m2)'] #'Carbon A1-A5 (kgCO2e)',
 

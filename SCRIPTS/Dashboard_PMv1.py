@@ -1,13 +1,13 @@
 # PATH
 
-random = 7
+random = 5
 
 csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data"
 outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
 #220301_Stdsc_nofilt
 displayParams = {"csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
                  "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
-                'showResults' : True, 'showPlot' : False, 'archive': True, 'reference': 'RUN_fccb_lt015',
+                'showResults' : False, 'showPlot' : False, 'archive': True, 'reference': 'New_TEST_RUN_2',
                  'Target': 'kgCO2e/m2', 'TargetMinMaxVal' : [0, 800], 'roundNumber': 3,
                  'residualsYLim': [-500, 500], 'residualsXLim': [0, 800], 'fontsize': 14, 'random_state' : random} #fccb-lt015-PMv1_3
 
@@ -22,7 +22,7 @@ yLabels = ['Calculated tCO2e_per_m2'] #'Calculated Total tCO2e',
 
 # FORMAT
 
-processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.15, 'highThreshold' : 1,
+processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 4, 'lowThreshold' : 0.15, 'highThreshold' : 1,
                     'removeLabels' : ['Basement_None', 'Sector_Industrial'], 'baseLabels' : xQuantLabels,
                     'yScale' : False, 'yUnit' : 1000 } #[], 'Foundations_Raft' 'scaler': None, 'MinMaxScaler', 'StandardScaler'
 #main : 'Basement_None', 'Sector_Industrial', 'Foundations_', 'Ground Floor_Raft'

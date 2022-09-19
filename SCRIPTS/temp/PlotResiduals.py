@@ -97,6 +97,7 @@ def plotResHistGauss(studies, displayParams, binwidth = 25, setxLim = (-150, 150
         title = 'Residuals distribution for ' + k
         x = "Residuals [%s]" % displayParams['Target']
         fig, ax = plt.subplots()
+        #todo : this is where I plot the histplot and the kde
         ax = sns.histplot(v, kde=True, legend = False, binwidth=binwidth, label ="Residuals kde curve")
         plt.setp(ax.patches, linewidth=0)
         plt.title(title, fontsize=fontsize)
@@ -119,6 +120,7 @@ def plotResHistGauss(studies, displayParams, binwidth = 25, setxLim = (-150, 150
         dx = binwidth
         scale = len(arr) * dx
         # plt.plot(x, norm.pdf(x, mean, sigma) * scale, color='red', linestyle='dashed', label = "Gaussian curve")
+        #todo : this is where I plot the gaussian
         plt.plot(t, norm.pdf(t, mean, sigma) * scale, color='red', linestyle='dashed', label = "Gaussian curve")
 
         plt.legend()
