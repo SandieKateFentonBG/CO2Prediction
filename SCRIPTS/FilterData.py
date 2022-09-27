@@ -33,9 +33,9 @@ def filteredData(noOutlierDf, baseLabels, yLabels, displayParams, lt, removeLabe
     Labels = {"baseLabels": baseLabels,"HighCorr": keep, "LowCorr": drop, "MultiCorr/Removed": removeLabels}
     return filteredData, Labels
 
-def computeCorrelation(df, round = 2):
+def computeCorrelation(df, method = "spearman", round = 2):
 
-    return df.corr().round(round) #Method :pearson standard correlation coefficient
+    return df.corr(method = method).round(round) #Method :pearson standard correlation coefficient
 
 def filterCorrelation(correlationMatrix, lowThreshhold, yLabel):
 
@@ -139,90 +139,12 @@ def computeYLabelCor(correlationMatrix, yLabel = 'Calculated tCO2e_per_m2'):
     return correlationMatrix.loc[yLabel]
 
 
-
-
-"""
-------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------
-"""
-
+def
+# HighCorDf, _ = filteredData(NoFilterDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'])
+# checkDf, _ = filteredData(HighCorDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'], checkup = True)
 #
-#
-# def XScaleYSplit(df, yLabels, scalerParam):
-#     ydf = df[yLabels]
-#     xdf = df.drop(columns = yLabels)
-#     xScaler = None
-#     if scalerParam:
-#         if scalerParam == 'MinMaxScaler':
-#             xScaler = preprocessing.MinMaxScaler()
-#             x_normalized = xScaler.fit_transform(xdf)
-#             xScaled = pd.DataFrame(x_normalized, columns = xdf.keys())
-#         if scalerParam == 'StandardScaler':
-#             xScaler = preprocessing.StandardScaler()
-#             x_normalized = xScaler.fit_transform(xdf)
-#             xScaled = pd.DataFrame(x_normalized, columns = xdf.keys())
-#         xdf = xScaled
-#     return xdf, ydf, xScaler
-#
-# def XScaleYScaleSplit(df, yLabels, scalerParam, yScale = False, yUnit = None):
-#     ydf = df[yLabels]
-#     xdf = df.drop(columns = yLabels)
-#     xScaler = None
-#     yScaler = None
-#     if scalerParam:
-#         xdf, xScaler = Vscale(scalerParam, xdf)
-#         if yScale:
-#             ydf, yScaler = Vscale(scalerParam, ydf)
-#         else:
-#             yScaler = None
-#     if yUnit:
-#         ydf = np.multiply(ydf,yUnit)
-#     return xdf, xScaler, ydf, yScaler
-#
-# def Vscale(scalerParam, vdf):
-#
-#     if scalerParam == 'MinMaxScaler':
-#         vScaler = preprocessing.MinMaxScaler()
-#         v_normalized = vScaler.fit_transform(vdf)
-#         vScaled = pd.DataFrame(v_normalized, columns = vdf.keys())
-#
-#     if scalerParam == 'StandardScaler':
-#         vScaler = preprocessing.StandardScaler()
-#         v_normalized = vScaler.fit_transform(vdf)
-#         vScaled = pd.DataFrame(v_normalized, columns = vdf.keys())
-#     vdf = vScaled
-#
-#     return vdf, vScaler
-#
-# def unscale(elem, scaler, unitChange = None):
-#
-#     if unitChange:
-#         elem = np.multiply(elem, 1/unitChange)
-#     if scaler:
-#         return pd.DataFrame(scaler.inverse_transform(elem), columns = elem.keys())
-#     else:
-#         return elem
-#
-# def TrainTest(xdf, ydf, test_size, random_state):
-#
-#     XTrain, XTest, yTrain, yTest = train_test_split(xdf.values, ydf.values, test_size=test_size, random_state=random_state)
-#
-#     return XTrain, XTest, yTrain, yTest
-#
-
-# def TrainTestSplit(df, yLabels, test_size, random_state, yUnit = None):
-#
-#     ydf = df[yLabels]
-#     xdf = df.drop(columns = yLabels)
-#     if yUnit:
-#         ydf = np.multiply(ydf, yUnit)
-#
-#     #todo : here replace with something exporting panda df
-#     XTrain, XTest, yTrain, yTest = train_test_split(xdf.values, ydf.values, test_size=test_size, random_state=random_state)
-#
-#
-#     return XTrain, XTest, yTrain, yTest
-
-
+# """Remove Multi-correlated Features """
+# CorDf, prepData = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'],
+#                      removeLabels=processingParams['removeLabels'])
 
 

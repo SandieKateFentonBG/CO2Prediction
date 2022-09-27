@@ -1,5 +1,5 @@
-from RawData import RawData
-from SCRIPTS.Data import *
+from RawDataOld import RawData
+from SCRIPTS.Features import *
 from SCRIPTS.PrepData import *
 from Dashboard_PMv1 import *
 # from Dashboard_PMv2 import *
@@ -17,7 +17,7 @@ from temp.PlotRegul import *
 inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLabels, yLabels, processingParams, modelingParams,
           powers, mixVariables)
 rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
-
+#DATA
 """
 ------------------------------------------------------------------------------------------------------------------------
 2.DATA
@@ -25,9 +25,9 @@ rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
 """
 
 """Process data & One hot encoding"""
-dat = Data(rdat)
+dat = Features(rdat)
 df = dat.asDataframe(powers)
-
+#FEATURES
 """
 ------------------------------------------------------------------------------------------------------------------------
 3.PREP DATA
@@ -40,6 +40,7 @@ Dashboard Input :
     processingParams - cutOffThreshhold
 """
 ValidDf = removeOutliers(df, labels = xQuantLabels+yLabels, cutOffThreshhold=processingParams['cutOffThreshhold'])
+#DATA
 
 """Train Test Split"""
 
@@ -52,11 +53,13 @@ Dashboard Input :
 
 xTrainUnsc, xTestUnsc, yTrainDf, yTestDf = TrainTestSplitAsDf(ValidDf, yLabels, test_size=modelingParams['test_size'],
                                          random_state=modelingParams['random_state'], yUnit = processingParams['yUnit'])
+#MODEL
+
 """Scale"""
 #todo : Should I scale my y values (targets)?
 
 xTrainDf, xTestDf, MeanStdDf = scaleXDf(xTrainUnsc, xTestUnsc, xQuantLabels)
-
+#MODEL
 xTrain = xTrainDf.to_numpy()
 xTest = xTestDf.to_numpy()
 yTrain = yTrainDf.to_numpy()
@@ -73,7 +76,10 @@ print(type(xTrain), xTrain.shape)
 
 """Correlation of variables & Feature selection"""
 # NoFilterDf, _ = filteredData(ValidDf, processingParams['baseLabels'], yLabels, displayParams, lt=0)
-#
+#DATA
+
+
+
 # HighCorDf, _ = filteredData(NoFilterDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'])
 # checkDf, _ = filteredData(HighCorDf, processingParams['baseLabels'], yLabels, displayParams, lt=processingParams['lowThreshold'], checkup = True)
 #

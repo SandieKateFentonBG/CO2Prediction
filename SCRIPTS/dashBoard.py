@@ -5,7 +5,7 @@ ________________________________________________________________________________
 """
 reference = 'New_TEST_RUN'
 #VISUALS
-displayParams = {'showPlot': True, 'archive': True}
+displayParams = {'showPlot': True, 'archive': True, 'showCorr' : True}
 
 """
 ________________________________________________________________________________________________________________________
@@ -31,6 +31,10 @@ yLabels = ['Calculated tCO2e_per_m2']
 
 DBdelimiter = ';'
 DBfirstLine = 5
+
+processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.15, 'highThreshold' : 1,
+                    'yScale' : False, 'yUnit' : 1000 }
+
 
 """
 ________________________________________________________________________________________________________________________

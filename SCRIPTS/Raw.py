@@ -1,5 +1,5 @@
 import csv
-from dashBoard import *
+
 
 
 def open_csv_at_given_line(path, dbName, delimiter, firstLine, folder="DATA/"):
@@ -45,7 +45,7 @@ def setWorkingFeatures(header, reader, newLabels = False):
     return xQualLabels, xQuantLabels, yLabels
 
 class RawData:
-    def __init__(self, path = DBpath, dbName = DBname, delimiter = DBdelimiter, firstLine = DBfirstLine, newLabels = None):
+    def __init__(self, path, dbName, delimiter, firstLine, newLabels = None):
 
         """
         Opens a csv at a given line
@@ -84,7 +84,7 @@ class RawData:
                 if value not in self.possibleQualities[label]:
                     self.possibleQualities[label].append(value)
 
-    def visualize(self, displayParams, path=DBpath, yLabel='Calculated tCO2e_per_m2', xLabel='Cladding',
+    def visualize(self, displayParams, path, yLabel='Calculated tCO2e_per_m2', xLabel='Cladding',
                   title = "Features influencing CO2 footprint of Structures - Datasource : Price & Myers",
                   reference = "", figure_size = (8, 10), folder = "RESULTS/",subFolder ='visualizeRawData'):
 
@@ -125,18 +125,3 @@ class RawData:
 
         plt.close() #todo : check this
 
-# csvPath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data-sepp"
-# csvPath2 = "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data"
-# outputPath = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'
-
-
-rdat = RawData()
-#
-# rdat2 = RawData(csvPath2, ';', 5, newLabels = True)
-
-print(rdat.xQuali)
-print(rdat.xQuanti)
-# print(rdat2.xQuali)
-# print(rdat2.xQuanti)
-print(rdat.y)
-rdat.visualize(displayParams, DBpath)

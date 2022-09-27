@@ -1,55 +1,49 @@
-import numpy as np
+from sklearn.model_selection import train_test_split
 import pandas as pd
+import numpy as np
+
+#data = lines
+
+def removeOutliers(dataframe, labels, cutOffThreshhold):
+    """
+
+    :param labels: labels to remove outliers from - here we take xQuanti
+    :param cutOffThreshhold: default 1.5
+    :return: Dataframe without outliers
+
+    """
+
+    for l in labels:
+        noOutlierDf = removeOutlier(dataframe, l, cutOffThreshhold)
+        dataframe = noOutlierDf
+
+    return noOutlierDf
+
+def removeOutlier(df, colName, cutOffThreshhold):
+
+    """Removes all outliers on a specific column from a given dataframe.
+
+    Args:
+        df (pandas.DataFrame): Iput pandas dataframe containing outliers
+        colName (str): Column name on which to search outliers
+        CutOfftreshhold : default =1.5 ; extreme = 3
+
+    Returns:
+        pandas.DataFrame: DataFrame without outliers
+
+    Comments : Interquartile range Method for removing outliers is specific to non Gaussian distribution of data
+    - could consider other methods
 
 
-def logitize(xQuali, possibleValues):
-    output = dict()
-    for label, column in xQuali.items():
-        for sublabel in possibleValues[label]:
-            output['_'.join([label, sublabel])] = [1 if value == possibleValues[label].index(sublabel) else 0 for value in column]
-    return output
+    """
 
-def countPowers(powers):
-    count = 0
-    for powerList in powers.values():
-        count += len(powerList)
-    return count
+    q1 = df[colName].quantile(0.25)
+    q3 = df[colName].quantile(0.75)
+    iqr = q3 - q1  # Interquartile range
+    fence_low = q1 - cutOffThreshhold * iqr
+    fence_high = q3 + cutOffThreshhold * iqr
+    return df.loc[(df[colName] > fence_low) & (df[colName] < fence_high)]
 
-
-class Data:
-    def __init__(self, rawData):
-
-        self.x = dict(rawData.xQuanti)
-        self.x.update(logitize(rawData.xQuali, rawData.possibleQualities))
-        self.y = rawData.y
-
-        #todo : 1 function that runs through and stores info
-
-
-
-
-    def asDataframes(self, batchCount=5, powers=None, mixVariables=None):
-        x, y, xlabels = self.asArray(powers, mixVariables)
-        cutoffIndex = batchCount if x.shape[0] % batchCount == 0\
-            else [int(x.shape[0] / batchCount * i) for i in range(1, batchCount)]
-        return np.split(x, cutoffIndex), np.split(y, cutoffIndex), xlabels
-
-    def asArray(self, powers={}, mixVariables=[]):
-        numValues = len(next(iter(self.x.values())))
-        x = np.zeros((numValues, len(self.x)-len(powers)))
-        y = np.zeros((numValues, len(self.y)))
-        xlabels = [f for f in self.x.keys() if f not in powers.keys()]
-        for i in range(numValues):  # 80
-            x[i, :] = np.array([self.x[f][i] for f in self.x.keys() if f not in powers.keys()])
-            y[i, :] = np.array([self.y[f][i] for f in self.y.keys()])
-
-        return x, y, xlabels
-
-    def asDataframe(self, powers=None, mixVariables=None):
-        x, y, xlabels = self.asArray(powers, mixVariables)
-        self.Dataframe = [x, y]
-
-        return pd.DataFrame(np.hstack((x, y)), columns=xlabels + list(self.y.keys()))
 
 
 

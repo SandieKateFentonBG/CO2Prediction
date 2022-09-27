@@ -1,5 +1,5 @@
 from RawData import RawData
-from SCRIPTS.Data import *
+from SCRIPTS.Features import *
 from SCRIPTS.PrepData import *
 from Dashboard_PMv1 import *
 # from Dashboard_PMv2 import *
@@ -16,7 +16,7 @@ inputData = saveInput(csvPath, outputPath, displayParams, xQualLabels, xQuantLab
 rdat = RawData(csvPath, ';', 5, xQualLabels, xQuantLabels, yLabels)
 
 """Process data & One hot encoding"""
-dat = Data(rdat)
+dat = Features(rdat)
 df = dat.asDataframe(powers)
 
 """ Remove outliers - only exist/removed on Quantitative features"""
