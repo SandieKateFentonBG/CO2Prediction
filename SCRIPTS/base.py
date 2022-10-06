@@ -6,6 +6,9 @@ from Data import *
 from Format import *
 from Filter import *
 from visualizeFilter import *
+from Models import *
+from Wrapper import *
+from HyperparamSearch import *
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -75,8 +78,8 @@ print("test", type(testDf), testDf.shape)
 """
 SPEARMAN
 """
-uncorrelatedFilterDict, redundantFilterDict = filteringData(trainDf, baseLabels = xQuantLabels, yLabel = yLabels[0])
-filteredTrainDf, filteredTestDf = filterDf(trainDf, testDf, uncorrelatedFilterDict, redundantFilterDict)
+# uncorrelatedFilterDict, redundantFilterDict = filteringData(trainDf, baseLabels = xQuantLabels, yLabel = yLabels[0])
+# filteredTrainDf, filteredTestDf = filterDf(trainDf, testDf, uncorrelatedFilterDict, redundantFilterDict)
 
 # plotCorrelation(computeCorrelation(df), DBpath, displayParams, filteringName="nofilter")
 # plotCorrelation(uncorrelatedFilterDict["correlationMatrix"], DBpath, displayParams, filteringName="dropuncorr")
@@ -85,6 +88,45 @@ filteredTrainDf, filteredTestDf = filterDf(trainDf, testDf, uncorrelatedFilterDi
 """
 RFE
 """
-
-
 #RFE with trainDf > filter on trainDf test Df
+# model = predictors[4]['model']
+# yTrain = trainDf[yLabels].to_numpy()
+# xTrain = trainDf.drop(columns=yLabels).to_numpy()
+yTrain = trainDf[yLabels]
+xTrain = trainDf.drop(columns=yLabels)
+print('', len(yTrain))
+print('np', yTrain.to_numpy())
+print('np rv', yTrain.to_numpy().ravel())
+
+for i in range(len(CoreEstimators)):
+    print(i)
+    estimator = CoreEstimators[i]
+    rfe = WrapData(estimator, xTrain, yTrain, n_features_to_select)
+
+# for i in range(len(CoreEstimators)):
+#     print(i)
+#     estimator = CoreEstimators[i]
+#     rfecv = WrapDataCV(estimator, xTrain, yTrain, step, cv, scoring)
+
+
+#todo : why do I get completely different result every time i run it
+#todo : check summary equation table
+#todo : check formats - numpy vs panda / ravel()/ reshape(-1,1),...
+
+"""
+Hyperparam Search
+"""
+#
+# yTrain = filteredTrainDf[yLabels].to_numpy()
+# xTrain = filteredTrainDf.drop(columns=yLabels).to_numpy()
+# print('xTrain', xTrain.shape, xTrain)
+# print('yTrain', yTrain.shape, yTrain)
+# model = predictors[4]
+# print(model)
+# for k,v in model.items():
+#     print (k,v)
+# grid, paramDict = paramEval(model, xTrain, yTrain, custom = False, refit ='r2', rounding = 3)
+#
+# print(grid)
+# for k,v in paramDict.items():
+#     print (k,v)
