@@ -69,6 +69,12 @@ trainDf, testDf, MeanStdDf = formatDf(learningDf, xQuantLabels, xQualLabels, yLa
 print("train", type(trainDf), trainDf.shape)
 print("test", type(testDf), testDf.shape)
 
+yTrain = trainDf[yLabels]
+xTrain = trainDf.drop(columns=yLabels)
+
+yTest = testDf[yLabels]
+xTest = testDf.drop(columns=yLabels)
+
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -88,35 +94,28 @@ SPEARMAN
 """
 RFE
 """
-#RFE with trainDf > filter on trainDf test Df
-# model = predictors[4]['model']
-# yTrain = trainDf[yLabels].to_numpy()
-# xTrain = trainDf.drop(columns=yLabels).to_numpy()
-yTrain = trainDf[yLabels]
-xTrain = trainDf.drop(columns=yLabels)
-print('', len(yTrain))
-print('np', yTrain.to_numpy())
-print('np rv', yTrain.to_numpy().ravel())
 
-for i in range(len(CoreEstimators)):
-    print(i)
-    estimator = CoreEstimators[i]
-    rfe = WrapData(estimator, xTrain, yTrain, n_features_to_select)
+rfecvDict = RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring , display = True, testTuple = (xTest, yTest))
 
-# for i in range(len(CoreEstimators)):
-#     print(i)
-#     estimator = CoreEstimators[i]
-#     rfecv = WrapDataCV(estimator, xTrain, yTrain, step, cv, scoring)
+paramDict = RFEHyperparameterSearch(RFEEstimators,featureCount = featureCount, xTrain = xTrain, yTrain = yTrain,
+                                    display = True, testTuple = (xTest, yTest))
 
-
-#todo : why do I get completely different result every time i run it
 #todo : check summary equation table
 #todo : check formats - numpy vs panda / ravel()/ reshape(-1,1),...
+#todo : add linear regression
+#todo : how to evaluate RFE - the goal is not to perform the best prediction - what scoring should be inserted?
+#todo : understand fit vs fit transform > make sure i am working with updated data
+
+"""
+------------------------------------------------------------------------------------------------------------------------
+4.HYPERPARAMETER SEARCH
+------------------------------------------------------------------------------------------------------------------------
+"""
 
 """
 Hyperparam Search
 """
-#
+
 # yTrain = filteredTrainDf[yLabels].to_numpy()
 # xTrain = filteredTrainDf.drop(columns=yLabels).to_numpy()
 # print('xTrain', xTrain.shape, xTrain)
