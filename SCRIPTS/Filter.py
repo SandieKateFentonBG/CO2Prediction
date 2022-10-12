@@ -71,9 +71,10 @@ def filteringData(noOutlierDf, baseLabels, yLabel):
     filterRedundantDict = filterRedundant(filterUncorrelatedDict['filteredDf'], baseLabels, yLabel)
     return filterUncorrelatedDict, filterRedundantDict
 
-def filterDf(trainDf, testDf, filterUncorrelatedDict, filterRedundantDict) :
+def filterDf(trainDf, validDf, testDf, filterUncorrelatedDict, filterRedundantDict) :
     # filteredTrainDf = filterRedundantDict['filteredDf']
     dropLabels = filterUncorrelatedDict["dropLabels"] + filterRedundantDict["dropLabels"]
     filteredTestDf = testDf.drop(columns=dropLabels)
+    filteredValidDf = validDf.drop(columns=dropLabels)
     filteredTrainDf = trainDf.drop(columns=dropLabels)
-    return filteredTrainDf, filteredTestDf
+    return filteredTrainDf, filteredValidDf, filteredTestDf

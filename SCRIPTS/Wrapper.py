@@ -7,6 +7,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import KFold
 from sklearn.model_selection import LeaveOneOut, StratifiedKFold
 from sklearn.linear_model import LinearRegression
+import pandas as pd
 
 rs = 42
 RFEEstimators = {'LinearRegression': LinearRegression(),
@@ -49,19 +50,21 @@ def RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring , display =
     """
 
     rfecvDict = dict()
-    rfecvDict_Test = dict()
 
     for k,estimator in RFEEstimators.items():
+
+        rfecvDict[k] = dict()
 
         # TODO : pipeline - insert scaling here?
         rfecv = RFECV(estimator=estimator, step=step, cv=cv, scoring=scoring)
         rfecv = rfecv.fit(xTrain.to_numpy(), yTrain.to_numpy().ravel())
-        rfecvDict[k] = rfecv
+
+        rfecvDict[k]['model'] = rfecv
 
         if testTuple:
             xTest, yTest = testTuple
             score = rfecv.score(xTest.to_numpy(), yTest.to_numpy().ravel())
-            rfecvDict_Test[k] = score
+            rfecvDict[k]['Test Score'] = score
 
         if display :
             print("RFECV Gridsearch:")
@@ -74,7 +77,7 @@ def RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring , display =
                 print("Score on testing", score)
             print("")
 
-    return rfecvDict, rfecvDict_Test
+    return rfecvDict
 
 def RFEGridsearch(RFEEstimators,n_features_to_select, xTrain, yTrain, display = False, testTuple = None) :
 
@@ -148,6 +151,31 @@ def RFEHyperparameterSearch(RFEEstimators,featureCount, xTrain, yTrain, display 
 
     return paramDict
 
+def WrapperLabels(rfeDict):
+    RFELabelsDict = dict()
+    for k in rfeDict.keys():
+        RFELabelsDict[k] = rfeDict[k]['model'].support_
+    return RFELabelsDict
+
+def EliminateDf(xtrainDf, xvalidDf, xtestDf, ytrainDf, yvalidDf, ytestDf, rfeDict):
+
+    RFEDf = dict()
+    for k in rfeDict.keys():
+
+        RFETrainDf = xtrainDf.columns[rfeDict[k]['model'].support_]
+        RFEValidDf = xvalidDf.columns[rfeDict[k]['model'].support_]
+        RFETestDf = xtestDf.columns[rfeDict[k]['model'].support_]
+
+        #todo : fix train df concatenated from xtrain and y train
+
+        # RFETrainDf = pd.concat([RFETrainDf, ytrainDf], axis=1)
+        # RFEValidDf = pd.concat([RFEValidDf, yvalidDf], axis=1)
+        # RFETestDf = pd.concat([RFETestDf, ytestDf], axis=1)
+
+
+        RFEDf[k] = [RFETrainDf, RFEValidDf, RFETestDf]
+
+    return RFEDf
 
 
 # https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html

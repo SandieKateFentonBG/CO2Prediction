@@ -29,10 +29,7 @@ rdat = RawData(path = DBpath, dbName = DBname, delimiter = DBdelimiter, firstLin
 """Process data & One hot encoding"""
 dat = Features(rdat)
 df = dat.asDataframe()
-print("df", df.shape)
-# print(dat)
-# print(df.keys())
-# print(df.get(['BREEAM Rating_Good']))
+print("Full df", df.shape)
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -46,7 +43,7 @@ Dashboard Input :
     processingParams - cutOffThreshhold
 """
 learningDf = removeOutliers(df, labels =xQuantLabels + yLabels, cutOffThreshhold=3)
-print("learning", learningDf.shape)
+print("Outliers removed ", learningDf.shape)
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -64,13 +61,23 @@ Dashboard Input :
 """
 import random
 
-trainDf, testDf, MeanStdDf = formatDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnit = processingParams['yUnit'])
+# trainDf, testDf, MeanStdDf = formatDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnit = processingParams['yUnit'],
+#                                       validation = validation)
+
+
+
+trainDf, validDf, testDf, MeanStdDf = formatDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnit = processingParams['yUnit'])
+
 
 print("train", type(trainDf), trainDf.shape)
+print("validate", type(validDf), validDf.shape)
 print("test", type(testDf), testDf.shape)
 
 yTrain = trainDf[yLabels]
 xTrain = trainDf.drop(columns=yLabels)
+
+yValid = validDf[yLabels]
+xValid = validDf.drop(columns=yLabels)
 
 yTest = testDf[yLabels]
 xTest = testDf.drop(columns=yLabels)
@@ -78,33 +85,61 @@ xTest = testDf.drop(columns=yLabels)
 
 """
 ------------------------------------------------------------------------------------------------------------------------
-4.FILTER FEATURE
+4.FEATURE SELECTION
 ------------------------------------------------------------------------------------------------------------------------
 """
 """
-SPEARMAN
+FILTER - SPEARMAN
 """
-# uncorrelatedFilterDict, redundantFilterDict = filteringData(trainDf, baseLabels = xQuantLabels, yLabel = yLabels[0])
-# filteredTrainDf, filteredTestDf = filterDf(trainDf, testDf, uncorrelatedFilterDict, redundantFilterDict)
+uncorrelatedFilterDict, redundantFilterDict = filteringData(trainDf, baseLabels = xQuantLabels, yLabel = yLabels[0])
+filteredTrainDf, filteredValidDf, filteredTestDf = filterDf(trainDf, validDf, testDf, uncorrelatedFilterDict, redundantFilterDict)
+
+print('')
+print('FILTER - SPEARMAN CORRELATION')
+print('LABELS : ', filteredTrainDf.shape)
+print(list(filteredTrainDf.columns.values))
 
 # plotCorrelation(computeCorrelation(df), DBpath, displayParams, filteringName="nofilter")
 # plotCorrelation(uncorrelatedFilterDict["correlationMatrix"], DBpath, displayParams, filteringName="dropuncorr")
 # plotCorrelation(redundantFilterDict["correlationMatrix"], DBpath, displayParams, filteringName="dropcolinear")
 
 """
-RFE
+ELIMINATE - RFE
 """
 
-rfecvDict = RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring , display = True, testTuple = (xTest, yTest))
+rfecvDict = RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring , display = False, testTuple = (xValid, yValid))
+print('rfecvDict', rfecvDict)
+
+rfeDict = RFEGridsearch(RFEEstimators,n_features_to_select = 15, xTrain = xTrain, yTrain = yTrain, display = False,
+                        testTuple = (xValid, yValid))
 
 paramDict = RFEHyperparameterSearch(RFEEstimators,featureCount = featureCount, xTrain = xTrain, yTrain = yTrain,
-                                    display = True, testTuple = (xTest, yTest))
-
+                                    display = False, testTuple = (xValid, yValid))
+print('paramDict',paramDict)
 #todo : check summary equation table
 #todo : check formats - numpy vs panda / ravel()/ reshape(-1,1),...
 #todo : add linear regression
 #todo : how to evaluate RFE - the goal is not to perform the best prediction - what scoring should be inserted?
 #todo : understand fit vs fit transform > make sure i am working with updated data
+
+RFEDfDict = EliminateDf(xTrain, xValid, xTest, yTrain, yValid, yTest, rfeDict)
+print(RFEDfDict)
+RFECVDfDict = EliminateDf(xTrain, xValid, xTest, yTrain, yValid, yTest, rfecvDict)
+print(RFECVDfDict)
+
+
+#todo : fix train df concatenated from xtrain and y train - see wrapper - eliminate
+print('')
+print('ELIMINATE - RECURSIVE FEATURE ELIMINATION')
+print('RandomForestRegressor')
+print('LABELS : ', len(RFEDfDict['RandomForestRegressor']))
+print(list(RFEDfDict['RandomForestRegressor'].columns.values))
+
+print('')
+print('ELIMINATE - RECURSIVE FEATURE ELIMINATION - CROSS VALIDATED')
+print('RandomForestRegressor')
+print('LABELS : ', len(RFECVDfDict['RandomForestRegressor']))
+print(list(RFECVDfDict['RandomForestRegressor'].columns.values))
 
 """
 ------------------------------------------------------------------------------------------------------------------------
