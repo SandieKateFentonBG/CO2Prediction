@@ -25,7 +25,7 @@ featureCount = [5, 10, 15]
 
 """
 Questions
-1. Trainscore is too igh - What should i evaluate my rfe on? validation set? > what does the RFECV use as a score? 
+1. Trainscore is too high - What should i evaluate my rfe on? validation set? > what does the RFECV use as a score? 
 2. Scaling, When should it be done? Look into pipeline
 3. I inserted a random-state to have stable results - is this ok?
 4. leave one out?
@@ -77,6 +77,14 @@ def RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring , display =
                 print("Score on testing", score)
             print("")
 
+    """
+    
+    EXAMPLE : 
+    
+    rfecvDict = { DecisionTreeRegressor : {'model': rfecv, 'Test Score' : score} }
+    
+    """
+
     return rfecvDict
 
 def RFEGridsearch(RFEEstimators,n_features_to_select, xTrain, yTrain, display = False, testTuple = None) :
@@ -112,7 +120,14 @@ def RFEGridsearch(RFEEstimators,n_features_to_select, xTrain, yTrain, display = 
                 print("Score on testing", score)
             print("")
 
-    # return rfeDict, rfeDict_Test
+    """
+
+    EXAMPLE : 
+
+    rfeDict = { DecisionTreeRegressor : {'model': rfe, 'Test Score' : score} }
+
+    """
+
     return rfeDict
 
 def RFEHyperparameterSearch(RFEEstimators,featureCount, xTrain, yTrain, display = False, testTuple = None):
@@ -149,6 +164,15 @@ def RFEHyperparameterSearch(RFEEstimators,featureCount, xTrain, yTrain, display 
             print(k)
             print(v)
 
+    """
+
+    EXAMPLE : 
+
+    paramDict = { DecisionTreeRegressor : {'featureCount': rfe, 'Train Score': score , 'Test Score' : score}}
+
+    """
+
+
     return paramDict
 
 def WrapperLabels(rfeDict):
@@ -156,6 +180,15 @@ def WrapperLabels(rfeDict):
     for k in rfeDict.keys():
         RFELabelsDict[k] = rfeDict[k]['model'].support_
     return RFELabelsDict
+
+def labelsToDrop(allLabels, labelsToKeep):
+
+    labelsToDrop = []
+    for label in allLabels:
+        if label not in labelsToKeep:
+            labelsToDrop.append(label)
+
+    return labelsToDrop
 
 def EliminateDf(xtrainDf, xvalidDf, xtestDf, ytrainDf, yvalidDf, ytestDf, rfeDict):
 
@@ -171,7 +204,9 @@ def EliminateDf(xtrainDf, xvalidDf, xtestDf, ytrainDf, yvalidDf, ytestDf, rfeDic
         # RFETrainDf = pd.concat([RFETrainDf, ytrainDf], axis=1)
         # RFEValidDf = pd.concat([RFEValidDf, yvalidDf], axis=1)
         # RFETestDf = pd.concat([RFETestDf, ytestDf], axis=1)
-
+        print('here')
+        print(k)
+        print(RFETrainDf)
 
         RFEDf[k] = [RFETrainDf, RFEValidDf, RFETestDf]
 

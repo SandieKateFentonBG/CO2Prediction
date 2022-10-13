@@ -7,8 +7,6 @@ from fast_ml.feature_selection import get_constant_features, recursive_feature_e
 
 #model
 
-#todo : convert this to a class - find better naming
-
 # #todo : Should I scale my y values (targets)?
 
 #DEFAULT VALUES
@@ -16,53 +14,6 @@ random_state = 42
 test_size = 0.5 # proportion with validation
 train_size= 0.8
 
-def formatDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnit):
-
-    XTrain, XValid, XTest, yTrain, yValid, yTest = dataSplitAsDf(learningDf, yLabels, yUnit)
-    XTrain, XVal, XTest, MeanStdDf = scaleXDf(XTrain, XTest, XValid, xQuantLabels)
-    trainDf = pd.concat([XTrain, yTrain], axis=1)
-    validDf = pd.concat([XValid, yValid], axis=1)
-    testDf = pd.concat([XTest, yTest], axis=1)
-
-    return trainDf, validDf, testDf, MeanStdDf
-
-
-# def TrainTestSplitAsDf(df, yLabels, yUnit=None): #, test_size=0.2, random_state=42):
-#     ydf = df[yLabels]
-#     xdf = df.drop(columns=yLabels)
-#     if yUnit:
-#         ydf = np.multiply(ydf, yUnit)
-#
-#     XTrain, XTest, yTrain, yTest = train_test_split(xdf.values, ydf.values, test_size=test_size,
-#                                                     random_state=random_state)
-#     columnsNamesArr = xdf.columns.values
-#     XTrainDf = pd.DataFrame(data=XTrain, columns=columnsNamesArr)
-#     XTestDf = pd.DataFrame(data=XTest, columns=columnsNamesArr)
-#     yTrainDf = pd.DataFrame(data=yTrain, columns=yLabels)
-#     yTestDf = pd.DataFrame(data=yTest, columns=yLabels)
-#
-#     return XTrainDf, XTestDf, yTrainDf, yTestDf
-
-def dataSplitAsDf(df, yLabels, yUnit=None):# train_size=0.8, valid_size=0.1, test_size=0.1 random_state=42):
-
-    ydf = df[yLabels]
-    xdf = df.drop(columns=yLabels)
-    if yUnit:
-        ydf = np.multiply(ydf, yUnit)
-
-    XTrain, XRem, yTrain, yRem = train_test_split(xdf.values, ydf.values, train_size=train_size,
-                                                    random_state=random_state)
-    XVal, XTest, yVal, yTest = train_test_split(XRem, yRem, test_size=test_size,random_state=random_state)
-
-    columnsNamesArr = xdf.columns.values
-    XTrainDf = pd.DataFrame(data=XTrain, columns=columnsNamesArr)
-    XValidDf = pd.DataFrame(data=XVal, columns=columnsNamesArr)
-    XTestDf = pd.DataFrame(data=XTest, columns=columnsNamesArr)
-    yTrainDf = pd.DataFrame(data=yTrain, columns=yLabels)
-    yValidDf = pd.DataFrame(data=yVal, columns=yLabels)
-    yTestDf = pd.DataFrame(data=yTest, columns=yLabels)
-    #
-    return XTrainDf, XValidDf, XTestDf, yTrainDf, yValidDf, yTestDf
 
 def dfColMeanStd(df, colName):
     colMean = df[colName].mean()
@@ -70,20 +21,56 @@ def dfColMeanStd(df, colName):
 
     return colMean, colStd
 
-def scaleXDf(XTrain, XTest, XVal, xQuantLabels): # = None
+class formatedDf:
+    def __init__(self, df, xQuantLabels, xQualLabels, yLabels, yUnitFactor):
 
-    mydict = dict()
-    for l in xQuantLabels:
-        colMean, colStd = dfColMeanStd(XTrain, l)
+        xDf = df.drop(columns=yLabels)
+        yDf = np.multiply(df[yLabels], yUnitFactor)
 
-        XTrain[l] = (XTrain[l] - colMean) / colStd
-        XVal[l] = (XVal[l] - colMean) / colStd
-        XTest[l] = (XTest[l] - colMean) / colStd
-        mydict[l] = [colMean, colStd]
+        self.random_state = 42
+        self.test_size = 0.5  # proportion with validation
+        self.train_size = 0.8
+        self.ydf = yDf
+        self.xdf = xDf
 
-    MeanStdDf = pd.DataFrame(data=mydict, index=['mean', 'std'])
+        self.dataSplitAsDf(yLabels)
+        self.scaleXDf(xQuantLabels)
 
-    return XTrain, XVal, XTest, MeanStdDf
+        self.trainDf = pd.concat([self.XTrain, self.yTrain], axis=1)
+        self.valDf = pd.concat([self.XVal, self.yVal], axis=1)
+        self.testDf = pd.concat([self.XTest, self.yTest], axis=1)
+
+    def dataSplitAsDf(self, yLabels):  # train_size=0.8, valid_size=0.1, test_size=0.1 random_state=42):
+
+
+        XTrain, XRem, yTrain, yRem = train_test_split(self.xdf.values, self.ydf.values, train_size=self.train_size,
+                                                      random_state=self.random_state)
+        XVal, XTest, yVal, yTest = train_test_split(XRem, yRem, test_size=self.test_size, random_state=self.random_state)
+
+        columnsNamesArr = self.xdf.columns.values
+
+        self.XTrain = pd.DataFrame(data=XTrain, columns=columnsNamesArr)
+        self.XVal = pd.DataFrame(data=XVal, columns=columnsNamesArr)
+        self.XTest = pd.DataFrame(data=XTest, columns=columnsNamesArr)
+        self.yTrain = pd.DataFrame(data=yTrain, columns=yLabels)
+        self.yVal = pd.DataFrame(data=yVal, columns=yLabels)
+        self.yTest = pd.DataFrame(data=yTest, columns=yLabels)
+
+    def scaleXDf(self, xQuantLabels):  # = None
+
+        mydict = dict()
+        for l in xQuantLabels:
+            colMean, colStd = dfColMeanStd(self.XTrain, l)
+
+            self.XTrain[l] = (self.XTrain[l] - colMean) / colStd
+            self.XVal[l] = (self.XVal[l] - colMean) / colStd
+            self.XTest[l] = (self.XTest[l] - colMean) / colStd
+            mydict[l] = [colMean, colStd]
+
+        self.MeanStdDf = pd.DataFrame(data=mydict, index=['mean', 'std'])
+
+
+
 
 
 

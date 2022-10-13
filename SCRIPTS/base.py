@@ -51,7 +51,7 @@ print("Outliers removed ", learningDf.shape)
 ------------------------------------------------------------------------------------------------------------------------
 """
 
-"""Train Test Split - Scale"""
+"""Train Validate Test Split - Scale"""
 
 """ 
 Dashboard Input : 
@@ -59,28 +59,24 @@ Dashboard Input :
     modelingParams - random_state
     processingParams - yUnit
 """
-import random
 
 # trainDf, testDf, MeanStdDf = formatDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnit = processingParams['yUnit'],
 #                                       validation = validation)
 
+myFormatedDf = formatedDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnitFactor = processingParams['yUnit'])
 
+trainDf, validDf, testDf = myFormatedDf.trainDf, myFormatedDf.valDf, myFormatedDf.testDf
 
-trainDf, validDf, testDf, MeanStdDf = formatDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnit = processingParams['yUnit'])
+print("train", type(myFormatedDf.trainDf), myFormatedDf.trainDf.shape)
+print("validate", type(myFormatedDf.valDf), myFormatedDf.valDf.shape)
+print("test", type(myFormatedDf.testDf), myFormatedDf.testDf.shape)
 
-
-print("train", type(trainDf), trainDf.shape)
-print("validate", type(validDf), validDf.shape)
-print("test", type(testDf), testDf.shape)
-
-yTrain = trainDf[yLabels]
-xTrain = trainDf.drop(columns=yLabels)
-
-yValid = validDf[yLabels]
-xValid = validDf.drop(columns=yLabels)
-
-yTest = testDf[yLabels]
-xTest = testDf.drop(columns=yLabels)
+yTrain = myFormatedDf.yTrain
+xTrain = myFormatedDf.XTrain
+yVal = myFormatedDf.yVal
+xVal = myFormatedDf.XVal
+yTest = myFormatedDf.yTest
+xTest = myFormatedDf.XTest
 
 
 """
@@ -88,6 +84,7 @@ xTest = testDf.drop(columns=yLabels)
 4.FEATURE SELECTION
 ------------------------------------------------------------------------------------------------------------------------
 """
+
 """
 FILTER - SPEARMAN
 """
@@ -96,7 +93,7 @@ filteredTrainDf, filteredValidDf, filteredTestDf = filterDf(trainDf, validDf, te
 
 print('')
 print('FILTER - SPEARMAN CORRELATION')
-print('LABELS : ', filteredTrainDf.shape)
+print('LABELS : ', filteredTrainDf.shape, type(filteredTrainDf))
 print(list(filteredTrainDf.columns.values))
 
 # plotCorrelation(computeCorrelation(df), DBpath, displayParams, filteringName="nofilter")
@@ -107,39 +104,47 @@ print(list(filteredTrainDf.columns.values))
 ELIMINATE - RFE
 """
 
-rfecvDict = RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring , display = False, testTuple = (xValid, yValid))
+rfecvDict = RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring, display = False, testTuple = (xVal, yVal))
 print('rfecvDict', rfecvDict)
 
 rfeDict = RFEGridsearch(RFEEstimators,n_features_to_select = 15, xTrain = xTrain, yTrain = yTrain, display = False,
-                        testTuple = (xValid, yValid))
+                        testTuple = (xVal, yVal))
 
 paramDict = RFEHyperparameterSearch(RFEEstimators,featureCount = featureCount, xTrain = xTrain, yTrain = yTrain,
-                                    display = False, testTuple = (xValid, yValid))
-print('paramDict',paramDict)
+                                    display = False, testTuple = (xVal, yVal))
+# print('paramDict',paramDict)
 #todo : check summary equation table
 #todo : check formats - numpy vs panda / ravel()/ reshape(-1,1),...
 #todo : add linear regression
 #todo : how to evaluate RFE - the goal is not to perform the best prediction - what scoring should be inserted?
 #todo : understand fit vs fit transform > make sure i am working with updated data
 
-RFEDfDict = EliminateDf(xTrain, xValid, xTest, yTrain, yValid, yTest, rfeDict)
-print(RFEDfDict)
-RFECVDfDict = EliminateDf(xTrain, xValid, xTest, yTrain, yValid, yTest, rfecvDict)
-print(RFECVDfDict)
+RFEDict = EliminateDf(xTrain, xVal, xTest, yTrain, yVal, yTest, rfeDict)
 
+RFELabelsDict = WrapperLabels(rfeDict)
+
+RFElabelsToDrop = labelsToDrop(allLabels, labelsToKeep)
+
+RFECVDict = EliminateDf(xTrain, xValid, xTest, yTrain, yValid, yTest, rfecvDict)
+
+[RFETrainDict, RFEValidDict, RFETestDict] = RFEDict['RandomForestRegressor']
+print('RFETrainDict', RFETrainDict)
+
+RFECVTrainDict, RFECVValidDict, RFECVTestDict = RFEDict['RandomForestRegressor']
+print(RFECVTrainDict)
 
 #todo : fix train df concatenated from xtrain and y train - see wrapper - eliminate
 print('')
 print('ELIMINATE - RECURSIVE FEATURE ELIMINATION')
 print('RandomForestRegressor')
-print('LABELS : ', len(RFEDfDict['RandomForestRegressor']))
-print(list(RFEDfDict['RandomForestRegressor'].columns.values))
+print('LABELS : ', list(RFETrainDict.columns.values))
+print(list(RFETrainDict.columns.values))
 
 print('')
 print('ELIMINATE - RECURSIVE FEATURE ELIMINATION - CROSS VALIDATED')
 print('RandomForestRegressor')
-print('LABELS : ', len(RFECVDfDict['RandomForestRegressor']))
-print(list(RFECVDfDict['RandomForestRegressor'].columns.values))
+print('LABELS : ', list(RFECVTrainDict.columns.values))
+print(list(RFECVTrainDict.columns.values))
 
 """
 ------------------------------------------------------------------------------------------------------------------------
