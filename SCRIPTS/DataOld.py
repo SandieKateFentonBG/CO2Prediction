@@ -51,5 +51,3 @@ class Data:
 
         return pd.DataFrame(np.hstack((x, y)), columns=xlabels + list(self.y.keys()))
 
-
-

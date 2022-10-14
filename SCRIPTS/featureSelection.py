@@ -6,10 +6,19 @@ RFEEstimators = {'LinearRegression': LinearRegression(),
                   'DecisionTreeClassifier' : DecisionTreeClassifier(random_state = rs)}
 
 
-class Selection:
+class FilterSelection:
 
     def __init__(self, name, estimator, selectedFeatures, trainscore, testscore):
 
+        self.name = name
+        self.estimator = estimator
+        self.selectedFeatures = selectedFeatures
+        self.trainScore = trainscore
+        self.testScore = testscore
+
+class RFESelection:
+
+    def __init__(self, name, estimator, selectedFeatures, trainscore, testscore):
 
         self.name = name
         self.estimator = estimator

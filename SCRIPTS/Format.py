@@ -36,6 +36,14 @@ class formatedDf:
         self.dataSplitAsDf(yLabels)
         self.scaleXDf(xQuantLabels)
 
+        # Generates :
+        # self.XTrain = pd.DataFrame(data=XTrain, columns=columnsNamesArr)
+        # self.XVal = pd.DataFrame(data=XVal, columns=columnsNamesArr)
+        # self.XTest = pd.DataFrame(data=XTest, columns=columnsNamesArr)
+        # self.yTrain = pd.DataFrame(data=yTrain, columns=yLabels)
+        # self.yVal = pd.DataFrame(data=yVal, columns=yLabels)
+        # self.yTest = pd.DataFrame(data=yTest, columns=yLabels)
+
         self.trainDf = pd.concat([self.XTrain, self.yTrain], axis=1)
         self.valDf = pd.concat([self.XVal, self.yVal], axis=1)
         self.testDf = pd.concat([self.XTest, self.yTest], axis=1)

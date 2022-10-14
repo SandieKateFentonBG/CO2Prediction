@@ -60,12 +60,10 @@ Dashboard Input :
     processingParams - yUnit
 """
 
-# trainDf, testDf, MeanStdDf = formatDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnit = processingParams['yUnit'],
-#                                       validation = validation)
 
 myFormatedDf = formatedDf(learningDf, xQuantLabels, xQualLabels, yLabels, yUnitFactor = processingParams['yUnit'])
 
-trainDf, validDf, testDf = myFormatedDf.trainDf, myFormatedDf.valDf, myFormatedDf.testDf
+trainDf, valDf, testDf = myFormatedDf.trainDf, myFormatedDf.valDf, myFormatedDf.testDf
 
 print("train", type(myFormatedDf.trainDf), myFormatedDf.trainDf.shape)
 print("validate", type(myFormatedDf.valDf), myFormatedDf.valDf.shape)
@@ -88,63 +86,62 @@ xTest = myFormatedDf.XTest
 """
 FILTER - SPEARMAN
 """
-uncorrelatedFilterDict, redundantFilterDict = filteringData(trainDf, baseLabels = xQuantLabels, yLabel = yLabels[0])
-filteredTrainDf, filteredValidDf, filteredTestDf = filterDf(trainDf, validDf, testDf, uncorrelatedFilterDict, redundantFilterDict)
+myFilteredDf = FilterFeatures(trainDf, valDf, testDf, baseLabels = xQuantLabels, yLabel = yLabels[0])
 
 print('')
 print('FILTER - SPEARMAN CORRELATION')
-print('LABELS : ', filteredTrainDf.shape, type(filteredTrainDf))
-print(list(filteredTrainDf.columns.values))
+print('LABELS : ', myFilteredDf.trainDf.shape, type(myFilteredDf.trainDf))
+print(myFilteredDf.selectedLabels)
 
-# plotCorrelation(computeCorrelation(df), DBpath, displayParams, filteringName="nofilter")
-# plotCorrelation(uncorrelatedFilterDict["correlationMatrix"], DBpath, displayParams, filteringName="dropuncorr")
-# plotCorrelation(redundantFilterDict["correlationMatrix"], DBpath, displayParams, filteringName="dropcolinear")
+# plotCorrelation(myFilteredDf.correlationMatrix_All, DBpath, displayParams, filteringName="nofilter")
+# plotCorrelation(myFilteredDf.correlationMatrix_NoUncorrelated, DBpath, displayParams, filteringName="dropuncorr")
+# plotCorrelation(myFilteredDf.correlationMatrix_NoRedundant, DBpath, displayParams, filteringName="dropcolinear")
 
-"""
-ELIMINATE - RFE
-"""
-
-rfecvDict = RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring, display = False, testTuple = (xVal, yVal))
-print('rfecvDict', rfecvDict)
-
-rfeDict = RFEGridsearch(RFEEstimators,n_features_to_select = 15, xTrain = xTrain, yTrain = yTrain, display = False,
-                        testTuple = (xVal, yVal))
-
-paramDict = RFEHyperparameterSearch(RFEEstimators,featureCount = featureCount, xTrain = xTrain, yTrain = yTrain,
-                                    display = False, testTuple = (xVal, yVal))
-# print('paramDict',paramDict)
-#todo : check summary equation table
-#todo : check formats - numpy vs panda / ravel()/ reshape(-1,1),...
-#todo : add linear regression
-#todo : how to evaluate RFE - the goal is not to perform the best prediction - what scoring should be inserted?
-#todo : understand fit vs fit transform > make sure i am working with updated data
-
-RFEDict = EliminateDf(xTrain, xVal, xTest, yTrain, yVal, yTest, rfeDict)
-
-RFELabelsDict = WrapperLabels(rfeDict)
-
-RFElabelsToDrop = labelsToDrop(allLabels, labelsToKeep)
-
-RFECVDict = EliminateDf(xTrain, xValid, xTest, yTrain, yValid, yTest, rfecvDict)
-
-[RFETrainDict, RFEValidDict, RFETestDict] = RFEDict['RandomForestRegressor']
-print('RFETrainDict', RFETrainDict)
-
-RFECVTrainDict, RFECVValidDict, RFECVTestDict = RFEDict['RandomForestRegressor']
-print(RFECVTrainDict)
-
-#todo : fix train df concatenated from xtrain and y train - see wrapper - eliminate
-print('')
-print('ELIMINATE - RECURSIVE FEATURE ELIMINATION')
-print('RandomForestRegressor')
-print('LABELS : ', list(RFETrainDict.columns.values))
-print(list(RFETrainDict.columns.values))
-
-print('')
-print('ELIMINATE - RECURSIVE FEATURE ELIMINATION - CROSS VALIDATED')
-print('RandomForestRegressor')
-print('LABELS : ', list(RFECVTrainDict.columns.values))
-print(list(RFECVTrainDict.columns.values))
+# """
+# ELIMINATE - RFE
+# """
+#
+# rfecvDict = RFECVGridsearch(RFEEstimators, xTrain, yTrain, step, cv, scoring, display = False, testTuple = (xVal, yVal))
+# print('rfecvDict', rfecvDict)
+#
+# rfeDict = RFEGridsearch(RFEEstimators,n_features_to_select = 15, xTrain = xTrain, yTrain = yTrain, display = False,
+#                         testTuple = (xVal, yVal))
+#
+# paramDict = RFEHyperparameterSearch(RFEEstimators,featureCount = featureCount, xTrain = xTrain, yTrain = yTrain,
+#                                     display = False, testTuple = (xVal, yVal))
+# # print('paramDict',paramDict)
+# #todo : check summary equation table
+# #todo : check formats - numpy vs panda / ravel()/ reshape(-1,1),...
+# #todo : add linear regression
+# #todo : how to evaluate RFE - the goal is not to perform the best prediction - what scoring should be inserted?
+# #todo : understand fit vs fit transform > make sure i am working with updated data
+#
+# RFEDict = EliminateDf(xTrain, xVal, xTest, yTrain, yVal, yTest, rfeDict)
+#
+# RFELabelsDict = WrapperLabels(rfeDict)
+#
+# RFElabelsToDrop = labelsToDrop(allLabels, labelsToKeep)
+#
+# RFECVDict = EliminateDf(xTrain, xValid, xTest, yTrain, yValid, yTest, rfecvDict)
+#
+# [RFETrainDict, RFEValidDict, RFETestDict] = RFEDict['RandomForestRegressor']
+# print('RFETrainDict', RFETrainDict)
+#
+# RFECVTrainDict, RFECVValidDict, RFECVTestDict = RFEDict['RandomForestRegressor']
+# print(RFECVTrainDict)
+#
+# #todo : fix train df concatenated from xtrain and y train - see wrapper - eliminate
+# print('')
+# print('ELIMINATE - RECURSIVE FEATURE ELIMINATION')
+# print('RandomForestRegressor')
+# print('LABELS : ', list(RFETrainDict.columns.values))
+# print(list(RFETrainDict.columns.values))
+#
+# print('')
+# print('ELIMINATE - RECURSIVE FEATURE ELIMINATION - CROSS VALIDATED')
+# print('RandomForestRegressor')
+# print('LABELS : ', list(RFECVTrainDict.columns.values))
+# print(list(RFECVTrainDict.columns.values))
 
 """
 ------------------------------------------------------------------------------------------------------------------------
