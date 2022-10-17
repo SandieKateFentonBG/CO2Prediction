@@ -2,50 +2,72 @@
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
-
-# modelingParams = {'test_size': 0.2, 'random_state' : random, 'RegulVal': list(10.0**np.arange(-4,4)), 'epsilonVal': list(10.0**np.arange(-4,4)),
-#                   'accuracyTol': 0.15, 'CVFold': None, 'rankGridSearchModelsAccordingto' : 'r2', 'plotregulAccordingTo' : 'paramMeanMSETest'}
 import numpy as np
 
+"RANGE VALUES "
+coef0_range =  list(10.0 ** np.arange(-2, 2))
 regul_range = list(10.0 ** np.arange(-4, 4))
 influence_range = list(10.0 ** np.arange(-4, 4))
-degree = [3]
+degree = [2, 3, 4]
 margin_range = list(10.0 ** np.arange(-4, 4))
+kernel_list = ['linear', 'polynomial', 'rbf']
+
+"PARAMETER DICTIONNARIES"
+LR_param_grid={'alpha': regul_range}
+KRR_param_grid={'alpha': regul_range, 'gamma': influence_range, 'degree' : degree, 'kernel' : kernel_list, 'coef0' : coef0_range }
+SVR_param_grid={'C': regul_range, 'gamma': influence_range, 'degree' : degree, 'epsilon':  margin_range, 'kernel': kernel_list, 'coef0' : coef0_range}
+
+
+
+# "Comment" - if computing time is too high :
+# dictionary grouping all kernel types computes unnecessary combinations
+# change for a combination of dictionnaries - 1 dictionary per kernel type :
+# KRR_lin={'alpha': regul_range, 'gamma': influence_range}
+# KRR_poly={'alpha': regul_range, 'degree' : degree}
+# KRR_param_grid = [KRR_lin, KRR_poly]
+
+"""
+________________________________________________________________________________________________________________________
+MODEL PARAMETER DETAILS
+------------------------------------------------------------------------------------------------------------------------
+
+"""
+
 
 """
 Linear Regression - Hyperparameters
 1 - alpha - overfitting - higher lamda, less overfitting
 
 """
-LR_param_grid={'alpha': regul_range}
+#LR_param_grid={'alpha': regul_range}
 """
 REGRESSSION - LINEAR 
 ERROR - Ordinary least squares Linear Regression
 HYPERPARAM - /
 """
 
-LR = {'model': LinearRegression(), 'param' : None, 'Linear' : True}
+#LR = {'model': LinearRegression(), 'param' : None, 'Linear' : True}
 
 """
 REGRESSSION - LINEAR 
 ERROR - LASSO - L1 regularizer 
 HYPERPARAM - Lamda 
 """
-LR_Lasso = {'model': Lasso(), 'param': LR_param_grid, 'Linear' : True}
+#LR_Lasso = {'model': Lasso(), 'param': LR_param_grid, 'Linear' : True}
 
 """
 REGRESSSION - LINEAR 
 ERROR - RIDGE - L2 regularizer (aka least squares) 
 HYPERPARAM - Lamda 
 """
-LR_Ridge = {'model': Ridge(), 'param': LR_param_grid, 'Linear' : True}
+#LR_Ridge = {'model': Ridge(), 'param': LR_param_grid, 'Linear' : True}
 
 """
 REGRESSSION - LINEAR 
 ERROR - ELASTIC NET - combined L1 and L2 
 HYPERPARAM - Lamda 
 """
-LR_ElasticNet = {'model': ElasticNet(), 'param': LR_param_grid, 'Linear' : True}
+#LR_ElasticNet = {'model': ElasticNet(), 'param': LR_param_grid, 'Linear' : True}
 
 """
  ! if not done :  scale your data before using these regularized linear regression methods. 
@@ -64,7 +86,7 @@ Kernel Regression - Hyperparameters
 4 - coef0 - Zero coefficient for polynomial and sigmoid kernels.
 
 """
-KRR_param_grid={'alpha': regul_range, 'gamma': influence_range, 'degree' : degree} #, 'coef0' : coef0
+#KRR_param_grid={'alpha': regul_range, 'gamma': influence_range, 'degree' : degree} #, 'coef0' : coef0
 """
 REGRESSSION - KERNEL 
 ERROR - RIDGE - L2 regularizer (aka least squares)
@@ -74,7 +96,7 @@ HYPERPARAM -   alpha, gamma
 
 """
 
-KRR_Lin = {'model' : KernelRidge(kernel='linear'), 'param': KRR_param_grid, 'Linear' : False}
+#KRR_Lin = {'model' : KernelRidge(kernel='linear'), 'param': KRR_param_grid, 'Linear' : False}
 """
 REGRESSSION - KERNEL 
 ERROR - RIDGE - L2 regularizer (aka least squares)
@@ -82,7 +104,7 @@ KERNEL - RBF
 HYPERPARAM - alpha, gamma 
 """
 
-KRR_Rbf = {'model' : KernelRidge(kernel='rbf'), 'param': KRR_param_grid, 'Linear' : False}
+#KRR_Rbf = {'model' : KernelRidge(kernel='rbf'), 'param': KRR_param_grid, 'Linear' : False}
 
 """
 REGRESSSION - KERNEL 
@@ -90,7 +112,7 @@ ERROR - RIDGE - L2 regularizer (aka least squares)
 KERNEL - POLYNOMIAL
 HYPERPARAM - alpha, gamma, degree  
 """
-KRR_Pol = {'model' : KernelRidge(kernel='polynomial'), 'param': KRR_param_grid, 'Linear' : False}
+#KRR_Pol = {'model' : KernelRidge(kernel='polynomial'), 'param': KRR_param_grid, 'Linear' : False}
 
 """
 Support Vector Regression - Hyperparameters
@@ -108,7 +130,7 @@ The strength of the regularization is inversely proportional to C  Lower C , lar
 with points predicted within a distance epsilon from the actual value.
 """
 
-SVR_param_grid={'C': regul_range, 'gamma': influence_range, 'degree' : degree, 'epsilon' :  margin_range} #, 'coef0' : coef0
+#SVR_param_grid={'C': regul_range, 'gamma': influence_range, 'degree' : degree, 'epsilon' :  margin_range} #, 'coef0' : coef0
 """
 REGRESSSION - SUPPORT VECTOR 
 ERROR - ?
@@ -116,7 +138,7 @@ KERNEL - LINEAR
 HYPERPARAM - C, Lamda , epsilon
 """
 
-SVR_Lin = {'model' : SVR(kernel='linear'), 'param': SVR_param_grid, 'Linear' : True}
+#SVR_Lin = {'model' : SVR(kernel='linear'), 'param': SVR_param_grid, 'Linear' : True}
 
 """
 REGRESSSION - SUPPORT VECTOR 
@@ -124,7 +146,7 @@ ERROR - ?
 KERNEL - RBF
 HYPERPARAM - C, gamma, epsilon
 """
-SVR_Rbf = {'model' : SVR(kernel='rbf'), 'param': SVR_param_grid, 'Linear' : False}
+#SVR_Rbf = {'model' : SVR(kernel='rbf'), 'param': SVR_param_grid, 'Linear' : False}
 
 """
 REGRESSSION - SUPPORT VECTOR 
@@ -132,9 +154,11 @@ ERROR - ?
 KERNEL - POLYNOMIAL
 HYPERPARAM - C, gamma, degree, epsilon
 """
-SVR_Pol = {'model' : SVR(kernel='poly'), 'param': SVR_param_grid, 'Linear' : False}
+#SVR_Pol = {'model' : SVR(kernel='poly'), 'param': SVR_param_grid, 'Linear' : False}
 
+#predictors = [LR, LR_Lasso, LR_Ridge, LR_ElasticNet,KRR_Lin, KRR_Rbf, KRR_Pol,SVR_Lin, SVR_Rbf, SVR_Pol]
 
-predictors = [LR, LR_Lasso, LR_Ridge, LR_ElasticNet,
-          KRR_Lin, KRR_Rbf, KRR_Pol,
-          SVR_Lin, SVR_Rbf, SVR_Pol]
+"""to keep
+# modelingParams = {'test_size': 0.2, 'random_state' : random, 'RegulVal': list(10.0**np.arange(-4,4)), 'epsilonVal': list(10.0**np.arange(-4,4)),
+#                   'accuracyTol': 0.15, 'CVFold': None, 'rankGridSearchModelsAccordingto' : 'r2', 'plotregulAccordingTo' : 'paramMeanMSETest'}
+"""

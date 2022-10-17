@@ -2,7 +2,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from SCRIPTS.Archiver import *
 from temp.PlotMetrics import *
-from temp.PlotPredTruth import *
+from SCRIPTS.ModelPredTruthPt import *
 from temp.PlotResiduals import *
 
 """
@@ -109,7 +109,7 @@ def modelEval(modelWithParam, Linear, xTrain, yTrain, xTest, yTest, displayParam
 def searchEval(modelingParams, displayParams, models, xTrain, yTrain, xTest, yTest, features, resPlot = False, restDist = True):
 
     for m in models:
-        m['features'] = featuresk
+        m['features'] = features
         bestModel, paramDict = paramEval(m['model'], m['param'], modelingParams['RegulVal'], modelingParams['CVFold'],
                                          xTrain, yTrain, displayParams, refit = modelingParams['rankGridSearchModelsAccordingto'])
         m.update(paramDict)

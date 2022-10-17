@@ -3,37 +3,43 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-def plotPredTruth(yTest, yPred, displayParams, modeldict, fontsize = 14):
 
-    # plt.clf()
-    # plt.cla()
-    # plt.rcParams['figure.figsize'] = [18, 18]
-    plt.figure(figsize=(10, 8))
-    plt.grid(False)
-    l1, = plt.plot(yTest, 'g')
-    l2, = plt.plot(yPred, 'r', alpha=0.7)
-    plt.legend(['Ground truth', 'Predicted'], fontsize=fontsize)
-    title = str(modeldict['bModel']) + '- BEST PARAM (%s) ' % modeldict['bModelParam'] \
-            + '- SCORE : ACC(%s) ' % modeldict['bModelAcc'] + 'MSE(%s) ' % modeldict['bModelMSE'] + 'R2(%s)' % modeldict['bModelr2']
-    plt.title(title, fontdict = {'fontsize' : fontsize})
-    plt.xticks(fontsize=fontsize+2)
-    plt.xlabel('Test Building', fontsize=fontsize)
-    plt.ylim(ymin=displayParams['TargetMinMaxVal'][0], ymax=displayParams['TargetMinMaxVal'][1])
-    plt.yticks(fontsize=fontsize)
-    plt.ylabel(displayParams['Target'], fontsize=fontsize)
-    if displayParams['archive']:
-        import os
-        outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Pred_Truth'
-        if not os.path.isdir(outputFigPath):
-            os.makedirs(outputFigPath)
 
-        plt.savefig(outputFigPath + '/' + str(modeldict['bModel']) + '.png')
-    # fig.tight_layout()
-    if displayParams['showPlot']:
-        plt.show()
-    plt.close()
+def plotPredTruth(df, displayParams, reference, modelGridsearch, DBpath, fontsize = 14):
 
-def predTruthCombined(displayParams, models, x, y, Train = False, scatter=False, fontsize=14):
+    if displayParams['showPlot'] or displayParams['archive']:
+
+        plt.figure(figsize=(10, 8))
+        plt.grid(False)
+
+        yTest = df.yTest.to_numpy().ravel()
+        yPred = modelGridsearch.paramGrid.predict(df.XTest.to_numpy())
+
+        l1, = plt.plot(yTest, 'g')
+        l2, = plt.plot(yPred, 'r', alpha=0.7)
+        plt.legend(['Ground truth', 'Predicted'], fontsize=fontsize)
+        title = str(modelGridsearch.name) + '- BEST PARAM (%s) ' % modelGridsearch.bModelParam \
+                + '\n' + '- SCORE : ACC(%s) ' % modelGridsearch.bModelTestAcc + 'MSE(%s) ' % modelGridsearch.bModelTestMSE + 'R2(%s)' % modelGridsearch.bModelTestR2
+
+        plt.title(title, fontdict = {'fontsize' : fontsize})
+        plt.xticks(fontsize=fontsize+2)
+        plt.xlabel('Test Building', fontsize=fontsize)
+        plt.ylim(ymin=displayParams['TargetMinMaxVal'][0], ymax=displayParams['TargetMinMaxVal'][1])
+        plt.yticks(fontsize=fontsize)
+        plt.ylabel(displayParams['TargetUnit'], fontsize=fontsize)
+        if displayParams['archive']:
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'Pred_Truth'
+            import os
+            outputFigPath = path + folder + subFolder # displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) +'/correlation'
+            if not os.path.isdir(outputFigPath):
+                os.makedirs(outputFigPath)
+
+            plt.savefig(outputFigPath + '/' + str(modelGridsearch.name) + '.png')
+        if displayParams['showPlot']:
+            plt.show()
+        plt.close()
+
+def predTruthCombined(displayParams, models, x, y, Train = False, scatter=False, fontsize=14): #todo: unchecked function
 
     plt.clf()
     # plt.rcParams['figure.figsize'] = [18, 18]

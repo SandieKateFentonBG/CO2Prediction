@@ -1,6 +1,6 @@
 from Filter import *
 
-def plotCorrelation(correlationMatrix, DBpath, displayParams, filteringName):
+def plotCorrelation(correlationMatrix, DBpath, displayParams, filteringName, reference):
 
     import matplotlib.pyplot as plt
     import seaborn as sns
@@ -38,7 +38,7 @@ def plotCorrelation(correlationMatrix, DBpath, displayParams, filteringName):
 
     # sns.set(font_scale=0.5)
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", 'correlation'+ filteringName
+        path, folder, subFolder = DBpath, "RESULTS/" + reference, 'correlation'+ filteringName
         import os
         outputFigPath = path + folder + subFolder # displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) +'/correlation'
         if not os.path.isdir(outputFigPath):

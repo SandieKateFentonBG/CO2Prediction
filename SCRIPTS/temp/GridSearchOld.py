@@ -2,7 +2,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from SCRIPTS.Archiver import *
 from PlotMetrics import *
-from PlotPredTruth import *
+from SCRIPTS.ModelPredTruthPt import *
 from PlotResiduals import *
 
 """
