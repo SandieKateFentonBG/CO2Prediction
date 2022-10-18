@@ -34,6 +34,8 @@ class ModelGridsearch:
         # self.bModelTestR2
         # self.bModelResid
 
+
+
     def paramGridsearch(self, df):
 
         grid = GridSearchCV(self.estimator, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit, return_train_score=True) #cv=cv

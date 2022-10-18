@@ -84,44 +84,47 @@ class RawData:
                 if value not in self.possibleQualities[label]:
                     self.possibleQualities[label].append(value)
 
-    def visualize(self, displayParams, path, yLabel='Calculated tCO2e_per_m2', xLabel='Cladding',
-                  title = "Features influencing CO2 footprint of Structures - Datasource : Price & Myers",
-                  reference = "", figure_size = (8, 10), folder = "RESULTS/",subFolder ='visualizeRawData'):
+    def visualize(self, displayParams, DBpath, dbName, reference, yLabel, xLabel='Cladding',
+                  title = "Features influencing CO2 footprint of Structures ", figure_size = (8, 10)):
 
-        import seaborn as sns
-        import matplotlib.pyplot as plt
-        import pandas as pd
-        import numpy as np
+        if displayParams['showPlot'] or displayParams['archive']:
 
-        if xLabel in self.xQuali.keys():
-            xList = self.xQuali[xLabel]
-            labels = self.possibleQualities[xLabel]
-        else:
-            xList = self.xQuanti[xLabel]
-        yList = self.y[yLabel]
-        df = pd.DataFrame(list(zip(xList, yList)), columns=[xLabel, yLabel])
-        fig, ax = plt.subplots(figsize=figure_size)
-        ax.set_title(title + " " + reference)
-        if xLabel in self.xQuali.keys():
-            x = np.arange(len(labels))
-            ax.set_ylabel(yLabel)
-            ax.set_xticks(x)
-            ax.set_xticklabels(labels)
-            plt.setp(ax.get_xticklabels(), rotation=25, ha="right",
-                 rotation_mode="anchor")
-        sns.scatterplot(data=df, x=xLabel, y=yLabel, hue=yLabel, ax=ax)
+            import seaborn as sns
+            import matplotlib.pyplot as plt
+            import pandas as pd
+            import numpy as np
 
-        if displayParams['archive']:
-            import os
-            outputFigPath = path + folder + subFolder
+            title += "- Datasource (%s):" % dbName
+            if xLabel in self.xQuali.keys():
+                xList = self.xQuali[xLabel]
+                labels = self.possibleQualities[xLabel]
+            else:
+                xList = self.xQuanti[xLabel]
+            yList = self.y[yLabel]
+            df = pd.DataFrame(list(zip(xList, yList)), columns=[xLabel, yLabel])
+            fig, ax = plt.subplots(figsize=figure_size)
+            ax.set_title(title + " ")
+            if xLabel in self.xQuali.keys():
+                x = np.arange(len(labels))
+                ax.set_ylabel(yLabel)
+                ax.set_xticks(x)
+                ax.set_xticklabels(labels)
+                plt.setp(ax.get_xticklabels(), rotation=25, ha="right",
+                     rotation_mode="anchor")
+            sns.scatterplot(data=df, x=xLabel, y=yLabel, hue=yLabel, ax=ax)
 
-            if not os.path.isdir(outputFigPath):
-                os.makedirs(outputFigPath)
+            if displayParams['archive']:
+                path, folder, subFolder = DBpath, "RESULTS/", reference + 'RawData'
+                import os
+                outputFigPath = path + folder + subFolder
 
-            plt.savefig(outputFigPath + '/' + xLabel + '-' + yLabel + '.png')
+                if not os.path.isdir(outputFigPath):
+                    os.makedirs(outputFigPath)
 
-        if displayParams['showPlot']:
-            plt.show()
+                plt.savefig(outputFigPath + '/' + xLabel + '-' + yLabel + '.png')
 
-        plt.close() #todo : check this
+            if displayParams['showPlot']:
+                plt.show()
+
+            plt.close() #todo : check this
 

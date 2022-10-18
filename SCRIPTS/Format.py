@@ -22,7 +22,7 @@ def dfColMeanStd(df, colName):
     return colMean, colStd
 
 class formatedDf:
-    def __init__(self, df, xQuantLabels, xQualLabels, yLabels, yUnitFactor):
+    def __init__(self, df, xQuantLabels, xQualLabels, yLabels, yUnitFactor, targetLabels):
 
         xDf = df.drop(columns=yLabels)
         yDf = np.multiply(df[yLabels], yUnitFactor)
@@ -33,7 +33,9 @@ class formatedDf:
         self.ydf = yDf
         self.xdf = xDf
 
-        self.dataSplitAsDf(yLabels)
+        self.ydf.rename(columns={yLabels[0]:targetLabels[0]})
+        self.yLabels = targetLabels
+        self.dataSplitAsDf(targetLabels)
         self.scaleXDf(xQuantLabels)
 
         # Generates :

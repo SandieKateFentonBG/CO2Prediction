@@ -5,8 +5,7 @@ ________________________________________________________________________________
 """
 reference = 'New_TEST_RUN/'
 #VISUALS
-displayParams = {'showPlot': True, 'archive': True, 'showCorr' : True,
-                 'TargetUnit' : 'kgCO2e/m2', 'TargetMinMaxVal': [0, 800]}
+displayParams = {'showPlot': True, 'archive': True, 'showCorr' : True, 'TargetMinMaxVal': [0, 800], 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
 
 # "csvPath": "C:/Users/sfenton/Code/Repositories/CO2Prediction/DATA/210413_PM_CO2_data",
 #                  "outputPath":'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/', 'showCorr': False,
@@ -41,7 +40,7 @@ DBdelimiter = ';'
 DBfirstLine = 5
 
 processingParams = {'scaler': 'MinMaxScaler', 'cutOffThreshhold' : 3, 'lowThreshold' : 0.15, 'highThreshold' : 1,
-                    'yScale' : False, 'yUnit' : 1000 }
+                    'yScale' : False, 'yUnitFactor' : 1000 , 'targetLabels' : ['kgCO2e/m2']}
 
 """
 ________________________________________________________________________________________________________________________

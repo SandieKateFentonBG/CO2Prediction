@@ -8,7 +8,7 @@ def plotCorrelation(correlationMatrix, DBpath, displayParams, filteringName, ref
 
     mask = np.zeros_like(correlationMatrix)
     mask[np.triu_indices_from(mask)] = True
-    fig, ax = plt.subplots(figsize=(18,15))
+    fig, ax = plt.subplots(figsize=(24,15))
     xticklabels = list(range(len(correlationMatrix)))
     if filteringName == 'checkup':
         xticklabels = "auto"
@@ -38,7 +38,7 @@ def plotCorrelation(correlationMatrix, DBpath, displayParams, filteringName, ref
 
     # sns.set(font_scale=0.5)
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/" + reference, 'correlation'+ filteringName
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'correlation'
         import os
         outputFigPath = path + folder + subFolder # displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) +'/correlation'
         if not os.path.isdir(outputFigPath):

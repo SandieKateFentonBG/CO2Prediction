@@ -18,7 +18,7 @@ def plotPredTruth(df, displayParams, reference, modelGridsearch, DBpath, fontsiz
         l1, = plt.plot(yTest, 'g')
         l2, = plt.plot(yPred, 'r', alpha=0.7)
         plt.legend(['Ground truth', 'Predicted'], fontsize=fontsize)
-        title = str(modelGridsearch.name) + '- BEST PARAM (%s) ' % modelGridsearch.bModelParam \
+        title = str(modelGridsearch.estimator) + '\n' + '- BEST PARAM (%s) ' % modelGridsearch.bModelParam \
                 + '\n' + '- SCORE : ACC(%s) ' % modelGridsearch.bModelTestAcc + 'MSE(%s) ' % modelGridsearch.bModelTestMSE + 'R2(%s)' % modelGridsearch.bModelTestR2
 
         plt.title(title, fontdict = {'fontsize' : fontsize})
@@ -26,11 +26,11 @@ def plotPredTruth(df, displayParams, reference, modelGridsearch, DBpath, fontsiz
         plt.xlabel('Test Building', fontsize=fontsize)
         plt.ylim(ymin=displayParams['TargetMinMaxVal'][0], ymax=displayParams['TargetMinMaxVal'][1])
         plt.yticks(fontsize=fontsize)
-        plt.ylabel(displayParams['TargetUnit'], fontsize=fontsize)
+        plt.ylabel(df.yLabels[0], fontsize=fontsize)
         if displayParams['archive']:
             path, folder, subFolder = DBpath, "RESULTS/", reference + 'Pred_Truth'
             import os
-            outputFigPath = path + folder + subFolder # displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) +'/correlation'
+            outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
                 os.makedirs(outputFigPath)
 
@@ -76,7 +76,7 @@ def predTruthCombined(displayParams, models, x, y, Train = False, scatter=False,
     plt.title(label = title, fontdict = {'fontsize' : fontsize})
     plt.xlabel('Test Building', fontsize=fontsize)
 
-    plt.ylabel(displayParams['Target'], fontsize=fontsize)
+    plt.ylabel(displayParams['Target'], fontsize=fontsize) #change displayParams['Target'] for : df.yLabels[0]
     if displayParams['archive']:
         import os
         outputFigPath = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) + '/Pred_Truth'

@@ -27,9 +27,10 @@ class WrapFeatures:
 
         self.method = method
         self.estimator = estimator #unfit estimator
-        self.RFElimination(formatedDf, n_features_to_select, yLabel)
+        # self.RFElimination(formatedDf, n_features_to_select, yLabel)
         self.RFEliminationCV(formatedDf, step, cv, scoring, yLabel)
         self.RFEHyperparameterSearch(formatedDf, featureCount)
+        self.RFElimination(formatedDf, self.rfeHyp_maxvalFtCount, yLabel)
 
         # self.n_features_to_select
         # self.rfe/rfeCV/rfehyp
@@ -51,6 +52,10 @@ class WrapFeatures:
             # self.rfeHyp_featureCount
             # self.rfeHyp_trainScore
             # self.rfeHyp_valScore
+            # rfeHyp_maxvalScore
+            # rfeHyp_maxvalidx
+            # rfeHyp_maxvalFtCount
+
 
     def RFElimination(self, formatedDf, n_features_to_select, yLabel):
 
@@ -130,6 +135,9 @@ class WrapFeatures:
 
         self.rfeHyp_trainScore = trainScoreList
         self.rfeHyp_valScore= testScoreList
+        self.rfeHyp_maxvalScore = max(testScoreList)
+        self.rfeHyp_maxvalidx = testScoreList.index(max(testScoreList))
+        self.rfeHyp_maxvalFtCount = featureCount[self.rfeHyp_maxvalidx]
 
     def RFECVDisplay(self):
 
