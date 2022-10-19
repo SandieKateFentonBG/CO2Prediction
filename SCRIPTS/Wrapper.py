@@ -5,9 +5,9 @@ from sklearn.model_selection import KFold
 
 #DEFAULT VALUES
 
-rs = 42
-n_features_to_select = 15
-featureCount = [5, 10, 15, 20, 25]
+# rs = 42
+# n_features_to_select = 15
+# featureCount = [5, 10, 15, 20, 25]
 
 """
 Questions
@@ -19,7 +19,7 @@ Questions
 
 class WrapFeatures:
 
-    def __init__(self, method, estimator, formatedDf, yLabel, n_features_to_select, featureCount, step= 1,
+    def __init__(self, method, estimator, formatedDf, yLabel, featureCount, step= 1,
                  cv = KFold(n_splits=5, shuffle=True, random_state=42), scoring="r2"):
 
         # step - features removed at every iteration
@@ -67,21 +67,22 @@ class WrapFeatures:
         rfe = RFE(self.estimator, n_features_to_select=self.n_features_to_select)
 
         self.rfe = rfe.fit(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
-        self.rfe_selectedLabels = formatedDf.XTrain.columns[rfe.support_]
+        self.selectedLabels = formatedDf.XTrain.columns[rfe.support_]
         self.rfe_trainScore = self.rfe.score(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
         self.rfe_valScore = self.rfe.score(formatedDf.XVal.to_numpy(), formatedDf.yVal.to_numpy().ravel())
 
-        self.rfe_droppedLabels = [label for label in formatedDf.XTrain.columns if label not in self.rfe_selectedLabels]
+        self.droppedLabels = [label for label in formatedDf.XTrain.columns if label not in self.selectedLabels]
 
-        self.rfe_trainDf = formatedDf.trainDf.drop(columns=self.rfe_droppedLabels)
-        self.rfe_valDf = formatedDf.valDf.drop(columns=self.rfe_droppedLabels)
-        self.rfe_testDf = formatedDf.testDf.drop(columns=self.rfe_droppedLabels)
-        self.rfe_XTrain =self.rfe_trainDf.drop(columns=yLabel)
-        self.rfe_XVal = self.rfe_valDf.drop(columns=yLabel)
-        self.rfe_XTest = self.rfe_testDf.drop(columns=yLabel)
-        self.rfe_yTrain = self.rfe_trainDf[yLabel]
-        self.rfe_yVal = self.rfe_valDf[yLabel]
-        self.rfe_yTest = self.rfe_testDf[yLabel]
+        self.trainDf = formatedDf.trainDf.drop(columns=self.droppedLabels)
+        self.valDf = formatedDf.valDf.drop(columns=self.droppedLabels)
+        self.testDf = formatedDf.testDf.drop(columns=self.droppedLabels)
+        self.XTrain =self.trainDf.drop(columns=yLabel)
+        self.XVal = self.valDf.drop(columns=yLabel)
+        self.XTest = self.testDf.drop(columns=yLabel)
+        self.yTrain = self.trainDf[yLabel]
+        self.yVal = self.valDf[yLabel]
+        self.yTest = self.testDf[yLabel]
+        self.yLabel = yLabel
 
     def RFEDisplay(self):
 

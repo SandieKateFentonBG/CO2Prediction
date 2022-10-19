@@ -2,14 +2,14 @@ import pandas as pd
 import numpy as np
 
 #DEFAULT VALUES
-method = "spearman"
-round = 2
-lowThreshhold = 0.1
-highThreshhold = 0.65
+# method = "spearman"
+# round = 2
+# lowThreshhold = 0.1
+# highThreshhold = 0.65
 
 #todo : find better naming
 
-def computeCorrelation(df, method = method, round = round):
+def computeCorrelation(df, method, round):
 
     "correlationMatrix: correlation matrix identifies relation between pairs of variables"
 
@@ -17,20 +17,21 @@ def computeCorrelation(df, method = method, round = round):
 
 class FilterFeatures:
 
-    def __init__(self, trainDf, valDf, testDf, baseLabels, yLabel, method ="spearman", lowThreshhold = 0.1, highThreshhold = 0.65):
+    def __init__(self, trainDf, valDf, testDf, baseLabels, yLabel, method ="spearman", corrRounding = 2,
+                 lowThreshhold = 0.1, highThreshhold = 0.65):
         self.method = method
         self.lowThreshhold = lowThreshhold
         self.highThreshhold = highThreshhold
-
-        self.filterUncorrelated(trainDf, baseLabels, yLabel)
-
+        self.corrRounding = corrRounding
+        self.filterUncorrelated(trainDf, baseLabels, yLabel, method, lowThreshhold)
+        self.yLabel = yLabel
         # Generates :
         # self.correlationMatrix_All = correlationMatrix_All
         # self.uncorrelatedLabels = uncorrelatedFeatures
         # self.correlationMatrix_NoUncorrelated = correlationMatrix_NoUncorrelated
         # self.DfNoUncorrelated = DfNoUncorrelated
 
-        self.filterRedundant(self.DfNoUncorrelated, baseLabels)
+        self.filterRedundant(self.DfNoUncorrelated, baseLabels, method, highThreshhold)
 
         # Generates :
         # self.redundantLabels = redundantFeatures
@@ -52,7 +53,7 @@ class FilterFeatures:
 
         self.selectedLabels = list(self.trainDf.columns.values)
 
-    def filterUncorrelated(self, df, baseLabels, yLabel):
+    def filterUncorrelated(self, df, baseLabels, yLabel, method, lowThreshhold):
         """
         :param correlationMatrix: correlation matrix identifies relation between pairs of variables
         :param threshhold:features with a PCC > 0.1 are depicted #todo : minimum threshold for Pearson/ Spearman?
@@ -60,7 +61,7 @@ class FilterFeatures:
         """
 
         # correlation
-        self.correlationMatrix_All = df.corr(method=method).round(round)
+        self.correlationMatrix_All = df.corr(method=method).round(self.corrRounding)
         unfilteredCorrelationMatrixAbs = self.correlationMatrix_All.abs()
         # labels
         highCorMatrix = unfilteredCorrelationMatrixAbs.loc[
@@ -72,7 +73,7 @@ class FilterFeatures:
         self.uncorrelatedLabels = [l for l in dropCorMatrix.index if l not in baseLabels]
         # filtered df
         self.DfNoUncorrelated = df.drop(columns=self.uncorrelatedLabels)#todo: check abs value > output content
-        self.correlationMatrix_NoUncorrelated = self.DfNoUncorrelated.corr(method=method).round(round)
+        self.correlationMatrix_NoUncorrelated = self.DfNoUncorrelated.corr(method=method).round(self.corrRounding)
 
         #todo :  understand NaN = 0
         # spearman : cor(i,j) = cov(i,j)/[stdev(i)*stdev(j)]
@@ -80,10 +81,10 @@ class FilterFeatures:
         # then the respective standard deviation will be zero
         # and so will the denominator of the fraction.
 
-    def filterRedundant(self, df, baseLabels):
+    def filterRedundant(self, df, baseLabels, method, highThreshhold):
 
         #correlation
-        unfilteredCorrelation = df.corr(method=method).round(round)
+        unfilteredCorrelation = df.corr(method=method).round(self.corrRounding)
         unfilteredCorrelationMatrixAbs = unfilteredCorrelation.abs()
         #labels
         upper_tri = unfilteredCorrelationMatrixAbs.where(np.triu(np.ones(unfilteredCorrelationMatrixAbs.shape), k=1).astype(np.bool))
@@ -92,7 +93,7 @@ class FilterFeatures:
         self.redundantLabels = [l for l in redundantLabelsAll if l not in baseLabels]
         #filter df
         self.DfNoRedundant = df.drop(columns=self.redundantLabels)
-        self.correlationMatrix_NoRedundant = self.DfNoRedundant.corr(method=method).round(round)
+        self.correlationMatrix_NoRedundant = self.DfNoRedundant.corr(method=method).round(self.corrRounding)
 
 
 

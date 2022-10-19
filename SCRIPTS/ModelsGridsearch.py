@@ -9,10 +9,13 @@ def computeAccuracy(yTrue, yPred, tolerance):
 
 class ModelGridsearch:
 
-    def __init__(self, name, estimator, param_dict, df):
+    def __init__(self, name, estimator, param_dict, df, featureSelection):
 
         self.name = name
         self.estimator = estimator
+        self.features = df.XTrain.keys() #or df.trainDf.keys()
+        self.featureSelection = featureSelection
+
         self.param_dict = param_dict
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
         self.rounding = 3
@@ -20,7 +23,6 @@ class ModelGridsearch:
 
         self.paramGridsearch(df)
         self.accuracyTol = 0.15
-        # self.accuracy = make_scorer(computeAccuracy(tolerance = self.accuracyTol), greater_is_better=True)
         self.bestModel(df)
 
         # self.bModel
@@ -34,7 +36,10 @@ class ModelGridsearch:
         # self.bModelTestR2
         # self.bModelResid
 
-
+        # print(self.name)
+        # print(self.bEstimator)
+        # print(self.features)
+        # print(self.featureSelection)
 
     def paramGridsearch(self, df):
 
@@ -51,6 +56,8 @@ class ModelGridsearch:
         self.paramGridR2Rank = grid.cv_results_['rank_test_r2']
 
         self.paramGrid = grid
+        self.paramGridbScore = self.paramGrid.best_score_
+
 
     def bestModel(self, df, test = True):
 
@@ -85,6 +92,7 @@ class ModelGridsearch:
         else :
             content = 'Estimator is non linear - no weights can be querried'
         weights = [round(num, self.rounding) for num in list(content)]
+
         self.bModelWeights = weights
         self.bModelWeightsScaled = scaledList(weights) #todo : check this
 

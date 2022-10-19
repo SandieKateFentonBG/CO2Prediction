@@ -1,18 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from fast_ml.model_development import train_valid_test_split
 
-from fast_ml.feature_selection import get_constant_features, recursive_feature_elimination
-
-#model
-
-# #todo : Should I scale my y values (targets)?
-
-#DEFAULT VALUES
-random_state = 42
-test_size = 0.5 # proportion with validation
-train_size= 0.8
 
 
 def dfColMeanStd(df, colName):
@@ -22,18 +11,19 @@ def dfColMeanStd(df, colName):
     return colMean, colStd
 
 class formatedDf:
-    def __init__(self, df, xQuantLabels, xQualLabels, yLabels, yUnitFactor, targetLabels):
+    def __init__(self, df, xQuantLabels, xQualLabels, yLabels, yUnitFactor, targetLabels,
+                 random_state, test_size, train_size):
 
         xDf = df.drop(columns=yLabels)
         yDf = np.multiply(df[yLabels], yUnitFactor)
 
-        self.random_state = 42
-        self.test_size = 0.5  # proportion with validation
-        self.train_size = 0.8
+        self.random_state = random_state
+        self.test_size = test_size  # proportion with validation
+        self.train_size = train_size
         self.ydf = yDf
         self.xdf = xDf
-
         self.ydf.rename(columns={yLabels[0]:targetLabels[0]})
+
         self.yLabels = targetLabels
         self.dataSplitAsDf(targetLabels)
         self.scaleXDf(xQuantLabels)

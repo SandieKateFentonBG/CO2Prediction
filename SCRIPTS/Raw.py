@@ -1,7 +1,5 @@
 import csv
 
-
-
 def open_csv_at_given_line(path, dbName, delimiter, firstLine, folder="DATA/"):
 
     """
@@ -19,7 +17,7 @@ def open_csv_at_given_line(path, dbName, delimiter, firstLine, folder="DATA/"):
     header = reader.__next__()
     return header, reader
 
-def setWorkingFeatures(header, reader, newLabels = False):
+def setWorkingFeatures(header, reader, updateLabels = False):
 
     """
     Set labels to use for training - else use default
@@ -32,7 +30,7 @@ def setWorkingFeatures(header, reader, newLabels = False):
 
     """
 
-    if not newLabels:
+    if not updateLabels:
         xQualLabels = ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding','BREEAM Rating']
         xQuantLabels = ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']  #
         yLabels = ['Calculated tCO2e_per_m2']  # 'Calculated Total tCO2e',
@@ -45,7 +43,7 @@ def setWorkingFeatures(header, reader, newLabels = False):
     return xQualLabels, xQuantLabels, yLabels
 
 class RawData:
-    def __init__(self, path, dbName, delimiter, firstLine, newLabels = None):
+    def __init__(self, path, dbName, delimiter, firstLine, updateLabels = None):
 
         """
         Opens a csv at a given line
@@ -55,7 +53,7 @@ class RawData:
 
         """
         header, reader = open_csv_at_given_line(path, dbName, delimiter, firstLine)
-        xQualLabels, xQuantLabels, yLabels = setWorkingFeatures(header, reader, newLabels)
+        xQualLabels, xQuantLabels, yLabels = setWorkingFeatures(header, reader, updateLabels)
 
         self.xQuali = {k: [] for k in xQualLabels}
         self.xQuanti = {k: [] for k in xQuantLabels}
@@ -84,7 +82,7 @@ class RawData:
                 if value not in self.possibleQualities[label]:
                     self.possibleQualities[label].append(value)
 
-    def visualize(self, displayParams, DBpath, dbName, reference, yLabel, xLabel='Cladding',
+    def visualize(self, displayParams, DBpath, dbName, yLabel, xLabel='Cladding',
                   title = "Features influencing CO2 footprint of Structures ", figure_size = (8, 10)):
 
         if displayParams['showPlot'] or displayParams['archive']:
@@ -112,9 +110,9 @@ class RawData:
                 plt.setp(ax.get_xticklabels(), rotation=25, ha="right",
                      rotation_mode="anchor")
             sns.scatterplot(data=df, x=xLabel, y=yLabel, hue=yLabel, ax=ax)
-
+            reference = displayParams['reference']
             if displayParams['archive']:
-                path, folder, subFolder = DBpath, "RESULTS/", reference + 'RawData'
+                path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/DATA'
                 import os
                 outputFigPath = path + folder + subFolder
 

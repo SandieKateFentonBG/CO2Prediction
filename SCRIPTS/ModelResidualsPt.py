@@ -25,7 +25,6 @@ def paramResiduals(modelGridsearch, df, displayParams, reference, DBpath, yLim =
         visualizer = ResidualsPlot(modelGridsearch.paramGrid, title = title, fig=fig, hist =True)#"frequency" qqplot = True #todo : am i sure the fitting is identical?
         visualizer.fit(xTrain, yTrain.ravel())  # Fit the training data to the visualizer
         visualizer.score(xTest, yTest.ravel())  # Evaluate the model on the test data
-        # visualizer.hax.grid(False)
 
         bModelResTrR2 = round(visualizer.train_score_, modelGridsearch.rounding)
         bModelResTeR2 = round(visualizer.test_score_,  modelGridsearch.rounding)
@@ -46,8 +45,6 @@ def paramResiduals(modelGridsearch, df, displayParams, reference, DBpath, yLim =
 
         if displayParams['showPlot']:
             visualizer.show()
-
-
 
 def plotResiduals(modelGridsearch, displayParams, reference, DBpath, processingParams, bins=None, binrange = None):
 

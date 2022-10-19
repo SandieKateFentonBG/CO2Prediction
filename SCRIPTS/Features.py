@@ -25,9 +25,6 @@ class Features:
         self.x.update(logitize(rawData.xQuali, rawData.possibleQualities))
         self.y = rawData.y
 
-        #todo : 1 function that runs through and stores info
-
-
     def asDataframes(self, batchCount=5, powers=None, mixVariables=None):
         x, y, xlabels = self.asArray(powers, mixVariables)
         cutoffIndex = batchCount if x.shape[0] % batchCount == 0\

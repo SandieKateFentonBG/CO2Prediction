@@ -3,30 +3,43 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def Construct3DPoints(ResultsList): #x : featureCount, y : valScore
+
+def GSConstruct3DPoints(ResultsList, key = 'gamma', score = 'mean_test_r2'): #x : featureCount, y : valScore
 
     pts = []
     labels =[]
 
     for j in range(len(ResultsList)):
-        labels.append(ResultsList[j].method)
+
+
+        labels.append(ResultsList[j].name)
         modelRes = []
-        for i in range(len(ResultsList[j].rfeHyp_featureCount)): #x : featureCount
-            paramRes = [j, ResultsList[j].rfeHyp_featureCount[i], ResultsList[j].rfeHyp_valScore[i]] #y : valScore
+        for i in range(len(ResultsList[j].param_dict[key])): #x : gamma value
+            paramRes = [j, ResultsList[j].param_dict[key][i], ResultsList[j].paramGrid.cv_results_[score][i]] #y : Score
 
             modelRes.append(paramRes)
         pts.append(modelRes)
     return pts, labels
 
-def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, reference, yLim = None, figFolder = 'RFE', figTitle = 'RFEPlot2d',
-                          title ='Influence of Feature Count on Model Performance', xlabel='Feature Count',
-                            ylabel = 'R2 Test score', log = False):
 
+def GSParameterPlot2D(GSs,  displayParams, DBpath, reference, yLim = None,
+                      paramKey ='gamma', score ='mean_test_r2', log = False):
+
+    "to be done with single parameter"
     import seaborn as sns
+    figFolder = 'Hyperparam'
+    figTitle = paramKey + 'Plot2d'
 
-    pts, labels = Construct3DPoints(RFEs)
+    title = 'Influence of ' + paramKey + ' on Model Performance'
+
+    xlabel = paramKey
+    ylabel = score
+
+    pts, labels = GSConstruct3DPoints(GSs)
+
     metric = [[pts[i][j][2] for j in range(len(pts[i]))] for i in range(len(pts))]
     param = [pts[0][i][1] for i in range(len(pts[0]))]
+    # figTitle = '/RFEPlot2d'
 
     if log:
         param = list(np.log10(param))
@@ -59,16 +72,19 @@ def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, reference, yLim = None
 
     plt.close()
 
-def RFEHyperparameterPlot3D(RFEs, displayParams, DBpath, reference, figFolder='RFE', figTitle='RFEPlot3d',
-                            colorsPtsLsBest=['b', 'g', 'c', 'y'],
-                            title='Influence of Feature Count on Model Performance', ylabel='Feature Count',
-                            zlabel='R2 Test score', size=[6, 6],
-                            showgrid=False, log=False, max=True, ticks=False, lims=False):
+def GSParameterPlot3D(GSs, displayParams, DBpath, reference,
+                      colorsPtsLsBest=['b', 'g', 'c', 'y'], paramKey='gamma', score='mean_test_r2',
+                      size=[6, 6], showgrid=False, log=False, maxScore=True, absVal = False,  ticks=False, lims=False):
 
+    figFolder = 'Hyperparam'
+    figTitle = 'RFEPlot3d'
+    ylabel = paramKey
+    zlabel = score
+    title = 'Influence of ' + paramKey + ' on Model Performance'
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    pts, labels = Construct3DPoints(RFEs)
+    pts, labels = GSConstruct3DPoints(GSs)
     print(labels)
 
     xl, yl, zl = unpackResPts(pts)
@@ -79,18 +95,19 @@ def RFEHyperparameterPlot3D(RFEs, displayParams, DBpath, reference, figFolder='R
         ylabel = 'log10 ' + ylabel
         for i in range(len(lines)):
             lines[i][1] = list(np.log10(lines[i][1]))
-    best = Highest3DPoints(pts, max=max, absVal = False)
+    best = Highest3DPoints(pts, max=maxScore, absVal=absVal)
     if log:
         best = best[0], np.log10(best[1]), best[2]
     xlim, ylim, zlim = [np.amin(xl), np.amax(xl)], [np.amin(yl), np.amax(yl)], [np.amin(zl), np.amax(zl)]
     lim = xlim, ylim, zlim
     tick = np.arange(0, xlim[1] + 1, 1).tolist(), np.arange(round(ylim[0], 0), round(ylim[1], 0),
                                                             100).tolist(), np.arange(round(zlim[0] - 1, 0),
-                                                                                     round(zlim[1] + 1, 0), 10).tolist()
+                                                                                     round(zlim[1] + 1, 0),
+                                                                                     10).tolist()
 
     ax.scatter(xl, yl, zl, color=colorsPtsLsBest[0])
     ax.scatter(best[0], best[1], best[2], s=50, c=colorsPtsLsBest[3])
-
+    print("check", best[0], best[1], best[2])
     for i in range(len(lines)):
         xls, yls, zls = lines[i][0], lines[i][1], lines[i][2]
         plt.plot(xls, yls, zls, color=colorsPtsLsBest[1])
