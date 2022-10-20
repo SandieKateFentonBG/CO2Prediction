@@ -23,22 +23,19 @@ class formatedDf:
         self.ydf = yDf
         self.xdf = xDf
         self.ydf.rename(columns={yLabels[0]:targetLabels[0]})
+        targetLabel = targetLabels[0]
 
-        self.yLabels = targetLabels
         self.dataSplitAsDf(targetLabels)
         self.scaleXDf(xQuantLabels)
 
-        # Generates :
-        # self.XTrain = pd.DataFrame(data=XTrain, columns=columnsNamesArr)
-        # self.XVal = pd.DataFrame(data=XVal, columns=columnsNamesArr)
-        # self.XTest = pd.DataFrame(data=XTest, columns=columnsNamesArr)
-        # self.yTrain = pd.DataFrame(data=yTrain, columns=yLabels)
-        # self.yVal = pd.DataFrame(data=yVal, columns=yLabels)
-        # self.yTest = pd.DataFrame(data=yTest, columns=yLabels)
-
+        self.yLabel = targetLabel
         self.trainDf = pd.concat([self.XTrain, self.yTrain], axis=1)
         self.valDf = pd.concat([self.XVal, self.yVal], axis=1)
         self.testDf = pd.concat([self.XTest, self.yTest], axis=1)
+        #self.MeanStdDf
+        self.selector = 'NoSelector'
+        self.droppedLabels = ''
+        self.selectedLabels = list(self.XTrain.columns.values)
 
     def dataSplitAsDf(self, yLabels):  # train_size=0.8, valid_size=0.1, test_size=0.1 random_state=42):
 

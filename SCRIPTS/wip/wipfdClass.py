@@ -54,7 +54,7 @@ class FilterData:
         return noOutlierDf
 
 
-    def filteredData(self, noOutlierDf, rawData.xQuanti, rawData.yLabels, plot = False, threshhold = 0.1, yLabel ='Calculated tCO2e_per_m2'):
+    def filteredData(self, noOutlierDf, rawData.xQuanti, rawData.yLabel, plot = False, threshhold = 0.1, yLabel = 'Calculated tCO2e_per_m2'):
 
         """Discard features with close to 0 correlation coefficient to CO2"""
 

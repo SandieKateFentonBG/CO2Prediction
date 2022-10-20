@@ -18,7 +18,7 @@ def Construct3DPoints(ResultsList): #x : featureCount, y : valScore
         pts.append(modelRes)
     return pts, labels
 
-def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, reference, yLim = None, figFolder = 'RFE', figTitle = 'RFEPlot2d',
+def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, yLim = None, figTitle = 'RFEPlot2d',
                           title ='Influence of Feature Count on Model Performance', xlabel='Feature Count',
                             ylabel = 'R2 Test score', log = False):
 
@@ -44,9 +44,9 @@ def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, reference, yLim = None
         plt.ylim(-yLim, yLim)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
-
+    reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/WRAPPER'#reference + figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
@@ -59,7 +59,7 @@ def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, reference, yLim = None
 
     plt.close()
 
-def RFEHyperparameterPlot3D(RFEs, displayParams, DBpath, reference, figFolder='RFE', figTitle='RFEPlot3d',
+def RFEHyperparameterPlot3D(RFEs, displayParams, DBpath, figTitle='RFEPlot3d',
                             colorsPtsLsBest=['b', 'g', 'c', 'y'],
                             title='Influence of Feature Count on Model Performance', ylabel='Feature Count',
                             zlabel='R2 Test score', size=[6, 6],
@@ -110,9 +110,9 @@ def RFEHyperparameterPlot3D(RFEs, displayParams, DBpath, reference, figFolder='R
     ax.set_zlabel(zlabel)
     fig.set_size_inches(size[0], size[1])
     ax.grid(showgrid)
-
+    reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/WRAPPER' #DBpath, "RESULTS/", reference + figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):

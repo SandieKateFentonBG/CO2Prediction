@@ -26,7 +26,7 @@ xQualLabels = ['Sector','Type','Basement', 'Foundations','Ground Floor','Superst
 xQuantLabels = ['GIFA (m2)','Storeys','Typical Span (m)', 'Typ Qk (kN_per_m2)']
 yLabels = ['Calculated tCO2e_per_m2']
 
-FORMAT_Values = {'yUnitFactor' : 1000 , 'targetLabels' : ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 800]}
+FORMAT_Values = {'yUnitFactor': 1000, 'targetLabels' : ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 800]}
 
 """
 ________________________________________________________________________________________________________________________
@@ -39,7 +39,28 @@ PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 42, 'test_size
                 'corrMethod' : "spearman", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'corrHighThreshhold' : 0.65,
                      'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]} #'scaler': 'MinMaxScaler', , 'lowThreshold' : 0.15, 'highThreshold' : 1,'yScale' : False,
 
-HYPERPARAMETERS = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : [5, 10, 15, 20, 25]}
+RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : [5, 10, 15, 20, 25]}
+
+import numpy as np
+
+GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
+            'regul_range' : list(10.0 ** np.arange(-4, 4)),
+            'influence_range' : list(10.0 ** np.arange(-4, 4)),
+            'degree' : [2, 3, 4],
+            'margin_range' : list(10.0 ** np.arange(-4, 4)),
+            'kernel_list' : ['poly', 'linear', 'rbf']}
+
+LR_param_grid={'alpha': GS_VALUES['regul_range']}
+KRR_param_grid={'alpha': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_range'], 'degree' : GS_VALUES['degree'],
+                                                'kernel' : GS_VALUES['kernel_list'], 'coef0' : GS_VALUES['coef0_range']}
+SVR_param_grid={'C': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_range'], 'degree' : GS_VALUES['degree'],
+                'epsilon': GS_VALUES['margin_range'], 'kernel': GS_VALUES['kernel_list'], 'coef0' : GS_VALUES['coef0_range']}
+
+# # Example for Single Hyperparameter plot
+KRR_param_grid1={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['linear']}
+KRR_param_grid2={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['polynomial']}
+KRR_param_grid3={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['rbf']}
+
 """
 ________________________________________________________________________________________________________________________
 WRAPPING

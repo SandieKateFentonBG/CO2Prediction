@@ -4,24 +4,24 @@ from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
 import numpy as np
 
-"RANGE VALUES "
-coef0_range =  list(10.0 ** np.arange(-2, 2))
-regul_range = list(10.0 ** np.arange(-4, 4))
-influence_range = list(10.0 ** np.arange(-4, 4))
-degree = [2, 3, 4]
-margin_range = list(10.0 ** np.arange(-4, 4))
-kernel_list = ['linear', 'polynomial', 'rbf']
-
-
-"PARAMETER DICTIONNARIES"
-LR_param_grid={'alpha': regul_range}
-KRR_param_grid={'alpha': regul_range, 'gamma': influence_range, 'degree' : degree, 'kernel' : kernel_list, 'coef0' : coef0_range }
-SVR_param_grid={'C': regul_range, 'gamma': influence_range, 'degree' : degree, 'epsilon':  margin_range, 'kernel': kernel_list, 'coef0' : coef0_range}
-
-# Example for Single Hyperparameter plot
-KRR_param_grid1={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['linear']}
-KRR_param_grid2={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['polynomial']}
-KRR_param_grid3={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['rbf']}
+# "RANGE VALUES "
+# coef0_range =  list(10.0 ** np.arange(-2, 2))
+# regul_range = list(10.0 ** np.arange(-4, 4))
+# influence_range = list(10.0 ** np.arange(-4, 4))
+# degree = [2, 3, 4]
+# margin_range = list(10.0 ** np.arange(-4, 4))
+# kernel_list = ['poly','linear',  'rbf']#
+#
+#
+# "PARAMETER DICTIONNARIES"
+# LR_param_grid={'alpha': regul_range}
+# KRR_param_grid={'alpha': regul_range, 'gamma': influence_range, 'degree' : degree, 'kernel' : kernel_list, 'coef0' : coef0_range }
+# SVR_param_grid={'C': regul_range, 'gamma': influence_range, 'degree' : degree, 'epsilon':  margin_range, 'kernel': kernel_list, 'coef0' : coef0_range}
+#
+# # Example for Single Hyperparameter plot
+# KRR_param_grid1={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['linear']}
+# KRR_param_grid2={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['polynomial']}
+# KRR_param_grid3={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['rbf']}
 
 
 # "Comment" - if computing time is too high :

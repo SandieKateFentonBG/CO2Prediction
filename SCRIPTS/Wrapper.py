@@ -19,18 +19,38 @@ Questions
 
 class WrapFeatures:
 
-    def __init__(self, method, estimator, formatedDf, yLabel, featureCount, step= 1,
-                 cv = KFold(n_splits=5, shuffle=True, random_state=42), scoring="r2"):
+    def __init__(self, method, estimator, formatedDf, rfe_hyp_feature_count, output_feature_count ='rfeHyp', scoring="r2",
+                 step= 1, cv = KFold(n_splits=5, shuffle=True, random_state=42)):
+
 
         # step - features removed at every iteration
         # KFold - cross-validation splitting - ensures same split for every function run
 
-        self.method = method
-        self.estimator = estimator #unfit estimator
+        self.yLabel = formatedDf.yLabel
+        self.method = method # ex :'LR'
+        self.estimator = estimator #unfit estimator # ex : LinearRegression()
+        self.FtCountFrom = output_feature_count # ex : 'rfeHyp' > defines the number of feature for the output RFE
+        #todo : option to avoid hyperparam and cv search > gain speed
         # self.RFElimination(formatedDf, n_features_to_select, yLabel)
-        self.RFEliminationCV(formatedDf, step, cv, scoring, yLabel)
-        self.RFEHyperparameterSearch(formatedDf, featureCount)
-        self.RFElimination(formatedDf, self.rfeHyp_maxvalFtCount, yLabel)
+
+        self.RFEliminationCV(formatedDf, step, cv, scoring, self.yLabel)
+        self.RFEHyperparameterSearch(formatedDf, rfe_hyp_feature_count)
+
+        if output_feature_count == 'rfeHyp':
+            self.RFElimination(formatedDf, self.rfeHyp_maxvalFtCount, self.yLabel)
+        if output_feature_count == 'rfeCV':
+            self.RFElimination(formatedDf, self.rfecv.n_features_, self.yLabel)
+        if type(output_feature_count) == int:
+            self.RFElimination(formatedDf, output_feature_count, self.yLabel)
+
+        # self.trainDf
+        # self.valDf
+        # self.testDf
+        # self.droppedLabels
+        # self.selectedLabels
+        self.selector = 'RFE_' + self.method
+
+        #todo : add feature " mode - choose nulber of features from hyperparameteer search or from cv or manually insert itx
 
         # self.n_features_to_select
         # self.rfe/rfeCV/rfehyp
@@ -76,6 +96,7 @@ class WrapFeatures:
         self.trainDf = formatedDf.trainDf.drop(columns=self.droppedLabels)
         self.valDf = formatedDf.valDf.drop(columns=self.droppedLabels)
         self.testDf = formatedDf.testDf.drop(columns=self.droppedLabels)
+
         self.XTrain =self.trainDf.drop(columns=yLabel)
         self.XVal = self.valDf.drop(columns=yLabel)
         self.XTest = self.testDf.drop(columns=yLabel)
@@ -89,7 +110,7 @@ class WrapFeatures:
         print("RFE with:", self.method)
         print("Number of features fixed:", self.n_features_to_select)
         print("Score on training", self.rfe_trainScore)
-        print('Selected feature labels', list(self.rfe_selectedLabels))
+        print('Selected feature labels', list(self.selectedLabels))
         print("Score on validation", self.rfe_valScore)
         print("")
 
@@ -157,33 +178,7 @@ class WrapFeatures:
         print("Score on validation", self.rfeHyp_valScore)
         print("")
 
-    def check(self):
 
-        print((self.rfe_trainDf).shape)
-        print((self.rfe_valDf).shape)
-        print((self.rfe_testDf).shape)
-
-        print((self.rfe_XTrain).shape)
-        print((self.rfe_XVal).shape)
-        print((self.rfe_XTest).shape)
-        print((self.rfe_yTrain).shape)
-        print((self.rfe_yVal).shape)
-        print((self.rfe_yTest).shape)
-
-        print((self.rfecv_trainDf).shape)
-        print((self.rfecv_valDf).shape)
-        print((self.rfecv_testDf).shape)
-
-        print((self.rfecv_XTrain).shape)
-        print((self.rfecv_XVal).shape)
-        print((self.rfecv_XTest).shape)
-        print((self.rfecv_yTrain).shape)
-        print((self.rfecv_yVal).shape)
-        print((self.rfecv_yTest).shape)
-
-        print(self.rfeHyp_featureCount)
-        print(self.rfeHyp_trainScore)
-        print(self.rfeHyp_valScore)
 
 
 # https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html

@@ -1,15 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def paramResiduals(modelGridsearch, df, displayParams, reference, DBpath, yLim = None , xLim = None, fontsize = None):
+def paramResiduals(modelGridsearch, displayParams, DBpath, yLim = None , xLim = None, fontsize = None):
 
+    df = modelGridsearch.learningDf
     if displayParams['showPlot'] or displayParams['archive']:
 
         from yellowbrick.regressor import ResidualsPlot
 
         xTrain, yTrain, xTest, yTest = df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel(), df.XTest.to_numpy(), df.yTest.to_numpy().ravel()
 
-        title = 'Residuals for ' + str(modelGridsearch.estimator) + '\n' + '- BEST PARAM (%s) ' % modelGridsearch.bModelParam
+        title = 'Residuals for ' + str(modelGridsearch.modelPredictor) + '\n' + '- BEST PARAM (%s) ' % modelGridsearch.Param
 
         fig = plt.figure(figsize=(10,5))#
         if fontsize:
@@ -22,31 +23,28 @@ def paramResiduals(modelGridsearch, df, displayParams, reference, DBpath, yLim =
             plt.ylim(yLim[0], yLim[1])
         if xLim:
             plt.xlim(xLim[0], xLim[1])
-        visualizer = ResidualsPlot(modelGridsearch.paramGrid, title = title, fig=fig, hist =True)#"frequency" qqplot = True #todo : am i sure the fitting is identical?
+        visualizer = ResidualsPlot(modelGridsearch.Grid, title = title, fig=fig, hist =True)#"frequency" qqplot = True
         visualizer.fit(xTrain, yTrain.ravel())  # Fit the training data to the visualizer
         visualizer.score(xTest, yTest.ravel())  # Evaluate the model on the test data
 
-        bModelResTrR2 = round(visualizer.train_score_, modelGridsearch.rounding)
-        bModelResTeR2 = round(visualizer.test_score_,  modelGridsearch.rounding)
+        bModelResTrR2 = round(visualizer.train_score_, modelGridsearch.rounding) #todo :remove this?
+        bModelResTeR2 = round(visualizer.test_score_,  modelGridsearch.rounding) #todo :remove this?
 
-        # print("check this fitting returns identical results to the model gridsearch :")
-        # print("Train score from visualizer / from gridsearch:", bModelResTrR2, modelGridsearch.bModelTrainScore)
-        # print("Test score from visualizer / from gridsearch::", bModelResTeR2, modelGridsearch.bModelTestScore)
-
+        reference = displayParams['reference']
         if displayParams['archive']:
 
-            path, folder, subFolder = DBpath, "RESULTS/", reference + 'Residuals'
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/GS/Residuals'
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
                 os.makedirs(outputFigPath)
 
-            plt.savefig(outputFigPath + '/' + str(modelGridsearch.name) + '.png')
+            plt.savefig(outputFigPath + '/' + str(modelGridsearch.predictorName) + '.png')
 
         if displayParams['showPlot']:
             visualizer.show()
 
-def plotResiduals(modelGridsearch, displayParams, reference, DBpath, processingParams, bins=None, binrange = None):
+def plotResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = None):
 
     #todo : adapt bin count / bin range
 
@@ -54,41 +52,41 @@ def plotResiduals(modelGridsearch, displayParams, reference, DBpath, processingP
 
         import seaborn as sns
 
-        title = 'Residuals distribution for ' + str(modelGridsearch.estimator) \
-                + '\n' + '- BEST PARAM (%s) ' % modelGridsearch.bModelParam
+        title = 'Residuals distribution for ' + str(modelGridsearch.modelPredictor) \
+                + '\n' + '- BEST PARAM (%s) ' % modelGridsearch.Param
 
-        print("modelGridsearch.bModelResid", modelGridsearch.bModelResid)
+        print("modelGridsearch.bModelResid", modelGridsearch.Resid)
         fig, ax = plt.subplots(figsize=(10, 8))
         if bins and binrange: #ex : bins=20, binrange = (-200, 200)
-            resmin, resmax = min(modelGridsearch.bModelResid), max(modelGridsearch.bModelResid)
+            resmin, resmax = min(modelGridsearch.Resid), max(modelGridsearch.Resid)
             if resmax > binrange[1]:
                 import math
                 binrange[1] = math.ceil(resmax / 100) * 100
-                print("residuals out of binrange - max values should exceed : (%s)" % max(modelGridsearch.bModelResid))
+                print("residuals out of binrange  : (%s)" % max(modelGridsearch.Resid))
                 print("bin max changed to :", binrange[1])
             if resmin < binrange[0]:
                 import math
                 binrange[0] = math.floor(resmin / 100) * 100
-                print("residuals out of binrange - min values should exceed : (%s)" % min(modelGridsearch.bModelResid))
+                print("residuals out of binrange  : (%s)" % min(modelGridsearch.Resid))
                 print("bin min changed to :", binrange[0])
-            ax = sns.histplot(modelGridsearch.bModelResid, kde=True, bins=bins, binrange = binrange, legend = False)
+            ax = sns.histplot(modelGridsearch.Resid, kde=True, bins=bins, binrange = binrange, legend = False)
         else:
-            ax = sns.histplot(modelGridsearch.bModelResid, kde=True, legend = False)
+            ax = sns.histplot(modelGridsearch.Resid, kde=True, legend = False)
 
         plt.setp(ax.patches, linewidth=0)
 
         plt.title(title, fontsize=14)
-        plt.xlabel("Residuals [%s]" % processingParams['targetLabels'][0], fontsize=14)
-
+        plt.xlabel("Residuals [%s]" % modelGridsearch.learningDf.yLabel, fontsize=14)
+        reference = displayParams['reference']
         if displayParams['archive']:
 
-            path, folder, subFolder = DBpath, "RESULTS/", reference + 'Residuals'
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/GS/Residuals'
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
                 os.makedirs(outputFigPath)
 
-            plt.savefig(outputFigPath + '/' + str(modelGridsearch.name) + '-histplot.png')
+            plt.savefig(outputFigPath + '/' + str(modelGridsearch.predictorName) + '-histplot.png')
 
         if displayParams['showPlot']:
             plt.show()

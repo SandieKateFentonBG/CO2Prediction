@@ -9,21 +9,23 @@ def computeAccuracy(yTrue, yPred, tolerance):
 
 class ModelGridsearch:
 
-    def __init__(self, name, estimator, param_dict, df, featureSelection):
+    def __init__(self, predictorName, learningDf, modelPredictor, param_dict):
 
-        self.name = name
-        self.estimator = estimator
-        self.features = df.XTrain.keys() #or df.trainDf.keys()
-        self.featureSelection = featureSelection
+        self.predictorName = predictorName #ex : SVR
+        self.modelPredictor = modelPredictor# ex : SVR()
+        self.selectorName = learningDf.selector# ex : 'fl_spearman'
+        self.XLabels = learningDf.selectedLabels # ex : ['GIFA', 'Sector']
+        self.GSName = self.predictorName + '_' + self.selectorName #ex : SVR_fl_spearman ,
+        self.learningDf = learningDf
 
         self.param_dict = param_dict
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
         self.rounding = 3
         self.refit = 'r2' # criteria for best performing param / used for plotting
 
-        self.paramGridsearch(df)
+        self.paramGridsearch(learningDf)
         self.accuracyTol = 0.15
-        self.bestModel(df)
+        self.bestModel(learningDf)
 
         # self.bModel
         # self.bModelParam
@@ -43,49 +45,47 @@ class ModelGridsearch:
 
     def paramGridsearch(self, df):
 
-        grid = GridSearchCV(self.estimator, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit, return_train_score=True) #cv=cv
-        grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()) #saves the best performing model
-        # self.paramGrid = grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()) #saves the best performing model
 
-        self.paramGridMSE = [round(num, self.rounding) for num in grid.cv_results_['mean_test_neg_mean_squared_error']]
-        self.paramGridMSEStd = [round(num, self.rounding) for num in list(grid.cv_results_['std_test_neg_mean_squared_error'])]
-        self.paramGridMSERank = grid.cv_results_['rank_test_neg_mean_squared_error'],
+        grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit, return_train_score=True) #cv=cv
+        grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()) #saves the best performing model #todo :fit transform?
 
-        self.paramGridR2 = grid.cv_results_['mean_test_r2']
-        self.paramGridR2Std = grid.cv_results_['std_test_r2']
-        self.paramGridR2Rank = grid.cv_results_['rank_test_r2']
+        self.GridMSE = [round(num, self.rounding) for num in grid.cv_results_['mean_test_neg_mean_squared_error']]
+        self.GridMSEStd = [round(num, self.rounding) for num in list(grid.cv_results_['std_test_neg_mean_squared_error'])]
+        self.GridMSERank = grid.cv_results_['rank_test_neg_mean_squared_error'],
 
-        self.paramGrid = grid
-        self.paramGridbScore = self.paramGrid.best_score_
+        self.GridR2 = grid.cv_results_['mean_test_r2']
+        self.GridR2Std = grid.cv_results_['std_test_r2']
+        self.GridR2Rank = grid.cv_results_['rank_test_r2']
+
+        self.Grid = grid
+        self.GridbScore = self.Grid.best_score_
 
 
     def bestModel(self, df, test = True):
 
-        # self.paramGrid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()) #todo : is this needed?
-        self.bModelParam = self.paramGrid.best_params_
-        self.bEstimator = self.paramGrid.best_estimator_ #todo : difference with bestmodel?
-        self.bIndex = self.paramGrid.best_index_
-        #self.bKernel = self.bEstimator.get_params()['kernel']
+        self.Param = self.Grid.best_params_
+        self.Estimator = self.Grid.best_estimator_ #todo : difference with bestmodel?
+        self.Index = self.Grid.best_index_
 
         XTrain, yTrain  = df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()
         XTest, yTest = df.XTest.to_numpy(), df.yTest.to_numpy().ravel()
-        yPred = self.paramGrid.predict(XTest)
+        self.yPred = self.Grid.predict(XTest)
 
-        self.bModelTrainScore = round(self.paramGrid.score(XTrain, yTrain), self.rounding)
-        self.bModelTestScore = round(self.paramGrid.score(XTest, yTest), self.rounding)
-        self.bModelTestAcc = round(computeAccuracy(yTest, self.paramGrid.predict(XTest), self.accuracyTol), self.rounding)
-        self.bModelTestMSE = round(mean_squared_error(yTest, yPred), self.rounding)
-        self.bModelTestR2 = round(r2_score(yTest, yPred), self.rounding)
-        self.bModelResid = yTest - yPred
+        self.TrainScore = round(self.Grid.score(XTrain, yTrain), self.rounding)
+        self.TestScore = round(self.Grid.score(XTest, yTest), self.rounding)
+        self.TestAcc = round(computeAccuracy(yTest, self.Grid.predict(XTest), self.accuracyTol), self.rounding)
+        self.TestMSE = round(mean_squared_error(yTest, self.yPred), self.rounding)
+        self.TestR2 = round(r2_score(yTest, self.yPred), self.rounding)
+        self.Resid = yTest - self.yPred
 
-        if hasattr(self.paramGrid.best_estimator_, 'coef_'):
+        if hasattr(self.Grid.best_estimator_, 'coef_'):
 
-            content = self.paramGrid.best_estimator_.coef_
+            content = self.Grid.best_estimator_.coef_
             if type(content[0]) == np.ndarray:
                 content = content[0]
 
-        elif hasattr(self.paramGrid.best_estimator_, 'dual_coef_'):
-            content = self.paramGrid.best_estimator_.dual_coef_
+        elif hasattr(self.Grid.best_estimator_, 'dual_coef_'):
+            content = self.Grid.best_estimator_.dual_coef_
             if type(content[0]) == np.ndarray:
                 content = content[0]
 
@@ -93,8 +93,8 @@ class ModelGridsearch:
             content = 'Estimator is non linear - no weights can be querried'
         weights = [round(num, self.rounding) for num in list(content)]
 
-        self.bModelWeights = weights
-        self.bModelWeightsScaled = scaledList(weights) #todo : check this
+        self.Weights = weights
+        self.WeightsScaled = scaledList(weights) #todo : check this
 
 def scaledList(means, type='StandardScaler'):#'MinMaxScaler' #todo : check this
 

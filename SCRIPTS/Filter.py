@@ -17,14 +17,22 @@ def computeCorrelation(df, method, round):
 
 class FilterFeatures:
 
-    def __init__(self, trainDf, valDf, testDf, baseLabels, yLabel, method ="spearman", corrRounding = 2,
+    def __init__(self, baseFormatedDf, baseLabels, method ="spearman", corrRounding = 2,
                  lowThreshhold = 0.1, highThreshhold = 0.65):
+        trainDf = baseFormatedDf.trainDf
+        valDf = baseFormatedDf.valDf
+        testDf = baseFormatedDf.testDf
+        self.yLabel = baseFormatedDf.yLabel
+
         self.method = method
         self.lowThreshhold = lowThreshhold
         self.highThreshhold = highThreshhold
         self.corrRounding = corrRounding
-        self.filterUncorrelated(trainDf, baseLabels, yLabel, method, lowThreshhold)
-        self.yLabel = yLabel
+
+
+        self.filterUncorrelated(trainDf, baseLabels, self.yLabel, method, lowThreshhold)
+
+
         # Generates :
         # self.correlationMatrix_All = correlationMatrix_All
         # self.uncorrelatedLabels = uncorrelatedFeatures
@@ -44,14 +52,21 @@ class FilterFeatures:
         self.valDf = valDf.drop(columns=self.droppedLabels)
         self.testDf = testDf.drop(columns=self.droppedLabels)
 
-        self.XTrain = self.trainDf.drop(columns=yLabel)
-        self.XVal = self.valDf.drop(columns=yLabel)
-        self.XTest = self.testDf.drop(columns=yLabel)
-        self.yTrain = self.trainDf[yLabel]
-        self.yVal = self.valDf[yLabel]
-        self.yTest = self.testDf[yLabel]
+        self.XTrain = self.trainDf.drop(columns=self.yLabel)
+        self.XVal = self.valDf.drop(columns=self.yLabel)
+        self.XTest = self.testDf.drop(columns=self.yLabel)
+        self.yTrain = self.trainDf[self.yLabel]
+        self.yVal = self.valDf[self.yLabel]
+        self.yTest = self.testDf[self.yLabel]
 
-        self.selectedLabels = list(self.trainDf.columns.values)
+
+        self.selectedLabels = list(self.XTrain.columns.values)
+        self.selector = 'fl_' + self.method
+
+
+
+
+
 
     def filterUncorrelated(self, df, baseLabels, yLabel, method, lowThreshhold):
         """

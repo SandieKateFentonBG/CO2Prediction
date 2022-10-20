@@ -12,17 +12,17 @@ def GSConstruct3DPoints(ResultsList, key = 'gamma', score = 'mean_test_r2'): #x 
     for j in range(len(ResultsList)):
 
 
-        labels.append(ResultsList[j].name)
+        labels.append(ResultsList[j].predictorName)
         modelRes = []
         for i in range(len(ResultsList[j].param_dict[key])): #x : gamma value
-            paramRes = [j, ResultsList[j].param_dict[key][i], ResultsList[j].paramGrid.cv_results_[score][i]] #y : Score
+            paramRes = [j, ResultsList[j].param_dict[key][i], ResultsList[j].Grid.cv_results_[score][i]] #y : Score
 
             modelRes.append(paramRes)
         pts.append(modelRes)
     return pts, labels
 
 
-def GSParameterPlot2D(GSs,  displayParams, DBpath, reference, yLim = None,
+def GSParameterPlot2D(GSs,  displayParams, DBpath, yLim = None,
                       paramKey ='gamma', score ='mean_test_r2', log = False):
 
     "to be done with single parameter"
@@ -57,9 +57,9 @@ def GSParameterPlot2D(GSs,  displayParams, DBpath, reference, yLim = None,
         plt.ylim(-yLim, yLim)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
-
+    reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/GS/' + figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
@@ -72,7 +72,7 @@ def GSParameterPlot2D(GSs,  displayParams, DBpath, reference, yLim = None,
 
     plt.close()
 
-def GSParameterPlot3D(GSs, displayParams, DBpath, reference,
+def GSParameterPlot3D(GSs, displayParams, DBpath,
                       colorsPtsLsBest=['b', 'g', 'c', 'y'], paramKey='gamma', score='mean_test_r2',
                       size=[6, 6], showgrid=False, log=False, maxScore=True, absVal = False,  ticks=False, lims=False):
 
@@ -85,7 +85,6 @@ def GSParameterPlot3D(GSs, displayParams, DBpath, reference,
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     pts, labels = GSConstruct3DPoints(GSs)
-    print(labels)
 
     xl, yl, zl = unpackResPts(pts)
     lines = unpackResLines(pts)
@@ -107,7 +106,7 @@ def GSParameterPlot3D(GSs, displayParams, DBpath, reference,
 
     ax.scatter(xl, yl, zl, color=colorsPtsLsBest[0])
     ax.scatter(best[0], best[1], best[2], s=50, c=colorsPtsLsBest[3])
-    print("check", best[0], best[1], best[2])
+
     for i in range(len(lines)):
         xls, yls, zls = lines[i][0], lines[i][1], lines[i][2]
         plt.plot(xls, yls, zls, color=colorsPtsLsBest[1])
@@ -127,9 +126,9 @@ def GSParameterPlot3D(GSs, displayParams, DBpath, reference,
     ax.set_zlabel(zlabel)
     fig.set_size_inches(size[0], size[1])
     ax.grid(showgrid)
-
+    reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/GS/' + figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
