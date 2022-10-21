@@ -18,7 +18,7 @@
 # >>> selector = selector.fit(X, y)
 """
 
-from Models import *
+from ModelsDoc import *
 from sklearn import feature_selection
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score

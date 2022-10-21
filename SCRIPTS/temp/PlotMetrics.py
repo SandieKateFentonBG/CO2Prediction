@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+#return sorted(GSs, key=lambda x: x.TestAcc, reverse=highest)
 
 def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrR2','bModelTeR2','bModelAcc','bModelMSE'],
             title ='Model Evaluations', ylabel='Evaluation Metric', fontsize = 14, scatter = True):
@@ -47,16 +48,26 @@ def MetricsSummaryPlot(models, displayParams, metricLabels = ['bModelTrR2','bMod
     fig.tight_layout()
     plt.close()
 
-def averageMetric(models, metricLabels = ['bModelTrR2','bModelTeR2','bModelAcc','bModelMSE','bModelr2']):
+def averageMetric(GSs, metricLabels = ['TrR2','TeR2','Acc','MSE','R2']):
     means = []
     stdvs = []
+
+
     for label in metricLabels:
         single = []
-        for m in models:
-            single.append(m[label])
+        for m in GSs:
+            single.append(m.TrainScore)
+            # single.append(m[label])
         av = np.mean(single)
         st = np.std(single)
         means.append(av)
         stdvs.append(st)
 
     return means, stdvs
+
+
+def sortGridResults(GSs, metric ='TestAcc', highest = True):
+
+    # x is one elem of the list
+    if metric == 'TestAcc':
+        return sorted(GSs, key=lambda x: x.TestAcc, reverse=highest)

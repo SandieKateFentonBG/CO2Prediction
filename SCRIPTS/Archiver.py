@@ -1,7 +1,10 @@
-def saveStudy(displayParams, Content):
+def saveStudy(DBpath, displayParams, Content):
 
     if displayParams['archive']:
         import os
+        reference = displayParams['reference']
+        outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
+
         outputPathStudy = displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state'])
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)

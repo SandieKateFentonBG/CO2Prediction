@@ -51,7 +51,7 @@ class ModelGridsearch:
 
         self.GridMSE = [round(num, self.rounding) for num in grid.cv_results_['mean_test_neg_mean_squared_error']]
         self.GridMSEStd = [round(num, self.rounding) for num in list(grid.cv_results_['std_test_neg_mean_squared_error'])]
-        self.GridMSERank = grid.cv_results_['rank_test_neg_mean_squared_error'],
+        self.GridMSERank = grid.cv_results_['rank_test_neg_mean_squared_error']
 
         self.GridR2 = grid.cv_results_['mean_test_r2']
         self.GridR2Std = grid.cv_results_['std_test_r2']
@@ -79,17 +79,19 @@ class ModelGridsearch:
         self.Resid = yTest - self.yPred
 
         if hasattr(self.Grid.best_estimator_, 'coef_'):
-
+            self.isLinear = True
             content = self.Grid.best_estimator_.coef_
             if type(content[0]) == np.ndarray:
                 content = content[0]
 
         elif hasattr(self.Grid.best_estimator_, 'dual_coef_'):
+            self.isLinear = True
             content = self.Grid.best_estimator_.dual_coef_
             if type(content[0]) == np.ndarray:
                 content = content[0]
 
         else :
+            self.isLinear = False
             content = 'Estimator is non linear - no weights can be querried'
         weights = [round(num, self.rounding) for num in list(content)]
 

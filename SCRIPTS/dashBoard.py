@@ -43,6 +43,13 @@ RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : [5, 10, 15, 
 
 import numpy as np
 
+# GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
+#             'regul_range' : list(10.0 ** np.arange(-2, 2)),
+#             'influence_range' : list(10.0 ** np.arange(-2, 2)),
+#             'degree' : [3],
+#             'margin_range' : list(10.0 ** np.arange(-2, 2)),
+#             'kernel_list' : ['poly', 'linear', 'rbf']}
+
 GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
             'regul_range' : list(10.0 ** np.arange(-4, 4)),
             'influence_range' : list(10.0 ** np.arange(-4, 4)),
