@@ -88,6 +88,7 @@ class WrapFeatures:
 
         self.rfe = rfe.fit(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
         self.selectedLabels = formatedDf.XTrain.columns[rfe.support_]
+        # #todo - this naming was changed from #Xlabels to #selectedLabels >could generate issues
         self.rfe_trainScore = self.rfe.score(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
         self.rfe_valScore = self.rfe.score(formatedDf.XVal.to_numpy(), formatedDf.yVal.to_numpy().ravel())
 

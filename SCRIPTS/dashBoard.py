@@ -39,16 +39,29 @@ PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 42, 'test_size
                 'corrMethod' : "spearman", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'corrHighThreshhold' : 0.65,
                      'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]} #'scaler': 'MinMaxScaler', , 'lowThreshold' : 0.15, 'highThreshold' : 1,'yScale' : False,
 
+
+"""
+________________________________________________________________________________________________________________________
+GRIDSEARCH
+________________________________________________________________________________________________________________________
+"""
+#parameters chosen for gridsearch opimization
+
+"""
+________________________________________________________________________________________________________________________
+FEATURE SELECTION
+________________________________________________________________________________________________________________________
+"""
+
 RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : [5, 10, 15, 20, 25]}
 
-import numpy as np
+"""
+________________________________________________________________________________________________________________________
+MODEL
+________________________________________________________________________________________________________________________
+"""
 
-# GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
-#             'regul_range' : list(10.0 ** np.arange(-2, 2)),
-#             'influence_range' : list(10.0 ** np.arange(-2, 2)),
-#             'degree' : [3],
-#             'margin_range' : list(10.0 ** np.arange(-2, 2)),
-#             'kernel_list' : ['poly', 'linear', 'rbf']}
+import numpy as np
 
 GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
             'regul_range' : list(10.0 ** np.arange(-4, 4)),
@@ -63,6 +76,12 @@ KRR_param_grid={'alpha': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence
 SVR_param_grid={'C': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_range'], 'degree' : GS_VALUES['degree'],
                 'epsilon': GS_VALUES['margin_range'], 'kernel': GS_VALUES['kernel_list'], 'coef0' : GS_VALUES['coef0_range']}
 
+"""
+________________________________________________________________________________________________________________________
+HYPERPARAM
+________________________________________________________________________________________________________________________
+"""
+
 # # Example for Single Hyperparameter plot
 KRR_param_grid1={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['linear']}
 KRR_param_grid2={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['polynomial']}
@@ -70,9 +89,11 @@ KRR_param_grid3={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['rbf']}
 
 """
 ________________________________________________________________________________________________________________________
-WRAPPING
+MODEL x FEATURE SELECTION GRIDSEARCH
 ________________________________________________________________________________________________________________________
 """
+
+
 
 
 

@@ -14,7 +14,8 @@ class ModelGridsearch:
         self.predictorName = predictorName #ex : SVR
         self.modelPredictor = modelPredictor# ex : SVR()
         self.selectorName = learningDf.selector# ex : 'fl_spearman'
-        self.XLabels = learningDf.selectedLabels # ex : ['GIFA', 'Sector']
+        self.selectedLabels = learningDf.selectedLabels # ex : ['GIFA', 'Sector']
+        # #todo - this naming was changed from #Xlabels to #selectedLabels >could generate issues
         self.GSName = self.predictorName + '_' + self.selectorName #ex : SVR_fl_spearman ,
         self.learningDf = learningDf
 

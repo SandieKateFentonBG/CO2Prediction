@@ -3,7 +3,7 @@
 #https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFECV.html#sklearn.feature_selection.RFECV
 
 
-from Main import *
+from SCRIPTS.temp.Main import *
 from sklearn.svm import SVR
 from sklearn.feature_selection import RFECV
 from sklearn.model_selection import GridSearchCV

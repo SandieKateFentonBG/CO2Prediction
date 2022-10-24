@@ -15,6 +15,7 @@ from ModelResidualsPt import *
 from ModelParamPt import *
 from ModelMetricsPt import *
 from ModelWeights import *
+from Gridsearch import *
 
 
 #LIBRARY IMPORTS
@@ -33,42 +34,42 @@ from sklearn.kernel_ridge import KernelRidge
 1.RAW DATA
 ------------------------------------------------------------------------------------------------------------------------
 """
-
-#ABOUT
-"""
-GOAL - Import libraries & Load data
-"""
-
-#CONSTRUCT
-rdat = RawData(path = DB_Values['DBpath'], dbName = DB_Values['DBname'], delimiter = DB_Values['DBdelimiter'],
-               firstLine = DB_Values['DBfirstLine'], updateLabels = None)
-
-#VISUALIZE
-# rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
-#               yLabel = yLabels[0], xLabel=xQualLabels[0])
-# rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
-#             yLabel = yLabels[0], xLabel=xQuantLabels[0])
-
-DBpath = DB_Values['DBpath']
-"""
-------------------------------------------------------------------------------------------------------------------------
-2.FEATURES
-------------------------------------------------------------------------------------------------------------------------
-"""
-#ABOUT
-"""
-GOAL - Process data & One hot encoding
-"""
-
-#CONSTRUCT
-dat = Features(rdat)
-df = dat.asDataframe()
-
-#REPORT
-print("Full df", df.shape)
-
-#STOCK
-pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df')
+#
+# #ABOUT
+# """
+# GOAL - Import libraries & Load data
+# """
+#
+# #CONSTRUCT
+# rdat = RawData(path = DB_Values['DBpath'], dbName = DB_Values['DBname'], delimiter = DB_Values['DBdelimiter'],
+#                firstLine = DB_Values['DBfirstLine'], updateLabels = None)
+#
+# #VISUALIZE
+# # rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
+# #               yLabel = yLabels[0], xLabel=xQualLabels[0])
+# # rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
+# #             yLabel = yLabels[0], xLabel=xQuantLabels[0])
+#
+# DBpath = DB_Values['DBpath']
+# """
+# ------------------------------------------------------------------------------------------------------------------------
+# 2.FEATURES
+# ------------------------------------------------------------------------------------------------------------------------
+# """
+# #ABOUT
+# """
+# GOAL - Process data & One hot encoding
+# """
+#
+# #CONSTRUCT
+# dat = Features(rdat)
+# df = dat.asDataframe()
+#
+# #REPORT
+# print("Full df", df.shape)
+#
+# #STOCK
+# pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df')
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -80,14 +81,14 @@ pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df')
 GOAL - Remove outliers - only exist/removed on Quantitative features
 Dashboard Input - PROCESS_VALUES : OutlierCutOffThreshhold
 """
-#CONSTRUCT
-learningDf = removeOutliers(df, labels = xQuantLabels + yLabels, cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
-
-#REPORT
-print("Outliers removed ", learningDf.shape)
-
-#STOCK
-pickleDumpMe(DB_Values['DBpath'], displayParams, learningDf, 'DATA', 'learningDf')
+# #CONSTRUCT
+# learningDf = removeOutliers(df, labels = xQuantLabels + yLabels, cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
+#
+# #REPORT
+# print("Outliers removed ", learningDf.shape)
+#
+# #STOCK
+# pickleDumpMe(DB_Values['DBpath'], displayParams, learningDf, 'DATA', 'learningDf')
 
 #
 # """
@@ -182,6 +183,18 @@ pickleDumpMe(DB_Values['DBpath'], displayParams, learningDf, 'DATA', 'learningDf
 #
 # #STOCK
 # pickleDumpMe(DB_Values['DBpath'], displayParams, RFEs, 'WRAPPER', 'RFEs')
+
+#IMPORT
+df = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/df.pkl', show = False)
+learningDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/learningDf.pkl', show = False)
+baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/baseFormatedDf.pkl', show = True)
+spearmanFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/FILTER/spearmanFilter.pkl', show = True)
+RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/WRAPPER/RFEs.pkl', show = True)
+
+# REPORT
+reportFeatureSelection(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf, spearmanFilter, RFEs)
+[LR_RFE, RFR_RFE, DTR_RFE, GBR_RFE, DTC_RFE] = RFEs
+
 #
 # #VISUALIZE
 # # RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath = DB_Values['DBpath'], yLim = None, figTitle = 'RFEPlot2d',
@@ -204,33 +217,21 @@ pickleDumpMe(DB_Values['DBpath'], displayParams, learningDf, 'DATA', 'learningDf
 # """
 #
 # """
-# GRIDSEARCH
+# MODELS
 # """
 #
 # #ABOUT
 # """
-# GOAL -  Find best hyperparameters for all models
+# GOAL -  Find best hyperparameters for each models
 # Dashboard Input - _VALUES : xx
 # """
 # #CONSTRUCT
 # myFormatedDf = baseFormatedDf
-#
-
-baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/baseFormatedDf.pkl', show = True)
-
-saveStudy(DB_Values['DBpath'], displayParams, obj= baseFormatedDf)
-
-
+# #
 # LR_GS = ModelGridsearch('LR', learningDf= myFormatedDf, modelPredictor= LinearRegression(), param_dict=dict())
-# # todo : fix these
-# # print(LR_GS)
-# LR_LASSO_GS = ModelGridsearch('LR_LASSO', learningDf= baseFormatedDf, modelPredictor= Lasso(tol=1e-2), param_dict = LR_param_grid)
-# print('LR_LASSO_GS', LR_LASSO_GS)
+# LR_LASSO_GS = ModelGridsearch('LR_LASSO', learningDf= baseFormatedDf, modelPredictor= Lasso(), param_dict = LR_param_grid)
 # LR_RIDGE_GS = ModelGridsearch('LR_RIDGE', learningDf= baseFormatedDf, modelPredictor= Ridge(), param_dict = LR_param_grid)
-# print('LR_RIDGE_GS', LR_RIDGE_GS)
-# LR_ELAST_GS = ModelGridsearch('LR_ELAST', learningDf= baseFormatedDf, modelPredictor= ElasticNet(tol=1e-2), param_dict = LR_param_grid)
-# print('LR_ELAST_GS', LR_ELAST_GS)
-
+# LR_ELAST_GS = ModelGridsearch('LR_ELAST', learningDf= baseFormatedDf, modelPredictor= ElasticNet(), param_dict = LR_param_grid)
 # KRR_GS = ModelGridsearch('KRR', learningDf= myFormatedDf, modelPredictor= KernelRidge(), param_dict = KRR_param_grid)
 # SVR_GS = ModelGridsearch('SVR', learningDf= myFormatedDf, modelPredictor= SVR(), param_dict = SVR_param_grid)
 #
@@ -238,7 +239,14 @@ saveStudy(DB_Values['DBpath'], displayParams, obj= baseFormatedDf)
 #
 # #STOCK
 # pickleDumpMe(DB_Values['DBpath'], displayParams, GSs, 'GS', 'GSs')
-#
+# saveStudy(DB_Values['DBpath'], displayParams, obj= baseFormatedDf)
+
+#IMPORT
+GSs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/GS/GSs.pkl', show = True)
+
+#REPORT
+reportModels(DB_Values['DBpath'], displayParams, GSs, baseFormatedDf, objFolder ='Models', display = True)
+
 # #VISUALIZE
 # for GS in GSs:#,LR_LASSO_GS, LR_RIDGE_GS, LR_ELAST_GS
 #     plotPredTruth(displayParams = displayParams, modelGridsearch = GS,
@@ -260,9 +268,8 @@ saveStudy(DB_Values['DBpath'], displayParams, obj= baseFormatedDf)
 # WeightsSummaryPlot(GSs, displayParams, DB_Values['DBpath'], sorted=True, yLim=None, fontsize=14)
 
 
-
 # """
-# Hyperparam influence
+# HYPERPARAMETERS
 # """
 # #ABOUT
 # """
@@ -291,23 +298,80 @@ saveStudy(DB_Values['DBpath'], displayParams, obj= baseFormatedDf)
 #
 # #STOCK
 # pickleDumpMe(DB_Values['DBpath'], displayParams, KRR_GS, 'GS', 'KRR_GS_gamma')
-df = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/df.pkl', show = False)
-learningDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/learningDf.pkl', show = False)
-baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/baseFormatedDf.pkl', show = True)
-spearmanFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/FILTER/spearmanFilter.pkl', show = True)
-RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/WRAPPER/RFEs.pkl', show = True)
-GSs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/GS/GSs.pkl', show = True)
-KRR_GS_gamma = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/GS/KRR_GS_gamma.pkl', show = True)
 
-reportStudy(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf, spearmanFilter, RFEs, GSs, KRR_GS_gamma, objFolder = 'report')
 
-# todo : archiving
-#todo : continue saving study info - GS important resuls
+
+# """
+# MODEL x FEATURE SELECTION GRIDSEARCH
+# """
+# #ABOUT
+# """
+# GOAL -  Calibrate model hyperparameters for different learning Dfs
+# Dashboard Input - _VALUES : xx
+# """
+
+# #IMPORT
+# learning_dfs = [baseFormatedDf, spearmanFilter] + RFEs
+
+# #CONSTRUCT
+LR_ = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
+LR_RIDGE = {'name' : 'LR_RIDGE',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
+LR_LASSO = {'name' : 'LR_LASSO',  'modelPredictor' : Ridge(),'param_dict' : LR_param_grid}
+LR_ELAST = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
+KRR = {'name' : 'KRR',  'modelPredictor' : KernelRidge(),'param_dict' : KRR_param_grid}
+SVR = {'name' : 'SVR',  'modelPredictor' : SVR(),'param_dict' : SVR_param_grid}
+
+
+LR_FS_GS = ModelFeatureSelectionGridsearch(predictorName=LR_['name'], learningDfs=learning_dfs,
+                                        modelPredictor=LR_['modelPredictor'], param_dict=LR_['param_dict'])
+LR_RIDGE_FS_GS = ModelFeatureSelectionGridsearch(predictorName=LR_RIDGE['name'], learningDfs=learning_dfs,
+                                        modelPredictor=LR_RIDGE['modelPredictor'], param_dict=LR_RIDGE['param_dict'])
+LR_LASSO_FS_GS = ModelFeatureSelectionGridsearch(predictorName=LR_LASSO['name'], learningDfs=learning_dfs,
+                                        modelPredictor=LR_LASSO['modelPredictor'], param_dict=LR_LASSO['param_dict'])
+LR_ELAST_FS_GS = ModelFeatureSelectionGridsearch(predictorName=LR_ELAST['name'], learningDfs=learning_dfs,
+                                        modelPredictor=LR_ELAST['modelPredictor'], param_dict=LR_ELAST['param_dict'])
+KRR_FS_GS = ModelFeatureSelectionGridsearch(predictorName=KRR['name'], learningDfs=learning_dfs,
+                                        modelPredictor=KRR['modelPredictor'], param_dict=KRR['param_dict'])
+SVR_FS_GS = ModelFeatureSelectionGridsearch(predictorName=SVR['name'], learningDfs=learning_dfs,
+                                        modelPredictor=SVR['modelPredictor'], param_dict=SVR['param_dict'])
+
+FS_GS = [LR_FS_GS, LR_RIDGE_FS_GS, LR_LASSO_FS_GS, LR_ELAST_FS_GS, KRR_FS_GS, SVR_FS_GS]
+
+
+#todo : split this script into smaller ones/ study
+#add visuals for FS_GS
+#REPORT
+for gs in FS_GS:
+    #todo : report individually
+    reportGridsearch(DB_Values['DBpath'], displayParams, FS_GS, objFolder ='REPORT', display = True)
+
+
 #todo : make a grid out of results
-#todo : remove useless scripts
-#todo : fix LASSO, ELASTICNET, RIDGE
 #todo : check residuals - do i need to replicate/CV results for more data
 
 
+# todo : display results a a grid
+# todo : fix issue results vary strongly depending on if from Model GS or from ModelFeature selection GS
+#  - this might be due to the differing cv in both GS > more data  > more reproduciblle?
+
 # #todo : check summary equation table
+
+#todo : fix LASSO, ELASTICNET, RIDGE
+#todo ERROR MESSAGEs:
+#todo : ak about convergence - what does this mean
+"""ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. 
+Duality gap: 13643.606562469611, tolerance: 29.734474418604655
+  model = cd_fast.enet_coordinate_descent("""
+"""LinAlgWarning: Ill-conditioned matrix (rcond=3.113e-18): result may not be accurate."""
+"""UserWarning: Singular matrix in solving dual problem. Using least-squares solution instead."""
+
+
+#IMPORTS
+# df = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/df.pkl', show = False)
+# learningDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/learningDf.pkl', show = False)
+# baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/DATA/baseFormatedDf.pkl', show = True)
+# spearmanFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/FILTER/spearmanFilter.pkl', show = True)
+# RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/WRAPPER/RFEs.pkl', show = True)
+# GSs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/GS/GSs.pkl', show = True)
+# KRR_GS_gamma = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/GS/KRR_GS_gamma.pkl', show = True)
 #

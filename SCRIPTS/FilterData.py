@@ -1,11 +1,6 @@
+from SCRIPTS.temp.Archiver import *
 
 import pandas as pd
-from Archiver import *
-
-from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-import pandas as pd
-import numpy as np
 
 
 def filteredData(noOutlierDf, baseLabels, yLabels, displayParams, lt, removeLabels = None, checkup = False):

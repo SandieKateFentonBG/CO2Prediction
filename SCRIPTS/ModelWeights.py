@@ -66,7 +66,7 @@ def WeightsBarplotAll(GSs, DBpath, displayParams, target , df=None, yLim = None,
     meanWeights, _ = averageWeight(linModels)
 
     for m in linModels:
-        f, v = modelWeightsList(target, m.XLabels, m.__getattribute__(key), df)
+        f, v = modelWeightsList(target, m.selectedLabels, m.__getattribute__(key), df)
         if sorted:
             _, v, f = sortedListAccordingToGuide(meanWeights, v, f)
         plt.subplot(count, 2, idx)
@@ -124,7 +124,7 @@ def WeightsSummaryPlot(GSs, displayParams, DBpath, sorted=True, yLim=None, fonts
     weights, modelLabels = listWeight(linModels)
     meanWeights, stdvs = averageWeight(linModels)
 
-    features = linModels[0].XLabels
+    features = linModels[0].selectedLabels
     if sorted:
         meanWeights, weights, features = sortedListAccordingToGuide(meanWeights, weights, features)
     lineTable = pd.DataFrame(weights, columns=modelLabels, index=features)
