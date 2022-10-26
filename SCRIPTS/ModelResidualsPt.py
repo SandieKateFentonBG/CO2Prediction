@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def paramResiduals(modelGridsearch, displayParams, DBpath, yLim = None , xLim = None, fontsize = None):
+def paramResiduals(modelGridsearch, displayParams, DBpath, yLim = None , xLim = None, fontsize = None, studyFolder = 'GS/' ):
 
     df = modelGridsearch.learningDf
     if displayParams['showPlot'] or displayParams['archive']:
@@ -10,7 +10,8 @@ def paramResiduals(modelGridsearch, displayParams, DBpath, yLim = None , xLim = 
 
         xTrain, yTrain, xTest, yTest = df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel(), df.XTest.to_numpy(), df.yTest.to_numpy().ravel()
 
-        title = 'Residuals for ' + str(modelGridsearch.modelPredictor) + '\n' + '- BEST PARAM (%s) ' % modelGridsearch.Param
+        title = 'Residuals for ' + str(modelGridsearch.modelPredictor) + ' with ' + str(modelGridsearch.selectorName) \
+                + '\n' + '- BEST PARAM (%s) ' % modelGridsearch.Param
 
         fig = plt.figure(figsize=(10,5))#
         if fontsize:
@@ -31,20 +32,25 @@ def paramResiduals(modelGridsearch, displayParams, DBpath, yLim = None , xLim = 
         bModelResTeR2 = round(visualizer.test_score_,  modelGridsearch.rounding) #todo :remove this?
 
         reference = displayParams['reference']
+
         if displayParams['archive']:
 
-            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/GS/Residuals'
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'Residuals'
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
                 os.makedirs(outputFigPath)
 
-            plt.savefig(outputFigPath + '/' + str(modelGridsearch.predictorName) + '.png')
+            visualizer.show(outpath=outputFigPath + '/' + str(modelGridsearch.predictorName) + '_'
+                        + str(modelGridsearch.selectorName) + '.png')
+
+            # plt.savefig(outputFigPath + '/' + str(modelGridsearch.predictorName) + '_'
+            #             + str(modelGridsearch.selectorName) + '.png')
 
         if displayParams['showPlot']:
             visualizer.show()
 
-def plotResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = None):
+def plotResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = None , studyFolder = 'GS/' ):
 
     #todo : adapt bin count / bin range
 
@@ -53,9 +59,10 @@ def plotResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = 
         import seaborn as sns
 
         title = 'Residuals distribution for ' + str(modelGridsearch.modelPredictor) \
+                + ' with ' + str(modelGridsearch.selectorName) \
                 + '\n' + '- BEST PARAM (%s) ' % modelGridsearch.Param
 
-        print("modelGridsearch.bModelResid", modelGridsearch.Resid)
+        # print("modelGridsearch.bModelResid", modelGridsearch.Resid)
         fig, ax = plt.subplots(figsize=(10, 8))
         if bins and binrange: #ex : bins=20, binrange = (-200, 200)
             resmin, resmax = min(modelGridsearch.Resid), max(modelGridsearch.Resid)
@@ -80,13 +87,14 @@ def plotResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = 
         reference = displayParams['reference']
         if displayParams['archive']:
 
-            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/GS/Residuals'
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'Residuals'
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
                 os.makedirs(outputFigPath)
 
-            plt.savefig(outputFigPath + '/' + str(modelGridsearch.predictorName) + '-histplot.png')
+            plt.savefig(outputFigPath + '/' + str(modelGridsearch.predictorName) + '_'
+                        + str(modelGridsearch.selectorName) + '-histplot.png')
 
         if displayParams['showPlot']:
             plt.show()

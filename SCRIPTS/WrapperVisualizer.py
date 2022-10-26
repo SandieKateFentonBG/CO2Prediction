@@ -46,7 +46,7 @@ def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, yLim = None, figTitle 
     plt.xlabel(xlabel)
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/WRAPPER'#reference + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/FS/WRAPPER'#reference + figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
@@ -112,7 +112,7 @@ def RFEHyperparameterPlot3D(RFEs, displayParams, DBpath, figTitle='RFEPlot3d',
     ax.grid(showgrid)
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/WRAPPER' #DBpath, "RESULTS/", reference + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/FS/WRAPPER' #DBpath, "RESULTS/", reference + figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):

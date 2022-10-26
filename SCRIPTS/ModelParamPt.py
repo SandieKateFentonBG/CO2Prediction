@@ -11,8 +11,10 @@ def GSConstruct3DPoints(ResultsList, key = 'gamma', score = 'mean_test_r2'): #x 
 
     for j in range(len(ResultsList)):
 
-
-        labels.append(ResultsList[j].predictorName)
+        #todo : check !!
+        lab = ResultsList[j].predictorName + '-' + ResultsList[j].selectorName
+        labels.append(lab)
+        # labels.append(ResultsList[j].predictorName)
         modelRes = []
         for i in range(len(ResultsList[j].param_dict[key])): #x : gamma value
             paramRes = [j, ResultsList[j].param_dict[key][i], ResultsList[j].Grid.cv_results_[score][i]] #y : Score
@@ -23,7 +25,7 @@ def GSConstruct3DPoints(ResultsList, key = 'gamma', score = 'mean_test_r2'): #x 
 
 
 def GSParameterPlot2D(GSs,  displayParams, DBpath, yLim = None,
-                      paramKey ='gamma', score ='mean_test_r2', log = False):
+                      paramKey ='gamma', score ='mean_test_r2', log = False, studyFolder = 'GS/' ):
 
     "to be done with single parameter"
     import seaborn as sns
@@ -59,7 +61,7 @@ def GSParameterPlot2D(GSs,  displayParams, DBpath, yLim = None,
     plt.xlabel(xlabel)
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/GS/' + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
@@ -74,7 +76,8 @@ def GSParameterPlot2D(GSs,  displayParams, DBpath, yLim = None,
 
 def GSParameterPlot3D(GSs, displayParams, DBpath,
                       colorsPtsLsBest=['b', 'g', 'c', 'y'], paramKey='gamma', score='mean_test_r2',
-                      size=[6, 6], showgrid=False, log=False, maxScore=True, absVal = False,  ticks=False, lims=False):
+                      size=[6, 6], showgrid=False, log=False, maxScore=True, absVal = False,  ticks=False, lims=False,
+                      studyFolder = 'GS/' ):
 
     figFolder = 'Hyperparam'
     figTitle = 'RFEPlot3d'
@@ -128,7 +131,7 @@ def GSParameterPlot3D(GSs, displayParams, DBpath,
     ax.grid(showgrid)
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/GS/' + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):

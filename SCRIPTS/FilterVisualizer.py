@@ -40,7 +40,7 @@ def plotCorrelation(filterFt, filterMatrix, DBpath, displayParams, filteringName
 
     # sns.set(font_scale=0.5)
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/FILTER'
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/FS/FILTER'
         import os
         outputFigPath = path + folder + subFolder # displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) +'/correlation'
         if not os.path.isdir(outputFigPath):
