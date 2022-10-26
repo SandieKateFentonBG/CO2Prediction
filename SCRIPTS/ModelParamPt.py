@@ -1,31 +1,14 @@
-from VisualizerHelpers import *
+from HelpersVisualizer import *
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 
-def GSConstruct3DPoints(ResultsList, key = 'gamma', score = 'mean_test_r2'): #x : featureCount, y : valScore
-
-    pts = []
-    labels =[]
-
-    for j in range(len(ResultsList)):
-
-        #todo : check !!
-        lab = ResultsList[j].predictorName + '-' + ResultsList[j].selectorName
-        labels.append(lab)
-        # labels.append(ResultsList[j].predictorName)
-        modelRes = []
-        for i in range(len(ResultsList[j].param_dict[key])): #x : gamma value
-            paramRes = [j, ResultsList[j].param_dict[key][i], ResultsList[j].Grid.cv_results_[score][i]] #y : Score
-
-            modelRes.append(paramRes)
-        pts.append(modelRes)
-    return pts, labels
 
 
-def GSParameterPlot2D(GSs,  displayParams, DBpath, yLim = None,
-                      paramKey ='gamma', score ='mean_test_r2', log = False, studyFolder = 'GS/' ):
+
+def ParameterPlot2D(GSs, displayParams, DBpath, yLim = None,
+                    paramKey ='gamma', score ='mean_test_r2', log = False, studyFolder = 'GS/'):
 
     "to be done with single parameter"
     import seaborn as sns
@@ -37,7 +20,7 @@ def GSParameterPlot2D(GSs,  displayParams, DBpath, yLim = None,
     xlabel = paramKey
     ylabel = score
 
-    pts, labels = GSConstruct3DPoints(GSs)
+    pts, labels = Construct3DPoints(GSs)
 
     metric = [[pts[i][j][2] for j in range(len(pts[i]))] for i in range(len(pts))]
     param = [pts[0][i][1] for i in range(len(pts[0]))]
@@ -74,10 +57,10 @@ def GSParameterPlot2D(GSs,  displayParams, DBpath, yLim = None,
 
     plt.close()
 
-def GSParameterPlot3D(GSs, displayParams, DBpath,
-                      colorsPtsLsBest=['b', 'g', 'c', 'y'], paramKey='gamma', score='mean_test_r2',
-                      size=[6, 6], showgrid=False, log=False, maxScore=True, absVal = False,  ticks=False, lims=False,
-                      studyFolder = 'GS/' ):
+def ParameterPlot3D(GSs, displayParams, DBpath,
+                    colorsPtsLsBest=['b', 'g', 'c', 'y'], paramKey='gamma', score='mean_test_r2',
+                    size=[6, 6], showgrid=False, log=False, maxScore=True, absVal = False, ticks=False, lims=False,
+                    studyFolder = 'GS/'):
 
     figFolder = 'Hyperparam'
     figTitle = 'RFEPlot3d'
@@ -87,7 +70,7 @@ def GSParameterPlot3D(GSs, displayParams, DBpath,
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    pts, labels = GSConstruct3DPoints(GSs)
+    pts, labels = Construct3DPoints(GSs)
 
     xl, yl, zl = unpackResPts(pts)
     lines = unpackResLines(pts)

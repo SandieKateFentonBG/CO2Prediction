@@ -1,4 +1,4 @@
-from ModelsGridsearch import *
+from Model import *
 
 class ModelFeatureSelectionGridsearch:
 

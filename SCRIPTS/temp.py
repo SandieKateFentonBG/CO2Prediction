@@ -1,123 +1,111 @@
-# from report import *
-# from dashBoard import *
+
+# GS_predTruthCombined(displayParams, [LR_FS_GS], DBpath = DB_Values['DBpath'], content = 'LR_FS_GS', scatter=True, fontsize=14, studyFolder = 'GS_FS/')
+# GS_predTruthCombined(displayParams, [LR_RIDGE_FS_GS], DBpath = DB_Values['DBpath'], content = 'LR_RIDGE_FS_GS', scatter=True, fontsize=14, studyFolder = 'GS_FS/')
+# GS_predTruthCombined(displayParams, [LR_LASSO_FS_GS], DBpath = DB_Values['DBpath'], content = 'LR_LASSO_FS_GS', scatter=True, fontsize=14, studyFolder = 'GS_FS/')
+# GS_predTruthCombined(displayParams, [LR_ELAST_FS_GS], DBpath = DB_Values['DBpath'], content = 'LR_ELAST_FS_GS', scatter=True, fontsize=14, studyFolder = 'GS_FS/')
+# GS_predTruthCombined(displayParams, [KRR_FS_GS], DBpath = DB_Values['DBpath'], content = 'KRR_FS_GS', scatter=True, fontsize=14, studyFolder = 'GS_FS/')
+# GS_predTruthCombined(displayParams, [SVR_FS_GS], DBpath = DB_Values['DBpath'], content = 'SVR_FS_GS', scatter=True, fontsize=14, studyFolder = 'GS_FS/')
 #
-#
-# # pickleDumpMe( DBpath= DB_Values['DBpath'], displayParams = displayParams, obj = RFE_VALUES, name = 'RFE_VALUES')
-#
-#
-# # pickleLoadMe(path = DB_Values['DBpath'], show = True)
-#
-#
-# obj = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/TEST_RUN/RECORDS/GSss', show = False)
-# # print(obj)
-#
-#
-#
-# # Studies = [LR_, LR_RIDGE, LR_LASSO, LR_ELAST, KRR, SVR]
-# # for study in Studies:
-# #     print('')
-# #     print('')
-# #     print('MODEL PREDICTOR', study['name'])
-# #     for learning_df in learning_dfs:
-# #         name = study['name'] + '_' + learning_df.selector
-# #         print('')
-# #         print('FEATURE SELECTION', learning_df.selector)
 # #
-# #         MY_GS = ModelGridsearch(name, learningDf=learning_df, modelPredictor=study['modelPredictor'], param_dict=study['param_dict'])
-# #         print('Study name :', name)
-# #         print('size :', learning_df.trainDf.shape)
-# #         print('GS params :', MY_GS.Param)
-# #         print('GS TrainScore :', MY_GS.TrainScore)
-# #         print('GS TestScore :', MY_GS.TestScore)
-# #         print('GS TestAcc :', MY_GS.TestAcc)
-# #         print('GS TestMSE :', MY_GS.TestMSE)
-# #         print('GS TestR2 :', MY_GS.TestR2)
-# #         print('GS Resid - Mean/std :', np.mean(MY_GS.Resid), np.std(MY_GS.Resid))
-# #         print('GS Resid - Min/Max :', min(MY_GS.Resid), max(MY_GS.Resid))
-# #         print('GS Resid :', MY_GS.Resid)
 #
-# LASSO_GS = ModelGridsearch('LR_LASSO', learningDf= RFEs[1], modelPredictor= Lasso(), param_dict = LR_param_grid)
-# print('1')
-# print(RFEs[1].selector)
-# reportModels(DB_Values['DBpath'], displayParams, [LASSO_GS], RFEs[1], objFolder ='Models', display = True)
+
+# GS_MetricsSummaryPlot(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FSs', scatter=True, studyFolder = 'GS_FS/')
 #
-# print('2')
-# print('LASSO_FS_GS.RFE_RFR', type(LASSO_GS), len(dir(LASSO_GS)), dir(LASSO_GS))
-# print('LASSO_FS_GS.RFE_DTR.Param', LASSO_GS.Param)
-# print('LASSO_FS_GS.RFE_DTR.param_dict', LASSO_GS.param_dict)
-# print('LASSO_FS_GS.RFE_DTR.TestAcc', LASSO_GS.TestAcc)
-# print('LASSO_FS_GS.RFE_DTR.TrainScore', LASSO_GS.TrainScore)
-# print('LASSO_FS_GS.RFE_DTR.TestScore', LASSO_GS.TestScore)
-# print('LASSO_FS_GS.RFE_DTR.TestMSE', LASSO_GS.TestMSE)
-# print('.selectedLabels', len(LASSO_GS.selectedLabels))
-# print('.GridMSE', len(LASSO_GS.GridMSE), LASSO_GS.GridMSE)
-# print('.GridR2', len(LASSO_GS.GridR2), LASSO_GS.GridR2)
+# GS_MetricsSummaryPlot([LR_FS_GS], displayParams, DB_Values['DBpath'], content = 'LR_FS_GS', scatter=True, studyFolder = 'GS_FS/')
+# GS_MetricsSummaryPlot([LR_RIDGE_FS_GS], displayParams, DB_Values['DBpath'], content = 'LR_RIDGE_FS_GS', scatter=True, studyFolder = 'GS_FS/')
+# GS_MetricsSummaryPlot([LR_LASSO_FS_GS], displayParams, DB_Values['DBpath'], content = 'LR_LASSO_FS_GS', scatter=True, studyFolder = 'GS_FS/')
+# GS_MetricsSummaryPlot([LR_ELAST_FS_GS], displayParams, DB_Values['DBpath'], content = 'LR_ELAST_FS_GS', scatter=True, studyFolder = 'GS_FS/')
+# GS_MetricsSummaryPlot([KRR_FS_GS], displayParams, DB_Values['DBpath'], content = 'KRR_FS_GS', scatter=True, studyFolder = 'GS_FS/')
+# GS_MetricsSummaryPlot([SVR_FS_GS], displayParams, DB_Values['DBpath'], content = 'SVR_FS_GS', scatter=True, studyFolder = 'GS_FS/')
+
+
+#ONLY FOR identical weights
+# GS_WeightsBarplotAll([LR_FS_GS], GS_FSs, DB_Values['DBpath'], displayParams, target = FORMAT_Values['targetLabels'], content = 'LR_FS_GS',
+#                      df_for_empty_labels=baseFormatedDf.trainDf, yLim = 4, sorted = True, key ='WeightsScaled')
+# GS_WeightsBarplotAll([LR_RIDGE_FS_GS], GS_FSs, DB_Values['DBpath'], displayParams, target = FORMAT_Values['targetLabels'], content = 'LR_RIDGE_FS_GS',
+#                      df_for_empty_labels=baseFormatedDf.trainDf, yLim = 4, sorted = True, key ='WeightsScaled')
+# GS_WeightsBarplotAll([LR_LASSO_FS_GS], GS_FSs, DB_Values['DBpath'], displayParams, target = FORMAT_Values['targetLabels'], content = 'LR_LASSO_FS_GS',
+#                      df_for_empty_labels=baseFormatedDf.trainDf, yLim = 4, sorted = True, key ='WeightsScaled')
+# GS_WeightsBarplotAll([LR_ELAST_FS_GS], GS_FSs, DB_Values['DBpath'], displayParams, target = FORMAT_Values['targetLabels'], content = 'LR_ELAST_FS_GS',
+#                      df_for_empty_labels=baseFormatedDf.trainDf, yLim = 4, sorted = True, key ='WeightsScaled')
+# GS_WeightsBarplotAll([KRR_FS_GS], GS_FSs, DB_Values['DBpath'], displayParams, target = FORMAT_Values['targetLabels'], content = 'KRR_FS_GS',
+#                      df_for_empty_labels=baseFormatedDf.trainDf, yLim = 4, sorted = True, key ='WeightsScaled')
+# GS_WeightsBarplotAll([SVR_FS_GS], GS_FSs, DB_Values['DBpath'], displayParams, target = FORMAT_Values['targetLabels'], content = 'SVR_FS_GS',
+#                      df_for_empty_labels=baseFormatedDf.trainDf, yLim = 4, sorted = True, key ='WeightsScaled')
+
+# GS_WeightsSummaryPlot([LR_FS_GS], GS_FSs, target = FORMAT_Values['targetLabels'],
+#                       df_for_empty_labels=baseFormatedDf.trainDf, displayParams =displayParams,
+#                       DBpath = DB_Values['DBpath'], content='LR_FS_GS', sorted=True, yLim=4,
+#                           fontsize=14,  studyFolder='GS_FS/')
 #
-# print('LASSO_GS', len(dir(LASSO_GS)), dir(LASSO_GS))
-# LASSO_FS_GS = ModelFeatureSelectionGridsearch(predictorName=LR_LASSO['name'], learningDfs=RFEs,
-#                                         modelPredictor=LR_LASSO['modelPredictor'], param_dict=LR_LASSO['param_dict'])
+# GS_WeightsSummaryPlot([LR_RIDGE_FS_GS], GS_FSs, target = FORMAT_Values['targetLabels'],
+#                       df_for_empty_labels=baseFormatedDf.trainDf, displayParams =displayParams,
+#                       DBpath = DB_Values['DBpath'], content='LR_RIDGE_FS_GS', sorted=True, yLim=4,
+#                           fontsize=14,  studyFolder='GS_FS/')
 #
+# GS_WeightsSummaryPlot([LR_LASSO_FS_GS], GS_FSs, target = FORMAT_Values['targetLabels'],
+#                       df_for_empty_labels=baseFormatedDf.trainDf, displayParams =displayParams,
+#                       DBpath = DB_Values['DBpath'], content='LR_LASSO_FS_GS', sorted=True, yLim=4,
+#                           fontsize=14,  studyFolder='GS_FS/')
 #
-# print('3')
-# print('LASSO_FS_GS', len(dir(LASSO_FS_GS)), dir(LASSO_FS_GS))
+# GS_WeightsSummaryPlot([LR_ELAST_FS_GS], GS_FSs, target = FORMAT_Values['targetLabels'],
+#                       df_for_empty_labels=baseFormatedDf.trainDf, displayParams =displayParams,
+#                       DBpath = DB_Values['DBpath'], content='LR_ELAST_FS_GS', sorted=True, yLim=4,
+#                           fontsize=14,  studyFolder='GS_FS/')
 #
-# print('LASSO_FS_GS.RFE_RFR', type(LASSO_FS_GS.RFE_RFR), len(dir(LASSO_FS_GS.RFE_RFR)), dir(LASSO_FS_GS.RFE_RFR))
-# print('LASSO_FS_GS.RFE_DTR.Param', LASSO_FS_GS.RFE_RFR.Param)
-# print('LASSO_FS_GS.RFE_DTR.param_dict', LASSO_FS_GS.RFE_RFR.param_dict)
-# print('LASSO_FS_GS.RFE_DTR.TestAcc', LASSO_FS_GS.RFE_RFR.TestAcc)
-# print('LASSO_FS_GS.RFE_DTR.TrainScore', LASSO_FS_GS.RFE_RFR.TrainScore)
-# print('LASSO_FS_GS.RFE_DTR.TestScore', LASSO_FS_GS.RFE_RFR.TestScore)
-# print('LASSO_FS_GS.RFE_DTR.TestMSE', LASSO_FS_GS.RFE_RFR.TestMSE)
-# print('.selectedLabels', len(LASSO_FS_GS.RFE_RFR.selectedLabels))
-# print('.GridMSE', len(LASSO_FS_GS.RFE_RFR.GridMSE), LASSO_FS_GS.RFE_RFR.GridMSE)
-# print('.GridR2', len(LASSO_FS_GS.RFE_RFR.GridR2), LASSO_FS_GS.RFE_RFR.GridR2)
+# GS_WeightsSummaryPlot([KRR_FS_GS], GS_FSs, target = FORMAT_Values['targetLabels'],
+#                       df_for_empty_labels=baseFormatedDf.trainDf, displayParams =displayParams,
+#                       DBpath = DB_Values['DBpath'], content='KRR_FS_GS', sorted=True, yLim=4,
+#                           fontsize=14,  studyFolder='GS_FS/')
+#
+# GS_WeightsSummaryPlot([SVR_FS_GS], GS_FSs, target = FORMAT_Values['targetLabels'],
+#                       df_for_empty_labels=baseFormatedDf.trainDf, displayParams =displayParams,
+#                       DBpath = DB_Values['DBpath'], content='SVR_FS_GS', sorted=True, yLim=4,
+#                           fontsize=14,  studyFolder='GS_FS/')
 
-def testit(DBpath, reference, objFolder ='FS'):
-
-
-    import os
-
-    outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/' + objFolder + '/'
-
-    if not os.path.isdir(outputPathStudy):
-        os.makedirs(outputPathStudy)
-
-    with open(outputPathStudy + "FeatureSelection.txt", 'w', encoding='UTF8', newline='') as e:
-        import csv
-        writer = csv.writer(e, delimiter=";")
-
-        writer.writerow(['DATA'])
-
-        writer.writerow(["Full df", "e"])
-        writer.writerow(["Outliers removed %s" % reference, "learningDf.shape"])
-        writer.writerow('')
+# GS_WeightsSummaryPlot(GS_FSs, GS_FSs, target = FORMAT_Values['targetLabels'],
+#                       df_for_empty_labels=baseFormatedDf.trainDf, displayParams =displayParams,
+#                       DBpath = DB_Values['DBpath'], content='GS_FSs', sorted=True, yLim=4,
+#                           fontsize=14,  studyFolder='GS_FS/')
 
 
+GS_FSs = [LR_FS_GS, LR_RIDGE_FS_GS, LR_LASSO_FS_GS, LR_ELAST_FS_GS, KRR_FS_GS]
+# GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FS', yLim = None,score ='TestAcc', studyFolder = 'GS_FS/')
+# GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FS', yLim = None,score ='TestMSE', studyFolder = 'GS_FS/')
+# GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FS', yLim = None,score ='TestR2', studyFolder = 'GS_FS/')
+# GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FS', yLim = None,score ='TrainScore', studyFolder = 'GS_FS/')
+# GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FS', yLim = None,score ='TestScore', studyFolder = 'GS_FS/')
 
-        e.close()
 
-DBpath = "C:/Users/sfenton/Code/Repositories/CO2Prediction/"
-reference = 'TEST_RUN/'
+# GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FS', yLim = None,
+#                     score ='TestAcc',
+#                     colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'],
+#                     size=[6, 6], showgrid=True,  maxScore=True, absVal = False, ticks=False, lims=False,
+#                     studyFolder = 'GS_FS/')
+#
+# GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FS', yLim = None,
+#                     score ='TestMSE',
+#                     colorsPtsLsBest=['b', 'g', 'c', 'y', 'r' ],
+#                     size=[6, 6], showgrid=True,  maxScore=False, absVal = False, ticks=False, lims=False,
+#                     studyFolder = 'GS_FS/')
+#
+# GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FS', yLim = None,
+#                     score ='TestR2',
+#                     colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'],
+#                     size=[6, 6], showgrid=True,  maxScore=True, absVal = False, ticks=False, lims=False,
+#                     studyFolder = 'GS_FS/')
 
-testit(DBpath, reference, objFolder ='FS')
+# heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score='TestAcc', studyFolder='GS_FS/')
 
-for RFE in RFEs:
-    writer.writerow(["RFECV with %s :" % RFE.method])
-    writer.writerow(["Number of features from CV %s :" % RFE.rfecv.n_features_])
-    writer.writerow(["Score on training %s :" % RFE.rfecv_trainScore])
-    writer.writerow(["Selected feature labels %s :" % list(RFE.rfecv_selectedLabels)])
-    writer.writerow(["Score on validation %s :" % RFE.rfecv_valScore])
-    writer.writerow('')
+# reportGridsearchAsTable (DB_Values['DBpath'], displayParams, GS_FSs, scoreList = ['TestAcc', 'TestMSE', 'TestR2'], objFolder ='GS_FS', display = True)
 
-    writer.writerow(["RFE Param Search with %s :" % RFE.method])
-    writer.writerow(["Number of features compared %s :" % RFE.rfeHyp_featureCount])
-    writer.writerow(["Score on training %s :" % RFE.rfeHyp_trainScore])
-    writer.writerow(["Score on validation %s :" % RFE.rfeHyp_valScore])
-    writer.writerow('')
 
-    writer.writerow(["RFE with %s :" % RFE.method])
-    writer.writerow(["Number of features fixed %s :" % RFE.n_features_to_select])
-    writer.writerow(["Score on training %s :" % RFE.rfe_trainScore])
-    writer.writerow(["Selected feature labels %s :" % list(RFE.selectedLabels)])
-    writer.writerow(["Score on validation %s :" % RFE.rfe_valScore])
-    writer.writerow('')
+#
+LR_GS_FS = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/221025_RUN/RECORDS/GS_FS/LR_FS_GS.pkl', show = False)
+LR_RIDGE_GS_FS = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/221025_RUN/RECORDS/GS_FS/LR_RIDGE_FS_GS.pkl', show = False)
+LR_LASSO_GS_FS = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/221025_RUN/RECORDS/GS_FS/LR_LASSO_FS_GS.pkl', show = True)
+LR_ELAST_GS_FS = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/221025_RUN/RECORDS/GS_FS/LR_ELAST_FS_GS.pkl', show = True)
+KRR_GS_FS = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/221025_RUN/RECORDS/GS_FS/KRR_FS_GS.pkl', show = True)
+SVR_GS_FS = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/221025_RUN/RECORDS/GS_FS/SVR_FS_GS.pkl', show = True)
+#>>>
+GS_FSs = [LR_GS_FS, LR_RIDGE_GS_FS, LR_LASSO_GS_FS, LR_ELAST_GS_FS, KRR_GS_FS, SVR_GS_FS]

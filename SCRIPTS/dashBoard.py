@@ -5,7 +5,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : '221025_RUN/', 'showPlot': True, 'archive': True, 'showCorr' : True}
+displayParams = {"reference" : '221026_RUN/', 'showPlot': True, 'archive': True, 'showCorr' : True}
 # displayParams = {'showPlot': True, 'archive': True, 'showCorr' : True, 'TargetMinMaxVal': [0, 800], 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
 
 
