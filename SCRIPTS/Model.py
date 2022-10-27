@@ -23,9 +23,10 @@ class ModelGridsearch:
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
         self.rounding = 3
         self.refit = 'r2' # criteria for best performing param / used for plotting
-
+        print('Calibrating hyperparameters')
         self.paramGridsearch(learningDf)
         self.accuracyTol = 0.15
+        print('Retrieving best results')
         self.bestModel(learningDf)
 
         # self.bModel

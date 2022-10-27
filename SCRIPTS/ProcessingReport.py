@@ -1,4 +1,4 @@
-def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, spearmanFilter, RFEs, objFolder ='FS', display = True):
+def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, FiltersLs, RFEs, objFolder ='FS', display = True):
 
     if displayParams['archive']:
         import os
@@ -23,10 +23,11 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, spea
             writer.writerow(["test", type(baseFormatedDf.testDf), baseFormatedDf.testDf.shape])
             writer.writerow([''])
             writer.writerow(['FILTER'])
-            writer.writerow(['FILTER - SPEARMAN CORRELATION'])
-            writer.writerow(['LABELS ', spearmanFilter.trainDf.shape, type(spearmanFilter.trainDf)])
-            writer.writerow([spearmanFilter.selectedLabels])
-            writer.writerow('')
+            for filter in FiltersLs :
+                writer.writerow(['FILTER ', filter.method])
+                writer.writerow(['LABELS ', filter.trainDf.shape, type(filter.trainDf)])
+                writer.writerow([filter.selectedLabels])
+                writer.writerow('')
             writer.writerow(['RFE'])
             for RFE in RFEs:
                 writer.writerow(["RFE with  ", RFE.method])
@@ -51,10 +52,11 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, spea
             print("test", type(baseFormatedDf.testDf), baseFormatedDf.testDf.shape)
             print('')
             print('FILTER')
-            print('FILTER - SPEARMAN CORRELATION')
-            print('LABELS :' , spearmanFilter.trainDf.shape, type(spearmanFilter.trainDf))
-            print(spearmanFilter.selectedLabels)
-            print('')
+            for filter in FiltersLs :
+                print('FILTER :', filter.method)
+                print('LABELS :', filter.trainDf.shape, type(filter.trainDf))
+                print(filter.selectedLabels)
+                print('')
             print('RFE')
             for RFE in RFEs:
                 print("RFE with :" , RFE.method)

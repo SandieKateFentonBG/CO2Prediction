@@ -183,7 +183,9 @@ def GS_WeightsSummaryPlot(GS_FSs, GS_FSs_for_mean, target, df_for_empty_labels, 
             GS = GS_FS.__getattribute__(learningDflabel)
             labelLs,valueLs = GS_modelWeightsList(target, GS.selectedLabels, GS.__getattribute__('WeightsScaled'), df_for_empty_labels) #54
             inv_weights.append(valueLs) #7
-            lab = str(GS.modelPredictor) + '-' + GS.selectorName
+            #todo - check - changed naming here for labels
+            lab = GS.predictorName + '-' + GS.selectorName
+            # lab = str(GS.modelPredictor) + '-' + GS.selectorName
             modelLabels.append(lab)
 
     weights = []

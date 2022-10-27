@@ -1,5 +1,8 @@
+#DASHBOARD IMPORT
+# from dashBoard import *
+from Dashboard_PM_v2 import *
+
 #SCRIPT IMPORTS
-from dashBoard import *
 from HelpersArchiver import *
 from Raw import *
 from Features import *
@@ -29,6 +32,7 @@ df = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESUL
 learningDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/DATA/learningDf.pkl', show = False)
 baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/DATA/baseFormatedDf.pkl', show = False)
 spearmanFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/FS/spearmanFilter.pkl', show = False)
+pearsonFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/FS/pearsonFilter.pkl', show = False)
 RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/FS/RFEs.pkl', show = False)
 
 

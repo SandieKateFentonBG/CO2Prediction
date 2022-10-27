@@ -1,6 +1,7 @@
 from sklearn.feature_selection import RFECV
 from sklearn.feature_selection import RFE
 from sklearn.model_selection import KFold
+from datetime import datetime
 # from sklearn.model_selection import LeaveOneOut
 
 #DEFAULT VALUES
@@ -20,7 +21,7 @@ Questions
 class WrapFeatures:
 
     def __init__(self, method, estimator, formatedDf, rfe_hyp_feature_count, output_feature_count ='rfeHyp', scoring="r2",
-                 step= 1, cv = KFold(n_splits=5, shuffle=True, random_state=42)):
+                 step= 1, cv = KFold(n_splits=5, shuffle=True, random_state=42), process ='long'):
 
 
         # step - features removed at every iteration
@@ -30,18 +31,29 @@ class WrapFeatures:
         self.method = method # ex :'LR'
         self.estimator = estimator #unfit estimator # ex : LinearRegression()
         self.FtCountFrom = output_feature_count # ex : 'rfeHyp' > defines the number of feature for the output RFE
+
         #todo : option to avoid hyperparam and cv search > gain speed
         # self.RFElimination(formatedDf, n_features_to_select, yLabel)
 
-        self.RFEliminationCV(formatedDf, step, cv, scoring, self.yLabel)
-        self.RFEHyperparameterSearch(formatedDf, rfe_hyp_feature_count)
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print("Current Time =", current_time)  # todo : remove
 
-        if output_feature_count == 'rfeHyp':
-            self.RFElimination(formatedDf, self.rfeHyp_maxvalFtCount, self.yLabel)
-        if output_feature_count == 'rfeCV':
-            self.RFElimination(formatedDf, self.rfecv.n_features_, self.yLabel)
-        if type(output_feature_count) == int:
-            self.RFElimination(formatedDf, output_feature_count, self.yLabel)
+        if process == 'long' :
+            print('RFE - CV Calibration')
+            self.RFEliminationCV(formatedDf, step, cv, scoring, self.yLabel)
+            print('RFE - Hyperparameter Calibration')
+            self.RFEHyperparameterSearch(formatedDf, rfe_hyp_feature_count)
+            print('RFE - Retrieving Resuts for ', output_feature_count)
+            if output_feature_count == 'rfeHyp':
+                self.RFElimination(formatedDf, self.rfeHyp_maxvalFtCount, self.yLabel)
+            if output_feature_count == 'rfeCV':
+                self.RFElimination(formatedDf, self.rfecv.n_features_, self.yLabel)
+            if type(output_feature_count) == int:
+                self.RFElimination(formatedDf, output_feature_count, self.yLabel)
+
+        if process == 'short':
+            self.RFElimination(formatedDf, n_features_to_select = output_feature_count, yLabel = self.yLabel)
 
         # self.trainDf
         # self.valDf
@@ -49,8 +61,6 @@ class WrapFeatures:
         # self.droppedLabels
         # self.selectedLabels
         self.selector = 'RFE_' + self.method
-
-        #todo : add feature " mode - choose nulber of features from hyperparameteer search or from cv or manually insert itx
 
         # self.n_features_to_select
         # self.rfe/rfeCV/rfehyp

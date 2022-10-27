@@ -17,33 +17,33 @@ def open_csv_at_given_line(path, dbName, delimiter, firstLine, folder="DATA/"):
     header = reader.__next__()
     return header, reader
 
-def setWorkingFeatures(header, reader, updateLabels = False):
-
-    """
-    Set labels to use for training - else use default
-    If new labels :
-    Labels inserted in the prompt should be inserted as text in quotation marks, separated by commas, with no spacing
-    ex :
-        xQualLabels = 'Sector','Type'
-        xQuantLabels = 'GIFA (m2)','Storeys'
-        yLabels = 'Calculated tCO2e_per_m2'
-
-    """
-
-    if not updateLabels:
-        xQualLabels = ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding','BREEAM Rating']
-        xQuantLabels = ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']  #
-        yLabels = ['Calculated tCO2e_per_m2']  # 'Calculated Total tCO2e',
-    else:
-        print('List of labels from database :',  header)
-        xQualLabels = [item.replace("'", '') for item in input("Enter xQualLabels items, in quotation marks, spaced by a comma: ").split(',')]
-        xQuantLabels = [item.replace("'", '') for item in input("Enter xQuantLabels items, in quotation marks, spaced by a comma: ").split(',')]
-        yLabels = [item.replace("'", '') for item in input("Enter yLabels items, in quotation marks, spaced by a comma: ").split(',')]
-
-    return xQualLabels, xQuantLabels, yLabels
+# def setWorkingFeatures(header, reader, updateLabels = False):
+#
+#     """
+#     Set labels to use for training - else use default
+#     If new labels :
+#     Labels inserted in the prompt should be inserted as text in quotation marks, separated by commas, with no spacing
+#     ex :
+#         xQualLabels = 'Sector','Type'
+#         xQuantLabels = 'GIFA (m2)','Storeys'
+#         yLabels = 'Calculated tCO2e_per_m2'
+#
+#     """
+#
+#     if not updateLabels:
+#         xQualLabels = ['Sector', 'Type', 'Basement', 'Foundations', 'Ground Floor', 'Superstructure', 'Cladding','BREEAM Rating']
+#         xQuantLabels = ['GIFA (m2)', 'Storeys', 'Typical Span (m)', 'Typ Qk (kN_per_m2)']  #
+#         yLabels = ['Calculated tCO2e_per_m2']  # 'Calculated Total tCO2e',
+#     else:
+#         print('List of labels from database :',  header)
+#         xQualLabels = [item.replace("'", '') for item in input("Enter xQualLabels items, in quotation marks, spaced by a comma: ").split(',')]
+#         xQuantLabels = [item.replace("'", '') for item in input("Enter xQuantLabels items, in quotation marks, spaced by a comma: ").split(',')]
+#         yLabels = [item.replace("'", '') for item in input("Enter yLabels items, in quotation marks, spaced by a comma: ").split(',')]
+#
+#     return xQualLabels, xQuantLabels, yLabels
 
 class RawData:
-    def __init__(self, path, dbName, delimiter, firstLine, updateLabels = None):
+    def __init__(self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels, updateLabels = None):
 
         """
         Opens a csv at a given line
@@ -53,7 +53,8 @@ class RawData:
 
         """
         header, reader = open_csv_at_given_line(path, dbName, delimiter, firstLine)
-        xQualLabels, xQuantLabels, yLabels = setWorkingFeatures(header, reader, updateLabels)
+        # if updateLabels:
+            # xQualLabels, xQuantLabels, yLabels = setWorkingFeatures(header, reader, updateLabels)
 
         self.xQuali = {k: [] for k in xQualLabels}
         self.xQuanti = {k: [] for k in xQuantLabels}
@@ -83,7 +84,7 @@ class RawData:
                     self.possibleQualities[label].append(value)
 
     def visualize(self, displayParams, DBpath, dbName, yLabel, xLabel='Cladding',
-                  title = "Features influencing CO2 footprint of Structures ", figure_size = (8, 10)):
+                  title = "Features influencing CO2 footprint of Structures ", figure_size = (8, 10), changeFigName = None):
 
         if displayParams['showPlot'] or displayParams['archive']:
 
@@ -118,8 +119,10 @@ class RawData:
 
                 if not os.path.isdir(outputFigPath):
                     os.makedirs(outputFigPath)
-
-                plt.savefig(outputFigPath + '/' + xLabel + '-' + yLabel + '.png')
+                if changeFigName :
+                    plt.savefig(outputFigPath + '/' + changeFigName + '.png')
+                else :
+                    plt.savefig(outputFigPath + '/' + xLabel + '-' + yLabel + '.png')
 
             if displayParams['showPlot']:
                 plt.show()

@@ -71,7 +71,7 @@ def GS_ParameterPlot3D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = 
     ax = fig.add_subplot(111, projection='3d')
     pts, labels = GS_Construct3DPoints(GS_FSs, score)
     xl, yl, zl = unpackResPts(pts)
-    vl = np.reshape(zl, (5, 7))
+    vl = np.reshape(zl, (len(labels), len(yLabels)))
     lines = unpackResLines(pts)
 
 
@@ -114,7 +114,7 @@ def GS_ParameterPlot3D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = 
     plt.setp(ax.get_zticklabels(), size=8)
 
     fig.set_size_inches(size[0], size[1])
-    ax.grid(color='.25', linestyle='-', linewidth=0.5)
+    ax.grid(showgrid)#color='.25', linestyle='-', linewidth=0.5
     reference = displayParams['reference']
     if displayParams['archive']:
         path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
@@ -145,7 +145,7 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
     pts, xLabels = GS_Construct3DPoints(GS_FSs, score)
     xl, yl, zl = unpackResPts(pts)
     results = np.reshape(zl, (len(xLabels), len(yLabels)))
-
+    fig = plt.figure()
     fig, ax = plt.subplots()
     im = ax.imshow(results)
 

@@ -1,5 +1,8 @@
+#DASHBOARD IMPORT
+# from dashBoard import *
+from Dashboard_PM_v2 import *
+
 #SCRIPT IMPORTS
-from dashBoard import *
 from HelpersArchiver import *
 from Raw import *
 from Features import *
@@ -44,13 +47,14 @@ GOAL - Import libraries & Load data
 
 #CONSTRUCT
 rdat = RawData(path = DB_Values['DBpath'], dbName = DB_Values['DBname'], delimiter = DB_Values['DBdelimiter'],
-               firstLine = DB_Values['DBfirstLine'], updateLabels = None)
+               firstLine = DB_Values['DBfirstLine'], xQualLabels = xQualLabels, xQuantLabels = xQuantLabels,
+               yLabels = yLabels, updateLabels = None)
 
 #VISUALIZE
 rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
-              yLabel = yLabels[0], xLabel=xQualLabels[0])
+              yLabel = yLabels[0], xLabel=xQualLabels[0], changeFigName = 'qual')
 rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
-            yLabel = yLabels[0], xLabel=xQuantLabels[0])
+            yLabel = yLabels[0], xLabel=xQuantLabels[0], changeFigName = 'quant')
 
 """
 # ------------------------------------------------------------------------------------------------------------------------
@@ -109,11 +113,6 @@ baseFormatedDf = formatedDf(learningDf, xQuantLabels, xQualLabels, yLabels,
                             random_state = PROCESS_VALUES['random_state'], test_size= PROCESS_VALUES['test_size'],
                             train_size= PROCESS_VALUES['train_size'])
 
-# #REPORT
-# print("train", type(baseFormatedDf.trainDf), baseFormatedDf.trainDf.shape)
-# print("validate", type(baseFormatedDf.valDf), baseFormatedDf.valDf.shape)
-# print("test", type(baseFormatedDf.testDf), baseFormatedDf.testDf.shape)
-
 #STOCK
 pickleDumpMe(DB_Values['DBpath'], displayParams, baseFormatedDf, 'DATA', 'baseFormatedDf')
 
@@ -134,14 +133,9 @@ GOAL - Remove uncorrelated and redundant features
 Dashboard Input - PROCESS_VALUES : corrMethod, corrRounding, corrLowThreshhold, corrHighThreshhold
 """
 #CONSTRUCT
-spearmanFilter = FilterFeatures(baseFormatedDf, baseLabels = xQuantLabels, method =PROCESS_VALUES['corrMethod'],
+spearmanFilter = FilterFeatures(baseFormatedDf, baseLabels = xQuantLabels, method =PROCESS_VALUES['corrMethod1'],
         corrRounding = PROCESS_VALUES['corrRounding'], lowThreshhold = PROCESS_VALUES['corrLowThreshhold'],
                                 highThreshhold = PROCESS_VALUES['corrHighThreshhold'])
-# REPORT
-# print('')
-# print('FILTER - SPEARMAN CORRELATION')
-# print('LABELS : ', spearmanFilter.trainDf.shape, type(spearmanFilter.trainDf))
-# print(spearmanFilter.selectedLabels)
 
 #STOCK
 pickleDumpMe(DB_Values['DBpath'], displayParams, spearmanFilter, 'FS', 'spearmanFilter')
@@ -155,40 +149,92 @@ plotCorrelation(spearmanFilter, spearmanFilter.correlationMatrix_NoRedundant, DB
                 filteringName="dropcolinear")
 
 """
+FILTER - PEARSON
+"""
+#CONSTRUCT
+pearsonFilter = FilterFeatures(baseFormatedDf, baseLabels = xQuantLabels, method =PROCESS_VALUES['corrMethod2'],
+        corrRounding = PROCESS_VALUES['corrRounding'], lowThreshhold = PROCESS_VALUES['corrLowThreshhold'],
+                                highThreshhold = PROCESS_VALUES['corrHighThreshhold'])
+#STOCK
+pickleDumpMe(DB_Values['DBpath'], displayParams, pearsonFilter, 'FS', 'pearsonFilter')
+
+#VISUALIZE
+plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_All, DB_Values['DBpath'], displayParams,
+                filteringName="nofilter")
+plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_NoUncorrelated, DB_Values['DBpath'], displayParams,
+                filteringName="dropuncorr")
+plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_NoRedundant, DB_Values['DBpath'], displayParams,
+                filteringName="dropcolinear")
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+FilterEliminators = [spearmanFilter, pearsonFilter]
+
+"""
 ELIMINATE - RFE
 """
 """
 GOAL - select the optimal number of features or combination of features
 """
 
-
-#CONSTRUCT
-LR_RFE = WrapFeatures(method = 'LR', estimator = LinearRegression(), formatedDf = baseFormatedDf,
-                      rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
-RFR_RFE = WrapFeatures(method = 'RFR', estimator = RandomForestRegressor(random_state = PROCESS_VALUES['random_state']),
-                       formatedDf = baseFormatedDf, rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
-DTR_RFE = WrapFeatures(method = 'DTR', estimator = DecisionTreeRegressor(random_state = PROCESS_VALUES['random_state']),
-                       formatedDf = baseFormatedDf, rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
-GBR_RFE = WrapFeatures(method = 'GBR', estimator = GradientBoostingRegressor(random_state = PROCESS_VALUES['random_state']),
-                       formatedDf = baseFormatedDf, rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
-DTC_RFE = WrapFeatures(method = 'DTC', estimator = DecisionTreeClassifier(random_state = PROCESS_VALUES['random_state']),
-                       formatedDf = baseFormatedDf, rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
-RFEs = [LR_RFE, RFR_RFE, DTR_RFE, GBR_RFE, DTC_RFE]
-
-#REPORT
-# print('ELIMINATE - RECURSIVE FEATURE ELIMINATION')
-# reportRFE(DB_Values['DBpath'], displayParams, RFEs, objFolder ='FS', display = True)
-# for _RFE in RFEs:
-#     _RFE.RFECVDisplay()
-#     _RFE.RFEHypSearchDisplay()
-#     _RFE.RFEDisplay()
+# todo : untoggle only V1 or V2
+"""
+V1 
+"""
+# #CONSTRUCT
+# LR_RFE = WrapFeatures(method = 'LR', estimator = LinearRegression(), formatedDf = baseFormatedDf,
+#                       rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
+# RFR_RFE = WrapFeatures(method = 'RFR', estimator = RandomForestRegressor(random_state = PROCESS_VALUES['random_state']),
+#                        formatedDf = baseFormatedDf, rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
+# DTR_RFE = WrapFeatures(method = 'DTR', estimator = DecisionTreeRegressor(random_state = PROCESS_VALUES['random_state']),
+#                        formatedDf = baseFormatedDf, rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
+# GBR_RFE = WrapFeatures(method = 'GBR', estimator = GradientBoostingRegressor(random_state = PROCESS_VALUES['random_state']),
+#                        formatedDf = baseFormatedDf, rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
+# DTC_RFE = WrapFeatures(method = 'DTC', estimator = DecisionTreeClassifier(random_state = PROCESS_VALUES['random_state']),
+#                        formatedDf = baseFormatedDf, rfe_hyp_feature_count= RFE_VALUES['RFE_featureCount'], output_feature_count='rfeHyp')
+# RFEs = [LR_RFE, RFR_RFE, DTR_RFE, GBR_RFE, DTC_RFE]
 #
-reportProcessing(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf, spearmanFilter, RFEs)
-reportRFE(DB_Values['DBpath'], displayParams, RFEs, objFolder ='FS', display = True)
-[LR_RFE, RFR_RFE, DTR_RFE, GBR_RFE, DTC_RFE] = RFEs
+# #STOCK
+# pickleDumpMe(DB_Values['DBpath'], displayParams, RFEs, 'FS', 'RFEs')
+#
+# #REPORT
+# reportRFE(DB_Values['DBpath'], displayParams, RFEs, objFolder ='FS', display = True)
+#
+# #VISUALIZE
+# RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath = DB_Values['DBpath'], yLim = None, figTitle = 'RFEPlot2d',
+#                           title ='Influence of Feature Count on Model Performance', xlabel='Feature Count', log = False)
+#
+# RFEHyperparameterPlot3D(RFEs, displayParams, DBpath = DB_Values['DBpath'], figTitle='RFEPlot3d',
+#                             colorsPtsLsBest=['b', 'g', 'c', 'y'],
+#                             title='Influence of Feature Count on Model Performance', ylabel='Feature Count',
+#                             zlabel='R2 Test score', size=[6, 6],
+#                             showgrid=False, log=False, max=True, ticks=False, lims=False)
+
+# todo : untoggle only V1 or V2
+"""
+V2
+"""
+#CONSTRUCT
+
+print()
+
+rfe_hyp_feature_count = list(np.arange(5, len(baseFormatedDf)-5, 10))
+#todo : check
+# rfe_hyp_feature_count = RFE_VALUES['RFE_featureCount']
+
+RFR_RFE = WrapFeatures(method = 'RFR', estimator = RandomForestRegressor(random_state = PROCESS_VALUES['random_state']),
+                       formatedDf = baseFormatedDf, rfe_hyp_feature_count= rfe_hyp_feature_count, output_feature_count='rfeHyp')
+DTR_RFE = WrapFeatures(method = 'DTR', estimator = DecisionTreeRegressor(random_state = PROCESS_VALUES['random_state']),
+                       formatedDf = baseFormatedDf, rfe_hyp_feature_count= rfe_hyp_feature_count, output_feature_count='rfeHyp')
+GBR_RFE = WrapFeatures(method = 'GBR', estimator = GradientBoostingRegressor(random_state = PROCESS_VALUES['random_state']),
+                       formatedDf = baseFormatedDf, rfe_hyp_feature_count= rfe_hyp_feature_count, output_feature_count='rfeHyp')
+
+RFEs = [RFR_RFE, DTR_RFE, GBR_RFE]
 
 #STOCK
 pickleDumpMe(DB_Values['DBpath'], displayParams, RFEs, 'FS', 'RFEs')
+
+#REPORT
+reportRFE(DB_Values['DBpath'], displayParams, RFEs, objFolder ='FS', display = True)
 
 #VISUALIZE
 RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath = DB_Values['DBpath'], yLim = None, figTitle = 'RFEPlot2d',
@@ -199,6 +245,18 @@ RFEHyperparameterPlot3D(RFEs, displayParams, DBpath = DB_Values['DBpath'], figTi
                             title='Influence of Feature Count on Model Performance', ylabel='Feature Count',
                             zlabel='R2 Test score', size=[6, 6],
                             showgrid=False, log=False, max=True, ticks=False, lims=False)
+
+
+
+
+
+
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# PROCESSING REPORT
+reportProcessing(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf, FilterEliminators, RFEs)
+
+
 
 #QUESTIONS
 #todo : how to evaluate RFE - the goal is not to perform the best prediction - what scoring should be inserted?
