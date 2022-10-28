@@ -7,7 +7,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : '221028_PMV2_/', 'showPlot': False, 'archive': True, 'showCorr' : False}
+displayParams = {"reference" : '221028_EUCB_FR/', 'showPlot': False, 'archive': True, 'showCorr' : False}
 
 """
 ________________________________________________________________________________________________________________________
@@ -17,23 +17,49 @@ ________________________________________________________________________________
 #parameters specific to the database processed
 
 """
-Price&Myers V2
+EUCB-FR
 """
-DB_Values = {"DBpath" : "C:/Users/sfenton/Code/Repositories/CO2Prediction/", "DBname" : "P&M Carbon Database for Release 11-02-2022",
+DB_Values = {"DBpath" : "C:/Users/sfenton/Code/Repositories/CO2Prediction/", "DBname" : "EU-ECB_dataset_feature_engineered_fr_sf",
              "DBdelimiter" : ';', "DBfirstLine" : 5 }
 # Project Value (œm)
-xQualLabels = ['Calculation Design Stage','Value Type','Project Value (œm)', 'Project Sector', 'Construction Type','Passivhaus?',
-               'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type', 'Cladding Type']
-xQuantLabels = ['GIFA (m2)','Storeys (#)']
-yLabels = ['A1-A5 Rate (kgCO2e/m2)']
+xQualLabels = ['admin_project_contact',
+'bldg_use_type'	,
+'bldg_use_subtype',
+'bldg_project_status',
+'site_country',
+'bldg_QTO_type',
+'bldg_area_interval',
+'bldg_struct_type',
+'bldg_roof_type',
+'bldg_energy_class_country',
+'bldg_certification',
+'inv_mat_1_type',
+'lca_RSP',
+'lca_software',
+'lca_database',
+'scope_parts',
+'scope_handling_D',
+'bldg_year_complete_interval']
+#incomplete : 'bldg_floors_ag','bldg_energy_class_general',
 
-# ['Carbon A1-A3 (kgCO2e)','Carbon A1-A5 (kgCO2e)','Carbon A1-C4 (kgCO2e)','Carbon A1-D (kgCO2e)','A1-A3 Rate (kgCO2e/m2)',
-# 'A1-A5 Rate (kgCO2e/m2)	','A1-C4 Rate (kgCO2e/m2)','A1-D Rate (kgCO2e/m2)']
 
 
+xQuantLabels = ['bldg_area_gfa', 'bldg_floors_bg'] #,
+#incomplete : 'bldg_floors_ag','inv_energy_consumption','bldg_users_total',
+RemoveOutliersFrom = ['bldg_area_gfa']
+yLabels = ['GHG_sum_em_m2']
 
+#yLabels
+#'GHG_sum_em_m2' (max - 1799,718511)
+#'GHG_A123_m2_harm_LCM' (max - 1226,516419)
+#'GHG_P1_sum_m2a'
+FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
 
-FORMAT_Values = {'yUnitFactor': 1, 'targetLabels' : ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
+#'yUnitFactor' converts from yLabel unit to target Label unit:
+# ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
+
+#todo : what to do with empty data? deletz line? replace by?
+# todo : remove outliers for number floors if count = 0 removes everything - what to do ?
 
 """
 ________________________________________________________________________________________________________________________

@@ -1,6 +1,7 @@
 #DASHBOARD IMPORT
 # from dashBoard import *
-from Dashboard_PM_v2 import *
+# from Dashboard_PM_v2 import *
+from Dashboard_EUCB_FR import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -51,10 +52,12 @@ rdat = RawData(path = DB_Values['DBpath'], dbName = DB_Values['DBname'], delimit
                yLabels = yLabels, updateLabels = None)
 
 #VISUALIZE
-rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
-              yLabel = yLabels[0], xLabel=xQualLabels[0], changeFigName = 'qual')
-rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
-            yLabel = yLabels[0], xLabel=xQuantLabels[0], changeFigName = 'quant')
+# for i in range(len(xQualLabels)) :
+#     rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
+#               yLabel = yLabels[0], xLabel=xQualLabels[i], changeFigName = xQualLabels[i])
+# for i in range(len(xQuantLabels)) :
+#     rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
+#                 yLabel = yLabels[0], xLabel=xQuantLabels[i], changeFigName = xQuantLabels[i])
 
 """
 # ------------------------------------------------------------------------------------------------------------------------
@@ -69,9 +72,12 @@ GOAL - Process data & One hot encoding
 #CONSTRUCT
 dat = Features(rdat)
 df = dat.asDataframe()
+# #todo : What to do if missing data?
 
 #REPORT
-# print("Full df", df.shape)
+print("Full df", df.shape)
+print(df)
+dfAsTable(DB_Values['DBpath'], displayParams, df, objFolder='DATA')
 
 #STOCK
 pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df')
@@ -87,10 +93,10 @@ GOAL - Remove outliers - only exist/removed on Quantitative features
 Dashboard Input - PROCESS_VALUES : OutlierCutOffThreshhold
 """
 #CONSTRUCT
-learningDf = removeOutliers(df, labels = xQuantLabels + yLabels, cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
+learningDf = removeOutliers(df, labels = RemoveOutliersFrom + yLabels, cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
 
 # #REPORT
-# print("Outliers removed ", learningDf.shape)
+print("Outliers removed ", learningDf.shape)
 
 #STOCK
 pickleDumpMe(DB_Values['DBpath'], displayParams, learningDf, 'DATA', 'learningDf')
@@ -215,10 +221,9 @@ V2
 """
 #CONSTRUCT
 
-print()
 
-rfe_hyp_feature_count = list(np.arange(5, len(baseFormatedDf)-5, 10))
-#todo : check
+rfe_hyp_feature_count = list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))
+
 # rfe_hyp_feature_count = RFE_VALUES['RFE_featureCount']
 
 RFR_RFE = WrapFeatures(method = 'RFR', estimator = RandomForestRegressor(random_state = PROCESS_VALUES['random_state']),

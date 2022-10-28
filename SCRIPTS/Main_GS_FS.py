@@ -1,8 +1,8 @@
 
 #DASHBOARD IMPORT
 # from dashBoard import *
-from Dashboard_PM_v2 import *
-
+# from Dashboard_PM_v2 import *
+from Dashboard_EUCB_FR import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -26,7 +26,6 @@ from GridsearchWeightsPt import *
 from GridsearchParamPt import *
 from GridsearchReport import *
 
-
 #LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
@@ -37,7 +36,7 @@ from sklearn.linear_model import Lasso, Ridge, ElasticNet
 from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
 
-import_reference = '221027_PMV2_/'
+import_reference = '221028_PMV2_/'
 
 # #IMPORT Main_FS
 df = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/df.pkl', show = False)
@@ -46,6 +45,8 @@ baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Pred
 spearmanFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/spearmanFilter.pkl', show = False)
 pearsonFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/pearsonFilter.pkl', show = False)
 RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/RFEs.pkl', show = False)
+
+
 
 #>>>
 learning_dfs = [spearmanFilter, pearsonFilter] + RFEs + [baseFormatedDf]
@@ -56,9 +57,9 @@ print("Learning dataframes (%s) :" % len(learning_dfs), learning_dfs )
 # KRR_GS_gamma = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/GS/KRR_GS_gamma.pkl', show = False)
 #
 #IMPORT Main_GS_FS
-#
-# # todo : update this list if you are importing GS_FS from pickles
-# GS_FS_List_Labels = ['LR_', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_POL', 'KRR_LIN', 'KRR_RBF', 'SVR_LIN', 'SVR_RBF']
+# #
+# # # todo : update this list if you are importing GS_FS from pickles #'LR',
+# GS_FS_List_Labels = ['LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_POL', 'KRR_LIN', 'KRR_RBF', 'SVR_LIN', 'SVR_RBF']
 #
 # GS_FSs = []
 # for FS_GS_lab in GS_FS_List_Labels:
@@ -67,8 +68,8 @@ print("Learning dataframes (%s) :" % len(learning_dfs), learning_dfs )
 #     GS_FSs.append(GS_FS)
 #
 # # unpack
-# # todo : update this list if you are importing GS_FS from pickles - should match GS_FS_List_Labels
-# [LR_, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_LIN, SVR_RBF] = GS_FSs
+# # todo : update this list if you are importing GS_FS from pickles - should match GS_FS_List_Labels #
+# [LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_LIN, SVR_RBF] = GS_FSs
 
 """-------------------------------------------------------------------------------------------------------------------
 7.MODEL x FEATURE SELECTION GRIDSEARCH
@@ -92,14 +93,14 @@ V1
 """
 #
 # # #CONSTRUCT
-# LR_ = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
+# LR = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
 # LR_RIDGE = {'name' : 'LR_RIDGE',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
 # LR_LASSO = {'name' : 'LR_LASSO',  'modelPredictor' : Ridge(),'param_dict' : LR_param_grid}
 # LR_ELAST = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
 # KRR = {'name' : 'KRR',  'modelPredictor' : KernelRidge(),'param_dict' : KRR_param_grid}
 # SVR = {'name' : 'SVR',  'modelPredictor' : SVR(),'param_dict' : SVR_param_grid}
 #
-# GS_CONSTRUCTOR = [LR_, LR_RIDGE, LR_LASSO, LR_ELAST, KRR, SVR]
+# GS_CONSTRUCTOR = [LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR, SVR]
 #
 # # CONSTRUCT & REPORT
 # GS_FSs = []
@@ -111,7 +112,7 @@ V1
 #     pickleDumpMe(DB_Values['DBpath'], displayParams, GS_FS, 'GS_FS', constructor['name'])
 #
 # #unpack
-# [LR_, LR_RIDGE, LR_LASSO, LR_ELAST, KRR, SVR] = GS_FSs
+# [LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR, SVR] = GS_FSs
 
 # todo : untoggle only V1 or V2
 """
@@ -121,7 +122,7 @@ V2
 """
 
 # # #CONSTRUCT
-# LR_ = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
+# LR = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
 # LR_RIDGE = {'name' : 'LR_RIDGE',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
 # LR_LASSO = {'name' : 'LR_LASSO',  'modelPredictor' : Ridge(),'param_dict' : LR_param_grid}
 # LR_ELAST = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
@@ -132,7 +133,7 @@ V2
 # SVR_LIN = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
 # SVR_RBF = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
 #
-# GS_CONSTRUCTOR = [LR_, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_POL, SVR_LIN, SVR_RBF]
+# GS_CONSTRUCTOR = [LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_POL, SVR_LIN, SVR_RBF]
 #
 # # CONSTRUCT & REPORT
 #
@@ -145,7 +146,7 @@ V2
 #     pickleDumpMe(DB_Values['DBpath'], displayParams, GS_FS, 'GS_FS', constructor['name'])
 #
 # #unpack
-# [LR_, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_POL, SVR_LIN, SVR_RBF] = GS_FSs
+# [LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_POL, SVR_LIN, SVR_RBF] = GS_FSs
 #
 
 """
@@ -155,7 +156,7 @@ V3
 """
 
 # #CONSTRUCT
-LR_ = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
+LR = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
 LR_RIDGE = {'name' : 'LR_RIDGE',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
 LR_LASSO = {'name' : 'LR_LASSO',  'modelPredictor' : Ridge(),'param_dict' : LR_param_grid}
 LR_ELAST = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
@@ -166,7 +167,7 @@ SVR_LIN = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_
 SVR_RBF = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
 SVR_POL = {'name' : 'SVR_POL',  'modelPredictor' : SVR(kernel ='poly'),'param_dict' : SVR_param_grid}
 
-GS_CONSTRUCTOR = [LR_, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_LIN, SVR_RBF, SVR_POL]
+GS_CONSTRUCTOR = [LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_LIN, SVR_RBF, SVR_POL]
 
 # CONSTRUCT & REPORT
 
@@ -178,11 +179,8 @@ for constructor in GS_CONSTRUCTOR :
     reportGridsearch(DB_Values['DBpath'], displayParams, GS_FS, objFolder='GS_FS', display=True)
     pickleDumpMe(DB_Values['DBpath'], displayParams, GS_FS, 'GS_FS', constructor['name'])
 
-#unpack
-[LR_, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_LIN, SVR_RBF, SVR_POL] = GS_FSs
-
-
-
+# unpack
+[LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_LIN, SVR_RBF] = GS_FSs #, SVR_POL
 
 
 

@@ -83,3 +83,4 @@ def reportGridsearchAsTable (DBpath, displayParams, GS_FSs, scoreList, objFolder
         with pd.ExcelWriter(outputPathStudy + "Scores" + "_GS_FS" ".xlsx", mode='w') as writer:
             for scoreDf, score in zip(scoreDfs, scoreList):
                 scoreDf.to_excel(writer, sheet_name=score)
+
