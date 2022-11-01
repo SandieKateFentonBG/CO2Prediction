@@ -46,18 +46,21 @@ from sklearn.kernel_ridge import KernelRidge
 GOAL - Import libraries & Load data
 """
 
-#CONSTRUCT
+# CONSTRUCT
 rdat = RawData(path = DB_Values['DBpath'], dbName = DB_Values['DBname'], delimiter = DB_Values['DBdelimiter'],
                firstLine = DB_Values['DBfirstLine'], xQualLabels = xQualLabels, xQuantLabels = xQuantLabels,
                yLabels = yLabels, updateLabels = None)
 
-#VISUALIZE
-# for i in range(len(xQualLabels)) :
-#     rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
-#               yLabel = yLabels[0], xLabel=xQualLabels[i], changeFigName = xQualLabels[i])
-# for i in range(len(xQuantLabels)) :
-#     rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
-#                 yLabel = yLabels[0], xLabel=xQuantLabels[i], changeFigName = xQuantLabels[i])
+# VISUALIZE
+for i in range(len(xQualLabels)) :
+    rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
+              yLabel = yLabels[0], xLabel=xQualLabels[i], changeFigName = str(i))
+for i in range(len(xQuantLabels)) :
+    rdat.visualize(displayParams, DBpath = DB_Values['DBpath'], dbName = DB_Values['DBname'],
+                yLabel = yLabels[0], xLabel=xQuantLabels[i], changeFigName = xQuantLabels[i])
+
+#STOCK
+pickleDumpMe(DB_Values['DBpath'], displayParams, rdat, 'DATA', 'rdat')
 
 """
 # ------------------------------------------------------------------------------------------------------------------------
@@ -184,7 +187,7 @@ GOAL - select the optimal number of features or combination of features
 
 # todo : untoggle only V1 or V2
 """
-V1 
+V1
 """
 # #CONSTRUCT
 # LR_RFE = WrapFeatures(method = 'LR', estimator = LinearRegression(), formatedDf = baseFormatedDf,

@@ -5,6 +5,8 @@ import numpy as np
 def computeAccuracy(yTrue, yPred, tolerance):
     #https: // scikit - learn.org / stable / modules / model_evaluation.html  # scoring
     validated = [1 if abs(yPred[i] - yTrue[i]) < abs(yTrue[i]) * tolerance else 0 for i in range(len(yTrue))]
+    #todo : remove print below
+
     return sum(validated) / len(validated)
 
 class ModelGridsearch:

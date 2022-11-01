@@ -1,6 +1,7 @@
 #DASHBOARD IMPORT
 # from dashBoard import *
-from Dashboard_PM_v2 import *
+# from Dashboard_PM_v2 import *
+from Dashboard_EUCB_FR import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -20,6 +21,7 @@ from ModelMetricsPt import *
 from ModelWeightsPt import *
 from ModelReport import *
 from Gridsearch import *
+from exportStudy import *
 
 #LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression
@@ -27,13 +29,20 @@ from sklearn.linear_model import Lasso, Ridge, ElasticNet
 from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
 
-#IMPORT Mainf_FS
-df = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/DATA/df.pkl', show = False)
-learningDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/DATA/learningDf.pkl', show = False)
-baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/DATA/baseFormatedDf.pkl', show = False)
-spearmanFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/FS/spearmanFilter.pkl', show = False)
-pearsonFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/FS/pearsonFilter.pkl', show = False)
-RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/FS/RFEs.pkl', show = False)
+
+import_reference = displayParams["reference"]
+
+# #IMPORT Main_FS
+rdat = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/rdat.pkl', show = False)
+df = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/df.pkl', show = False)
+learningDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/learningDf.pkl', show = False)
+baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/baseFormatedDf.pkl', show = False)
+spearmanFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/spearmanFilter.pkl', show = False)
+pearsonFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/pearsonFilter.pkl', show = False)
+RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/RFEs.pkl', show = False)
+
+
+
 
 
 """
@@ -66,7 +75,7 @@ GSs = [LR_GS, LR_LASSO_GS, LR_RIDGE_GS, LR_ELAST_GS, KRR_GS, SVR_GS]
 
 #STOCK
 pickleDumpMe(DB_Values['DBpath'], displayParams, GSs, 'GS', 'GSs')
-saveStudy(DB_Values['DBpath'], displayParams, obj= myFormatedDf, objFolder = 'GS')
+# saveStudy(DB_Values['DBpath'], displayParams, obj= myFormatedDf, objFolder = 'GS')
 
 #REPORT
 reportModels(DB_Values['DBpath'], displayParams, GSs, myFormatedDf, display = True)
@@ -104,7 +113,7 @@ GOAL -  Find the influence of 1 hyperparameters on models
 Dashboard Input - _VALUES : xx
 """
 
-myFormatedDf = spearmanFilter
+myFormatedDf = pearsonFilter
 
 #CONSTRUCT
 KRR_GS1 = ModelGridsearch(predictorName='KRR_lin', modelPredictor= KernelRidge(), param_dict = KRR_param_grid1, learningDf= myFormatedDf)
@@ -123,16 +132,18 @@ pickleDumpMe(DB_Values['DBpath'], displayParams, KRR_GS, 'GS', 'KRR_GS_gamma')
 
 #EXPORT
 
-GSs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/GS/GSs.pkl', show = False)
-KRR_GS_gamma = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/GS/KRR_GS_gamma.pkl', show = False)
+# GSs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/GS/GSs.pkl', show = False)
+# KRR_GS_gamma = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ displayParams["reference"] +'RECORDS/GS/KRR_GS_gamma.pkl', show = False)
+
+FiltersLs = [spearmanFilter, pearsonFilter]
+GSlist = GSs
+exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+                baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = False)
 
 #QUESTIONS
 #how do I interpret dual coefs in weights plot? does this bias the results?
 
-"Base formatted df with LASSO> very slow / doesn't work !"
-# ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations.
-# Duality gap: 31.99697559375636, tolerance: 27.005679069767446
-#   model = cd_fast.enet_coordinate_descent(
+
 
 
 

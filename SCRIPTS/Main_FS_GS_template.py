@@ -25,7 +25,6 @@ from GridsearchPredTruthPt import *
 from GridsearchWeightsPt import *
 from GridsearchParamPt import *
 from GridsearchReport import *
-from exportStudy import *
 
 #LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression
@@ -37,10 +36,9 @@ from sklearn.linear_model import Lasso, Ridge, ElasticNet
 from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
 
-import_reference = displayParams["reference"]
+import_reference = '221028_EUCB_FR/'
 
 # #IMPORT Main_FS
-rdat = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/rdat.pkl', show = False)
 df = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/df.pkl', show = False)
 learningDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/learningDf.pkl', show = False)
 baseFormatedDf = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/DATA/baseFormatedDf.pkl', show = False)
@@ -54,26 +52,24 @@ print('baseFormatedDf', len(baseFormatedDf.selectedLabels), baseFormatedDf.selec
 learning_dfs = [spearmanFilter, pearsonFilter] + RFEs + [baseFormatedDf]
 print("Learning dataframes (%s) :" % len(learning_dfs), learning_dfs )
 
-#IMPORT Main_GS_FS
+# #IMPORT Main_GS
+# GSs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/GS/GSs.pkl', show = False)
+# KRR_GS_gamma = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/GS/KRR_GS_gamma.pkl', show = False)
 #
+#IMPORT Main_GS_FS
+# #
 # # # todo : update this list if you are importing GS_FS from pickles #'LR',
-GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST',  'KRR_LIN', 'KRR_RBF', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']#, 'SVR_POL'
+GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_POL', 'KRR_LIN', 'KRR_RBF', 'SVR_LIN', 'SVR_RBF']
 
 GS_FSs = []
 for FS_GS_lab in GS_FS_List_Labels:
     path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
     GS_FS = pickleLoadMe(path = path, show = False)
-    for DfLabel in GS_FS.learningDfsList:
-        GS = GS_FS.__getattribute__(DfLabel)
-        print(GS.GSName)
-        print('selectedLabels', GS.selectedLabels)
-
     GS_FSs.append(GS_FS)
-#
+
 # # unpack
 # # todo : update this list if you are importing GS_FS from pickles - should match GS_FS_List_Labels #
-# [LR, LR_RIDGE, LR_LASSO, LR_ELAST,  KRR_LIN, KRR_RBF,KRR_POL, SVR_LIN, SVR_RBF, SVR_POL] = GS_FSs #
-# GS_FSs_without_LR = [LR_RIDGE, LR_RIDGE, LR_LASSO, LR_ELAST,  KRR_LIN, KRR_RBF,KRR_POL, SVR_LIN, SVR_RBF, SVR_POL]
+# [LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_LIN, SVR_RBF] = GS_FSs #
 
 """-------------------------------------------------------------------------------------------------------------------
 7.MODEL x FEATURE SELECTION GRIDSEARCH
@@ -89,15 +85,13 @@ GOAL -  Calibrate model hyperparameters for different learning Dfs
 Dashboard Input - GS_VALUES ; _param_grids
 """
 
-
+# todo : untoggle only V1 or V2
 """
 ------------------------------------------------------------------------------------------------------------------------
-V1 - kernel type is a hyperparameter 
-
+V1 - kernel type is a hyperparameter
 ------------------------------------------------------------------------------------------------------------------------
 """
-# todo : untoggle only V1 or V2 - match with dashboard toggle
-
+#
 # # #CONSTRUCT
 # LR = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
 # LR_RIDGE = {'name' : 'LR_RIDGE',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
@@ -121,29 +115,25 @@ V1 - kernel type is a hyperparameter
 # [LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR, SVR] = GS_FSs
 
 # todo : untoggle only V1 or V2
-#
-#
-# """
-# ------------------------------------------------------------------------------------------------------------------------
-# V2 - kernel type is a hyperparameter
-# ------------------------------------------------------------------------------------------------------------------------
-# """
-# # todo : untoggle only V1 or V2 - match with dashboard toggle
-#
+"""
+------------------------------------------------------------------------------------------------------------------------
+V2 - kernel type is a hyperparameter
+------------------------------------------------------------------------------------------------------------------------
+"""
+
 # #CONSTRUCT
-# LR_CONSTRUCTOR = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
-# LR_RIDGE_CONSTRUCTOR = {'name' : 'LR_RIDGE',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
-# LR_LASSO_CONSTRUCTOR = {'name' : 'LR_LASSO',  'modelPredictor' : Ridge(),'param_dict' : LR_param_grid}
-# LR_ELAST_CONSTRUCTOR = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
-# KRR_LIN_CONSTRUCTOR = {'name': 'KRR_LIN', 'modelPredictor': KernelRidge(kernel='linear'), 'param_dict': KRR_param_grid}
-# KRR_RBF_CONSTRUCTOR = {'name': 'KRR_RBF', 'modelPredictor': KernelRidge(kernel='rbf'), 'param_dict': KRR_param_grid}
-# KRR_POL_CONSTRUCTOR = {'name' : 'KRR_POL',  'modelPredictor' : KernelRidge(kernel = 'poly'),'param_dict' : KRR_param_grid}
-# SVR_LIN_CONSTRUCTOR = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
-# SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
-# SVR_POL_CONSTRUCTOR = {'name' : 'SVR_POL',  'modelPredictor' : SVR(kernel ='poly'),'param_dict' : SVR_param_grid}
+# LR = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
+# LR_RIDGE = {'name' : 'LR_RIDGE',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
+# LR_LASSO = {'name' : 'LR_LASSO',  'modelPredictor' : Ridge(),'param_dict' : LR_param_grid}
+# LR_ELAST = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
+# KRR_POL = {'name' : 'KRR_POL',  'modelPredictor' : KernelRidge(kernel = 'poly'),'param_dict' : KRR_param_grid}
+# KRR_LIN = {'name' : 'KRR_LIN',  'modelPredictor' : KernelRidge(kernel ='linear'),'param_dict' : KRR_param_grid}
+# KRR_RBF = {'name' : 'KRR_RBF',  'modelPredictor' : KernelRidge(kernel ='rbf'),'param_dict' : KRR_param_grid}
+# SVR_LIN = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
+# SVR_RBF = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
+# SVR_POL = {'name' : 'SVR_POL',  'modelPredictor' : SVR(kernel ='poly'),'param_dict' : SVR_param_grid}
 #
-# GS_CONSTRUCTOR = [LR_CONSTRUCTOR, LR_RIDGE_CONSTRUCTOR, LR_LASSO_CONSTRUCTOR, LR_ELAST_CONSTRUCTOR, KRR_LIN_CONSTRUCTOR,
-#                   KRR_RBF_CONSTRUCTOR,KRR_POL_CONSTRUCTOR, SVR_LIN_CONSTRUCTOR, SVR_RBF_CONSTRUCTOR] #, SVR_POL_CONSTRUCTOR
+# GS_CONSTRUCTOR = [LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF,SVR_LIN, SVR_RBF, SVR_POL]
 #
 # # CONSTRUCT & REPORT
 #
@@ -156,18 +146,13 @@ V1 - kernel type is a hyperparameter
 #     pickleDumpMe(DB_Values['DBpath'], displayParams, GS_FS, 'GS_FS', constructor['name'])
 
 # unpack
-[LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_LIN, KRR_RBF,KRR_POL, SVR_LIN, SVR_RBF] = GS_FSs #, SVR_POL
+[LR, LR_RIDGE, LR_LASSO, LR_ELAST, KRR_POL, KRR_LIN, KRR_RBF, SVR_LIN, SVR_RBF, SVR_POL] = GS_FSs
 
 """
 ------------------------------------------------------------------------------------------------------------------------
 VISUALIZE AND REPORT
 ------------------------------------------------------------------------------------------------------------------------
 """
-
-FiltersLs = [spearmanFilter, pearsonFilter]
-GSlist = GS_FSs
-exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = True)
 
 # REPORT
 scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
@@ -181,22 +166,11 @@ for scoreLabel in scoreList:
     heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score=scoreLabel, studyFolder='GS_FS/')
 
 for scoreLabel, scoreMax in zip(scoreList, scoreListMax):
-    GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None, score=scoreLabel,
+    GS_ParameterPlot2D(GS_FSs_withoutLR, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None, score=scoreLabel,
                        studyFolder='GS_FS/')
-    GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
+    GS_ParameterPlot3D(GS_FSs_withoutLR, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
                        score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
                        maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
-    # try :
-    #     GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
-    #                        score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
-    #                        maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
-    # else :
-    #     GS_ParameterPlot3D(GS_FSs_without_LR, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
-    #                        score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
-    #                        maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
-
-
-
 
 # WEIGHTS                   #ONLY FOR GS with identical weights
 for GS_FS in GS_FSs:
@@ -268,3 +242,12 @@ Duality gap: 13643.606562469611, tolerance: 29.734474418604655
 # dummy variable which had random numbers between (0, 1) and append it to the dataset,
 
 # #todo : check summary equation table
+
+for GS_FS in GS_FSs:
+    for learningDflabel in GS_FS.learningDfsList:
+        GS = GS_FS.__getattribute__(learningDflabel)
+        print(GS.predictorName)
+        print(GS.selectorName)
+        print(GS.GridMSE)
+        print(GS.GridR2)
+        print(GS.GridbScore)

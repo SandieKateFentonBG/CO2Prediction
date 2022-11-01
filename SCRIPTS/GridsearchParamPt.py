@@ -80,6 +80,7 @@ def GS_ParameterPlot3D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = 
     xlim, ylim, zlim = [np.amin(xl), np.amax(xl)], [np.amin(yl), np.amax(yl)], [np.amin(zl), np.amax(zl)]
     lim = xlim, ylim, zlim
 
+
     tick = np.arange(0, xlim[1] + 1, 1).tolist(), \
            np.arange(0, ylim[1] + 1, 1).tolist(), \
            np.arange(round(zlim[0] - 1, 0),round(zlim[1] + 1, 0),10).tolist()
@@ -144,6 +145,10 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
     xLabel = 'Predictor'
     pts, xLabels = GS_Construct3DPoints(GS_FSs, score)
     xl, yl, zl = unpackResPts(pts)
+
+
+    zl = [np.round(elem, 3) for elem in zl]
+
     results = np.reshape(zl, (len(xLabels), len(yLabels)))
     fig = plt.figure()
     fig, ax = plt.subplots()

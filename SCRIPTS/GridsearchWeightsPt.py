@@ -8,7 +8,6 @@ def xGS_averageWeight(GSs, key = 'WeightsScaled'):
     means = []
     stdvs = []
     for i in range(len(GSs[0].__getattribute__(key))):
-        print(len(GSs[0].__getattribute__(key)))
         single = []
         for m in GSs:
             single.append(m.__getattribute__(key)[i])
@@ -16,8 +15,7 @@ def xGS_averageWeight(GSs, key = 'WeightsScaled'):
         st = np.std(single)
         means.append(av)
         stdvs.append(st)
-        print(i, single)
-    print(means, stdvs)
+
     return means, stdvs
 
 def GS_emptyWeights(df, target): #keys = df.keys()
@@ -43,6 +41,7 @@ def GS_modelWeightsList(target, features, weights, df):
     weightsDict = GS_modelWeightsDict(target, features, weights, df=df)
     ks = list(weightsDict.keys())
     ws = list(weightsDict.values())
+
     return ks, ws
 
 def GS_sortedListAccordingToGuide(guide, list1, list2=None):
@@ -89,10 +88,11 @@ def GS_averageWeight(target, GS_FSs, key = 'WeightsScaled', df = None):
             labelLs,valueLs = GS_modelWeightsList(target, GS.selectedLabels, GS.__getattribute__(key), df) #54
             VList.append(valueLs) #7
 
-    for i in range(len(VList[0])):
+    for i in range(len(VList[0])): #todo : why vlist 0
         single = []
         for elem in VList:
             single.append(elem[i])
+
 
         av = np.mean(single)
         st = np.std(single)

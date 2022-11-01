@@ -7,7 +7,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : '221028_EUCB_FR/', 'showPlot': False, 'archive': True, 'showCorr' : False}
+displayParams = {"reference" : 'CSTB_large/', 'showPlot': False, 'archive': True, 'showCorr' : False}
 
 """
 ________________________________________________________________________________________________________________________
@@ -87,7 +87,7 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : [5, 10, 15, 20, 25, 30]}
+RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))'} #[5, 10, 15, 20, 25]
 
 
 
@@ -97,7 +97,12 @@ MODEL
 ________________________________________________________________________________________________________________________
 """
 
-
+# GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
+#             'regul_range' : list(10.0 ** np.arange(-2, 2)),
+#             'influence_range' : list(10.0 ** np.arange(-2, 2)),
+#             'degree' : [2, 3],
+#             'margin_range' : list(10.0 ** np.arange(-2, 2)),
+#             'kernel_list' : [ 'linear', 'rbf']}
 
 GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
             'regul_range' : list(10.0 ** np.arange(-4, 4)),
@@ -108,7 +113,7 @@ GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
 
 """
 ________________________________________________________________________________________________________________________
-V1
+V1 - kernels  in params
 ________________________________________________________________________________________________________________________
 """
 
