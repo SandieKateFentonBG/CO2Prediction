@@ -7,7 +7,7 @@
 # """
 # #change when running a test
 #
-# displayParams = {"reference" : 'PM_V1_simplecheck-2/', 'showPlot': False, 'archive': True, 'showCorr' : True}
+# displayParams = {"reference" : 'PM_V1_simplecheck/', 'showPlot': False, 'archive': True, 'showCorr' : True}
 #
 # """
 # ________________________________________________________________________________________________________________________

@@ -17,7 +17,10 @@ def exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
 
 
         import csv
-        with open(outputPathStudy + 'Records_' + type + ".csv", 'w', encoding='UTF8', newline='') as e:
+
+        name = reference.rstrip(reference[-1])
+
+        with open(outputPathStudy + name + '_Records_' + type + ".csv", 'w', encoding='UTF8', newline='') as e:
             writer = csv.writer(e, delimiter = ";")
 
             writer.writerow(['INPUT DATA'])
@@ -66,27 +69,47 @@ def exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
             writer.writerow(['GRIDSEARCH DATA'])
 
             keys = ['predictorName', 'selectorName',  'selectedLabels',
-                 'param_dict', 'GridR2', 'GridR2Rank', 'GridMSE', 'GridMSERank',
+                 'param_dict', 'GridR2', 'GridR2Rank',  'GridMSERank',
                  'scoring', 'Index', 'Estimator','Param', 'Weights', 'WeightsScaled',
-                 'TrainScore', 'TestScore', 'TestAcc', 'TestMSE', 'TestR2']
+                 'TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc'] #'GridMSE',
 
-            #todo : van remove gridMSE if problem in excel table
+            #todo : can remove gridMSE if problem in excel table
 
             writer.writerow(keys)
 
             if GSwithFS: # then GSlist should be GS_FSs
-
+                allModels = []
                 for GS_FS in GSlist:
 
                     for DfLabel in GS_FS.learningDfsList:
                         GS = GS_FS.__getattribute__(DfLabel)
+
                         v = [GS.__getattribute__(keys[i]) for i in range(len(keys))]
                         writer.writerow(v)
+                        allModels.append(v)
+
+                sortedModels = sorted(allModels, key=lambda x: x[-1], reverse=True)
+
 
             else : # then GSlist should be GSs
-
+                allModels = []
                 for Model in GSlist:
                     v = [Model.__getattribute__(keys[i]) for i in range(len(keys))]
                     writer.writerow(v)
+                    allModels.append(v)
+                sortedModels = sorted(allModels, key=lambda x: x[-1], reverse=True)
+
+
+            writer.writerow('')
+
+            writer.writerow(['SORTED GRIDSEARCH DATA'])
+
+            writer.writerow(keys)
+
+            for elem in sortedModels:
+                writer.writerow(elem)
+
 
         e.close()
+
+

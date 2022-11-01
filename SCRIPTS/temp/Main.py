@@ -148,7 +148,7 @@ print(type(xTrain), xTrain.shape)
 #
 # # WeightsSummaryPlot(dc_a, displayParams, sorted=True, yLim=None, fontsize =14)
 #
-# sortedMod = sortGridResults(dc_a, metric='bModelAcc', highest=True) #crap
+sortedMod = sortGridResults(dc_a, metric='bModelAcc', highest=True) #crap
 # slice = sortedMod[0:5]
 #
 # print(len(dc_a), type(dc_a))

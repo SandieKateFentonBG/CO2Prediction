@@ -2,7 +2,7 @@
 #DASHBOARD IMPORT
 # from dashBoard import *
 # from Dashboard_PM_v2 import *
-from Dashboard_EUCB_FR import *
+# from Dashboard_EUCB_FR import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -25,7 +25,7 @@ from GridsearchPredTruthPt import *
 from GridsearchWeightsPt import *
 from GridsearchParamPt import *
 from GridsearchReport import *
-from exportStudy import *
+from ExportStudy import *
 
 #LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression
@@ -168,93 +168,85 @@ FiltersLs = [spearmanFilter, pearsonFilter]
 GSlist = GS_FSs
 exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
                 baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = True)
+#
+# # REPORT
+# scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
+# scoreListMax = [True, False, True, True, True]
+# reportGridsearchAsTable(DB_Values['DBpath'], displayParams, GS_FSs, scoreList = scoreList, objFolder ='GS_FS', display = True)
+#
+# # VISUALIZE
+#
+# # SCORES
+# for scoreLabel in scoreList:
+#     heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score=scoreLabel, studyFolder='GS_FS/')
+#
+# for scoreLabel, scoreMax in zip(scoreList, scoreListMax):
+#     GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None, score=scoreLabel,
+#                        studyFolder='GS_FS/')
+#     GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
+#                        score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
+#                        maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
+#     # try :
+#     #     GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
+#     #                        score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
+#     #                        maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
+#     # else :
+#     #     GS_ParameterPlot3D(GS_FSs_without_LR, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
+#     #                        score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
+#     #                        maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
+#
+#
+#
+#
+# # WEIGHTS                   #ONLY FOR GS with identical weights
+# for GS_FS in GS_FSs:
+#     name = GS_FS.predictorName + '_GS_FS'
+#     print(name)
+#     GS_WeightsBarplotAll([GS_FS], GS_FSs, DB_Values['DBpath'], displayParams, target = FORMAT_Values['targetLabels'],
+#                          content=name, df_for_empty_labels=baseFormatedDf.trainDf, yLim = 4, sorted = True, key ='WeightsScaled')
+# GS_WeightsSummaryPlot(GS_FSs, GS_FSs, target = FORMAT_Values['targetLabels'], displayParams =displayParams,
+#                        DBpath = DB_Values['DBpath'], content='GS_FSs', sorted=True, yLim=4,
+#                          df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14,  studyFolder='GS_FS/')
+# for GS_FS in GS_FSs:
+#     GS_WeightsSummaryPlot([GS_FS], GS_FSs, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
+#                           DBpath=DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS', sorted=True, yLim=4,
+#                           df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
+#
+# # METRICS
+# GS_MetricsSummaryPlot(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FSs', scatter=True, studyFolder = 'GS_FS/')
+# for GS_FS in GS_FSs:
+#     GS_MetricsSummaryPlot([GS_FS], displayParams, DB_Values['DBpath'], content = GS_FS.predictorName + '_GS_FS', scatter=True, studyFolder = 'GS_FS/')
+#
+#
+# # PREDICTION VS GROUNDTRUTH
+# GS_predTruthCombined(displayParams, GS_FSs, DB_Values['DBpath'], content = 'GS_FSs', scatter=True, fontsize=14, studyFolder = 'GS_FS/') #scatter=False for groundtruth as line
+# for GS_FS in GS_FSs:
+#     GS_predTruthCombined(displayParams, [GS_FS], DB_Values['DBpath'], content = GS_FS.predictorName + '_GS_FS', scatter=True, fontsize=14, studyFolder = 'GS_FS/')
+#
+# for GS_FS in GS_FSs:
+#     for learningDflabel in GS_FS.learningDfsList:
+#         GS = GS_FS.__getattribute__(learningDflabel)
+#         plotPredTruth(displayParams = displayParams, modelGridsearch = GS,DBpath = DB_Values['DBpath'],
+#                        TargetMinMaxVal = FORMAT_Values['TargetMinMaxVal'], fontsize = 14,studyFolder = 'GS_FS/')
+#         plotResiduals(modelGridsearch = GS, displayParams = displayParams,  DBpath = DB_Values['DBpath'],
+#                     bins=20, binrange = [-200, 200], studyFolder = 'GS_FS/')
+#         paramResiduals(modelGridsearch = GS, displayParams = displayParams, DBpath = DB_Values['DBpath'],
+#                    yLim = PROCESS_VALUES['residualsYLim'], xLim = PROCESS_VALUES['residualsXLim'], studyFolder = 'GS_FS/')
+#
+#
 
-# REPORT
-scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
-scoreListMax = [True, False, True, True, True]
-reportGridsearchAsTable(DB_Values['DBpath'], displayParams, GS_FSs, scoreList = scoreList, objFolder ='GS_FS', display = True)
 
-# VISUALIZE
-
-# SCORES
-for scoreLabel in scoreList:
-    heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score=scoreLabel, studyFolder='GS_FS/')
-
-for scoreLabel, scoreMax in zip(scoreList, scoreListMax):
-    GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None, score=scoreLabel,
-                       studyFolder='GS_FS/')
-    GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
-                       score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
-                       maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
-    # try :
-    #     GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
-    #                        score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
-    #                        maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
-    # else :
-    #     GS_ParameterPlot3D(GS_FSs_without_LR, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
-    #                        score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
-    #                        maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
-
-
-
-
-# WEIGHTS                   #ONLY FOR GS with identical weights
-for GS_FS in GS_FSs:
-    name = GS_FS.predictorName + '_GS_FS'
-    print(name)
-    GS_WeightsBarplotAll([GS_FS], GS_FSs, DB_Values['DBpath'], displayParams, target = FORMAT_Values['targetLabels'],
-                         content=name, df_for_empty_labels=baseFormatedDf.trainDf, yLim = 4, sorted = True, key ='WeightsScaled')
-GS_WeightsSummaryPlot(GS_FSs, GS_FSs, target = FORMAT_Values['targetLabels'], displayParams =displayParams,
-                       DBpath = DB_Values['DBpath'], content='GS_FSs', sorted=True, yLim=4,
-                         df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14,  studyFolder='GS_FS/')
-for GS_FS in GS_FSs:
-    GS_WeightsSummaryPlot([GS_FS], GS_FSs, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
-                          DBpath=DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS', sorted=True, yLim=4,
-                          df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
-
-# METRICS
-GS_MetricsSummaryPlot(GS_FSs, displayParams, DB_Values['DBpath'], content = 'GS_FSs', scatter=True, studyFolder = 'GS_FS/')
-for GS_FS in GS_FSs:
-    GS_MetricsSummaryPlot([GS_FS], displayParams, DB_Values['DBpath'], content = GS_FS.predictorName + '_GS_FS', scatter=True, studyFolder = 'GS_FS/')
-
-
-# PREDICTION VS GROUNDTRUTH
-GS_predTruthCombined(displayParams, GS_FSs, DB_Values['DBpath'], content = 'GS_FSs', scatter=True, fontsize=14, studyFolder = 'GS_FS/') #scatter=False for groundtruth as line
-for GS_FS in GS_FSs:
-    GS_predTruthCombined(displayParams, [GS_FS], DB_Values['DBpath'], content = GS_FS.predictorName + '_GS_FS', scatter=True, fontsize=14, studyFolder = 'GS_FS/')
-
-for GS_FS in GS_FSs:
-    for learningDflabel in GS_FS.learningDfsList:
-        GS = GS_FS.__getattribute__(learningDflabel)
-        plotPredTruth(displayParams = displayParams, modelGridsearch = GS,DBpath = DB_Values['DBpath'],
-                       TargetMinMaxVal = FORMAT_Values['TargetMinMaxVal'], fontsize = 14,studyFolder = 'GS_FS/')
-        plotResiduals(modelGridsearch = GS, displayParams = displayParams,  DBpath = DB_Values['DBpath'],
-                    bins=20, binrange = [-200, 200], studyFolder = 'GS_FS/')
-        paramResiduals(modelGridsearch = GS, displayParams = displayParams, DBpath = DB_Values['DBpath'],
-                   yLim = PROCESS_VALUES['residualsYLim'], xLim = PROCESS_VALUES['residualsXLim'], studyFolder = 'GS_FS/')
-
-
-
-# run all > check baseformatted for SVR
-# change name ModelsGS for Models
-
+#todo : check correlation matrix with empty lines - why? how to deal with this?
+#todo: deal with missing data
+#todo : check the code is working > GS > am I using the class properly? Am I working with calibrated fit models?
+#todo : compare results for different targets but same inputs
 #todo : check residuals - do i need to replicate/CV results for more data > see plotresiduals
-
-
-#todo : questions
-# todo : scaled but reaches 4??
+#todo : scaled but reaches 4??
 #todo : LR error is enormous - why?
 
-# todo : fix issue results vary strongly depending on if from Model GS or from ModelFeature selection GS
-#  - this might be due to the differing cv in both GS > more data  > more reproduciblle?
-#todo :test on other data !!
 
-#todo : check the code is working > GS > am I using the class properly? Am I working with calibrated fit models?
-
-#todo : fix  SVR
-#todo : fix LASSO, ELASTICNET, RIDGE - base formatted
 #todo ERROR MESSAGEs:
-#todo : ak about convergence - what does this mean
+#todo : ask about convergence - what does this mean
 #LR_LASSO,LR_ELAST
 """ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. 
 Duality gap: 13643.606562469611, tolerance: 29.734474418604655
