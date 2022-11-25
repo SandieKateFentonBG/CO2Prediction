@@ -37,7 +37,8 @@
 # #parameters chosen for database processing
 #
 # PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 42, 'test_size' : 0.5, 'train_size': 0.8,
-#                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'corrHighThreshhold' : 0.65,
+#                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1,
+#                 'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75,
 #                      'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]} #'scaler': 'MinMaxScaler', , 'lowThreshold' : 0.15, 'highThreshold' : 1,'yScale' : False,
 #
 #
@@ -54,7 +55,8 @@
 # ________________________________________________________________________________________________________________________
 # """
 #
-# RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))'} #[5, 10, 15, 20, 25]
+# RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))',
+# 'RFE_process' : 'short'} #[5, 10, 15, 20, 25]
 #
 #
 # """

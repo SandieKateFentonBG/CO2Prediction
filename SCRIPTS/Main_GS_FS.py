@@ -232,8 +232,17 @@ for GS_FS in GS_FSs:
         paramResiduals(modelGridsearch = GS, displayParams = displayParams, DBpath = DB_Values['DBpath'],
                    yLim = PROCESS_VALUES['residualsYLim'], xLim = PROCESS_VALUES['residualsXLim'], studyFolder = 'GS_FS/')
 
+ModelLs = []
+ModelLsName = []
+for GS_FS in GS_FSs:
+    for learningDflabel in GS_FS.learningDfsList:
+        GS = GS_FS.__getattribute__(learningDflabel)
+        ModelLs.append(GS.bModel)
+        ModelLsName.append(GS.GSName)
 
+ereg = VotingRegressor([(name, model) for (name,model) in zip(ModelLs, ModelLsName)])
 
+ereg.fit(X, y)
 
 #todo : check correlation matrix with empty lines - why? how to deal with this?
 #todo: deal with missing data
@@ -259,3 +268,40 @@ Duality gap: 13643.606562469611, tolerance: 29.734474418604655
 # dummy variable which had random numbers between (0, 1) and append it to the dataset,
 
 # #todo : check summary equation table
+
+#todo : filtering - remove value less correlated to target
+#todo : check variability of coefficients over the 10 runs :
+# - If coefficients vary significantly when changing the input dataset their robustness is not guaranteed,
+# and they should probably be interpreted with caution.
+# todo : ok interpretation of linear - what about non linear???
+
+
+#todo : why do I rescale my weights ? my data has already been scaled...
+#todo how would SHAP handle this? since i have scaled my data ...
+#todo compare values in models  :
+#todo self.Weights = weights
+#todo self.WeightsScaled = scaledList(weights)  # todo : check this - why do i do this???
+
+"""
+
+
+#coefficient values - why are my values so high??? they should rage between 0 and 0.5?
+#https://scikit-learn.org/stable/auto_examples/inspection/plot_linear_model_coefficient_interpretation.html
+
+Multiplying the coefficients by the standard deviation of the related feature would reduce all the coefficients to the same unit of measure. As
+we will see after this is equivalent to normalize numerical variables to their standard deviation, as 
+y = ∑ coefi × Xi = ∑ (coefi × stdi) × (Xi/stdi)
+In that way, we emphasize that the greater the variance of a feature, the larger the weight of the corresponding coefficient on the output, all
+else being equal.
+
+... further
+
+For the coefficient analysis, scaling is not needed this time because it was performed during the preprocessing step.
+
+
+
+weights obtained with regularization are more stable (see the Ridge regression and classification User Guide section).
+This increased stability is visible from the plot, > so can we keep both features or should we still remove one?
+
+unstable resulkts  - does this mean every time we run the script coefficients can vary greatly > convergence is not always reached?
+"""

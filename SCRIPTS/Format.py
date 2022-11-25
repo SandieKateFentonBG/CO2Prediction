@@ -53,7 +53,9 @@ class formatedDf:
         self.yVal = pd.DataFrame(data=yVal, columns=yLabels)
         self.yTest = pd.DataFrame(data=yTest, columns=yLabels)
 
-    def scaleXDf(self, xQuantLabels):  # = None
+    def scaleXDf(self, xQuantLabels):
+        #todo : this scaling depends upon the data distribution - if data is gaussian, standardization / standard scaler makes sense
+        # other options robust scale, power transform
 
         mydict = dict()
         for l in xQuantLabels:

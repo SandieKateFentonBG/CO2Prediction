@@ -90,6 +90,8 @@ class FilterFeatures:
         self.DfNoUncorrelated = df.drop(columns=self.uncorrelatedLabels)#todo: check abs value > output content
         self.correlationMatrix_NoUncorrelated = self.DfNoUncorrelated.corr(method=method).round(self.corrRounding)
 
+
+
         #todo :  understand NaN = 0
         # spearman : cor(i,j) = cov(i,j)/[stdev(i)*stdev(j)]
         # If the values of the ith or jth variable do not vary,
@@ -101,11 +103,18 @@ class FilterFeatures:
         #correlation
         unfilteredCorrelation = df.corr(method=method).round(self.corrRounding)
         unfilteredCorrelationMatrixAbs = unfilteredCorrelation.abs()
+
+        #sort in ascending correlation to target lines
+        sortedMatrix = unfilteredCorrelationMatrixAbs.sort_values(by=self.yLabel, ascending=True).sort_values(by=self.yLabel, axis = 1, ascending=True)
+
         #labels
-        upper_tri = unfilteredCorrelationMatrixAbs.where(np.triu(np.ones(unfilteredCorrelationMatrixAbs.shape), k=1).astype(np.bool))
+        upper_tri = sortedMatrix.where(np.triu(np.ones(sortedMatrix.shape), k=1).astype(np.bool))
         redundantLabelsAll = [column for column in upper_tri.columns if any(upper_tri[column] >= highThreshhold)]
+
         #this drops one of the two features that are collinear
         self.redundantLabels = [l for l in redundantLabelsAll if l not in baseLabels]
+
+
         #filter df
         self.DfNoRedundant = df.drop(columns=self.redundantLabels)
         self.correlationMatrix_NoRedundant = self.DfNoRedundant.corr(method=method).round(self.corrRounding)

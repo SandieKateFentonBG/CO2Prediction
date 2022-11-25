@@ -1,6 +1,7 @@
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 import numpy as np
+import os
 
 def computeAccuracy(yTrue, yPred, tolerance):
     #https: // scikit - learn.org / stable / modules / model_evaluation.html  # scoring
@@ -49,8 +50,9 @@ class ModelGridsearch:
 
     def paramGridsearch(self, df):
 
-
-        grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit, return_train_score=True) #cv=cv
+        njobs = os.cpu_count() - 1 #todo : njobs was changed
+        grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
+                            n_jobs=njobs, return_train_score=True) #cv=cv
         grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()) #saves the best performing model #todo :fit transform?
 
         self.GridMSE = [round(num, self.rounding) for num in grid.cv_results_['mean_test_neg_mean_squared_error']]
@@ -100,7 +102,7 @@ class ModelGridsearch:
         weights = [round(num, self.rounding) for num in list(content)]
 
         self.Weights = weights
-        self.WeightsScaled = scaledList(weights) #todo : check this
+        self.WeightsScaled = scaledList(weights) #todo : check this - why do i do this???
 
 def scaledList(means, type='StandardScaler'):#'MinMaxScaler' #todo : check this
 

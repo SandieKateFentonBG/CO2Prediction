@@ -41,19 +41,30 @@ class WrapFeatures:
 
         if process == 'long' :
             print('RFE - CV Calibration')
-            self.RFEliminationCV(formatedDf, step, cv, scoring, self.yLabel)
+            self.RFEliminationCV(formatedDf, step, cv, scoring)
             print('RFE - Hyperparameter Calibration')
             self.RFEHyperparameterSearch(formatedDf, rfe_hyp_feature_count)
             print('RFE - Retrieving Resuts for ', output_feature_count)
             if output_feature_count == 'rfeHyp':
-                self.RFElimination(formatedDf, self.rfeHyp_maxvalFtCount, self.yLabel)
+                self.RFElimination(formatedDf, self.rfeHyp_maxvalFtCount)
             if output_feature_count == 'rfeCV':
-                self.RFElimination(formatedDf, self.rfecv.n_features_, self.yLabel)
+                self.RFElimination(formatedDf, self.rfecv.n_features_)
             if type(output_feature_count) == int:
-                self.RFElimination(formatedDf, output_feature_count, self.yLabel)
+                self.RFElimination(formatedDf, output_feature_count)
 
         if process == 'short':
-            self.RFElimination(formatedDf, n_features_to_select = output_feature_count, yLabel = self.yLabel)
+            if self.FtCountFrom == 'rfeHyp' :
+                print('RFE - Hyperparameter Calibration')
+                self.RFEHyperparameterSearch(formatedDf, rfe_hyp_feature_count)
+                self.RFElimination(formatedDf, self.rfeHyp_maxvalFtCount, pretrained = True)
+            if self.FtCountFrom == 'rfeCV' :
+                print('RFE - CV Calibration')
+                self.RFEliminationCV(formatedDf, step, cv, scoring)
+                self.RFElimination(formatedDf, self.rfecv.n_features_, pretrained = True)
+            if type(output_feature_count) == int:
+                print('RFE - Retrieving Resuts for ', output_feature_count)
+                self.RFElimination(formatedDf, output_feature_count, pretrained = False)
+
 
         # self.trainDf
         # self.valDf
@@ -87,34 +98,51 @@ class WrapFeatures:
             # rfeHyp_maxvalFtCount
 
 
-    def RFElimination(self, formatedDf, n_features_to_select, yLabel):
+    def RFElimination(self, formatedDf, n_features_to_select, pretrained = False):
 
         """
         Look for n most important features
         (or, the best combination of n features, given their importance for the wrapped estimator)
         """
+
         self.n_features_to_select = n_features_to_select
-        rfe = RFE(self.estimator, n_features_to_select=self.n_features_to_select)
 
-        self.rfe = rfe.fit(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
-        self.selectedLabels = formatedDf.XTrain.columns[rfe.support_]
-        # #todo - this naming was changed from #Xlabels to #selectedLabels >could generate issues
-        self.rfe_trainScore = self.rfe.score(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
-        self.rfe_valScore = self.rfe.score(formatedDf.XVal.to_numpy(), formatedDf.yVal.to_numpy().ravel())
+        if pretrained :
+            if self.FtCountFrom == 'rfeHyp':
+                self.rfe = self.rfeHyp
+                self.selectedLabels = self.rfeHyp_selectedLabels
+                self.rfe_trainScore = self.rfeHyp_trainScore
+                self.rfe_valScore = self.rfeHyp_valScore
+                self.droppedLabels = self.rfeHyp_droppedLabels
 
-        self.droppedLabels = [label for label in formatedDf.XTrain.columns if label not in self.selectedLabels]
+            if self.FtCountFrom == 'rfeCV':
+                self.rfe = self.rfecv
+                self.rfe_trainScore = self.rfecv_trainScore
+                self.rfe_valScore = self.rfecv_valScore
+                self.selectedLabels = self.rfecv_selectedLabels
+                self.droppedLabels = self.rfecv_droppedLabels
+
+        else :
+            rfe = RFE(self.estimator, n_features_to_select=self.n_features_to_select)
+            self.rfe = rfe.fit(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
+            self.selectedLabels = formatedDf.XTrain.columns[rfe.support_]   #this naming was changed from #Xlabels to #selectedLabels >could generate issues
+            self.rfe_trainScore = self.rfe.score(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
+            self.rfe_valScore = self.rfe.score(formatedDf.XVal.to_numpy(), formatedDf.yVal.to_numpy().ravel())
+            self.droppedLabels = [label for label in formatedDf.XTrain.columns if label not in self.selectedLabels]
+
+
 
         self.trainDf = formatedDf.trainDf.drop(columns=self.droppedLabels)
         self.valDf = formatedDf.valDf.drop(columns=self.droppedLabels)
         self.testDf = formatedDf.testDf.drop(columns=self.droppedLabels)
 
-        self.XTrain =self.trainDf.drop(columns=yLabel)
-        self.XVal = self.valDf.drop(columns=yLabel)
-        self.XTest = self.testDf.drop(columns=yLabel)
-        self.yTrain = self.trainDf[yLabel]
-        self.yVal = self.valDf[yLabel]
-        self.yTest = self.testDf[yLabel]
-        self.yLabel = yLabel
+        self.XTrain =self.trainDf.drop(columns=self.yLabel)
+        self.XVal = self.valDf.drop(columns=self.yLabel)
+        self.XTest = self.testDf.drop(columns=self.yLabel)
+        self.yTrain = self.trainDf[self.yLabel]
+        self.yVal = self.valDf[self.yLabel]
+        self.yTest = self.testDf[self.yLabel]
+        # self.yLabel = yLabel
 
     def RFEDisplay(self):
 
@@ -125,7 +153,7 @@ class WrapFeatures:
         print("Score on validation", self.rfe_valScore)
         print("")
 
-    def RFEliminationCV(self, formatedDf, step, cv, scoring, yLabel):
+    def RFEliminationCV(self, formatedDf, step, cv, scoring):
 
         """    Look optimal number of features
         (or, the best combination of n features, given their importance for the wrapped estimator)"""
@@ -142,12 +170,12 @@ class WrapFeatures:
         self.rfecv_trainDf = formatedDf.trainDf.drop(columns=self.rfecv_droppedLabels)
         self.rfecv_valDf = formatedDf.valDf.drop(columns=self.rfecv_droppedLabels)
         self.rfecv_testDf = formatedDf.testDf.drop(columns=self.rfecv_droppedLabels)
-        self.rfecv_XTrain =self.rfecv_trainDf.drop(columns=yLabel)
-        self.rfecv_XVal = self.rfecv_valDf.drop(columns=yLabel)
-        self.rfecv_XTest = self.rfecv_testDf.drop(columns=yLabel)
-        self.rfecv_yTrain = self.rfecv_trainDf[yLabel]
-        self.rfecv_yVal = self.rfecv_valDf[yLabel]
-        self.rfecv_yTest = self.rfecv_testDf[yLabel]
+        self.rfecv_XTrain =self.rfecv_trainDf.drop(columns=self.yLabel)
+        self.rfecv_XVal = self.rfecv_valDf.drop(columns=self.yLabel)
+        self.rfecv_XTest = self.rfecv_testDf.drop(columns=self.yLabel)
+        self.rfecv_yTrain = self.rfecv_trainDf[self.yLabel]
+        self.rfecv_yVal = self.rfecv_valDf[self.yLabel]
+        self.rfecv_yTest = self.rfecv_testDf[self.yLabel]
 
     def RFEHyperparameterSearch(self, formatedDf, featureCount):
 
@@ -155,22 +183,43 @@ class WrapFeatures:
         (or, the best combination of n features, given their importance for the wrapped estimator)"""
 
         self.rfeHyp_featureCount = featureCount
+
         trainScoreList = []
         testScoreList = []
+        selectedLabelsList = []
+        rfeHypList = []
 
         for f in featureCount:
 
             rfeHyp = RFE(self.estimator, n_features_to_select=f)
             rfeHyp = rfeHyp.fit(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel())
+            rfeHyp_selectedLabels = formatedDf.XTrain.columns[rfeHyp.support_]
 
+            rfeHypList.append(rfeHyp)
+            selectedLabelsList.append(rfeHyp_selectedLabels)
             trainScoreList.append(rfeHyp.score(formatedDf.XTrain.to_numpy(), formatedDf.yTrain.to_numpy().ravel()))
             testScoreList.append(rfeHyp.score(formatedDf.XVal.to_numpy(), formatedDf.yVal.to_numpy().ravel()))
+
 
         self.rfeHyp_trainScore = trainScoreList
         self.rfeHyp_valScore= testScoreList
         self.rfeHyp_maxvalScore = max(testScoreList)
         self.rfeHyp_maxvalidx = testScoreList.index(max(testScoreList))
         self.rfeHyp_maxvalFtCount = featureCount[self.rfeHyp_maxvalidx]
+        self.rfeHyp_selectedLabels = selectedLabelsList[self.rfeHyp_maxvalidx]
+        self.rfeHyp = rfeHypList[self.rfeHyp_maxvalidx]
+
+        self.rfeHyp_droppedLabels = [label for label in formatedDf.XTrain.columns if label not in self.rfeHyp_selectedLabels]
+
+        self.rfeHyp_trainDf = formatedDf.trainDf.drop(columns=self.rfeHyp_droppedLabels)
+        self.rfeHyp_valDf = formatedDf.valDf.drop(columns=self.rfeHyp_droppedLabels)
+        self.rfeHyp_testDf = formatedDf.testDf.drop(columns=self.rfeHyp_droppedLabels)
+        self.rfeHyp_XTrain =self.rfeHyp_trainDf.drop(columns=self.yLabel)
+        self.rfeHyp_XVal = self.rfeHyp_valDf.drop(columns=self.yLabel)
+        self.rfeHyp_XTest = self.rfeHyp_testDf.drop(columns=self.yLabel)
+        self.rfeHyp_yTrain = self.rfeHyp_trainDf[self.yLabel]
+        self.rfeHyp_yVal = self.rfeHyp_valDf[self.yLabel]
+        self.rfeHyp_yTest = self.rfeHyp_testDf[self.yLabel]
 
     def RFECVDisplay(self):
 
