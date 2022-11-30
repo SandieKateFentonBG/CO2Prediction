@@ -21,7 +21,7 @@
 # """
 # DB_Values = {"DBpath" : "C:/Users/sfenton/Code/Repositories/CO2Prediction/", "DBname" : "P&M Carbon Database _11-02-2022_sf",
 #              "DBdelimiter" : ';', "DBfirstLine" : 5 }
-# # Project Value (œm)
+
 # xQualLabels = ['Calculation Design Stage', 'Value Type', 'Project Sector', 'Construction Type','Passivhaus',
 #                'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type', 'Cladding Type'] #
 # xQuantLabels = ['GIFA (m2)', 'Storeys (#)',  'Project Value (poundm)']#

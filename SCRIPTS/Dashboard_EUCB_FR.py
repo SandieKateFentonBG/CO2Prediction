@@ -1,5 +1,7 @@
 import numpy as np
 
+['CSTB_rd42/', 'CSTB_rd43/','CSTB_rd44/','CSTB_rd45/','CSTB_rd46/','CSTB_rd47/','CSTB_rd48/']
+
 """
 ________________________________________________________________________________________________________________________
 RUN
@@ -7,7 +9,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'CSTB_221126/', 'showPlot': False, 'archive': True, 'showCorr' : False}
+displayParams = {"reference" : 'CSTB_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False}
 
 """
 ________________________________________________________________________________________________________________________
@@ -21,7 +23,7 @@ EUCB-FR
 """
 DB_Values = {"DBpath" : "C:/Users/sfenton/Code/Repositories/CO2Prediction/", "DBname" : "EU-ECB_dataset_feature_engineered_fr_sf",
              "DBdelimiter" : ';', "DBfirstLine" : 5 }
-# Project Value (œm)
+
 xQualLabels = [
 'bldg_use_subtype',
 'bldg_area_interval',
@@ -79,22 +81,15 @@ ________________________________________________________________________________
 """
 
 RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))',
-              'RFE_process' : 'short'} #[5, 10, 15, 20, 25]
+              'RFE_process' : 'short', 'output_feature_count':'rfeCV'}
 
-
+#[5, 10, 15, 20, 25]['rfeHyp', 'rfeCV', int]
 
 """
 ________________________________________________________________________________________________________________________
 MODEL
 ________________________________________________________________________________________________________________________
 """
-
-# GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
-#             'regul_range' : list(10.0 ** np.arange(-2, 2)),
-#             'influence_range' : list(10.0 ** np.arange(-2, 2)),
-#             'degree' : [2, 3],
-#             'margin_range' : list(10.0 ** np.arange(-2, 2)),
-#             'kernel_list' : [ 'linear', 'rbf']}
 
 GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
             'regul_range' : list(10.0 ** np.arange(-4, 4)),

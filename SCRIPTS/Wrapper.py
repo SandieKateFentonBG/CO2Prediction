@@ -20,7 +20,7 @@ Questions
 
 class WrapFeatures:
 
-    def __init__(self, method, estimator, formatedDf, rfe_hyp_feature_count, output_feature_count ='rfeHyp', scoring="r2",
+    def __init__(self, method, estimator, formatedDf, rfe_hyp_feature_count, output_feature_count ='rfeCV', scoring="r2",
                  step= 1, cv = KFold(n_splits=5, shuffle=True, random_state=42), process ='long'):
 
 

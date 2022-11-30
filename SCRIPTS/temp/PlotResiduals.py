@@ -200,7 +200,6 @@ def plotScaleResDistribution(studies, displayParams):
 
         arr = np.array(v)
 
-
         plt.figure(1)
         result = plt.hist(arr)
         plt.xlim((min(arr), max(arr)))

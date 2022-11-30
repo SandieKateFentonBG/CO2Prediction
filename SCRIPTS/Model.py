@@ -32,6 +32,8 @@ class ModelGridsearch:
         print('Retrieving best results')
         self.bestModel(learningDf)
 
+        self.computeSHAP()
+
         # self.bModel
         # self.bModelParam
         # self.bEstimator
@@ -70,7 +72,7 @@ class ModelGridsearch:
     def bestModel(self, df, test = True):
 
         self.Param = self.Grid.best_params_
-        self.Estimator = self.Grid.best_estimator_ #todo : difference with bestmodel?
+        self.Estimator = self.Grid.best_estimator_ #todo : this is the calibrated model to use for prediction > check
         self.Index = self.Grid.best_index_
 
         XTrain, yTrain  = df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()
@@ -103,6 +105,58 @@ class ModelGridsearch:
 
         self.Weights = weights
         self.WeightsScaled = scaledList(weights) #todo : check this - why do i do this???
+
+    def computeSHAP(self):
+
+        """Plot shap summary for a fitted estimator and a set of test with its labels."""
+        import shap
+
+        clf = self.Estimator
+        Xtest = self.learningDf.XTest #for SHAP VALUES
+        Xtrain = self.learningDf.XTrain #for average values
+
+        #compute initial SHAP values
+        sample = shap.sample(Xtrain, 30)
+        masker = shap.maskers.Independent(Xtrain)
+        try:
+            explainer = shap.Explainer(clf, masker)
+        except Exception:
+            explainer = shap.KernelExplainer(clf.predict, sample)
+
+        self.SHAPexplainer = explainer
+        self.SHAPvalues = explainer.shap_values(Xtest)
+        #todo add the panda dataframe export self.SHAPDf, self.SHAPFeatureRanking
+
+    def computeSHAPGrouped(self):
+        #todo : see GridsearchSHAPPt
+
+        # find re-mapping to group sub-categories into single category
+        # transformList = []
+        # for sLabel in GS.learningDf.selectedLabels:
+        #     if sLabel in xQuantLabels:
+        #         transformList.append(sLabel)
+        #     else:
+        #         for qLabel in xQualLabels:
+        #             if qLabel in sLabel:
+        #                 transformList.append(qLabel)
+        # remap_dict = {i: transformList.count(i) for i in transformList}  # dictionary for remapping
+        # keyList = list(remap_dict.keys())
+        # lengthList = list(remap_dict.values())
+        #
+        # # compute new SHAP values
+        # new_shap_values = []
+        # for values in shap_values:
+        #     # split shap values into a list for each feature
+        #     values_split = np.split(values, np.cumsum(lengthList[:-1]))
+        #     # sum values within each list
+        #     values_sum = [sum(l) for l in values_split]
+        #     new_shap_values.append(values_sum)
+        # # replace SHAP values
+        # shap_values = np.array(new_shap_values)
+
+        pass
+
+
 
 def scaledList(means, type='StandardScaler'):#'MinMaxScaler' #todo : check this
 
