@@ -50,6 +50,11 @@ def paramResiduals(modelGridsearch, displayParams, DBpath, yLim = None , xLim = 
         if displayParams['showPlot']:
             visualizer.show()
 
+        #todo : this might be a problem
+        plt.close()
+
+
+
 def plotResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = None , studyFolder = 'GS/' ):
 
     #todo : adapt bin count / bin range

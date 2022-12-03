@@ -4,19 +4,6 @@ from sklearn.model_selection import KFold
 from datetime import datetime
 # from sklearn.model_selection import LeaveOneOut
 
-#DEFAULT VALUES
-
-# rs = 42
-# n_features_to_select = 15
-# featureCount = [5, 10, 15, 20, 25]
-
-"""
-Questions
-1. Trainscore is too high - What should i evaluate my rfe on? validation set? > what does the RFECV use as a score? 
-2. Scaling, When should it be done? Look into pipeline
-3. I inserted a random-state to have stable results - is this ok?
-4. loo = LeaveOneOut() #alternative to cv - use this? 
-"""
 
 class WrapFeatures:
 
@@ -32,12 +19,9 @@ class WrapFeatures:
         self.estimator = estimator #unfit estimator # ex : LinearRegression()
         self.FtCountFrom = output_feature_count # ex : 'rfeHyp' > defines the number of feature for the output RFE
 
-        #todo : option to avoid hyperparam and cv search > gain speed
-        # self.RFElimination(formatedDf, n_features_to_select, yLabel)
-
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print("Current Time =", current_time)  # todo : remove
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # print("Current Time =", current_time)  # todo : remove
 
         if process == 'long' :
             print('RFE - CV Calibration')
@@ -64,7 +48,6 @@ class WrapFeatures:
             if type(output_feature_count) == int:
                 print('RFE - Retrieving Resuts for ', output_feature_count)
                 self.RFElimination(formatedDf, output_feature_count, pretrained = False)
-
 
         # self.trainDf
         # self.valDf

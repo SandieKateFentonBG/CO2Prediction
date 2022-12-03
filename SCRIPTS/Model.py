@@ -2,6 +2,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 import numpy as np
 import os
+import pandas as pd
 
 def computeAccuracy(yTrue, yPred, tolerance):
     #https: // scikit - learn.org / stable / modules / model_evaluation.html  # scoring
@@ -12,13 +13,12 @@ def computeAccuracy(yTrue, yPred, tolerance):
 
 class ModelGridsearch:
 
-    def __init__(self, predictorName, learningDf, modelPredictor, param_dict):
+    def __init__(self, predictorName, learningDf, modelPredictor, param_dict, xQtQlLabels = None):
 
         self.predictorName = predictorName #ex : SVR
         self.modelPredictor = modelPredictor# ex : SVR()
         self.selectorName = learningDf.selector# ex : 'fl_spearman'
         self.selectedLabels = learningDf.selectedLabels # ex : ['GIFA', 'Sector']
-        # #todo - this naming was changed from #Xlabels to #selectedLabels >could generate issues
         self.GSName = self.predictorName + '_' + self.selectorName #ex : SVR_fl_spearman ,
         self.learningDf = learningDf
 
@@ -26,13 +26,17 @@ class ModelGridsearch:
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
         self.rounding = 3
         self.refit = 'r2' # criteria for best performing param / used for plotting
+
         print('Calibrating hyperparameters')
         self.paramGridsearch(learningDf)
         self.accuracyTol = 0.15
-        print('Retrieving best results')
-        self.bestModel(learningDf)
 
-        self.computeSHAP()
+        print('Retrieving best results')
+        self.computeBestModel(learningDf)
+
+        self.computeSHAP(NbFtExtracted = 5)
+        if xQtQlLabels :
+            self.computeSHAPGrouped(xQtQlLabels, NbFtExtracted = 5)
 
         # self.bModel
         # self.bModelParam
@@ -55,7 +59,7 @@ class ModelGridsearch:
         njobs = os.cpu_count() - 1 #todo : njobs was changed
         grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
                             n_jobs=njobs, return_train_score=True) #cv=cv
-        grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()) #saves the best performing model #todo :fit transform?
+        grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()) #todo :fit transform?
 
         self.GridMSE = [round(num, self.rounding) for num in grid.cv_results_['mean_test_neg_mean_squared_error']]
         self.GridMSEStd = [round(num, self.rounding) for num in list(grid.cv_results_['std_test_neg_mean_squared_error'])]
@@ -69,8 +73,8 @@ class ModelGridsearch:
         self.GridbScore = self.Grid.best_score_
 
 
-    def bestModel(self, df, test = True):
-
+    def computeBestModel(self, df, test = True):
+        # todo : naming was changed from bestModel
         self.Param = self.Grid.best_params_
         self.Estimator = self.Grid.best_estimator_ #todo : this is the calibrated model to use for prediction > check
         self.Index = self.Grid.best_index_
@@ -104,61 +108,90 @@ class ModelGridsearch:
         weights = [round(num, self.rounding) for num in list(content)]
 
         self.Weights = weights
-        self.WeightsScaled = scaledList(weights) #todo : check this - why do i do this???
+        self.WeightsScaled = scaledList(weights)
 
-    def computeSHAP(self):
+    def computeSHAP(self, NbFtExtracted):
 
-        """Plot shap summary for a fitted estimator and a set of test with its labels."""
+        """Compute shap summary for a fitted estimator and a set of test with its labels."""
         import shap
 
-        clf = self.Estimator
-        Xtest = self.learningDf.XTest #for SHAP VALUES
-        Xtrain = self.learningDf.XTrain #for average values
-
         #compute initial SHAP values
-        sample = shap.sample(Xtrain, 30)
-        masker = shap.maskers.Independent(Xtrain)
+        sample = shap.sample(self.learningDf.XTrain, 30)
+        masker = shap.maskers.Independent(self.learningDf.XTrain)#for average values
         try:
-            explainer = shap.Explainer(clf, masker)
+            explainer = shap.Explainer(self.Estimator, masker)
         except Exception:
-            explainer = shap.KernelExplainer(clf.predict, sample)
+            explainer = shap.KernelExplainer(self.Estimator.predict, sample)
 
         self.SHAPexplainer = explainer
-        self.SHAPvalues = explainer.shap_values(Xtest)
-        #todo add the panda dataframe export self.SHAPDf, self.SHAPFeatureRanking
+        self.SHAPvalues = explainer.shap_values(self.learningDf.XTest) #for SHAP VALUES
 
-    def computeSHAPGrouped(self):
-        #todo : see GridsearchSHAPPt
+        # convert SHAP as dataframe
+        df_shap_values = pd.DataFrame(data=self.SHAPvalues, columns=self.learningDf.XTrain.columns)
+        SHAPdf = pd.DataFrame(columns=['feature', 'importance'])
+        for col in df_shap_values.columns:
+            importance = df_shap_values[col].abs().mean()
+            SHAPdf.loc[len(SHAPdf)] = [col, importance]
+        self.SHAPdf = SHAPdf.sort_values('importance', ascending=False)
+
+        # extract top n features and give score : lower is better (0 for highest)
+        SHAPScoreDict = dict()
+        topNFeatures = self.SHAPdf['feature'][:NbFtExtracted]
+        for i in range(len(list(topNFeatures))):
+            SHAPScoreDict[list(topNFeatures)[i]] = NbFtExtracted-i
+        self.SHAPScoreDict = SHAPScoreDict
+
+    def computeSHAPGrouped(self, xQtQlLabels, NbFtExtracted):
+
+        """Compute shap summary for a fitted estimator and a set of test with its labels - categorical features will be grouped."""
+
+        explainer = self.SHAPexplainer
+        shap_values = self.SHAPvalues
+
+        (xQuantLabels, xQualLabels) = xQtQlLabels
 
         # find re-mapping to group sub-categories into single category
-        # transformList = []
-        # for sLabel in GS.learningDf.selectedLabels:
-        #     if sLabel in xQuantLabels:
-        #         transformList.append(sLabel)
-        #     else:
-        #         for qLabel in xQualLabels:
-        #             if qLabel in sLabel:
-        #                 transformList.append(qLabel)
-        # remap_dict = {i: transformList.count(i) for i in transformList}  # dictionary for remapping
-        # keyList = list(remap_dict.keys())
-        # lengthList = list(remap_dict.values())
-        #
-        # # compute new SHAP values
-        # new_shap_values = []
-        # for values in shap_values:
-        #     # split shap values into a list for each feature
-        #     values_split = np.split(values, np.cumsum(lengthList[:-1]))
-        #     # sum values within each list
-        #     values_sum = [sum(l) for l in values_split]
-        #     new_shap_values.append(values_sum)
-        # # replace SHAP values
-        # shap_values = np.array(new_shap_values)
+        transformList = []
+        # xQuantLabels = list(rdat.xQuanti.keys())
+        # xQualLabels = list(rdat.xQuali.keys())
+        for sLabel in self.learningDf.selectedLabels:
+            if sLabel in xQuantLabels:
+                transformList.append(sLabel)
+            else:
+                for qLabel in xQualLabels:
+                    if qLabel in sLabel:
+                        transformList.append(qLabel)
+        self.SHAPGroup_RemapDict = {i: transformList.count(i) for i in transformList}  # dictionary for remapping
+        SHAPGroupKeys = list(self.SHAPGroup_RemapDict.keys())
+        lengthList = list(self.SHAPGroup_RemapDict.values())
 
-        pass
+        # compute new SHAP values
+        new_shap_values = []
+        for values in shap_values:
+            # split shap values into a list for each feature
+            values_split = np.split(values, np.cumsum(lengthList[:-1]))
+            # sum values within each list
+            values_sum = [sum(l) for l in values_split]
+            new_shap_values.append(values_sum)
+        # replace SHAP values
+        self.SHAPGroupvalues = np.array(new_shap_values)
 
+        # convert SHAP as dataframe
+        df_shap_values = pd.DataFrame(data=self.SHAPGroupvalues, columns=SHAPGroupKeys)
+        SHAPGroupDf = pd.DataFrame(columns=['feature', 'importance'])
+        for col in df_shap_values.columns:
+            importance = df_shap_values[col].abs().mean()
+            SHAPGroupDf.loc[len(SHAPGroupDf)] = [col, importance]
+        self.SHAPGroupDf = SHAPGroupDf.sort_values('importance', ascending=False)
 
+        # extract top n features and give score : lower is better (0 for highest)
+        SHAPGroupScoreDict = dict()
+        topNFeatures = self.SHAPGroupDf['feature'][:NbFtExtracted]
+        for i in range(len(list(topNFeatures))):
+            SHAPGroupScoreDict[list(topNFeatures)[i]] = NbFtExtracted-i
+        self.SHAPGroupScoreDict = SHAPGroupScoreDict
 
-def scaledList(means, type='StandardScaler'):#'MinMaxScaler' #todo : check this
+def scaledList(means, type='StandardScaler'):#'MinMaxScaler'
 
     from sklearn import preprocessing
 

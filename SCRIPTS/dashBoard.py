@@ -56,7 +56,7 @@
 # """
 #
 # RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))',
-# 'RFE_process' : 'short'} #[5, 10, 15, 20, 25]
+# 'RFE_process' : 'short', 'output_feature_count':'rfeCV'} #[5, 10, 15, 20, 25]
 #
 #
 # """

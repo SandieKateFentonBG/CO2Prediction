@@ -25,8 +25,8 @@ from Gridsearch import *
 from GridsearchPredTruthPt import *
 from GridsearchWeightsPt import *
 from GridsearchParamPt import *
-from GridsearchReport import *
-from ExportStudy import *
+from PredictionReport import *
+from StudyReport import *
 from GridsearchSHAPPt import *
 
 #LIBRARY IMPORTS
@@ -123,8 +123,8 @@ Dashboard Input - GS_VALUES ; _param_grids
 # """
 
 
-exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                baseFormatedDf, FiltersLs = [spearmanFilter, pearsonFilter], RFEs = RFEs, GSlist = GS_FSs, GSwithFS = True)
+ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+            baseFormatedDf, FiltersLs = [spearmanFilter, pearsonFilter], RFEs = RFEs, GSlist = GS_FSs, GSwithFS = True)
 #
 # # REPORT
 # scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']

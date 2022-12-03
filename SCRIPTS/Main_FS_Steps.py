@@ -1,8 +1,8 @@
 # todo : choose database - untoogle it and untoggle import line
 #DASHBOARD IMPORT
 # from dashBoard import *
-# from Dashboard_PM_v2 import *
-from Dashboard_EUCB_FR import *
+from Dashboard_PM_v2 import *
+# from Dashboard_EUCB_FR import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -189,7 +189,7 @@ def F_FS_RFE(baseFormatedDf):
                                     showgrid=False, log=False, max=True, ticks=False, lims=False)
     return RFEs
 
-def run_FS_Study():
+def Run_FS_Study():
     rdat = A_RawData()
     df = B_features(rdat)
     learningDf = C_data(df)

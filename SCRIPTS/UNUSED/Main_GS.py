@@ -23,7 +23,7 @@ from ModelMetricsPt import *
 from ModelWeightsPt import *
 from ModelReport import *
 from Gridsearch import *
-from ExportStudy import *
+from StudyReport import *
 
 #LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression
@@ -76,7 +76,7 @@ pickleDumpMe(DB_Values['DBpath'], displayParams, GSs, 'GS', 'GSs')
 # saveStudy(DB_Values['DBpath'], displayParams, obj= myFormatedDf, objFolder = 'GS')
 
 #REPORT
-reportModels(DB_Values['DBpath'], displayParams, GSs, myFormatedDf, display = True)
+ReportModelsAsTxt(DB_Values['DBpath'], displayParams, GSs, myFormatedDf, display = True)
 
 #VISUALIZE
 
@@ -135,8 +135,8 @@ pickleDumpMe(DB_Values['DBpath'], displayParams, KRR_GS, 'GS', 'KRR_GS_gamma')
 
 FiltersLs = [spearmanFilter, pearsonFilter]
 GSlist = GSs
-exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = False)
+ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+            baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = False)
 
 #QUESTIONS
 #how do I interpret dual coefs in weights plot? does this bias the results?

@@ -1,7 +1,7 @@
 #DASHBOARD IMPORT
 # from dashBoard import *
-# from Dashboard_PM_v2 import *
-from Dashboard_EUCB_FR import *
+from Dashboard_PM_v2 import *
+# from Dashboard_EUCB_FR import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -23,10 +23,11 @@ from Gridsearch import *
 from GridsearchPredTruthPt import *
 from GridsearchWeightsPt import *
 from GridsearchParamPt import *
-from GridsearchReport import *
-from ExportStudy import *
+from PredictionReport import *
+from StudyReport import *
+from FeatureReport import *
 from GridsearchSHAPPt import *
-from Main_FS_Def import *
+from Main_FS_Steps import *
 
 #LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression
@@ -44,7 +45,7 @@ import shap
 
 
 
-def run_GS_FS(learning_dfs):
+def Run_GS_FS(learning_dfs): #, xQtQlLabels = (xQuantLabels, xQualLabels)
     """
     GOAL -  Calibrate model hyperparameters for different learning Dfs
     Dashboard Input - GS_VALUES ; _param_grids
@@ -69,20 +70,15 @@ def run_GS_FS(learning_dfs):
     GS_FSs = []
     for constructor in GS_CONSTRUCTOR :
         GS_FS = ModelFeatureSelectionGridsearch(predictorName=constructor['name'], learningDfs=learning_dfs,
-                                            modelPredictor=constructor['modelPredictor'], param_dict=constructor['param_dict'])
+                                            modelPredictor=constructor['modelPredictor'], param_dict=constructor['param_dict'],
+                                                xQtQlLabels = (xQuantLabels, xQualLabels))
         GS_FSs.append(GS_FS)
-        reportGridsearch(DB_Values['DBpath'], displayParams, GS_FS, objFolder='GS_FS', display=True)
+        ReportPredictionAsTxt(DB_Values['DBpath'], displayParams, GS_FS, objFolder='GS_FS', display=True)
         pickleDumpMe(DB_Values['DBpath'], displayParams, GS_FS, 'GS_FS', constructor['name'])
 #
     return GS_FSs
 
-def report_GS_FS_Scores(GS_FSs):
-
-    # REPORT
-    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
-    scoreListMax = [True, False, True, True, True]
-    reportGridsearchAsTable(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, objFolder='GS_FS',
-                            display=True)
+def Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax):
 
     # SCORES
     for scoreLabel in scoreList:
@@ -95,12 +91,11 @@ def report_GS_FS_Scores(GS_FSs):
                            score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
                            maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
 
-def report_GS_FS_Weights(GS_FSs, baseFormatedDf):
+def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf):
 
     # WEIGHTS                   #ONLY FOR GS with identical weights
     for GS_FS in GS_FSs:
         name = GS_FS.predictorName + '_GS_FS'
-        print(name)
         GS_WeightsBarplotAll([GS_FS], GS_FSs, DB_Values['DBpath'], displayParams, target=FORMAT_Values['targetLabels'],
                              content=name, df_for_empty_labels=baseFormatedDf.trainDf, yLim=4, sorted=True,
                              key='WeightsScaled')
@@ -112,7 +107,7 @@ def report_GS_FS_Weights(GS_FSs, baseFormatedDf):
                               DBpath=DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS', sorted=True, yLim=4,
                               df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
 
-def report_GS_FS_Metrics(GS_FSs):
+def Plot_GS_FS_Metrics(GS_FSs):
     # METRICS
     GS_MetricsSummaryPlot(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FSs', scatter=True,
                           studyFolder='GS_FS/')
@@ -120,7 +115,7 @@ def report_GS_FS_Metrics(GS_FSs):
         GS_MetricsSummaryPlot([GS_FS], displayParams, DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS',
                               scatter=True, studyFolder='GS_FS/')
 
-def report_GS_FS_PredTruth(GS_FSs):
+def Plot_GS_FS_PredTruth_Residuals(GS_FSs):
     # PREDICTION VS GROUNDTRUTH
     GS_predTruthCombined(displayParams, GS_FSs, DB_Values['DBpath'], content='GS_FSs', scatter=True, fontsize=14,
                          studyFolder='GS_FS/')  # scatter=False for groundtruth as line
@@ -138,16 +133,14 @@ def report_GS_FS_PredTruth(GS_FSs):
                            yLim=PROCESS_VALUES['residualsYLim'], xLim=PROCESS_VALUES['residualsXLim'],
                            studyFolder='GS_FS/')
 
-def report_GS_FS_SHAP(GS_FSs):
+def Plot_GS_FS_SHAP(GS_FSs):
     for GS_FS in GS_FSs:
         for learningDflabel in GS_FS.learningDfsList:
             GS = GS_FS.__getattribute__(learningDflabel)
-            print('SHAP plot for', GS.GSName)
-            # shap_values, explainer = computeSHAP(GS)
             plot_shap_group_cat(GS, xQuantLabels, xQualLabels, displayParams=displayParams, DBpath=DB_Values['DBpath'])
             plot_shap(GS, displayParams, DBpath=DB_Values['DBpath'], content='', studyFolder='GS_FS/')
 
-def run_GS_FS_Study(import_FS_ref):
+def Run_GS_FS_Study(import_FS_ref):
     """
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
@@ -161,16 +154,26 @@ def run_GS_FS_Study(import_FS_ref):
 
     # RUN GS_FS
     print('RUNNING GS_FS')
-    GS_FSs = run_GS_FS(learning_dfs)
+    GS_FSs = Run_GS_FS(learning_dfs)
 
-    exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+    # REPORT
+    print('REPORTING GS_FS')
+    ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
                 baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, GSwithFS=True)
-    print('EXPORTING GS_FS')
-    report_GS_FS_Scores(GS_FSs)
-    report_GS_FS_Weights(GS_FSs, baseFormatedDf)
-    report_GS_FS_Metrics(GS_FSs)
-    report_GS_FS_PredTruth(GS_FSs)
-    report_GS_FS_SHAP(GS_FSs)
+
+    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
+    scoreListMax = [True, False, True, True, True]
+    ReportPrediction(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList,display=True)
+
+    ReportFeatureImportance(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels)
+
+    print('PLOTTING GS_FS')
+    # PLOT
+    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax)
+    Plot_GS_FS_Weights(GS_FSs, baseFormatedDf)
+    Plot_GS_FS_Metrics(GS_FSs)
+    Plot_GS_FS_PredTruth_Residuals(GS_FSs)
+    Plot_GS_FS_SHAP(GS_FSs)
 
     return GS_FSs
 

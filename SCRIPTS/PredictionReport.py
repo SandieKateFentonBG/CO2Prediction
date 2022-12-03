@@ -1,6 +1,6 @@
 from HelpersVisualizer import *
 
-def reportGridsearch (DBpath, displayParams, modelGS, objFolder ='GS_FS', display = True):
+def ReportPredictionAsTxt (DBpath, displayParams, modelGS, objFolder ='GS_FS', display = True):
 
     if displayParams['archive']:
         import os
@@ -59,12 +59,12 @@ def reportGridsearch (DBpath, displayParams, modelGS, objFolder ='GS_FS', displa
                 print('')
 
 
-def reportGridsearchAsTable (DBpath, displayParams, GS_FSs, scoreList, objFolder ='GS_FS', display = True):
+def ReportPrediction (DBpath, displayParams, GS_FSs, scoreList, display = True):
 
     if displayParams['archive']:
         import os
         reference = displayParams['reference']
-        outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/' + objFolder + '/'
+        outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
 
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
@@ -77,10 +77,8 @@ def reportGridsearchAsTable (DBpath, displayParams, GS_FSs, scoreList, objFolder
                 print('')
                 print('Results for :', score)
                 print(scoreDf)
-            # path = outputPathStudy + score + "_GS_FS"
-            # scoreDf.to_string(path + ".txt")
 
-        with pd.ExcelWriter(outputPathStudy + "Scores" + "_GS_FS" ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_PredictionReport" + ".xlsx", mode='w') as writer:
             for scoreDf, score in zip(scoreDfs, scoreList):
                 scoreDf.to_excel(writer, sheet_name=score)
 

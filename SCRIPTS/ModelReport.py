@@ -1,6 +1,6 @@
 import numpy as np
 
-def reportModels(DBpath, displayParams, models, learningDf, objFolder ='GS', display = True):
+def ReportModelsAsTxt(DBpath, displayParams, models, learningDf, objFolder ='GS', display = True):
 
     if displayParams['archive']:
         import os

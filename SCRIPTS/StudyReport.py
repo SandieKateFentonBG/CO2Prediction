@@ -1,4 +1,4 @@
-def exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
                 baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = True):
 
     if displayParams['archive']:
@@ -70,10 +70,9 @@ def exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
 
             keys = ['predictorName', 'selectorName',  'selectedLabels',
                  'param_dict', 'GridR2', 'GridR2Rank',  'GridMSERank',
-                 'scoring', 'Index', 'Estimator','Param', 'Weights', 'WeightsScaled',
+                 'scoring', 'Index', 'Estimator','Param', 'Weights', 'WeightsScaled', 'SHAPScoreDict', 'SHAPGroupScoreDict',
                  'TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc'] #'GridMSE',
 
-            #todo : can remove gridMSE if problem in excel table
 
             writer.writerow(keys)
 
@@ -108,6 +107,8 @@ def exportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
 
             for elem in sortedModels:
                 writer.writerow(elem)
+
+
 
 
         e.close()

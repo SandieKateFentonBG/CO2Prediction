@@ -46,3 +46,5 @@ Dashboard Input - PROCESS_VALUES : corrMethod, corrRounding, corrLowThreshhold, 
 """
 GOAL - select the optimal number of features or combination of features
 """
+
+> consider leave one out instead for wrapper : loo = LeaveOneOut() #alternative to cv

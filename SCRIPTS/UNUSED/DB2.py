@@ -1,5 +1,7 @@
 import numpy as np
 
+['CSTB_rd42/', 'CSTB_rd43/','CSTB_rd44/','CSTB_rd45/','CSTB_rd46/','CSTB_rd47/','CSTB_rd48/']
+
 """
 ________________________________________________________________________________________________________________________
 RUN
@@ -7,7 +9,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'PMV2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False}
+displayParams = {"reference" : 'CSTB_rd44/', 'showPlot': False, 'archive': True, 'showCorr' : False}
 
 """
 ________________________________________________________________________________________________________________________
@@ -17,24 +19,40 @@ ________________________________________________________________________________
 #parameters specific to the database processed
 
 """
-Price&Myers V2
+EUCB-FR
 """
-DB_Values = {"DBpath" : "C:/Users/sfenton/Code/Repositories/CO2Prediction/", "DBname" : "P&M Carbon Database _11-02-2022_sf",
+DB_Values = {"DBpath" : "C:/Users/sfenton/Code/Repositories/CO2Prediction/", "DBname" : "EU-ECB_dataset_feature_engineered_fr_sf",
              "DBdelimiter" : ';', "DBfirstLine" : 5 }
 
-xQualLabels = ['Calculation Design Stage', 'Value Type', 'Project Sector', 'Construction Type','Passivhaus',
-               'Basement Type', 'Foundation Type', 'Ground Floor Type', 'Superstructure Type', 'Cladding Type'] #
-xQuantLabels = ['GIFA (m2)', 'Storeys (#)',  'Project Value (poundm)']#
-RemoveOutliersFrom = xQuantLabels
-yLabels = ['A1-A5 Rate (kgCO2e/m2)']
+xQualLabels = [
+'bldg_use_subtype',
+'bldg_area_interval',
+'bldg_struct_type',
+'bldg_roof_type',
+'bldg_energy_class_country',
+'inv_mat_1_type',
+'scope_parts',
+'bldg_year_complete_interval']
+#incomplete : 'bldg_floors_ag','bldg_energy_class_general',
 
-# ['Carbon A1-A3 (kgCO2e)','Carbon A1-A5 (kgCO2e)','Carbon A1-C4 (kgCO2e)','Carbon A1-D (kgCO2e)','A1-A3 Rate (kgCO2e/m2)',
-# 'A1-A5 Rate (kgCO2e/m2)	','A1-C4 Rate (kgCO2e/m2)','A1-D Rate (kgCO2e/m2)']
+#useless for this study ['admin_project_contact', 'bldg_use_type', 'bldg_project_status', 'site_country', 'bldg_QTO_type', 'lca_RSP', 'bldg_certification','lca_software', 'lca_database', 'scope_handling_D',]
 
+xQuantLabels = ['bldg_area_gfa', 'bldg_floors_bg'] #,
+#incomplete : 'bldg_floors_ag','inv_energy_consumption','bldg_users_total',
+RemoveOutliersFrom = ['bldg_area_gfa']
+yLabels = ['GHG_sum_em_m2']
 
+#yLabels
+#'GHG_sum_em_m2' (max - 1799,718511)
+#'GHG_A123_m2_harm_LCM' (max - 1226,516419)
+#'GHG_P1_sum_m2a'
+FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
 
+#'yUnitFactor' converts from yLabel unit to target Label unit:
+# ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
 
-FORMAT_Values = {'yUnitFactor': 1, 'targetLabels' : ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
+#todo : what to do with empty data? deletz line? replace by?
+# todo : remove outliers for number floors if count = 0 removes everything - what to do ?
 
 """
 ________________________________________________________________________________________________________________________
@@ -43,7 +61,7 @@ ________________________________________________________________________________
 """
 #parameters chosen for database processing
 
-PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 42, 'test_size' : 0.5, 'train_size': 0.8,
+PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 44, 'test_size' : 0.5, 'train_size': 0.8,
                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
 #todo : check 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]
@@ -63,33 +81,26 @@ ________________________________________________________________________________
 """
 
 RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))',
-'RFE_process' : 'short', 'output_feature_count':'rfeCV'} #[5, 10, 15, 20, 25]
+              'RFE_process' : 'short', 'output_feature_count':'rfeCV'}
 
-
+#[5, 10, 15, 20, 25]['rfeHyp', 'rfeCV', int]
 
 """
 ________________________________________________________________________________________________________________________
 MODEL
 ________________________________________________________________________________________________________________________
 """
+
 GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
-            'regul_range' : list(10.0 ** np.arange(-2, 2)),
-            'influence_range' : list(10.0 ** np.arange(-2, 2)),
-            'degree' : [2, 3],
-            'margin_range' : list(10.0 ** np.arange(-2, 2)),
-            'kernel_list' : [ 'linear', 'rbf']}
-
-
-# GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
-#             'regul_range' : list(10.0 ** np.arange(-4, 4)),
-#             'influence_range' : list(10.0 ** np.arange(-4, 4)),
-#             'degree' : [2, 3, 4],
-#             'margin_range' : list(10.0 ** np.arange(-4, 4)),
-#             'kernel_list' : ['poly', 'linear', 'rbf']}
+            'regul_range' : list(10.0 ** np.arange(-4, 4)),
+            'influence_range' : list(10.0 ** np.arange(-4, 4)),
+            'degree' : [2, 3, 4],
+            'margin_range' : list(10.0 ** np.arange(-4, 4)),
+            'kernel_list' : ['poly', 'linear', 'rbf']}
 
 """
 ________________________________________________________________________________________________________________________
-V1
+V1 - kernels  in params
 ________________________________________________________________________________________________________________________
 """
 

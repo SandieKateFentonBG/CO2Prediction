@@ -9,3 +9,5 @@ for GS_FS in GS_FSs:
 ereg = VotingRegressor([(name, model) for (name,model) in zip(ModelLs, ModelLsName)])
 
 ereg.fit(X, y)
+
+# https://www.geeksforgeeks.org/ensemble-methods-in-python/
