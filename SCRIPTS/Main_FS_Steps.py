@@ -1,8 +1,8 @@
 # todo : choose database - untoogle it and untoggle import line
 #DASHBOARD IMPORT
 # from dashBoard import *
-from Dashboard_PM_v2 import *
-# from Dashboard_EUCB_FR import *
+# from Dashboard_PM_v2 import *
+from Dashboard_EUCB_FR import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -65,7 +65,7 @@ def B_features(rdat):
     # REPORT
     print("Full df", df.shape)
     print(df)
-    dfAsTable(DB_Values['DBpath'], displayParams, df, objFolder='DATA')
+    dfAsTable(DB_Values['DBpath'], displayParams, df, objFolder='DATA', name = "DF")
 
     # STOCK
     pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df')
@@ -80,6 +80,7 @@ def C_data(df):
     # CONSTRUCT
     learningDf = removeOutliers(df, labels=RemoveOutliersFrom + yLabels,
                                 cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
+    dfAsTable(DB_Values['DBpath'], displayParams, learningDf, objFolder='DATA', name = "learningDf")
     # REPORT
     print("Outliers removed ", learningDf.shape)
     # STOCK
@@ -98,6 +99,10 @@ def D_format(learningDf):
                                 yUnitFactor=FORMAT_Values['yUnitFactor'], targetLabels=FORMAT_Values['targetLabels'],
                                 random_state=PROCESS_VALUES['random_state'], test_size=PROCESS_VALUES['test_size'],
                                 train_size=PROCESS_VALUES['train_size'])
+
+    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.trainDf, objFolder='DATA', name = "trainDf")
+    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.valDf, objFolder='DATA', name = "valDf")
+    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.testDf, objFolder='DATA', name = "testDf")
 
     # STOCK
     pickleDumpMe(DB_Values['DBpath'], displayParams, baseFormatedDf, 'DATA', 'baseFormatedDf')

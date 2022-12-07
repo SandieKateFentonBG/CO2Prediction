@@ -12,7 +12,6 @@ def removeOutliers(dataframe, labels, cutOffThreshhold):
     :return: Dataframe without outliers
 
     """
-
     for l in labels:
         noOutlierDf = removeOutlier(dataframe, l, cutOffThreshhold)
         dataframe = noOutlierDf

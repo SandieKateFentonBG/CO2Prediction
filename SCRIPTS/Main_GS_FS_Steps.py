@@ -1,7 +1,7 @@
 #DASHBOARD IMPORT
 # from dashBoard import *
-from Dashboard_PM_v2 import *
-# from Dashboard_EUCB_FR import *
+# from Dashboard_PM_v2 import *
+from Dashboard_EUCB_FR import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -19,6 +19,7 @@ from ModelResidualsPt import *
 from ModelParamPt import *
 from ModelMetricsPt import *
 from ModelWeightsPt import *
+from ModelBlending import *
 from Gridsearch import *
 from GridsearchPredTruthPt import *
 from GridsearchWeightsPt import *
@@ -53,8 +54,8 @@ def Run_GS_FS(learning_dfs): #, xQtQlLabels = (xQuantLabels, xQualLabels)
 
     #CONSTRUCT
     LR_CONSTRUCTOR = {'name' : 'LR',  'modelPredictor' : LinearRegression(),'param_dict' : dict()}
-    LR_RIDGE_CONSTRUCTOR = {'name' : 'LR_RIDGE',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
-    LR_LASSO_CONSTRUCTOR = {'name' : 'LR_LASSO',  'modelPredictor' : Ridge(),'param_dict' : LR_param_grid}
+    LR_LASSO_CONSTRUCTOR = {'name' : 'LR_LASSO',  'modelPredictor' : Lasso(),'param_dict' : LR_param_grid}
+    LR_RIDGE_CONSTRUCTOR = {'name' : 'LR_RIDGE',  'modelPredictor' : Ridge(),'param_dict' : LR_param_grid}
     LR_ELAST_CONSTRUCTOR = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
     KRR_LIN_CONSTRUCTOR = {'name': 'KRR_LIN', 'modelPredictor': KernelRidge(kernel='linear'), 'param_dict': KRR_param_grid}
     KRR_RBF_CONSTRUCTOR = {'name': 'KRR_RBF', 'modelPredictor': KernelRidge(kernel='rbf'), 'param_dict': KRR_param_grid}
@@ -87,9 +88,9 @@ def Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax):
     for scoreLabel, scoreMax in zip(scoreList, scoreListMax):
         GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None, score=scoreLabel,
                            studyFolder='GS_FS/')
-        GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
-                           score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
-                           maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
+        # GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
+        #                    score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
+        #                    maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
 
 def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf):
 
@@ -140,6 +141,22 @@ def Plot_GS_FS_SHAP(GS_FSs):
             plot_shap_group_cat(GS, xQuantLabels, xQualLabels, displayParams=displayParams, DBpath=DB_Values['DBpath'])
             plot_shap(GS, displayParams, DBpath=DB_Values['DBpath'], content='', studyFolder='GS_FS/')
 
+
+def Run_Blending(GS_FSs, displayParams, DBpath, n=10, display = True):
+    #CONSTRUCT
+    LR_CONSTRUCTOR = {'name': 'LR', 'modelPredictor': LinearRegression(), 'param_dict': dict()}
+    LR_RIDGE_CONSTRUCTOR = {'name': 'LR_RIDGE', 'modelPredictor': Ridge(), 'param_dict': LR_param_grid}
+
+    # CONSTRUCT & REPORT
+    sortedModelsData = sortedModels(GS_FSs)
+    nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n)
+    blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR)
+    reportBlending(blendModel, displayParams, DBpath)
+    pickleDumpMe(DBpath, displayParams, blendModel, 'GS_FS', blendModel.GSName)
+    print(nBestModels == blendModel)
+
+    return blendModel
+
 def Run_GS_FS_Study(import_FS_ref):
     """
     MODEL x FEATURE SELECTION GRIDSEARCH
@@ -156,10 +173,13 @@ def Run_GS_FS_Study(import_FS_ref):
     print('RUNNING GS_FS')
     GS_FSs = Run_GS_FS(learning_dfs)
 
+    # BLEND
+    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], 10, display = True)
+
     # REPORT
     print('REPORTING GS_FS')
     ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, GSwithFS=True)
+                baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, blendModel=blendModel, GSwithFS=True)
 
     scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
     scoreListMax = [True, False, True, True, True]
@@ -175,7 +195,7 @@ def Run_GS_FS_Study(import_FS_ref):
     Plot_GS_FS_PredTruth_Residuals(GS_FSs)
     Plot_GS_FS_SHAP(GS_FSs)
 
-    return GS_FSs
+    return GS_FSs, blendModel
 
 def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_LIN', 'KRR_RBF', 'KRR_POL', 'SVR_LIN','SVR_RBF']): #'SVR_POL'
 
@@ -189,3 +209,20 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
         GS_FSs.append(GS_FS)
 
     return GS_FSs
+
+def import_Main_Blender(import_reference, label = 'LR_RIDGE_Blender'):
+
+    path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + label + '.pkl'
+    Blender = pickleLoadMe(path=path, show=False)
+
+    return Blender
+
+def unpackGS_FSs(GS_FSs):
+    Model_List = []
+    for GS_FS in GS_FSs:
+        for learningDflabel in GS_FS.learningDfsList:
+            GS = GS_FS.__getattribute__(learningDflabel)
+            Model_List.append(GS)
+    return Model_List
+
+

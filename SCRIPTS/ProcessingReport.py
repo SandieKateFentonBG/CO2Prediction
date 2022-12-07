@@ -66,7 +66,7 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
                 print("Score on validation :", RFE.rfe_valScore)
                 print('')
 
-def dfAsTable (DBpath, displayParams, df, objFolder ='DATA'):
+def dfAsTable (DBpath, displayParams, df, objFolder ='DATA', name = "DF"):
 
     import pandas as pd
 
@@ -78,6 +78,6 @@ def dfAsTable (DBpath, displayParams, df, objFolder ='DATA'):
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
 
-        with pd.ExcelWriter(outputPathStudy + "DF" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + name + ".xlsx", mode='w') as writer:
 
                 df.to_excel(writer)

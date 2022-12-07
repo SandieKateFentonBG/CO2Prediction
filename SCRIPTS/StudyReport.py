@@ -1,5 +1,5 @@
 def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = True):
+                baseFormatedDf, FiltersLs, RFEs, GSlist, blendModel, GSwithFS = True):
 
     if displayParams['archive']:
 
@@ -71,7 +71,7 @@ def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
             keys = ['predictorName', 'selectorName',  'selectedLabels',
                  'param_dict', 'GridR2', 'GridR2Rank',  'GridMSERank',
                  'scoring', 'Index', 'Estimator','Param', 'Weights', 'WeightsScaled', 'SHAPScoreDict', 'SHAPGroupScoreDict',
-                 'TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc'] #'GridMSE',
+                 'ResidMean', 'ResidVariance', 'TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc'] #'GridMSE',
 
 
             writer.writerow(keys)
@@ -107,6 +107,22 @@ def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
 
             for elem in sortedModels:
                 writer.writerow(elem)
+
+            writer.writerow('')
+
+            writer.writerow(['BLENDING DATA'])
+
+            index = [model.GSName for model in blendModel.modelList] + [blendModel.GSName]
+            columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance',
+                       'ModelWeights']  #
+
+            import pandas as pd
+
+            BlendingDf = pd.DataFrame(columns=columns, index=index)
+            for col in columns[:-1]:
+                BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [
+                    blendModel.__getattribute__(col)]
+            BlendingDf['ModelWeights'] = [round(elem, 3) for elem in list(blendModel.ModelWeights)] + [0]
 
 
 

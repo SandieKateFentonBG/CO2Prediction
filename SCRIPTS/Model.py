@@ -38,28 +38,12 @@ class ModelGridsearch:
         if xQtQlLabels :
             self.computeSHAPGrouped(xQtQlLabels, NbFtExtracted = 5)
 
-        # self.bModel
-        # self.bModelParam
-        # self.bEstimator
-        # self.bIndex
-        # self.bModelTrainScore
-        # self.bModelTestScore
-        # self.bModelTestAcc
-        # self.bModelTestMSE
-        # self.bModelTestR2
-        # self.bModelResid
-
-        # print(self.name)
-        # print(self.bEstimator)
-        # print(self.features)
-        # print(self.featureSelection)
-
     def paramGridsearch(self, df):
 
         njobs = os.cpu_count() - 1 #todo : njobs was changed
         grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
                             n_jobs=njobs, return_train_score=True) #cv=cv
-        grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel()) #todo :fit transform?
+        grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel())
 
         self.GridMSE = [round(num, self.rounding) for num in grid.cv_results_['mean_test_neg_mean_squared_error']]
         self.GridMSEStd = [round(num, self.rounding) for num in list(grid.cv_results_['std_test_neg_mean_squared_error'])]
@@ -89,6 +73,8 @@ class ModelGridsearch:
         self.TestMSE = round(mean_squared_error(yTest, self.yPred), self.rounding)
         self.TestR2 = round(r2_score(yTest, self.yPred), self.rounding)
         self.Resid = yTest - self.yPred
+        self.ResidMean = round(np.mean(self.Resid),2)
+        self.ResidVariance = round(np.var(self.Resid),2)
 
         if hasattr(self.Grid.best_estimator_, 'coef_'):
             self.isLinear = True
@@ -190,6 +176,42 @@ class ModelGridsearch:
         for i in range(len(list(topNFeatures))):
             SHAPGroupScoreDict[list(topNFeatures)[i]] = NbFtExtracted-i
         self.SHAPGroupScoreDict = SHAPGroupScoreDict
+
+def computePrediction(GS):
+
+    predictor = GS.Estimator
+    learningDf = GS.learningDf
+    rounding = 3
+    accuracyTol = 0.15
+
+    XTrain, yTrain = learningDf.XTrain.to_numpy(), learningDf.yTrain.to_numpy().ravel()
+    XTest, yTest = learningDf.XTest.to_numpy(), learningDf.yTest.to_numpy().ravel()
+    yPred = predictor.predict(XTest)
+
+    TrainScore = round(predictor.score(XTrain, yTrain), rounding)
+    TestScore = round(predictor.score(XTest, yTest), rounding)
+    TestAcc = round(computeAccuracy(yTest, predictor.predict(XTest), accuracyTol), rounding)
+    TestMSE = round(mean_squared_error(yTest, yPred), rounding)
+    TestR2 = round(r2_score(yTest, yPred), rounding)
+    Resid = yTest - yPred
+
+    PredictionDict = dict()
+    PredictionDict['GS.XTrain.shape'] = XTrain.shape
+    PredictionDict['GS.XTest.shape'] = XTest.shape
+    PredictionDict['yPred'] = yPred
+
+    PredictionDict['TrainScore'] = TrainScore
+    PredictionDict['TestScore'] = TestScore
+    PredictionDict['TestMSE'] = TestMSE
+    PredictionDict['TestAcc'] = TestAcc
+    PredictionDict['Resid'] = Resid
+
+    for k,v in PredictionDict.items():
+        print(k,v)
+
+    return yPred, PredictionDict
+
+
 
 def scaledList(means, type='StandardScaler'):#'MinMaxScaler'
 
