@@ -87,7 +87,8 @@ def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
                         writer.writerow(v)
                         allModels.append(v)
 
-                sortedModels = sorted(allModels, key=lambda x: x[-1], reverse=True)
+                sortedModels_Acc = sorted(allModels, key=lambda x: x[-1], reverse=True)
+                sortedModels_MSE = sorted(allModels, key=lambda x: x[-3], reverse=True)
 
 
             else : # then GSlist should be GSs
@@ -96,37 +97,72 @@ def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
                     v = [Model.__getattribute__(keys[i]) for i in range(len(keys))]
                     writer.writerow(v)
                     allModels.append(v)
-                sortedModels = sorted(allModels, key=lambda x: x[-1], reverse=True)
-
+                # sortedModels = sorted(allModels, key=lambda x: x[-1], reverse=True)
+                sortedModels_Acc = sorted(allModels, key=lambda x: x[-1], reverse=True)
+                sortedModels_MSE = sorted(allModels, key=lambda x: x[-3], reverse=True)
 
             writer.writerow('')
 
-            writer.writerow(['SORTED GRIDSEARCH DATA'])
-
+            writer.writerow(['SORTED GRIDSEARCH DATA - Acc'])
             writer.writerow(keys)
+            for elem in sortedModels_Acc:
+                writer.writerow(elem)
 
-            for elem in sortedModels:
+            writer.writerow(['SORTED GRIDSEARCH DATA - MSE'])
+            writer.writerow(keys)
+            for elem in sortedModels_MSE:
                 writer.writerow(elem)
 
             writer.writerow('')
-
-            writer.writerow(['BLENDING DATA'])
-
-            index = [model.GSName for model in blendModel.modelList] + [blendModel.GSName]
-            columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance',
-                       'ModelWeights']  #
-
-            import pandas as pd
-
-            BlendingDf = pd.DataFrame(columns=columns, index=index)
-            for col in columns[:-1]:
-                BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [
-                    blendModel.__getattribute__(col)]
-            BlendingDf['ModelWeights'] = [round(elem, 3) for elem in list(blendModel.ModelWeights)] + [0]
-
-
+            # writer.writerow(['BLENDING DATA'])
+            #
+            # index = [model.GSName for model in blendModel.modelList] + [blendModel.GSName]
+            # columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance',
+            #            'ModelWeights']  #
+            #
+            # import pandas as pd
+            #
+            # BlendingDf = pd.DataFrame(columns=columns, index=index)
+            # for col in columns[:-1]:
+            #     BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [
+            #         blendModel.__getattribute__(col)]
+            # BlendingDf['ModelWeights'] = [round(elem, 3) for elem in list(blendModel.ModelWeights)] + [0]
+            #
+            # writer.writerow(BlendingDf)
 
 
         e.close()
 
 
+def reportCombinedStudies(studies_Blender, displayParams, DBpath, random_seeds = None):
+
+    import pandas as pd
+    if displayParams['archive']:
+        import os
+        reference = displayParams['reference']
+        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'RECORDS/'
+        outputPathStudy = path + folder + subFolder
+
+        if not os.path.isdir(outputPathStudy):
+            os.makedirs(outputPathStudy)
+
+        AllDfs = []
+
+        for blendModel in studies_Blender:
+            if random_seeds:
+                sheetNames = [str(elem) for elem in random_seeds]
+            else :
+                sheetNames = [str(elem) for elem in list(range(len(studies_Blender)))]
+
+            index = [model.GSName for model in blendModel.modelList] + [blendModel.GSName]
+            columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #
+            BlendingDf = pd.DataFrame(columns=columns, index=index)
+            for col in columns[:-1]:
+                BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [blendModel.__getattribute__(col)]
+            BlendingDf['ModelWeights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0]
+
+            AllDfs.append(BlendingDf)
+
+            with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_CombinedReport" + ".xlsx", mode='w') as writer:
+                for df, name in zip(AllDfs, sheetNames):
+                    df.to_excel(writer, sheet_name=name)

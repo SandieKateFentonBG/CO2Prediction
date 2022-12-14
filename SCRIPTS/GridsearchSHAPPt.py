@@ -24,7 +24,7 @@ def computeSHAP(GS):
     return shap_values, explainer
 
 
-def plot_shap(GS, displayParams, DBpath, content='', studyFolder='GS_FS/'):
+def plot_shap_SummaryPlot(GS, displayParams, DBpath, content='', studyFolder='GS_FS/'):
     """Plot shap summary for a fitted estimator and a set of test with its labels."""
 
     # shap_values, explainer = computeSHAP(GS)
@@ -43,14 +43,76 @@ def plot_shap(GS, displayParams, DBpath, content='', studyFolder='GS_FS/'):
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-        plt.savefig(outputFigPath + '/SHAP_' + GS.GSName + '.png')
+        plt.savefig(outputFigPath + '/SHAP_summary' + GS.GSName + '.png')
     if displayParams['showPlot']:
         plt.show()
     plt.close()
 
 
 
-def plot_shap_group_cat(GS, xQuantLabels, xQualLabels, displayParams, DBpath, content='', studyFolder='GS_FS/'):
+def plot_shap_DecisionPlot(GS, displayParams, DBpath,  studyFolder='GS_FS/'):
+    """Plot shap decision for a fitted estimator and a set of test with its labels."""
+
+    # https://shap-lrjball.readthedocs.io/en/latest/generated/shap.decision_plot.html
+    shap_values = GS.SHAPvalues
+    # y_pred = GS.yPred
+    expected_value = GS.SHAPexplainer.expected_value
+    #todo : this doesn't work for every model - ex : no selector
+    misclassified = abs(GS.yPred - GS.learningDf.yTest) < abs(GS.learningDf.yTest) * GS.accuracyTol
+
+    # plot & save SHAP
+    plt.gcf().set_size_inches(14, 6)
+
+
+
+    shap_decision = shap.decision_plot(base_value = expected_value, shap_values = shap_values,auto_size_plot=False,
+                                       features = GS.learningDf.XTest,highlight=misclassified,
+                                       show=displayParams['showPlot'],title = GS.GSName)
+    plt.yticks(fontsize=14)
+    plt.suptitle(GS.GSName, ha="right", size = 'large' )
+
+    reference = displayParams['reference']
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'SHAP'
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/SHAP_Decison_' + GS.GSName + '.png')
+
+    plt.close()
+
+def plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath, studyFolder='GS_FS/'):
+    """Plot shap decision for a fitted estimator and a set of test with its labels."""
+
+    # https://shap-lrjball.readthedocs.io/en/latest/generated/shap.decision_plot.html
+
+    expected_value = GS.SHAPexplainer.expected_value
+    misclassified = abs(GS.yPred - GS.learningDf.yTest) < abs(GS.learningDf.yTest) * GS.accuracyTol
+
+    # plot & save SHAP
+    plt.gcf().set_size_inches(14, 6)
+    shap_decision = shap.decision_plot(base_value=expected_value, shap_values=GS.SHAPGroupvalues, auto_size_plot=False,
+                                       feature_names=list(GS.SHAPGroup_RemapDict.keys()), highlight=misclassified,
+                                       show=displayParams['showPlot'], title=GS.GSName)
+    plt.suptitle(GS.GSName, ha="right", size='large')
+
+    reference = displayParams['reference']
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'SHAP'
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/SHAP_GROUPED_Decison_' + GS.GSName + '.png')
+
+    plt.close()
+
+
+
+
+
+def plot_shap_group_cat_SummaryPlot(GS, xQuantLabels, xQualLabels, displayParams, DBpath, content='', studyFolder='GS_FS/'):
     """Plot shap summary for a fitted estimator and a set of test with its labels - categorical features will be grouped."""
 
     # shap_values, explainer = computeSHAP(GS)
@@ -73,6 +135,7 @@ def plot_shap_group_cat(GS, xQuantLabels, xQualLabels, displayParams, DBpath, co
         plt.savefig(outputFigPath + '/SHAP_GROUPED_' + GS.GSName + '.png')
     if displayParams['showPlot']:
         plt.show()
+
     plt.close()
 
 

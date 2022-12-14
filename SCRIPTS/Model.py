@@ -73,7 +73,7 @@ class ModelGridsearch:
         self.TestMSE = round(mean_squared_error(yTest, self.yPred), self.rounding)
         self.TestR2 = round(r2_score(yTest, self.yPred), self.rounding)
         self.Resid = yTest - self.yPred
-        self.ResidMean = round(np.mean(self.Resid),2)
+        self.ResidMean = round(np.mean(np.abs(self.Resid)),2) #
         self.ResidVariance = round(np.var(self.Resid),2)
 
         if hasattr(self.Grid.best_estimator_, 'coef_'):

@@ -72,14 +72,14 @@ class BlendModel:
         self.TestR2 = round(r2_score(self.yTest, self.yPred), self.rounding)
         self.Resid = self.yTest - self.yPred
 
-        self.ResidMean = round(np.mean(self.Resid),2)
+        self.ResidMean = round(np.mean(np.abs(self.Resid)),2) #round(np.mean(self.Resid),2)
         self.ResidVariance = round(np.var(self.Resid),2)
 
         self.ModelWeights = self.Estimator.coef_
 
 def sortedModels(GS_FSs):
     #sorting key = 'TestAcc' , last in list
-    keys = ['predictorName', 'selectorName', 'TestAcc']
+    keys = ['predictorName', 'selectorName',  'TestAcc']
 
     allModels = []
 
@@ -93,23 +93,40 @@ def sortedModels(GS_FSs):
             v = [GS.__getattribute__(keys[k]) for k in range(len(keys))]
             v.append(indexPredictor)
             v.append(indexLearningDf)
+            # v.append(GS)
+
             allModels.append(v)
 
     sortedModelsData = sorted(allModels, key=lambda x: x[-3], reverse=True)
 
     return sortedModelsData
 
-def selectnBestModels(GS_FSs, sortedModelsData, n=10):
+def selectnBestModels(GS_FSs, sortedModelsData, n=10, checkR2 = True):
     nBestModels = []
 
-    for data in sortedModelsData[0:n+1] : #data =['predictorName', 'selectorName', 'TestAcc', indexPredictor, indexLearningDf]
-        predictor=GS_FSs[data[3]]
-        DfLabel=predictor.learningDfsList[data[4]]
-        selector = predictor.__getattribute__(DfLabel)
-        nBestModels.append(selector)
+    if checkR2: #ony take models with positive R2
+
+        count = 0
+
+        # while len(nBestModels) < n:
+        for data in sortedModelsData:  # data =['predictorName', 'selectorName', 'TestAcc', indexPredictor, indexLearningDf]
+            predictor = GS_FSs[data[3]]
+            DfLabel = predictor.learningDfsList[data[4]]
+            selector = predictor.__getattribute__(DfLabel)
+            if selector.TestScore > 0 and selector.TrainScore > 0:
+                nBestModels.append(selector)
+        nBestModels = nBestModels[0:n]
+
+    else :
+
+        for data in sortedModelsData[0:n] : #data =['predictorName', 'selectorName', 'TestAcc', indexPredictor, indexLearningDf]
+            predictor=GS_FSs[data[3]]
+            DfLabel=predictor.learningDfsList[data[4]]
+            selector = predictor.__getattribute__(DfLabel)
+
+            nBestModels.append(selector)
 
     return nBestModels
-
 
 
 def reportBlending(blendModel, displayParams, DBpath):

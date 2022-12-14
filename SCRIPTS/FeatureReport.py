@@ -53,8 +53,6 @@ def ReportFeatureImportance(DBpath, displayParams, GS_FSs, xQuantLabels, xQualLa
     SHAPScoreDf = pd.DataFrame(columns=xLabels, index=yLabels_all)
     SHAPGroupScoreDf = pd.DataFrame(columns=xLabels, index=yLabels_cat)
 
-    print('a')
-
     for i in range(len(xLabels)):
         # print(xLabels[i])
         # fill in weights, weightsScaled
@@ -82,12 +80,15 @@ def ReportFeatureImportance(DBpath, displayParams, GS_FSs, xQuantLabels, xQualLa
     sortedDfs = []
     for df in allDfs:
         df.loc[:,'Total'] = df.sum(axis=1)
-        print('total')
-        sortedDf = df.sort_values('Total', ascending = False)
-        print('sortedDf', sortedDf)
+        df.loc[:,'Occurences'] = df.notnull().sum(axis=1) - 1
+        # df.loc[:,'Total/Occurences'] = df.sum(axis=1) / df.notnull().sum(axis=1)
+        df.loc[:,'Total/Occurences'] = df['Total']/ df['Occurences'] #check this
+
+        sortedDf = df.sort_values('Total/Occurences', ascending = False)
+
         sortedDfs.append(sortedDf)
     allDfs += sortedDfs
-    print('a')
+
 
     featureScoreDfName = ['weightsDf', 'WeightsScaledDf','SHAPDf','SHAPGroupDf','SHAPScoreDf', 'SHAPGroupScoreDf',
         'weightsDfsorted', 'WeightsScaledDfsorted','SHAPDfsorted','SHAPGroupDfsorted','SHAPScoreDfsorted', 'SHAPGroupScoreDfsorted']

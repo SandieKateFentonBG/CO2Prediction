@@ -1,6 +1,6 @@
 import numpy as np
 
-['CSTB_rd42/', 'CSTB_rd43/','CSTB_rd44/','CSTB_rd45/','CSTB_rd46/','CSTB_rd47/','CSTB_rd48/']
+
 
 """
 ________________________________________________________________________________________________________________________
@@ -9,7 +9,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'CSTB_GHG_P2_sum_m2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False}
+displayParams = {"reference" : 'CSTB_residential_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False}
 
 """
 ________________________________________________________________________________________________________________________
@@ -21,8 +21,9 @@ ________________________________________________________________________________
 """
 EUCB-FR
 """
-DB_Values = {"DBpath" : "C:/Users/sfenton/Code/Repositories/CO2Prediction/", "DBname" : "EU-ECB_dataset_feature_engineered_fr_sf",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_'} #"EU-ECB_dataset_feature_engineered_fr_sf"
+DB_Values = {"DBpath" : "C:/Users/sfenton/Code/Repositories/CO2Prediction/",
+             "DBname" : "EU-ECB_dataset_feature_engineered_fr_residential_skf",
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_residential_'} #"EU-ECB_dataset_feature_engineered_fr_skf",
 
 xQualLabels = [
 'bldg_use_subtype',
@@ -33,21 +34,24 @@ xQualLabels = [
 'inv_mat_1_type',
 'scope_parts',
 'bldg_year_complete_interval']
-#incomplete : 'bldg_floors_ag','bldg_energy_class_general',
 
-#useless for this study ['admin_project_contact', 'bldg_use_type', 'bldg_project_status', 'site_country', 'bldg_QTO_type', 'lca_RSP', 'bldg_certification','lca_software', 'lca_database', 'scope_handling_D',]
+#add or remove : 'bldg_use_type''bldg_use_type',
+
+#incomplete : 'bldg_floors_ag','bldg_energy_class_general',
+#useless for this study ['admin_project_contact',  'bldg_project_status', 'site_country', 'bldg_QTO_type', 'lca_RSP', 'bldg_certification','lca_software', 'lca_database', 'scope_handling_D',]
 
 xQuantLabels = ['bldg_area_gfa', 'bldg_floors_bg']
 #incomplete : 'bldg_floors_ag','inv_energy_consumption','bldg_users_total',
 RemoveOutliersFrom = ['bldg_area_gfa']
-yLabels = ['GHG_sum_em_m2'] #'GHG_sum_em_m2''GHG_P1_sum_m2a','GHG_P2_sum_m2'
 
-
+yLabels = ['GHG_sum_em_m2'] #'GHG_P2_sum_m2'
 
 #yLabels
 #'GHG_sum_em_m2' (max - 1799,718511)
+#'GHG_P2_sum_m2'
 #'GHG_A123_m2_harm_LCM' (max - 1226,516419)
 #'GHG_P1_sum_m2a'
+
 FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
 
 #'yUnitFactor' converts from yLabel unit to target Label unit:

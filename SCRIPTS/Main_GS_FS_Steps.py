@@ -135,25 +135,31 @@ def Plot_GS_FS_PredTruth_Residuals(GS_FSs):
                            studyFolder='GS_FS/')
 
 def Plot_GS_FS_SHAP(GS_FSs):
-    for GS_FS in GS_FSs:
-        for learningDflabel in GS_FS.learningDfsList:
-            GS = GS_FS.__getattribute__(learningDflabel)
-            plot_shap_group_cat(GS, xQuantLabels, xQualLabels, displayParams=displayParams, DBpath=DB_Values['DBpath'])
-            plot_shap(GS, displayParams, DBpath=DB_Values['DBpath'], content='', studyFolder='GS_FS/')
+
+    Model_List = unpackGS_FSs(GS_FSs)
+
+    for GS in Model_List[6:]:
+
+        plot_shap_group_cat_SummaryPlot(GS, xQuantLabels, xQualLabels, displayParams=displayParams, DBpath=DB_Values['DBpath'])
+        plot_shap_SummaryPlot(GS, displayParams, DBpath=DB_Values['DBpath'], content='', studyFolder='GS_FS/')
+        if GS.selectorName != 'NoSelector':
+            plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
+            plot_shap_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
 
 
-def Run_Blending(GS_FSs, displayParams, DBpath, n=10, display = True):
+def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2):
     #CONSTRUCT
     LR_CONSTRUCTOR = {'name': 'LR', 'modelPredictor': LinearRegression(), 'param_dict': dict()}
     LR_RIDGE_CONSTRUCTOR = {'name': 'LR_RIDGE', 'modelPredictor': Ridge(), 'param_dict': LR_param_grid}
 
     # CONSTRUCT & REPORT
     sortedModelsData = sortedModels(GS_FSs)
-    nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n)
+    nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
+    print(len(nBestModels), nBestModels)
+    print( [model.GSName for model in nBestModels])
     blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR)
     reportBlending(blendModel, displayParams, DBpath)
     pickleDumpMe(DBpath, displayParams, blendModel, 'GS_FS', blendModel.GSName)
-    print(nBestModels == blendModel)
 
     return blendModel
 
@@ -166,15 +172,18 @@ def Run_GS_FS_Study(import_FS_ref):
                                                                                                show=False)
     learning_dfs = [spearmanFilter, pearsonFilter] + RFEs + [baseFormatedDf]
 
-    # IMPORT Main_GS_FS
-    # GS_FSs = import_Main_GS_FS(import_reference)
+
+    # # IMPORT Main_GS_FS
+    # GS_FSs = import_Main_GS_FS(import_FS_ref)
 
     # RUN GS_FS
+    print('')
     print('RUNNING GS_FS')
     GS_FSs = Run_GS_FS(learning_dfs)
 
     # BLEND
-    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], 10, display = True)
+    print('RUNNING BLENDING')
+    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], 10, checkR2 = True)
 
     # REPORT
     print('REPORTING GS_FS')
@@ -203,8 +212,8 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
     for FS_GS_lab in GS_FS_List_Labels:
         path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
         GS_FS = pickleLoadMe(path=path, show=False)
-        for DfLabel in GS_FS.learningDfsList:
-            GS = GS_FS.__getattribute__(DfLabel)
+        # for DfLabel in GS_FS.learningDfsList:
+        #     GS = GS_FS.__getattribute__(DfLabel)
 
         GS_FSs.append(GS_FS)
 
@@ -217,12 +226,19 @@ def import_Main_Blender(import_reference, label = 'LR_RIDGE_Blender'):
 
     return Blender
 
-def unpackGS_FSs(GS_FSs):
+# def unpackGS_FSs(GS_FSs):
+#     Model_List = []
+#     for GS_FS in GS_FSs:
+#         for learningDflabel in GS_FS.learningDfsList:
+#             GS = GS_FS.__getattribute__(learningDflabel)
+#             Model_List.append(GS)
+#     return Model_List
+
+def unpackGS_FSs(GS_FSs, remove = ''):
     Model_List = []
     for GS_FS in GS_FSs:
         for learningDflabel in GS_FS.learningDfsList:
             GS = GS_FS.__getattribute__(learningDflabel)
-            Model_List.append(GS)
+            if GS.predictorName != remove:
+                Model_List.append(GS)
     return Model_List
-
-
