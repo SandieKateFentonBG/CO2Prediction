@@ -73,7 +73,6 @@ def ReportFeatureImportance(DBpath, displayParams, GS_FSs, xQuantLabels, xQualLa
         for shapLab, shapVal in zip(shapGroupScoreLabels[i], shapGroupScoreLs[i]):
             SHAPGroupScoreDf.loc[[shapLab], [xLabels[i]]] = shapVal
 
-    print('a')
     # SHAPScoreDf.loc[:,'Total'] = SHAPScoreDf.sum(axis=1)
 
     allDfs = [weightsDf, WeightsScaledDf,SHAPDf,SHAPGroupDf,SHAPScoreDf, SHAPGroupScoreDf]

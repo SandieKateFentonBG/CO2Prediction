@@ -219,6 +219,6 @@ def import_Main_FS(import_reference, show = False):
     RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/RFEs.pkl', show = show)
 
     learning_dfs = [spearmanFilter, pearsonFilter] + RFEs + [baseFormatedDf]
-    print("Learning dataframes (%s) :" % len(learning_dfs), learning_dfs )
+    # print("Learning dataframes (%s) :" % len(learning_dfs), learning_dfs )
 
     return rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs

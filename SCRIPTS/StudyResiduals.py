@@ -29,6 +29,95 @@ def AssembleStudyResiduals(studies):
 
     return residualsDict
 
+def AssembleStudyResults(studies, label):
+    resultsDict = dict()
+
+    for predictor in studies[0]:
+        for learningDflabel in predictor.learningDfsList:
+            model = predictor.__getattribute__(learningDflabel)
+            resultsDict[model.GSName] = []
+
+    for study in studies:
+        for predictor in study:
+            for learningDflabel in predictor.learningDfsList:
+                model = predictor.__getattribute__(learningDflabel)
+                resultsDict[model.GSName].append(model.__getattribute__(label))
+
+    # for k, v in residualsDict.items():
+    #     residualsDict[k] = mergeList(v)
+
+    return resultsDict
+
+def ReportStudyResults(studies, displayParams, DBpath):
+
+    """    create a dictionary compiling model accuracies for all 10 studies,
+    as well as average accuracy, residual Mean and Residual Variance"""
+
+    SummaryDict = dict()
+    FullDict = dict()
+
+    for predictor in studies[0]:
+        for learningDflabel in predictor.learningDfsList:
+            model = predictor.__getattribute__(learningDflabel)
+            SummaryDict[model.GSName] = []
+            FullDict[model.GSName] = []
+
+    for label in ['TestAcc']: #, 'TestMSE', 'ResidMean'
+        list = []
+        for study in studies: #10
+            for predictor in study: #9
+                for learningDflabel in predictor.learningDfsList: #6
+                    model = predictor.__getattribute__(learningDflabel)
+                    list.append(model.__getattribute__(label))
+                    FullDict[model.GSName].append(list)
+
+    TestAccDict = AssembleStudyResults(studies, 'TestAcc')
+    TestMSEDict = AssembleStudyResults(studies, 'TestMSE')
+    ResidMeanDict = AssembleStudyResults(studies, 'ResidMean')
+
+    for k in TestAccDict.keys():
+        avgAcc1 = round(np.mean(TestAccDict[k]), 3)
+        stdAcc1 = round(np.std(TestAccDict[k]), 3)
+        avgAcc2 = round(np.mean(TestMSEDict[k]), 3)
+        stdAcc2 = round(np.std(TestMSEDict[k]), 3)
+        avgAcc3 = round(np.mean(ResidMeanDict[k]), 3)
+        stdAcc3 = round(np.std(ResidMeanDict[k]), 3)
+        SummaryDict[k] = [avgAcc1, stdAcc1, avgAcc2, stdAcc2, avgAcc3, stdAcc3]
+
+        #
+        # for k, v in FullDict.items():
+        #     for list in v:
+        #         avgAcc = round(np.mean(list), 3)
+        #         stdAcc = round(np.std(list), 3)
+        #         SummaryDict[k]+=[avgAcc, stdAcc]
+        #         print(k, len(list), avgAcc, stdAcc)
+
+    # track results
+    columns = ['TestAcc-Mean','TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std','Resid-Mean','Resid-Std']
+    ResultsDf = pd.DataFrame(columns=columns, index=SummaryDict.keys())
+    for i in range(len(columns)):
+        ResultsDf[columns[i]] = [SummaryDict[k][i] for k in SummaryDict.keys()]
+    # ResidualsDf['variance'] = variances
+    sortedDf = ResultsDf.sort_values('TestAcc-Mean', ascending=False)
+    AllDfs = [ResultsDf, sortedDf]
+    sheetNames = ['GridsearchResults', 'Sorted_GridsearchResults']
+
+    reference = displayParams['reference']
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'RECORDS/'
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+
+        with pd.ExcelWriter(outputFigPath + reference[:-6] + '_GridsearchResults' + ".xlsx", mode='w') as writer:
+            for df, name in zip(AllDfs, sheetNames):
+                df.to_excel(writer, sheet_name=name)
+
+
+    return ResultsDf
+
+
 def AssembleBlenderResiduals(studies_Blender):
     residualsDict = dict()
     residualsDict["all"] = []
@@ -58,7 +147,7 @@ def plotResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyF
 
         reference = displayParams['reference']
         if displayParams['archive']:
-            path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/' + studyFolder
+            path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
@@ -130,7 +219,7 @@ def plotResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, studyFo
 
         reference = displayParams['reference']
         if displayParams['archive']:
-            path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/' + studyFolder
+            path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
@@ -165,7 +254,7 @@ def plotCombinedResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath
 
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/' + studyFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
@@ -240,7 +329,7 @@ def plotCombinedResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath,
 
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/' + studyFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
@@ -276,3 +365,19 @@ def ReportResiduals(models, means, variances, displayParams, DBpath):
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
+def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_Values, DBpath):
+
+    models, means, variances = plotResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                                     studyFolder='GaussianPlot')
+    ReportResiduals(models, means, variances, displayParams, DBpath)
+
+    plotResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath, studyFolder='Histplot')
+    plotCombinedResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                   studyFolder='Histplot-all')
+    plotCombinedResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                  studyFolder='GaussianPlot-all')
+
+    plotCombinedResidualsHistogram(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                   studyFolder='Histplot-selection', blended=True)
+    plotCombinedResidualsGaussian(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                  studyFolder='GaussianPlot-selection', blended=True)

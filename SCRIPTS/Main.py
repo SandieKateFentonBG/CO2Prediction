@@ -11,33 +11,33 @@ from Main_GS_FS_Steps import *
 from FeatureReport import *
 from StudyResiduals import *
 from ModelBlending import *
+from CombineSHAP import *
+
 
 # 'CSTB_rd' 'PMV2_rd''CSTB_A123_rd''CSTB_rd'
 DBname = DB_Values['acronym'] + yLabels[0] + '_rd' #'CSTB_rd'
-
-
 
 #todo : change database link !
 
 studies_GS_FS = []
 studies_Blender = []
 # randomvalues = list(range(42, 53))
-randomvalues = list(range(33, 44))
+randomvalues = list(range(33, 44))#44
 
-for value in randomvalues:
-    PROCESS_VALUES['random_state'] = value
-    displayParams["reference"] = DBname + str(PROCESS_VALUES['random_state']) + '/'
-    print('Run Study for random_state:', value)
-#
-#     # RUN
-    rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
-    GS_FSs, blendModel = Run_GS_FS_Study(DBname + str(PROCESS_VALUES['random_state']) + '/')
+# for value in randomvalues:
+#     PROCESS_VALUES['random_state'] = value
+#     displayParams["reference"] = DBname + str(PROCESS_VALUES['random_state']) + '/'
+#     print('Run Study for random_state:', value)
+# #
+# #     # RUN
+#     rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
+#     GS_FSs, blendModel = Run_GS_FS_Study(DBname + str(PROCESS_VALUES['random_state']) + '/')
 
 #IMPORT
 for value in randomvalues:
     PROCESS_VALUES['random_state'] = value
     displayParams["reference"] = DBname + str(PROCESS_VALUES['random_state']) + '/'
-    print('Run Study for random_state:', value)
+    print('Import Study for random_state:', value)
 
     #IMPORT
     import_reference = displayParams["reference"]
@@ -62,29 +62,19 @@ for value in randomvalues:
 # PredictionDict = computePrediction(GS)
 
 #COMBINE
-reportCombinedStudies(studies_Blender, displayParams, DB_Values['DBpath'], random_seeds = randomvalues)
+# reportCombinedStudies(studies_Blender, displayParams, DB_Values['DBpath'], random_seeds = randomvalues)
+# ResultsDf = ReportStudyResults(studies_GS_FS, displayParams, DB_Values['DBpath'])
+#
+# RUN_CombinedResiduals(studies_GS_FS, displayParams, FORMAT_Values, DBpath = DB_Values['DBpath'])
+RUN_SHAP_Combined(displayParams, DB_Values["DBpath"], studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels)
 
-plotResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'], studyFolder ='Histplot')
-models, means, variances = plotResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'], studyFolder='GaussianPlot')
 
-ReportResiduals(models, means, variances, displayParams, DB_Values['DBpath'])
 
-plotCombinedResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'], studyFolder='Histplot-all')
-plotCombinedResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'], studyFolder='GaussianPlot-all')
-
-plotCombinedResidualsHistogram(studies_Blender, displayParams, FORMAT_Values, DB_Values['DBpath'],
-                               studyFolder='Histplot-selection', blended = True)
-plotCombinedResidualsGaussian(studies_Blender, displayParams, FORMAT_Values, DB_Values['DBpath'],
-                              studyFolder='GaussianPlot-selection', blended = True)
 
 
 # combine all residuals
 # interpret shap > does this mean i can predict from the top 5?
-# remove categories with less then 10 examples
-# why is embodied structural carbon so bad?
-# understand outlyers
-# journal
-#remove negative r2 from nbest models
+
 #blending report for study
 
 
@@ -109,6 +99,8 @@ plotCombinedResidualsGaussian(studies_Blender, displayParams, FORMAT_Values, DB_
 # 3. all embodied - resid data > CSTB_residential_rd
 # 2. only structural - resid data
 
+
+# nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n=10, checkR2 = True)
 
 # Questions:
 

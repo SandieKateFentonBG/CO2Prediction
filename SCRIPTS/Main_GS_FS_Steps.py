@@ -155,8 +155,6 @@ def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2):
     # CONSTRUCT & REPORT
     sortedModelsData = sortedModels(GS_FSs)
     nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
-    print(len(nBestModels), nBestModels)
-    print( [model.GSName for model in nBestModels])
     blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR)
     reportBlending(blendModel, displayParams, DBpath)
     pickleDumpMe(DBpath, displayParams, blendModel, 'GS_FS', blendModel.GSName)
