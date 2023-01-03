@@ -1,7 +1,8 @@
 #DASHBOARD IMPORT
 # from dashBoard import *
 # from Dashboard_PM_v2 import *
-from Dashboard_EUCB_FR import *
+# from Dashboard_EUCB_FR import *
+from Dashboard_EUCB_FR_v2 import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -79,18 +80,19 @@ def Run_GS_FS(learning_dfs): #, xQtQlLabels = (xQuantLabels, xQualLabels)
 #
     return GS_FSs
 
-def Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax):
+def Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = False):
 
     # SCORES
     for scoreLabel in scoreList:
         heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score=scoreLabel, studyFolder='GS_FS/')
 
-    for scoreLabel, scoreMax in zip(scoreList, scoreListMax):
-        GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None, score=scoreLabel,
-                           studyFolder='GS_FS/')
-        # GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
-        #                    score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
-        #                    maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
+    if plot_all:
+        for scoreLabel, scoreMax in zip(scoreList, scoreListMax):
+            GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None, score=scoreLabel,
+                               studyFolder='GS_FS/')
+            GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
+                               score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
+                               maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
 
 def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf):
 
@@ -108,44 +110,55 @@ def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf):
                               DBpath=DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS', sorted=True, yLim=4,
                               df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
 
-def Plot_GS_FS_Metrics(GS_FSs):
+def Plot_GS_FS_Metrics(GS_FSs, plot_all = False):
     # METRICS
     GS_MetricsSummaryPlot(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FSs', scatter=True,
                           studyFolder='GS_FS/')
-    for GS_FS in GS_FSs:
-        GS_MetricsSummaryPlot([GS_FS], displayParams, DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS',
-                              scatter=True, studyFolder='GS_FS/')
+    if plot_all:
+        for GS_FS in GS_FSs:
+            GS_MetricsSummaryPlot([GS_FS], displayParams, DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS',
+                                  scatter=True, studyFolder='GS_FS/')
 
-def Plot_GS_FS_PredTruth_Residuals(GS_FSs):
+def Plot_GS_FS_PredTruth(GS_FSs, plot_all = False):
     # PREDICTION VS GROUNDTRUTH
     GS_predTruthCombined(displayParams, GS_FSs, DB_Values['DBpath'], content='GS_FSs', scatter=True, fontsize=14,
                          studyFolder='GS_FS/')  # scatter=False for groundtruth as line
     for GS_FS in GS_FSs:
         GS_predTruthCombined(displayParams, [GS_FS], DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS',
                              scatter=True, fontsize=14, studyFolder='GS_FS/')
+    if plot_all:
+        for GS_FS in GS_FSs:
+            for learningDflabel in GS_FS.learningDfsList:
+                GS = GS_FS.__getattribute__(learningDflabel)
+                plotPredTruth(displayParams=displayParams, modelGridsearch=GS, DBpath=DB_Values['DBpath'],
+                              TargetMinMaxVal=FORMAT_Values['TargetMinMaxVal'], fontsize=14, studyFolder='GS_FS/')
+
+def Plot_GS_FS_Residuals(GS_FSs, plot_all = False):
+
     for GS_FS in GS_FSs:
         for learningDflabel in GS_FS.learningDfsList:
             GS = GS_FS.__getattribute__(learningDflabel)
-            plotPredTruth(displayParams=displayParams, modelGridsearch=GS, DBpath=DB_Values['DBpath'],
-                          TargetMinMaxVal=FORMAT_Values['TargetMinMaxVal'], fontsize=14, studyFolder='GS_FS/')
-            plotResiduals(modelGridsearch=GS, displayParams=displayParams, DBpath=DB_Values['DBpath'],
-                          bins=20, binrange=[-200, 200], studyFolder='GS_FS/')
-            paramResiduals(modelGridsearch=GS, displayParams=displayParams, DBpath=DB_Values['DBpath'],
-                           yLim=PROCESS_VALUES['residualsYLim'], xLim=PROCESS_VALUES['residualsXLim'],
-                           studyFolder='GS_FS/')
+            if plot_all:
+                plotModelHistResiduals(modelGridsearch=GS, displayParams=displayParams, DBpath=DB_Values['DBpath'],
+                                       bins=20, binrange=[-200, 200], studyFolder='GS_FS/')
+            plotModelYellowResiduals(modelGridsearch=GS, displayParams=displayParams, DBpath=DB_Values['DBpath'],
+                                     yLim=PROCESS_VALUES['residualsYLim'], xLim=PROCESS_VALUES['residualsXLim'],
+                                     studyFolder='GS_FS/')
 
-def Plot_GS_FS_SHAP(GS_FSs):
+def Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = False):
 
-    Model_List = unpackGS_FSs(GS_FSs)
+    if plot_shap:
 
-    for GS in Model_List[6:]:
+        Model_List = unpackGS_FSs(GS_FSs)
 
-        plot_shap_group_cat_SummaryPlot(GS, xQuantLabels, xQualLabels, displayParams=displayParams, DBpath=DB_Values['DBpath'])
-        plot_shap_SummaryPlot(GS, displayParams, DBpath=DB_Values['DBpath'], content='', studyFolder='GS_FS/')
-        if GS.selectorName != 'NoSelector':
-            plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
-            plot_shap_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
+        for GS in Model_List:
+            plot_shap_group_cat_SummaryPlot(GS, xQuantLabels, xQualLabels, displayParams=displayParams, DBpath=DB_Values['DBpath'])
+            plot_shap_SummaryPlot(GS, displayParams, DBpath=DB_Values['DBpath'], content='', studyFolder='GS_FS/')
 
+            if plot_shap_decision :
+                if GS.selectorName != 'NoSelector':
+                    plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
+                    plot_shap_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
 
 def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2):
     #CONSTRUCT
@@ -196,11 +209,12 @@ def Run_GS_FS_Study(import_FS_ref):
 
     print('PLOTTING GS_FS')
     # PLOT
-    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax)
+    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = displayParams['plot_all'])
     Plot_GS_FS_Weights(GS_FSs, baseFormatedDf)
-    Plot_GS_FS_Metrics(GS_FSs)
-    Plot_GS_FS_PredTruth_Residuals(GS_FSs)
-    Plot_GS_FS_SHAP(GS_FSs)
+    Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
+    Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
+    Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
+    Plot_GS_FS_SHAP(GS_FSs, plot_shap = displayParams['plot_all'], plot_shap_decision = displayParams['plot_all'])
 
     return GS_FSs, blendModel
 
@@ -208,7 +222,8 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
 
     GS_FSs = []
     for FS_GS_lab in GS_FS_List_Labels:
-        path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
+        path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
+        # path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
         GS_FS = pickleLoadMe(path=path, show=False)
         # for DfLabel in GS_FS.learningDfsList:
         #     GS = GS_FS.__getattribute__(DfLabel)
@@ -218,19 +233,13 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
     return GS_FSs
 
 def import_Main_Blender(import_reference, label = 'LR_RIDGE_Blender'):
-
-    path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + label + '.pkl'
+    path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/GS_FS/' + label + '.pkl'
+    # path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + label + '.pkl'
     Blender = pickleLoadMe(path=path, show=False)
 
     return Blender
 
-# def unpackGS_FSs(GS_FSs):
-#     Model_List = []
-#     for GS_FS in GS_FSs:
-#         for learningDflabel in GS_FS.learningDfsList:
-#             GS = GS_FS.__getattribute__(learningDflabel)
-#             Model_List.append(GS)
-#     return Model_List
+
 
 def unpackGS_FSs(GS_FSs, remove = ''):
     Model_List = []

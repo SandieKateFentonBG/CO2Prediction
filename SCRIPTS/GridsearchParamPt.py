@@ -147,15 +147,13 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
     xl, yl, zl = unpackResPts(pts)
 
 
-    zl = [np.round(elem, 3) for elem in zl]
+    zl = [np.round(elem, 2) for elem in zl]
 
     results = np.reshape(zl, (len(xLabels), len(yLabels)))
     fig = plt.figure()
     fig, ax = plt.subplots()
     im = ax.imshow(results)
 
-    print('xLabels', len(xLabels), xLabels)
-    print('yLabels', len(yLabels), yLabels)
 
     # Show all ticks and label them with the respective list entries
     ax.set_xticks(np.arange(len(yLabels)))
@@ -165,7 +163,6 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
 
 
     df = pd.DataFrame(results, index=xLabels, columns=yLabels)
-    print(df)
 
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
@@ -189,7 +186,7 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
             os.makedirs(outputFigPath)
 
         plt.savefig(outputFigPath + '/' + figTitle + '.png')
-
+        print(outputFigPath)
     if displayParams['showPlot']:
         plt.show()
     plt.close()

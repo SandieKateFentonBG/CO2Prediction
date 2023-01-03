@@ -99,7 +99,7 @@ def plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath, studyFolder='GS_
 
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'SHAP'
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'SHAP-GROUPED'
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
