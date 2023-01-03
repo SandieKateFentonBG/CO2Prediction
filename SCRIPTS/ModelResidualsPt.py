@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def paramResiduals(modelGridsearch, displayParams, DBpath, yLim = None , xLim = None, fontsize = None, studyFolder = 'GS/' ):
+def plotModelYellowResiduals(modelGridsearch, displayParams, DBpath, yLim = None, xLim = None, fontsize = None, studyFolder ='GS/'):
 
     df = modelGridsearch.learningDf
     if displayParams['showPlot'] or displayParams['archive']:
@@ -55,7 +55,7 @@ def paramResiduals(modelGridsearch, displayParams, DBpath, yLim = None , xLim = 
 
 
 
-def plotResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = None , studyFolder = 'GS/' ):
+def plotModelHistResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = None, studyFolder ='GS/'):
 
     #todo : adapt bin count / bin range
 

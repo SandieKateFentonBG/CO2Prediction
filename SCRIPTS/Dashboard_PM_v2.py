@@ -7,7 +7,7 @@
 # """
 # #change when running a test
 #
-# displayParams = {"reference" : 'PMV2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False}
+# displayParams = {"reference" : 'PMV2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 #
 # """
 # ________________________________________________________________________________________________________________________

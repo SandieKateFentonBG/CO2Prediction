@@ -130,7 +130,7 @@ def AssembleBlenderResiduals(studies_Blender):
 
     return residualsDict
 
-def plotResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot'):
+def plotStudyResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot'):
 
     residualsDict = AssembleStudyResiduals(studies)
 
@@ -160,8 +160,24 @@ def plotResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyF
 
         plt.close()
 
-def plotResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot', binwidth=25,
-                          setxLim=[-300, 300], fontsize=14):
+def analyzeStudyResiduals(studies):
+
+    # assemble residuals
+    residualsDict = AssembleStudyResiduals(studies)
+    models, means, variances = [], [], []
+
+    for k, v in residualsDict.items():
+        arr = np.array(v)
+        mean = np.mean(arr)  #
+        variance = np.var(arr)
+        models.append(k)
+        means.append(round(np.abs(mean), 2))
+        variances.append(round(variance, 2))
+
+    return models, means, variances
+
+def plotStudyResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot', binwidth=25,
+                               setxLim=[-300, 300], fontsize=14):
 
     from scipy.stats import norm
     import seaborn as sns
@@ -231,18 +247,20 @@ def plotResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, studyFo
             plt.show()
         plt.close()
 
-    return models, means, variances
+    # return models, means, variances
 
 def plotCombinedResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot', blended = False):
 
     if blended : #only takes nBestmodels
         residualsDict = AssembleBlenderResiduals(studies)
+        title = 'Residuals distribution for 10 best models over 10 runs'
     else : #takes all models
         residualsDict = AssembleStudyResiduals(studies)
+        title = 'Residuals distribution for all models over 10 runs'
 
     mergedList = mergeList(list(residualsDict.values()))
 
-    title = 'Residuals distribution'
+    # title = 'Residuals distribution'
     x = "Residuals [%s]" % FORMAT_Values['targetLabels']
     fig, ax = plt.subplots()
 
@@ -276,8 +294,10 @@ def plotCombinedResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath,
     # assemble residuals
     if blended : #only takes nBestmodels
         residualsDict = AssembleBlenderResiduals(studies)
+        title = 'Residuals distribution for 10 best models over 10 runs'
     else : #takes all models
         residualsDict = AssembleStudyResiduals(studies)
+        title = 'Residuals distribution for all models over 10 runs'
 
     listResVal = mergeList(list(residualsDict.values()))
     arr = np.array(listResVal)
@@ -300,7 +320,7 @@ def plotCombinedResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath,
         print("bin min changed to :", setxLim[0])
 
     # for k, v in residualsDict.items():
-    title = 'Residuals distribution for '
+    # title = 'Residuals distribution for '
     x = "Residuals [%s]" % FORMAT_Values['targetLabels']
     fig, ax = plt.subplots()
 
@@ -367,17 +387,20 @@ def ReportResiduals(models, means, variances, displayParams, DBpath):
 
 def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_Values, DBpath):
 
-    models, means, variances = plotResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                                     studyFolder='GaussianPlot')
+    models, means, variances = analyzeStudyResiduals(studies_GS_FS)
     ReportResiduals(models, means, variances, displayParams, DBpath)
 
-    plotResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath, studyFolder='Histplot')
-    plotCombinedResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                   studyFolder='Histplot-all')
+    plotStudyResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                                          studyFolder='GaussianPlot_indivModels')
     plotCombinedResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                  studyFolder='GaussianPlot-all')
-
-    plotCombinedResidualsHistogram(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                   studyFolder='Histplot-selection', blended=True)
+                                  studyFolder='GaussianPlot_groupedModels')
     plotCombinedResidualsGaussian(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                  studyFolder='GaussianPlot-selection', blended=True)
+                                  studyFolder='GaussianPlot_bestModels', blended=True)
+
+    if displayParams['plot_all']:
+        plotStudyResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                    studyFolder='Histplot_indivModels')
+        plotCombinedResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                       studyFolder='Histplot_groupedModels')
+        plotCombinedResidualsHistogram(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                       studyFolder='Histplot_bestModels', blended=True)
