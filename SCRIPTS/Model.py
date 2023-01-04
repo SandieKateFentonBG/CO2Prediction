@@ -115,10 +115,11 @@ class ModelGridsearch:
         # convert SHAP as dataframe
         df_shap_values = pd.DataFrame(data=self.SHAPvalues, columns=self.learningDf.XTrain.columns)
         SHAPdf = pd.DataFrame(columns=['feature', 'importance'])
+        #todo : check this !
         for col in df_shap_values.columns:
             importance = df_shap_values[col].abs().mean()
             SHAPdf.loc[len(SHAPdf)] = [col, importance]
-        self.SHAPdf = SHAPdf.sort_values('importance', ascending=False)
+        self.SHAPdf = SHAPdf.sort_values('importance', ascending=False) # df (nX2*) col1 = featuresnames / col2 = meanSHApvalue  for all tested data
 
         # extract top n features and give score : lower is better (0 for highest)
         SHAPScoreDict = dict()

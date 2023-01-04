@@ -10,7 +10,7 @@ def mergeList(list):
 
     return [j for i in list for j in i]
 
-def AssembleStudyResiduals(studies):
+def AssembleCVResiduals(studies):
     residualsDict = dict()
 
     for predictor in studies[0]:
@@ -29,7 +29,7 @@ def AssembleStudyResiduals(studies):
 
     return residualsDict
 
-def AssembleStudyResults(studies, label):
+def AssembleCVResults(studies, label):
     resultsDict = dict()
 
     for predictor in studies[0]:
@@ -48,7 +48,7 @@ def AssembleStudyResults(studies, label):
 
     return resultsDict
 
-def ReportStudyResults(studies, displayParams, DBpath):
+def reportCV_ScoresAvg_All(studies, displayParams, DBpath):
 
     """    create a dictionary compiling model accuracies for all 10 studies,
     as well as average accuracy, residual Mean and Residual Variance"""
@@ -71,9 +71,9 @@ def ReportStudyResults(studies, displayParams, DBpath):
                     list.append(model.__getattribute__(label))
                     FullDict[model.GSName].append(list)
 
-    TestAccDict = AssembleStudyResults(studies, 'TestAcc')
-    TestMSEDict = AssembleStudyResults(studies, 'TestMSE')
-    ResidMeanDict = AssembleStudyResults(studies, 'ResidMean')
+    TestAccDict = AssembleCVResults(studies, 'TestAcc')
+    TestMSEDict = AssembleCVResults(studies, 'TestMSE')
+    ResidMeanDict = AssembleCVResults(studies, 'ResidMean')
 
     for k in TestAccDict.keys():
         avgAcc1 = round(np.mean(TestAccDict[k]), 3)
@@ -110,7 +110,7 @@ def ReportStudyResults(studies, displayParams, DBpath):
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
-        with pd.ExcelWriter(outputFigPath + reference[:-6] + '_GridsearchResults' + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputFigPath + reference[:-6] + '_CV_ScoresAvg_All' + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
@@ -130,9 +130,9 @@ def AssembleBlenderResiduals(studies_Blender):
 
     return residualsDict
 
-def plotStudyResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot'):
+def plotCVResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot'):
 
-    residualsDict = AssembleStudyResiduals(studies)
+    residualsDict = AssembleCVResiduals(studies)
 
     for k, v in residualsDict.items():
         title = 'Residuals distribution for ' + k
@@ -160,10 +160,10 @@ def plotStudyResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, s
 
         plt.close()
 
-def analyzeStudyResiduals(studies):
+def analyzeCVResiduals(studies):
 
     # assemble residuals
-    residualsDict = AssembleStudyResiduals(studies)
+    residualsDict = AssembleCVResiduals(studies)
     models, means, variances = [], [], []
 
     for k, v in residualsDict.items():
@@ -176,14 +176,14 @@ def analyzeStudyResiduals(studies):
 
     return models, means, variances
 
-def plotStudyResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot', binwidth=25,
-                               setxLim=[-300, 300], fontsize=14):
+def plotCVResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot', binwidth=25,
+                            setxLim=[-300, 300], fontsize=14):
 
     from scipy.stats import norm
     import seaborn as sns
 
     # assemble residuals
-    residualsDict = AssembleStudyResiduals(studies)
+    residualsDict = AssembleCVResiduals(studies)
     models, means, variances = [], [], []
 
     listResVal = mergeList(list(residualsDict.values()))
@@ -249,13 +249,13 @@ def plotStudyResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, st
 
     # return models, means, variances
 
-def plotCombinedResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot', blended = False):
+def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot', blended = False):
 
     if blended : #only takes nBestmodels
         residualsDict = AssembleBlenderResiduals(studies)
         title = 'Residuals distribution for 10 best models over 10 runs'
     else : #takes all models
-        residualsDict = AssembleStudyResiduals(studies)
+        residualsDict = AssembleCVResiduals(studies)
         title = 'Residuals distribution for all models over 10 runs'
 
     mergedList = mergeList(list(residualsDict.values()))
@@ -285,9 +285,9 @@ def plotCombinedResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath
 
     plt.close()
 
-def plotCombinedResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot',
-                                  binwidth=25,
-                                  setxLim=[-300, 300], fontsize=14, blended = False):
+def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot',
+                                     binwidth=25,
+                                     setxLim=[-300, 300], fontsize=14, blended = False):
     from scipy.stats import norm
     import seaborn as sns
 
@@ -296,7 +296,7 @@ def plotCombinedResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath,
         residualsDict = AssembleBlenderResiduals(studies)
         title = 'Residuals distribution for 10 best models over 10 runs'
     else : #takes all models
-        residualsDict = AssembleStudyResiduals(studies)
+        residualsDict = AssembleCVResiduals(studies)
         title = 'Residuals distribution for all models over 10 runs'
 
     listResVal = mergeList(list(residualsDict.values()))
@@ -363,7 +363,7 @@ def plotCombinedResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath,
 
     return mean, variance
 
-def ReportResiduals(models, means, variances, displayParams, DBpath):
+def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
 
     # track mean and variance of residuals
     ResidualsDf = pd.DataFrame(columns=['mean', 'variance'], index=models)
@@ -381,26 +381,26 @@ def ReportResiduals(models, means, variances, displayParams, DBpath):
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
-        with pd.ExcelWriter(outputFigPath + reference[:-6] + '_ResidualsCombined' + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputFigPath + reference[:-6] + '_CV_Residuals_All' + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
 def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_Values, DBpath):
 
-    models, means, variances = analyzeStudyResiduals(studies_GS_FS)
-    ReportResiduals(models, means, variances, displayParams, DBpath)
+    models, means, variances = analyzeCVResiduals(studies_GS_FS)
+    reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
 
-    plotStudyResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                                          studyFolder='GaussianPlot_indivModels')
-    plotCombinedResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                  studyFolder='GaussianPlot_groupedModels')
-    plotCombinedResidualsGaussian(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                  studyFolder='GaussianPlot_bestModels', blended=True)
+    plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                     studyFolder='GaussianPlot_bestModels', blended=True)
+    plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                     studyFolder='GaussianPlot_groupedModels')
+    plotCVResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                            studyFolder='GaussianPlot_indivModels')
 
     if displayParams['plot_all']:
-        plotStudyResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                    studyFolder='Histplot_indivModels')
-        plotCombinedResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                       studyFolder='Histplot_groupedModels')
-        plotCombinedResidualsHistogram(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                       studyFolder='Histplot_bestModels', blended=True)
+        plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                 studyFolder='Histplot_indivModels')
+        plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                          studyFolder='Histplot_groupedModels')
+        plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                          studyFolder='Histplot_bestModels', blended=True)

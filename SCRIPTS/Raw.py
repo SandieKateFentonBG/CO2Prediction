@@ -93,7 +93,7 @@ class RawData:
             import pandas as pd
             import numpy as np
 
-            title += "- Datasource (%s):" % dbName
+            # title += "- Datasource (%s):" % dbName
             if xLabel in self.xQuali.keys():
                 xList = self.xQuali[xLabel]
                 labels = self.possibleQualities[xLabel]

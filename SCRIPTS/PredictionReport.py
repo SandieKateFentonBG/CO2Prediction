@@ -1,6 +1,6 @@
 from HelpersVisualizer import *
 
-def ReportPredictionAsTxt (DBpath, displayParams, modelGS, objFolder ='GS_FS', display = True):
+def reportGS_TxtScores_All (DBpath, displayParams, modelGS, objFolder ='GS_FS', display = True):
 
     if displayParams['archive']:
         import os
@@ -59,7 +59,7 @@ def ReportPredictionAsTxt (DBpath, displayParams, modelGS, objFolder ='GS_FS', d
                 print('')
 
 
-def ReportPrediction (DBpath, displayParams, GS_FSs, scoreList, display = True):
+def reportGS_Scores_All (DBpath, displayParams, GS_FSs, scoreList, display = True):
 
     if displayParams['archive']:
         import os
@@ -78,7 +78,7 @@ def ReportPrediction (DBpath, displayParams, GS_FSs, scoreList, display = True):
                 print('Results for :', score)
                 print(scoreDf)
 
-        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_PredictionReport" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_All" + ".xlsx", mode='w') as writer:
             for scoreDf, score in zip(scoreDfs, scoreList):
                 scoreDf.to_excel(writer, sheet_name=score)
 

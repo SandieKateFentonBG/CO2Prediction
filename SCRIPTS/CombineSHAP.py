@@ -51,8 +51,8 @@ def CombineAbsSHAP(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels):
 
     return SHAPDf,SHAPGroupDf
 
-def CombineAllSHAP(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels):
-    yLabels_all = studies_GS_FS[0][0].__getattribute__('NoSelector').selectedLabels #ex bldg_area
+def formatCV_SHAP_NBest(CV_BlenderNBest, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = None):
+    yLabels_all = studies_GS_FS[0][0].__getattribute__('NoSelector').selectedLabels #ex bldg_area - this retrieves all y labels
 
     yLabels_cat = xQuantLabels + xQualLabels
     xLabels = [] #ex LR_LASSO_Fl_Spearman
@@ -60,30 +60,44 @@ def CombineAllSHAP(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels):
     xGroupLabels = []
 
     shapLabelsLs = []
-    shapLs = []
+    shapValuesLs = []
 
     shapGroupLabels = []
-    shapGroupLs = []
+    shapGroupValuesLs = []
 
     #"query labels and values"
-    for blendModel in studies_Blender:
-        for GS in blendModel.modelList:
 
-            name = GS.GSName
+    if randomValues:
+        seeds = randomValues
+    else:
+        seeds = list(range(len(CV_BlenderNBest)))
 
-            df_shap_values = pd.DataFrame(data=GS.SHAPvalues.T, index=GS.SHAPdf['feature'])
+    for BlenderNBest, seed in zip(CV_BlenderNBest, seeds): #10studies
+        for Model in BlenderNBest.modelList: #10best
+
+            name = Model.GSName #LR_RFR
+
+
+            df_shap_values = pd.DataFrame(data=Model.SHAPvalues.T, index=Model.SHAPdf['feature']) #index = rows
+
 
             for i in range(len(df_shap_values.columns)):
-                xLabels.append(name + str(i))
-                shapLabelsLs.append(list(GS.SHAPdf['feature']))
-                shapLs.append(list(df_shap_values.iloc[:, i]))
+                xLabels.append(name + '_sample' +str(i) + '_seed' + str(seed)) # ex LR_RFR_test1_seed38
+                shapLabelsLs.append(list(Model.SHAPdf['feature'])) #ex : [Gifa, floors_bg, structure]
+                shapValuesLs.append(list(df_shap_values.iloc[:, i])) # ex [1,2,3] #1 list per tested sample
 
-            df_shapGroup_values = pd.DataFrame(data=GS.SHAPGroupvalues.T, index=GS.SHAPGroupDf['feature'])
+
+
+            df_shapGroup_values = pd.DataFrame(data=Model.SHAPGroupvalues.T, index=Model.SHAPGroupDf['feature'])
 
             for i in range(len(df_shapGroup_values.columns)):
-                xGroupLabels.append(name + str(i))
-                shapGroupLabels.append(list(GS.SHAPGroupDf['feature']))
-                shapGroupLs.append(list(df_shapGroup_values.iloc[:, i]))
+                xGroupLabels.append(name + '_sample' + str(i) + '_seed' + str(seed))
+                shapGroupLabels.append(list(Model.SHAPGroupDf['feature']))
+                shapGroupValuesLs.append(list(df_shapGroup_values.iloc[:, i]))
+
+            # print("xGroupLabels", len(xGroupLabels), xGroupLabels)
+            # print("shapGroupLabels", len(shapGroupLabels), shapGroupLabels)
+            # print("shapGroupLs", len(shapGroupValuesLs), shapGroupValuesLs)
 
 
     #create empty dfs
@@ -91,17 +105,17 @@ def CombineAllSHAP(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels):
     SHAPGroupDf = pd.DataFrame(columns=xGroupLabels, index=yLabels_cat)
 
 
-    for i in range(len(shapLabelsLs)): #col par col
-        for j in range(len(shapLabelsLs[i])):
-            SHAPDf.loc[[shapLabelsLs[i][j]], [xLabels[i]]] = shapLs[i][j]
+    for i in range(len(shapLabelsLs)): #col par col #ex i = 4 : [[Gifa, floors_bg, structure][Gifa, floors_bg, structure][Gifa, floors_bg, structure][Gifa, floors_bg, structure]]
+        for j in range(len(shapLabelsLs[i])): #ex : j = 3
+            SHAPDf.loc[[shapLabelsLs[i][j]], [xLabels[i]]] = shapValuesLs[i][j] #ex : HAPDf.loc[[structure], [LR_RFR_test1_seed38]] = 3
 
     for i in range(len(shapGroupLabels)): #col par col
         for j in range(len(shapGroupLabels[i])):
-            SHAPGroupDf.loc[[shapGroupLabels[i][j]], [xGroupLabels[i]]] = shapGroupLs[i][j]
+            SHAPGroupDf.loc[[shapGroupLabels[i][j]], [xGroupLabels[i]]] = shapGroupValuesLs[i][j]
 
     return SHAPDf,SHAPGroupDf
 
-def Report_shap_CombinedSummaryPlot(SHAPDf,SHAPGroupDf, displayParams, DBpath):
+def reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, displayParams, DBpath):
 
     AllDfs = [SHAPDf, SHAPGroupDf]
     sheetNames = ['SHAPDf', 'SHAPGroupDf', 'SHAPDfsorted', 'SHAPGroupDfsorted']
@@ -112,7 +126,7 @@ def Report_shap_CombinedSummaryPlot(SHAPDf,SHAPGroupDf, displayParams, DBpath):
         df.loc[:, 'Occurences'] = df.notnull().sum(axis=1) - 1
         df.loc[:, 'Total/Occurences'] = df['Total'] / df['Occurences']  # check this
 
-        sortedDf = df.sort_values('Total/Occurences', ascending=False)
+        sortedDf = df.sort_values('Total', ascending=False)
 
         sortedDfs.append(sortedDf)
     AllDfs += sortedDfs
@@ -124,11 +138,11 @@ def Report_shap_CombinedSummaryPlot(SHAPDf,SHAPGroupDf, displayParams, DBpath):
 
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CombinedSHAP" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_SHAP_NBest" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-def plot_shap_CombinedSummaryPlot(SHAPDf, displayParams, DBpath, content=''):
+def plotSHAPSummary_NBest(SHAPDf, displayParams, DBpath, content=''):
     """Plot combined shap summary for fitted estimators and a set of test with its labels"""
 
     newDf = SHAPDf.fillna(0)
@@ -138,7 +152,7 @@ def plot_shap_CombinedSummaryPlot(SHAPDf, displayParams, DBpath, content=''):
     # plot & save SHAP values
     shap_summary = shap.summary_plot(shap_values=shap_values, features=features, plot_type="dot", show=False)
 
-    plt.suptitle('Combined SHAP', ha="right", size = 'large' )
+    plt.suptitle('Summary of SHAP values - ' + content, ha="right", size = 'large' )
     plt.gcf().set_size_inches(12, 6)
     reference = displayParams['reference']
     if displayParams['archive']:
@@ -154,11 +168,11 @@ def plot_shap_CombinedSummaryPlot(SHAPDf, displayParams, DBpath, content=''):
     plt.close()
 
 
-def RUN_SHAP_Combined(displayParams, DBpath, studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels):
+def RUN_SHAP_Combined(displayParams, DBpath, studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = None):
 
-    SHAPDf,SHAPGroupDf = CombineAllSHAP(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels)
+    SHAPDf,SHAPGroupDf = formatCV_SHAP_NBest(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = randomValues)
 
-    plot_shap_CombinedSummaryPlot(SHAPDf, displayParams, DBpath, content='SHAPDf')
-    plot_shap_CombinedSummaryPlot(SHAPGroupDf, displayParams, DBpath, content='SHAPGroupDf')
+    plotSHAPSummary_NBest(SHAPDf, displayParams, DBpath, content='Ungrouped')
+    plotSHAPSummary_NBest(SHAPGroupDf, displayParams, DBpath, content='Grouped')
 
-    Report_shap_CombinedSummaryPlot(SHAPDf, SHAPGroupDf, displayParams, DBpath)
+    reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, displayParams, DBpath)

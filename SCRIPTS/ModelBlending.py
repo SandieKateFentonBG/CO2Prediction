@@ -117,6 +117,17 @@ def selectnBestModels(GS_FSs, sortedModelsData, n=10, checkR2 = True):
                 nBestModels.append(selector)
         nBestModels = nBestModels[0:n]
 
+        if len(nBestModels) == 0: # keep n best models if all R2 are negative
+            print('nbestmodels selected with negative R2')
+
+            for data in sortedModelsData[
+                        0:n]:  # data =['predictorName', 'selectorName', 'TestAcc', indexPredictor, indexLearningDf]
+                predictor = GS_FSs[data[3]]
+                DfLabel = predictor.learningDfsList[data[4]]
+                selector = predictor.__getattribute__(DfLabel)
+
+                nBestModels.append(selector)
+
     else :
 
         for data in sortedModelsData[0:n] : #data =['predictorName', 'selectorName', 'TestAcc', indexPredictor, indexLearningDf]
@@ -129,7 +140,7 @@ def selectnBestModels(GS_FSs, sortedModelsData, n=10, checkR2 = True):
     return nBestModels
 
 
-def reportBlending(blendModel, displayParams, DBpath):
+def reportGS_Scores_Blending(blendModel, displayParams, DBpath):
 
 
     if displayParams['archive']:
@@ -151,7 +162,7 @@ def reportBlending(blendModel, displayParams, DBpath):
         AllDfs = [BlendingDf, sortedDf]
         sheetNames = ['Residuals_MeanVar', 'Sorted_Residuals_MeanVar']
 
-        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_BlendingReport" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_Blending" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 

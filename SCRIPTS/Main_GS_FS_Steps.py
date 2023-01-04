@@ -75,7 +75,7 @@ def Run_GS_FS(learning_dfs): #, xQtQlLabels = (xQuantLabels, xQualLabels)
                                             modelPredictor=constructor['modelPredictor'], param_dict=constructor['param_dict'],
                                                 xQtQlLabels = (xQuantLabels, xQualLabels))
         GS_FSs.append(GS_FS)
-        ReportPredictionAsTxt(DB_Values['DBpath'], displayParams, GS_FS, objFolder='GS_FS', display=True)
+        reportGS_TxtScores_All(DB_Values['DBpath'], displayParams, GS_FS, objFolder='GS_FS', display=True)
         pickleDumpMe(DB_Values['DBpath'], displayParams, GS_FS, 'GS_FS', constructor['name'])
 #
     return GS_FSs
@@ -169,12 +169,12 @@ def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2):
     sortedModelsData = sortedModels(GS_FSs)
     nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
     blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR)
-    reportBlending(blendModel, displayParams, DBpath)
+    reportGS_Scores_Blending(blendModel, displayParams, DBpath)
     pickleDumpMe(DBpath, displayParams, blendModel, 'GS_FS', blendModel.GSName)
 
     return blendModel
 
-def Run_GS_FS_Study(import_FS_ref):
+def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     """
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
@@ -185,12 +185,15 @@ def Run_GS_FS_Study(import_FS_ref):
 
 
     # # IMPORT Main_GS_FS
-    # GS_FSs = import_Main_GS_FS(import_FS_ref)
-
+    if importMainGSFS : #models already calibrated
+        print('')
+        print('IMPORTING GS_FS')
+        GS_FSs = import_Main_GS_FS(import_FS_ref)
+    else:
     # RUN GS_FS
-    print('')
-    print('RUNNING GS_FS')
-    GS_FSs = Run_GS_FS(learning_dfs)
+        print('')
+        print('RUNNING GS_FS')
+        GS_FSs = Run_GS_FS(learning_dfs)
 
     # BLEND
     print('RUNNING BLENDING')
@@ -198,14 +201,15 @@ def Run_GS_FS_Study(import_FS_ref):
 
     # REPORT
     print('REPORTING GS_FS')
-    ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, blendModel=blendModel, GSwithFS=True)
+    reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+                      baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, blendModel=blendModel, GSwithFS=True)
 
     scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
     scoreListMax = [True, False, True, True, True]
-    ReportPrediction(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList,display=True)
+    reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=True)
 
-    ReportFeatureImportance(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels)
+    reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, blender=blendModel)
+    reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, blender=blendModel)
 
     print('PLOTTING GS_FS')
     # PLOT
@@ -214,7 +218,7 @@ def Run_GS_FS_Study(import_FS_ref):
     Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
     Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
     Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
-    Plot_GS_FS_SHAP(GS_FSs, plot_shap = displayParams['plot_all'], plot_shap_decision = displayParams['plot_all'])
+    Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
 
     return GS_FSs, blendModel
 
@@ -225,8 +229,6 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
         path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
         # path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
         GS_FS = pickleLoadMe(path=path, show=False)
-        # for DfLabel in GS_FS.learningDfsList:
-        #     GS = GS_FS.__getattribute__(DfLabel)
 
         GS_FSs.append(GS_FS)
 
@@ -234,12 +236,9 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
 
 def import_Main_Blender(import_reference, label = 'LR_RIDGE_Blender'):
     path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/GS_FS/' + label + '.pkl'
-    # path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + label + '.pkl'
     Blender = pickleLoadMe(path=path, show=False)
 
     return Blender
-
-
 
 def unpackGS_FSs(GS_FSs, remove = ''):
     Model_List = []

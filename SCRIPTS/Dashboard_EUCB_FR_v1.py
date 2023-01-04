@@ -9,7 +9,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'CSTB_res_wf_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
+displayParams = {"reference" : 'CSTB_res_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 
 """
 ________________________________________________________________________________________________________________________
@@ -22,19 +22,22 @@ ________________________________________________________________________________
 EUCB-FR
 """
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
-             "DBname" : "EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-no_floors_ag",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf_WEC'} #"EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-with_floors_ag",
+             "DBname" : "EU-ECB_dataset_fr_residential",
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_f_WEC'} #"EU-ECB_dataset_fr"
 
-xQualLabels = [
-'Use_Subtype', 'Structure', 'Roof', 'Energy_Class', 'Main_Material']
+xQualLabels = ['Use_Subtype', 'Area_Interval', 'Structure', 'Roof', 'Energy_Class', 'Main_Material', 'Scope_Parts', 'Completion_Interval']
 
 #for next run > remove floors above ground and replace database
 
-xQuantLabels = ['Gross_Floor_Area', 'Users_Total', 'Floors_Below_Ground'] #, 'Floors_Above_Ground'
+#add or remove : 'Use_Type'
+#incomplete : 'bldg_floors_ag','bldg_energy_class_general',
+#useless for this study ['admin_project_contact',  'bldg_project_status', 'site_country', 'bldg_QTO_type', 'lca_RSP', 'bldg_certification','lca_software', 'lca_database', 'scope_handling_D',]
 
-RemoveOutliersFrom = ['Gross_Floor_Area', 'Users_Total'] #'Floors_Above_Ground'
+xQuantLabels = ['Gross_Floor_Area',  'Floors_Below_Ground'] #
+#incomplete : 'Floors_Above_Ground','Energy_Consumption','Users_Total',
+RemoveOutliersFrom = ['Gross_Floor_Area']
 
-yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #'Embodied_Carbon_Structure[kgCO2e/m2]'
+yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #'Embodied_Carbon_Structure[kgCO2e_m2]'
 
 FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
 

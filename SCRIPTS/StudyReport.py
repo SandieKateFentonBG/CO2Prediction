@@ -1,5 +1,5 @@
-def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                baseFormatedDf, FiltersLs, RFEs, GSlist, blendModel, GSwithFS = True):
+def reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+                      baseFormatedDf, FiltersLs, RFEs, GSlist, blendModel, GSwithFS = True):
 
     if displayParams['archive']:
 
@@ -14,7 +14,6 @@ def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
         type = 'GS_'
         if GSwithFS:
             type = 'GS_FS_'
-
 
         import csv
 
@@ -114,27 +113,11 @@ def ReportStudy(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VAL
                 writer.writerow(elem)
 
             writer.writerow('')
-            # writer.writerow(['BLENDING DATA'])
-            #
-            # index = [model.GSName for model in blendModel.modelList] + [blendModel.GSName]
-            # columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance',
-            #            'ModelWeights']  #
-            #
-            # import pandas as pd
-            #
-            # BlendingDf = pd.DataFrame(columns=columns, index=index)
-            # for col in columns[:-1]:
-            #     BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [
-            #         blendModel.__getattribute__(col)]
-            # BlendingDf['ModelWeights'] = [round(elem, 3) for elem in list(blendModel.ModelWeights)] + [0]
-            #
-            # writer.writerow(BlendingDf)
-
 
         e.close()
 
 
-def reportCombinedStudies(studies_Blender, displayParams, DBpath, random_seeds = None):
+def reportCV_Scores_NBest(studies_Blender, displayParams, DBpath, random_seeds = None):
 
     import pandas as pd
     if displayParams['archive']:
@@ -162,7 +145,73 @@ def reportCombinedStudies(studies_Blender, displayParams, DBpath, random_seeds =
             BlendingDf['ModelWeights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0]
 
             AllDfs.append(BlendingDf)
-
-            with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_CombinedReport" + ".xlsx", mode='w') as writer:
+            with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_NBest" + ".xlsx", mode='w') as writer:
                 for df, name in zip(AllDfs, sheetNames):
                     df.to_excel(writer, sheet_name=name)
+
+def reportCV_CV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath):
+
+    import pandas as pd
+
+    horizTitles = []
+    horizLabels = []
+    horizValues = []
+
+    vertiLabels = []
+
+    #query 54 model names for columns
+    for predictor in CV_AllModels[0]:
+        for learningDflabel in predictor.learningDfsList:
+            Model = predictor.__getattribute__(learningDflabel)
+            name = Model.GSName  # LR_RFR
+            vertiLabels.append(name) #verti = models
+
+    for BlenderNBest, seed in zip(CV_BlenderNBest, seeds): #10studies
+        horizTitle = seed #ex : 38
+        horizLabel = []
+        horizValue = []
+        for Model in BlenderNBest.modelList: #10best
+            name = Model.GSName
+            acc = Model.TestAcc
+            horizLabel.append(name) #ex : [LR_RFR, LR_DTR, LR_GBR]
+            horizValue.append(acc) #ex : [0.8, 0.8, 0.8]
+        horizTitles.append(horizTitle)#ex : [38 38 38]
+        horizLabels.append(horizLabel) #ex : [[LR_RFR, LR_DTR, LR_GBR][LR_RFR, LR_DTR, LR_GBR][LR_RFR, LR_DTR, LR_GBR]]
+        horizValues.append(horizValue) #ex : [[0.8, 0.8, 0.8][0.8, 0.8, 0.8][0.8, 0.8, 0.8]]
+
+    # create empty dfs
+    ScoresDf = pd.DataFrame(columns=horizTitles, index=vertiLabels)
+
+    for i in range(len(horizLabels)): #col par col #ex i = 4 : [[Gifa, floors_bg, structure][Gifa, floors_bg, structure][Gifa, floors_bg, structure][Gifa, floors_bg, structure]]
+        for j in range(len(horizLabels[i])): #ex : j = 3
+            ScoresDf.loc[[horizLabels[i][j]], [horizTitles[i]]] = horizValues[i][j] #ex : HAPDf.loc[[structure], [LR_RFR_test1_seed38]] = 3
+    print("vertiLabels", vertiLabels)
+    print("horizTitles", horizTitles)
+    print("horizLabels", len(horizLabels))
+    print("horizValues", len(horizValues))
+
+    print("ScoresDf", ScoresDf)
+    AllDfs = [ScoresDf]
+    sheetNames = ['ScoresDf', 'ScoresDfsorted']
+
+    sortedDfs = []
+    for df in AllDfs:
+        df.loc[:, 'Total'] = df.abs().sum(axis=1)
+        df.loc[:, 'Occurences'] = df.notnull().sum(axis=1) - 1
+        df.loc[:, 'Total/Occurences'] = df['Total'] / df['Occurences']  # check this
+
+        sortedDf = df.sort_values('Total', ascending=False)
+        sortedDfs.append(sortedDf)
+    AllDfs += sortedDfs
+
+    if displayParams['archive']:
+        import os
+        reference = displayParams['reference']
+        outputPathStudy = DBpath + "RESULTS/" + reference[:-6] + '_Combined/' + 'RECORDS/'
+
+        if not os.path.isdir(outputPathStudy):
+            os.makedirs(outputPathStudy)
+        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_ModelRanking_NBest" + ".xlsx", mode='w') as writer:
+            for df, name in zip(AllDfs, sheetNames):
+                df.to_excel(writer, sheet_name=name)
+
