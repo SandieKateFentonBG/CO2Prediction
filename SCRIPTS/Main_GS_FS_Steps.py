@@ -166,7 +166,7 @@ def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2):
     LR_RIDGE_CONSTRUCTOR = {'name': 'LR_RIDGE', 'modelPredictor': Ridge(), 'param_dict': LR_param_grid}
 
     # CONSTRUCT & REPORT
-    sortedModelsData = sortedModels(GS_FSs)
+    sortedModelsData = sortedModels(GS_FSs, score = 'TestR2') #TODO : the score was changed here
     nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
     blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR)
     reportGS_Scores_Blending(blendModel, displayParams, DBpath)

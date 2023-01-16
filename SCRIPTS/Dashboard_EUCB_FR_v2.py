@@ -9,7 +9,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'CSTB_res_wf_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
+displayParams = {"reference" : 'CSTB_res_nf_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 
 """
 ________________________________________________________________________________________________________________________
@@ -34,7 +34,7 @@ xQuantLabels = ['Gross_Floor_Area', 'Users_Total', 'Floors_Below_Ground'] #, 'Fl
 
 RemoveOutliersFrom = ['Gross_Floor_Area', 'Users_Total'] #'Floors_Above_Ground'
 
-yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #'Embodied_Carbon_Structure[kgCO2e/m2]'
+yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #'Embodied_Carbon_Structure[kgCO2e_m2]'
 
 FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
 
