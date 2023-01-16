@@ -128,7 +128,7 @@ def selectnBestModels(GS_FSs, sortedModelsData, n=10, checkR2 = True):
 
                 nBestModels.append(selector)
 
-    else :
+    else:
 
         for data in sortedModelsData[0:n] : #data =['predictorName', 'selectorName', score, indexPredictor, indexLearningDf]
             predictor=GS_FSs[data[3]]

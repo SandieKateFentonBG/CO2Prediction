@@ -52,10 +52,11 @@ for value in randomvalues:
 # PredictionDict = computePrediction(GS)
 
 #COMBINE
-# reportCV_Scores_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], random_seeds = randomvalues)
+
+reportCV_Scores_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], random_seeds = randomvalues)
 # ResultsDf = reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
 
-reportCV_CV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds = randomvalues, displayParams = displayParams, DBpath =DB_Values['DBpath'])
+# reportCV_CV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds = randomvalues, displayParams = displayParams, DBpath =DB_Values['DBpath'])
 #
 
 # RUN_SHAP_Combined(displayParams, DB_Values["DBpath"], CV_BlenderNBest, CV_AllModels, xQuantLabels, xQualLabels, randomValues = randomvalues)

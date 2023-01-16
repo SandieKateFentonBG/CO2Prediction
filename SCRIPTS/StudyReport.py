@@ -138,82 +138,24 @@ def reportCV_Scores_NBest(studies_Blender, displayParams, DBpath, random_seeds =
                 sheetNames = [str(elem) for elem in list(range(len(studies_Blender)))]
 
             index = [model.GSName for model in blendModel.modelList] + [blendModel.GSName]
-            columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #
+            columns = ['TrainScore', 'TestScore', 'TestMSE',  'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #'TestR2',
             BlendingDf = pd.DataFrame(columns=columns, index=index)
             for col in columns[:-1]:
                 BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [blendModel.__getattribute__(col)]
             BlendingDf['ModelWeights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0]
 
             AllDfs.append(BlendingDf)
+
+            for df in AllDfs:
+                slice = df.iloc[0:len(index)-1, :]
+                df.loc['Avg', :] = slice.mean(axis=0)
+                df.loc['Blender_Increase', :] = (df.loc['LR_RIDGE_Blender', :]/df.loc['Avg', :])-1
+
             with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_NBest" + ".xlsx", mode='w') as writer:
                 for df, name in zip(AllDfs, sheetNames):
                     df.to_excel(writer, sheet_name=name)
 
-def reportCV_CV_ModelRanking_NBest2(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath):
-
-    import pandas as pd
-
-    horizTitles = []
-    horizLabels = []
-    horizValues = []
-
-    vertiLabels = []
-
-    #query 54 model names for columns
-    for predictor in CV_AllModels[0]:
-        for learningDflabel in predictor.learningDfsList:
-            Model = predictor.__getattribute__(learningDflabel)
-            name = Model.GSName  # LR_RFR
-            vertiLabels.append(name) #verti = models
-
-    for BlenderNBest, seed in zip(CV_BlenderNBest, seeds): #10studies
-        horizTitle = seed #ex : 38
-        horizLabel = []
-        horizValue = []
-        for Model in BlenderNBest.modelList: #10best
-            name = Model.GSName
-            acc = Model.TestAcc
-            horizLabel.append(name) #ex : [LR_RFR, LR_DTR, LR_GBR]
-            horizValue.append(acc) #ex : [0.8, 0.8, 0.8]
-        horizTitles.append(horizTitle)#ex : [38 38 38]
-        horizLabels.append(horizLabel) #ex : [[LR_RFR, LR_DTR, LR_GBR][LR_RFR, LR_DTR, LR_GBR][LR_RFR, LR_DTR, LR_GBR]]
-        horizValues.append(horizValue) #ex : [[0.8, 0.8, 0.8][0.8, 0.8, 0.8][0.8, 0.8, 0.8]]
-
-    # create empty dfs
-    ScoresDf = pd.DataFrame(columns=horizTitles, index=vertiLabels)
-
-    for i in range(len(horizLabels)): #col par col #ex i = 4 : [[Gifa, floors_bg, structure][Gifa, floors_bg, structure][Gifa, floors_bg, structure][Gifa, floors_bg, structure]]
-        for j in range(len(horizLabels[i])): #ex : j = 3
-            ScoresDf.loc[[horizLabels[i][j]], [horizTitles[i]]] = horizValues[i][j] #ex : HAPDf.loc[[structure], [LR_RFR_test1_seed38]] = 3
-    print("vertiLabels", vertiLabels)
-    print("horizTitles", horizTitles)
-    print("horizLabels", len(horizLabels))
-    print("horizValues", len(horizValues))
-
-    print("ScoresDf", ScoresDf)
-    AllDfs = [ScoresDf]
-    sheetNames = ['ScoresDf', 'ScoresDfsorted']
-
-    sortedDfs = []
-    for df in AllDfs:
-        df.loc[:, 'Total'] = df.abs().sum(axis=1)
-        df.loc[:, 'Occurences'] = df.notnull().sum(axis=1) - 1
-        df.loc[:, 'Total/Occurences'] = df['Total'] / df['Occurences']  # check this
-
-        sortedDf = df.sort_values('Total', ascending=False)
-        sortedDfs.append(sortedDf)
-    AllDfs += sortedDfs
-
-    if displayParams['archive']:
-        import os
-        reference = displayParams['reference']
-        outputPathStudy = DBpath + "RESULTS/" + reference[:-6] + '_Combined/' + 'RECORDS/'
-
-        if not os.path.isdir(outputPathStudy):
-            os.makedirs(outputPathStudy)
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_ModelRanking_NBest" + ".xlsx", mode='w') as writer:
-            for df, name in zip(AllDfs, sheetNames):
-                df.to_excel(writer, sheet_name=name)
+            return AllDfs, sheetNames
 
 
 def reportCV_CV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath,
@@ -277,11 +219,18 @@ def reportCV_CV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, display
         # deal with ordinalCount Labels - compute column totals
         except:
             allSelectorsDf = []
+            df.loc[:, 'Total'] = slice.notnull().sum(axis=1)
+            df.loc[:, 'Total/Occurences'] = df['Total'] / df['Occurences']
             SelectorsDf = pd.DataFrame(columns=horizTitles,
                                        index=['NoSelector', 'fl_pearson', 'fl_spearman', 'RFE_DTR', 'RFE_RFR', 'RFE_GBR'])
             for col in horizTitles: #40 df.columns
                 for myk, myv in zip(df[int(col)].value_counts().keys(), list(df[int(col)].value_counts())): #noselector, #5
                     SelectorsDf.loc[myk, col] = myv
+            SelectorsDf.loc[:, 'Occurences'] = SelectorsDf.notnull().sum(axis=1)
+            SelectorsDfslice = SelectorsDf.iloc[:, 0:len(horizTitles)]
+            SelectorsDf.loc[:, 'Total'] = SelectorsDfslice.abs().sum(axis=1)
+            SelectorsDf.loc[:, 'Total/Occurences'] = SelectorsDf['Total'] / SelectorsDf['Occurences']  # check this
+
         df.loc['Occurences', :] = df.notnull().sum(axis=0)
     sortedDfMain = AllDfs[0].sort_values('Total', ascending=False)
 

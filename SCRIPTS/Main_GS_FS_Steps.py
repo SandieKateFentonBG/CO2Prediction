@@ -160,13 +160,13 @@ def Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = False):
                     plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
                     plot_shap_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
 
-def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2):
+def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, blendingScore = 'TestR2'):
     #CONSTRUCT
     LR_CONSTRUCTOR = {'name': 'LR', 'modelPredictor': LinearRegression(), 'param_dict': dict()}
     LR_RIDGE_CONSTRUCTOR = {'name': 'LR_RIDGE', 'modelPredictor': Ridge(), 'param_dict': LR_param_grid}
 
     # CONSTRUCT & REPORT
-    sortedModelsData = sortedModels(GS_FSs, score = 'TestR2') #TODO : the score was changed here
+    sortedModelsData = sortedModels(GS_FSs, score = blendingScore) #TODO : the score was changed here
     nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
     blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR)
     reportGS_Scores_Blending(blendModel, displayParams, DBpath)
@@ -197,7 +197,7 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
 
     # BLEND
     print('RUNNING BLENDING')
-    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], 10, checkR2 = True)
+    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], 10, checkR2 = True, blendingScore = 'TestR2')
 
     # REPORT
     print('REPORTING GS_FS')
