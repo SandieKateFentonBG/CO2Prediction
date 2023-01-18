@@ -1,5 +1,5 @@
-def reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                      baseFormatedDf, FiltersLs, RFEs, GSlist, blendModel, GSwithFS = True):
+def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+                         baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = True):
 
     if displayParams['archive']:
 
@@ -11,15 +11,11 @@ def reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, R
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
 
-        type = 'GS_'
-        if GSwithFS:
-            type = 'GS_FS_'
-
         import csv
 
         name = reference.rstrip(reference[-1])
 
-        with open(outputPathStudy + name + '_Records_' + type + ".csv", 'w', encoding='UTF8', newline='') as e:
+        with open(outputPathStudy + name + '_GS_Records_All' + ".csv", 'w', encoding='UTF8', newline='') as e:
             writer = csv.writer(e, delimiter = ";")
 
             writer.writerow(['INPUT DATA'])
@@ -39,7 +35,6 @@ def reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, R
 
             writer.writerow(['PREPROCESSED DATA'])
 
-
             writer.writerow(["Full df ", df.shape])
             writer.writerow(["Outliers removed ", learningDf.shape])
             writer.writerow('')
@@ -51,9 +46,10 @@ def reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, R
             writer.writerow(['FILTER'])
             for filter in FiltersLs :
                 writer.writerow(['FILTER ', filter.method])
-                writer.writerow(['LABELS ', filter.trainDf.shape])
+                writer.writerow(['LABELS ', filter.trainDf.shape[1]-1]) #todo this was changed - check
                 writer.writerow([filter.selectedLabels])
                 writer.writerow('')
+
             writer.writerow(['RFE'])
             for RFE in RFEs:
                 writer.writerow(["RFE with  ", RFE.method])
@@ -72,7 +68,6 @@ def reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, R
                  'scoring', 'Index', 'Estimator','Param', 'Weights', 'WeightsScaled', 'SHAPScoreDict', 'SHAPGroupScoreDict',
                  'ResidMean', 'ResidVariance', 'TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc'] #'GridMSE',
 
-
             writer.writerow(keys)
 
             if GSwithFS: # then GSlist should be GS_FSs
@@ -88,7 +83,6 @@ def reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, R
 
                 sortedModels_Acc = sorted(allModels, key=lambda x: x[-1], reverse=True)
                 sortedModels_MSE = sorted(allModels, key=lambda x: x[-3], reverse=True)
-
 
             else : # then GSlist should be GSs
                 allModels = []
@@ -116,8 +110,7 @@ def reportStudy_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, R
 
         e.close()
 
-
-def reportCV_Scores_NBest(studies_Blender, displayParams, DBpath, random_seeds = None):
+def reportCV_Scores_NBest(studies_Blender, displayParams, DBpath, NBestScore, random_seeds = None):
 
     import pandas as pd
     if displayParams['archive']:
@@ -146,21 +139,21 @@ def reportCV_Scores_NBest(studies_Blender, displayParams, DBpath, random_seeds =
 
             AllDfs.append(BlendingDf)
 
-            for df in AllDfs:
-                slice = df.iloc[0:len(index)-1, :]
-                df.loc['Avg', :] = slice.mean(axis=0)
-                df.loc['Blender_Increase', :] = (df.loc['LR_RIDGE_Blender', :]/df.loc['Avg', :])-1
+        for df in AllDfs:
+            slice = df.iloc[0:len(index)-1, :]
+            df.loc['Avg', :] = slice.mean(axis=0)
+            df.loc['Blender_Increase', :] = (df.loc['LR_RIDGE_Blender', :]/df.loc['Avg', :])-1
 
-            with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_NBest" + ".xlsx", mode='w') as writer:
-                for df, name in zip(AllDfs, sheetNames):
-                    df.to_excel(writer, sheet_name=name)
+        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_NBest" + '_' + NBestScore + ".xlsx", mode='w') as writer:
+            for df, name in zip(AllDfs, sheetNames):
+                df.to_excel(writer, sheet_name=name)
 
-            return AllDfs, sheetNames
+        return AllDfs, sheetNames
 
 
-def reportCV_CV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath,
-                                   numericLabels = ['TestAcc', 'TestR2'], ordinalCountLabels = ['selectedLabels'],
-                                   ordinalLabels = ['selectorName']):
+def reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath,
+                                numericLabels = ['TestAcc', 'TestR2'], ordinalCountLabels = ['selectedLabels'],
+                                ordinalLabels = ['selectorName'], NBestScore = 'TestR2'):
 
     import pandas as pd
     allEvaluatedLabels = numericLabels + ordinalCountLabels + ordinalLabels
@@ -251,7 +244,7 @@ def reportCV_CV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, display
         outputPathStudy = DBpath + "RESULTS/" + reference[:-6] + '_Combined/' + 'RECORDS/'
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_ModelRanking_NBest" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_ModelRanking_NBest" + '_' + NBestScore + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name, freeze_panes=(0, 1))
                 # a = df.to_excel(writer, sheet_name=name, freeze_panes=(0,1))

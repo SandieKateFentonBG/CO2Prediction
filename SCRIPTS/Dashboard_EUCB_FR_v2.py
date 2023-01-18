@@ -9,7 +9,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'CSTB_res_nf_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
+displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 
 """
 ________________________________________________________________________________________________________________________
@@ -23,7 +23,7 @@ EUCB-FR
 """
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
              "DBname" : "EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-no_floors_ag",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf_WEC'} #"EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-with_floors_ag",
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'} #"EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-with_floors_ag",CSTB_res_nf_SEC_BleR2
 
 xQualLabels = [
 'Use_Subtype', 'Structure', 'Roof', 'Energy_Class', 'Main_Material']
@@ -34,14 +34,12 @@ xQuantLabels = ['Gross_Floor_Area', 'Users_Total', 'Floors_Below_Ground'] #, 'Fl
 
 RemoveOutliersFrom = ['Gross_Floor_Area', 'Users_Total'] #'Floors_Above_Ground'
 
-yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #'Embodied_Carbon_Structure[kgCO2e_m2]'
+# yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
 
 FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
 
 #'yUnitFactor' converts from yLabel unit to target Label unit:
 # ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
-
-
 
 """
 ________________________________________________________________________________________________________________________
@@ -53,6 +51,7 @@ ________________________________________________________________________________
 PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 43, 'test_size' : 0.5, 'train_size': 0.8,
                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
+
 #todo : check 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]
 
 
@@ -72,8 +71,6 @@ ________________________________________________________________________________
 RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))',
               'RFE_process' : 'short', 'output_feature_count':'rfeCV'}
 
-#[5, 10, 15, 20, 25]['rfeHyp', 'rfeCV', int]
-
 """
 ________________________________________________________________________________________________________________________
 MODEL
@@ -87,23 +84,6 @@ GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
             'margin_range' : list(10.0 ** np.arange(-4, 4)),
             'kernel_list' : ['poly', 'linear', 'rbf']}
 
-"""
-________________________________________________________________________________________________________________________
-V1 - kernels  in params
-________________________________________________________________________________________________________________________
-"""
-
-# LR_param_grid={'alpha': GS_VALUES['regul_range']}
-# KRR_param_grid={'alpha': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_range'], 'degree' : GS_VALUES['degree'],
-#                                                 'kernel' : GS_VALUES['kernel_list'], 'coef0' : GS_VALUES['coef0_range']}
-# SVR_param_grid={'C': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_range'], 'degree' : GS_VALUES['degree'],
-#                 'epsilon': GS_VALUES['margin_range'], 'kernel': GS_VALUES['kernel_list'], 'coef0' : GS_VALUES['coef0_range']}
-
-"""
-________________________________________________________________________________________________________________________
-V2 - kernels not in params
-________________________________________________________________________________________________________________________
-"""
 
 LR_param_grid={'alpha': GS_VALUES['regul_range']}
 KRR_param_grid={'alpha': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_range'], 'degree' : GS_VALUES['degree'],
@@ -121,6 +101,17 @@ ________________________________________________________________________________
 KRR_param_grid1={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['linear']}
 KRR_param_grid2={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['polynomial']}
 KRR_param_grid3={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['rbf']}
+
+
+"""
+________________________________________________________________________________________________________________________
+FEATURE SELECTION
+________________________________________________________________________________________________________________________
+"""
+
+BLE_VALUES = {'NBestScore': 'TestR2'} #'TestAcc'
+
+
 
 """
 steps :

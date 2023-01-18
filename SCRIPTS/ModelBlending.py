@@ -12,7 +12,7 @@ from sklearn.linear_model import Lasso, Ridge, ElasticNet
 
 class BlendModel:
 
-    def __init__(self, modelList, blendingConstructor, Gridsearch = True):
+    def __init__(self, modelList, blendingConstructor, NBestScore, Gridsearch = True):
 
         self.modelList = modelList
 
@@ -21,9 +21,10 @@ class BlendModel:
         self.modelPredictor = blendingConstructor['modelPredictor']
         self.param_dict = blendingConstructor['param_dict']
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
-        self.refit = 'r2'
+        self.refit = 'r2' #Score used for refitting the blender
         self.accuracyTol = 0.15
         self.rounding = 3
+        self.NBestScore = NBestScore # score used for selecting NBestModels
 
         self.yTrain = modelList[0].learningDf.yTrain.to_numpy().ravel() #yTrain is the same for every model
         self.yTest = modelList[0].learningDf.yTest.to_numpy().ravel() #yTest is the same for every model
@@ -77,13 +78,13 @@ class BlendModel:
 
         self.ModelWeights = self.Estimator.coef_
 
-def sortedModels(GS_FSs, score = 'TestR2'): #'TestAcc' #todo : the score was changed from TestAcc to TestR2
+def sortedModels(GS_FSs, NBestScore ='TestR2'): #'TestAcc' #todo : the score was changed from TestAcc to TestR2
     #sorting key = 'TestAcc' , last in list
-    keys = ['predictorName', 'selectorName',  score]
+    keys = ['predictorName', 'selectorName', NBestScore]
 
     allModels = []
 
-    for i in range(len(GS_FSs)) :
+    for i in range(len(GS_FSs)):
         indexPredictor = i
         GS_FS = GS_FSs[i]
         for j in range(len(GS_FS.learningDfsList)):
@@ -140,7 +141,7 @@ def selectnBestModels(GS_FSs, sortedModelsData, n=10, checkR2 = True):
     return nBestModels
 
 
-def reportGS_Scores_Blending(blendModel, displayParams, DBpath):
+def reportGS_Scores_Blending(blendModel, displayParams, DBpath, blendingScore):
 
 
     if displayParams['archive']:
@@ -162,7 +163,7 @@ def reportGS_Scores_Blending(blendModel, displayParams, DBpath):
         AllDfs = [BlendingDf, sortedDf]
         sheetNames = ['Residuals_MeanVar', 'Sorted_Residuals_MeanVar']
 
-        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_Blending" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_Blending" + '_' + blendingScore + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 

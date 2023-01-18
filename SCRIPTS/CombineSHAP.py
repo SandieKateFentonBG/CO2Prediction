@@ -20,10 +20,7 @@ def CombineAbsSHAP(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels):
     #"query labels and values"
     for blendModel in studies_Blender:
         for GS in blendModel.modelList:
-    # for GS_FSs in studies_GS_FS:
-    #     for GS_FS in GS_FSs:
-    #         for DfLabel in GS_FS.learningDfsList:
-    #             GS = GS_FS.__getattribute__(DfLabel)
+
             name = GS.GSName
             xLabels.append(name)
             print()
@@ -95,11 +92,6 @@ def formatCV_SHAP_NBest(CV_BlenderNBest, studies_GS_FS, xQuantLabels, xQualLabel
                 shapGroupLabels.append(list(Model.SHAPGroupDf['feature']))
                 shapGroupValuesLs.append(list(df_shapGroup_values.iloc[:, i]))
 
-            # print("xGroupLabels", len(xGroupLabels), xGroupLabels)
-            # print("shapGroupLabels", len(shapGroupLabels), shapGroupLabels)
-            # print("shapGroupLs", len(shapGroupValuesLs), shapGroupValuesLs)
-
-
     #create empty dfs
     SHAPDf = pd.DataFrame(columns=xLabels, index=yLabels_all)
     SHAPGroupDf = pd.DataFrame(columns=xGroupLabels, index=yLabels_cat)
@@ -115,7 +107,7 @@ def formatCV_SHAP_NBest(CV_BlenderNBest, studies_GS_FS, xQuantLabels, xQualLabel
 
     return SHAPDf,SHAPGroupDf
 
-def reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, displayParams, DBpath):
+def reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, NBestscore, displayParams, DBpath):
 
     AllDfs = [SHAPDf, SHAPGroupDf]
     sheetNames = ['SHAPDf', 'SHAPGroupDf', 'SHAPDfsorted', 'SHAPGroupDfsorted']
@@ -138,11 +130,11 @@ def reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, displayParams, DBpath):
 
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_SHAP_NBest" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_SHAP_NBest_" + NBestscore + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-def plotSHAPSummary_NBest(SHAPDf, displayParams, DBpath, content=''):
+def plotSHAPSummary_NBest(SHAPDf, NBestScore, displayParams, DBpath, content=''):
     """Plot combined shap summary for fitted estimators and a set of test with its labels"""
 
     newDf = SHAPDf.fillna(0)
@@ -161,18 +153,18 @@ def plotSHAPSummary_NBest(SHAPDf, displayParams, DBpath, content=''):
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-        plt.savefig(outputFigPath + '/SHAPCombined_' + content + '.png')
+        plt.savefig(outputFigPath + '/SHAPCombined_NBest_' + NBestScore + content + '.png')
     if displayParams['showPlot']:
         plt.show()
 
     plt.close()
 
 
-def RUN_SHAP_Combined(displayParams, DBpath, studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = None):
+def RUN_SHAP_Combined(displayParams, DBpath, studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, NBestScore, randomValues = None):
 
     SHAPDf,SHAPGroupDf = formatCV_SHAP_NBest(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = randomValues)
 
-    plotSHAPSummary_NBest(SHAPDf, displayParams, DBpath, content='Ungrouped')
-    plotSHAPSummary_NBest(SHAPGroupDf, displayParams, DBpath, content='Grouped')
+    plotSHAPSummary_NBest(SHAPDf, NBestScore, displayParams, DBpath, content='Ungrouped')
+    plotSHAPSummary_NBest(SHAPGroupDf, NBestScore, displayParams, DBpath, content='Grouped')
 
-    reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, displayParams, DBpath)
+    reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, NBestScore, displayParams, DBpath)
