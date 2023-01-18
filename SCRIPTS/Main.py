@@ -13,15 +13,20 @@ from FeatureReport import *
 from StudyResiduals import *
 from ModelBlending import *
 from CombineSHAP import *
+from AccuracyCheck import *
 
 # DBname = DB_Values['acronym'] + '_rd'
 
 
-for set in [
+Studies_CV_BlenderNBest = []
+
+sets = [
     ['Embodied_Carbon[kgCO2e_m2]','EC','TestR2'],
     ['Embodied_Carbon[kgCO2e_m2]','EC','TestAcc'],
     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS', 'TestR2'],
-    ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS','TestAcc']]:
+    ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS','TestAcc']]
+
+for set in sets:
     yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
 
     print("Study for :", set)
@@ -31,7 +36,8 @@ for set in [
     CV_AllModels = []
     CV_BlenderNBest = []
 
-    randomvalues = list(range(40, 51))
+    # randomvalues = list(range(40, 51))
+    randomvalues = list(range(40, 41))
 
     # for value in randomvalues:
     #     PROCESS_VALUES['random_state'] = value
@@ -51,26 +57,31 @@ for set in [
         #IMPORT
         import_reference = displayParams["reference"]
         rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(import_reference, show = False)
-        GS_FSs, blendModel = Run_GS_FS_Study(DBname + str(PROCESS_VALUES['random_state']) + '/', importMainGSFS = True)
-        # GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST',  'KRR_RBF', 'KRR_LIN','KRR_POL','SVR_LIN', 'SVR_RBF'])#
+        # GS_FSs, blendModel = Run_GS_FS_Study(DBname + str(PROCESS_VALUES['random_state']) + '/', importMainGSFS = True)
+        GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST',  'KRR_RBF', 'KRR_LIN','KRR_POL','SVR_LIN', 'SVR_RBF'])#
         Blender = import_Main_Blender(import_reference, NBestScore = BLE_VALUES['NBestScore'])
         #
         CV_AllModels.append(GS_FSs)
         CV_BlenderNBest.append(Blender)
 
+    Studies_CV_BlenderNBest.append(CV_BlenderNBest)
+
+
+
     # PREDICT
+    computePrediction_NBest(CV_BlenderNBest)
     # PredictionDict = computePrediction(GS)
 
     #COMBINE
 
-    reportCV_Scores_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'], random_seeds = randomvalues)
-    ResultsDf = reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
-    reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds = randomvalues, displayParams = displayParams, DBpath =DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'])
-
-    RUN_SHAP_Combined(displayParams, DB_Values["DBpath"], CV_BlenderNBest, CV_AllModels, xQuantLabels, xQualLabels, NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
-    RUN_CombinedResiduals(CV_AllModels, CV_BlenderNBest, displayParams, FORMAT_Values, DBpath = DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'])
-
-
+    # reportCV_Scores_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'], random_seeds = randomvalues)
+    # ResultsDf = reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
+    # reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds = randomvalues, displayParams = displayParams, DBpath =DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'])
+    #
+    # RUN_SHAP_Combined(displayParams, DB_Values["DBpath"], CV_BlenderNBest, CV_AllModels, xQuantLabels, xQualLabels, NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
+    # RUN_CombinedResiduals(CV_AllModels, CV_BlenderNBest, displayParams, FORMAT_Values, DBpath = DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'])
+print(DB_Values['acronym'])
+AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams, DB_Values['DBpath'], tolerance=0.15)
 
 
 # look at my schema

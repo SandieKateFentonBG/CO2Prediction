@@ -197,20 +197,34 @@ def computePrediction(GS):
     Resid = yTest - yPred
 
     PredictionDict = dict()
+    PredictionDict['GS.GSName'] = GS.GSName
     PredictionDict['GS.XTrain.shape'] = XTrain.shape
     PredictionDict['GS.XTest.shape'] = XTest.shape
     PredictionDict['yPred'] = yPred
+    PredictionDict['yTest'] = yTest
+    PredictionDict['Resid'] = Resid
 
     PredictionDict['TrainScore'] = TrainScore
     PredictionDict['TestScore'] = TestScore
     PredictionDict['TestMSE'] = TestMSE
     PredictionDict['TestAcc'] = TestAcc
-    PredictionDict['Resid'] = Resid
 
-    for k,v in PredictionDict.items():
-        print(k,v)
+    # print('TestAcc', TestAcc)
+    # print('Resid', Resid)
+    # print('yPred', yPred)
+    # print('yTest', yTest)
+
+    # for k,v in PredictionDict.items():
+    #     print(k,v)
 
     return yPred, PredictionDict
+
+def computePrediction_NBest(CV_BlenderNBest):
+
+    for BlenderNBest in CV_BlenderNBest:
+        for Model in BlenderNBest.modelList:
+            yPred, PredictionDict = computePrediction(Model)
+
 
 
 
