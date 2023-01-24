@@ -49,8 +49,8 @@ class ModelGridsearch:
         self.GridMSEStd = [round(num, self.rounding) for num in list(grid.cv_results_['std_test_neg_mean_squared_error'])]
         self.GridMSERank = grid.cv_results_['rank_test_neg_mean_squared_error']
 
-        self.GridR2 = grid.cv_results_['mean_test_r2']
-        self.GridR2Std = grid.cv_results_['std_test_r2']
+        self.GridR2 = grid.cv_results_['mean_test_r2'] #this is R2 on testing from CV on training !
+        self.GridR2Std = grid.cv_results_['std_test_r2'] #this is R2 on testing from CV on training !
         self.GridR2Rank = grid.cv_results_['rank_test_r2']
 
         self.Grid = grid
@@ -76,13 +76,13 @@ class ModelGridsearch:
         self.ResidMean = round(np.mean(np.abs(self.Resid)),2) #
         self.ResidVariance = round(np.var(self.Resid),2)
 
-        if hasattr(self.Grid.best_estimator_, 'coef_'):
+        if hasattr(self.Grid.best_estimator_, 'coef_'): # LR, RIDGE, ELASTICNET, KRR Kernel Linear, SVR Kernel Linear
             self.isLinear = True
             content = self.Grid.best_estimator_.coef_
             if type(content[0]) == np.ndarray:
                 content = content[0]
 
-        elif hasattr(self.Grid.best_estimator_, 'dual_coef_'):
+        elif hasattr(self.Grid.best_estimator_, 'dual_coef_'): #KRR
             self.isLinear = True
             content = self.Grid.best_estimator_.dual_coef_
             if type(content[0]) == np.ndarray:

@@ -12,7 +12,7 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
 
     #"query labels and values"
     if blender: #GS_FSs. should be a Blender
-        title = "_GS_FeatureWeights_NBest_" + blender.NBestScore
+        title = "_GS_FeatureWeights_NBest_" + str(blender.N) + '_' + blender.NBestScore
         for Model in blender.modelList: #10best
             name = Model.GSName
             xLabels.append(name)
@@ -86,7 +86,7 @@ def reportGS_FeatureSHAP(DBpath, displayParams, GS_FSs, xQuantLabels, xQualLabel
 
     #"query labels and values"
     if blender: #GS_FSs. should be a Blender
-        title = "_GS_FeatureSHAP_NBest_" + blender.NBestScore
+        title = "_GS_FeatureSHAP_NBest_" + str(blender.N) + '_' + blender.NBestScore
         for Model in blender.modelList: #10best
 
             name = Model.GSName

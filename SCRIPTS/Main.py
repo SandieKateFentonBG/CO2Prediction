@@ -17,14 +17,15 @@ from AccuracyCheck import *
 
 # DBname = DB_Values['acronym'] + '_rd'
 
-
 Studies_CV_BlenderNBest = []
 
-sets = [
-    ['Embodied_Carbon[kgCO2e_m2]','EC','TestR2'],
-    ['Embodied_Carbon[kgCO2e_m2]','EC','TestAcc'],
-    ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS', 'TestR2'],
-    ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS','TestAcc']]
+# sets = [
+#     ['Embodied_Carbon[kgCO2e_m2]','EC','TestR2'],
+#     ['Embodied_Carbon[kgCO2e_m2]','EC','TestAcc'],
+#     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS', 'TestR2'],
+#     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS','TestAcc']]
+
+sets = [['Embodied_Carbon[kgCO2e_m2]','EC','TestR2']]
 
 for set in sets:
     yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
@@ -37,7 +38,7 @@ for set in sets:
     CV_BlenderNBest = []
 
     # randomvalues = list(range(40, 51))
-    randomvalues = list(range(40, 41))
+    randomvalues = list(range(40, 50))
 
     # for value in randomvalues:
     #     PROCESS_VALUES['random_state'] = value
@@ -57,10 +58,13 @@ for set in sets:
         #IMPORT
         import_reference = displayParams["reference"]
         rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(import_reference, show = False)
-        # GS_FSs, blendModel = Run_GS_FS_Study(DBname + str(PROCESS_VALUES['random_state']) + '/', importMainGSFS = True)
-        GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST',  'KRR_RBF', 'KRR_LIN','KRR_POL','SVR_LIN', 'SVR_RBF'])#
-        Blender = import_Main_Blender(import_reference, NBestScore = BLE_VALUES['NBestScore'])
-        #
+        GS_FSs, blendModel = Run_GS_FS_Study(DBname + str(PROCESS_VALUES['random_state']) + '/', importMainGSFS = True)
+        # GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST',  'KRR_RBF', 'KRR_LIN','KRR_POL','SVR_LIN', 'SVR_RBF'])#
+
+        # Model_List = unpackGS_FSs(GS_FSs, remove='')
+
+        Blender = import_Main_Blender(import_reference, n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'])
+
         CV_AllModels.append(GS_FSs)
         CV_BlenderNBest.append(Blender)
 
@@ -69,19 +73,19 @@ for set in sets:
 
 
     # PREDICT
-    computePrediction_NBest(CV_BlenderNBest)
+    # computePrediction_NBest(CV_BlenderNBest)
     # PredictionDict = computePrediction(GS)
 
-    #COMBINE
+    # COMBINE
 
-    # reportCV_Scores_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'], random_seeds = randomvalues)
-    # ResultsDf = reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
-    # reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds = randomvalues, displayParams = displayParams, DBpath =DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'])
-    #
-    # RUN_SHAP_Combined(displayParams, DB_Values["DBpath"], CV_BlenderNBest, CV_AllModels, xQuantLabels, xQualLabels, NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
-    # RUN_CombinedResiduals(CV_AllModels, CV_BlenderNBest, displayParams, FORMAT_Values, DBpath = DB_Values['DBpath'], NBestScore=BLE_VALUES['NBestScore'])
-print(DB_Values['acronym'])
-AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams, DB_Values['DBpath'], tolerance=0.15)
+    reportCV_Scores_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'], random_seeds = randomvalues)
+    ResultsDf = reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
+    reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds = randomvalues, displayParams = displayParams, DBpath =DB_Values['DBpath'], n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
+
+    RUN_SHAP_Combined(displayParams, DB_Values["DBpath"], CV_BlenderNBest, CV_AllModels, xQuantLabels, xQualLabels, n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
+    RUN_CombinedResiduals(CV_AllModels, CV_BlenderNBest, displayParams, FORMAT_Values, DBpath = DB_Values['DBpath'], n= BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
+# print(DB_Values['acronym'])
+# AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams, DB_Values['DBpath'], tolerance=0.15)
 
 
 # look at my schema
@@ -97,6 +101,31 @@ AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams
 #SHAP graphs with vertical bars > means all sample points have same value ! > this is good?
 
 #todo : GRID doesn't display well > change
+
+
+
+
+
+
+# GS_FSs_alpha = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR_RIDGE', 'LR_LASSO', 'LR_ELAST',  'KRR_RBF', 'KRR_LIN','KRR_POL'])#
+# GS_FSs_gamma = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['KRR_RBF', 'KRR_LIN','KRR_POL','SVR_LIN', 'SVR_RBF'])#
+# GS_FSs_degree = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['KRR_POL'])#
+# GS_FSs_epsilon = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['SVR_LIN', 'SVR_RBF'])#
+# GS_FSs_C = import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['SVR_LIN', 'SVR_RBF'])#
+# GS_FSs_coef0 = import_Main_GS_FS(import_reference, GS_FS_List_Labels=['KRR_POL'])  #
+#
+# for ML, key, log, maxVal, absVal in zip([GS_FSs_alpha, GS_FSs_gamma, GS_FSs_degree, GS_FSs_epsilon, GS_FSs_C, GS_FSs_coef0],
+#                                 ['alpha', 'gamma', 'degree', 'epsilon', 'C', 'coef0'],
+#                                 [True, True, False, True, True, True],
+#                               [True, True, True,True, True, True], [True, True, True,True, True, True]) :
+#     Model_List = unpackGS_FSs(ML, remove='')
+#
+#     ParameterPlot2D(Model_List, displayParams, DB_Values['DBpath'], yLim=None,
+#                     paramKey=key, score='mean_test_r2', log=log, studyFolder='GS/')
+#     ParameterPlot3D(Model_List, displayParams, DB_Values['DBpath'],
+#                     colorsPtsLsBest=['b', 'g', 'c', 'y'], paramKey=key, score='mean_test_r2',
+#                     size=[6, 6], showgrid=False, log=log, maxScore=maxVal, absVal=absVal, ticks=False, lims=False,
+#                     studyFolder='GS/')
 
 
 

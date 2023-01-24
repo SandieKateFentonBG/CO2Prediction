@@ -12,7 +12,7 @@ from sklearn.linear_model import Lasso, Ridge, ElasticNet
 
 class BlendModel:
 
-    def __init__(self, modelList, blendingConstructor, NBestScore, Gridsearch = True):
+    def __init__(self, modelList, blendingConstructor, NBestScore, NCount, Gridsearch = True):
 
         self.modelList = modelList
 
@@ -25,6 +25,7 @@ class BlendModel:
         self.accuracyTol = 0.15
         self.rounding = 3
         self.NBestScore = NBestScore # score used for selecting NBestModels
+        self.N = NCount #number of best models
 
         self.yTrain = modelList[0].learningDf.yTrain.to_numpy().ravel() #yTrain is the same for every model
         self.yTest = modelList[0].learningDf.yTest.to_numpy().ravel() #yTest is the same for every model

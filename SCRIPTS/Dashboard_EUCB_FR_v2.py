@@ -9,7 +9,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
+displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': True}
 
 """
 ________________________________________________________________________________________________________________________
@@ -109,7 +109,7 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2'} #'TestAcc'
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10} #'TestAcc'
 
 
 

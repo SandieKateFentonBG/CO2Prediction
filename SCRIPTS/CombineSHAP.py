@@ -107,7 +107,7 @@ def formatCV_SHAP_NBest(CV_BlenderNBest, studies_GS_FS, xQuantLabels, xQualLabel
 
     return SHAPDf,SHAPGroupDf
 
-def reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, NBestscore, displayParams, DBpath):
+def reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, n, NBestscore, displayParams, DBpath):
 
     AllDfs = [SHAPDf, SHAPGroupDf]
     sheetNames = ['SHAPDf', 'SHAPGroupDf', 'SHAPDfsorted', 'SHAPGroupDfsorted']
@@ -130,11 +130,11 @@ def reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, NBestscore, displayParams, DBpath):
 
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_SHAP_NBest_" + NBestscore + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_SHAP_NBest_" + str(n) + '_' + NBestscore + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-def plotSHAPSummary_NBest(SHAPDf, NBestScore, displayParams, DBpath, content=''):
+def plotSHAPSummary_NBest(SHAPDf, n, NBestScore, displayParams, DBpath, content=''):
     """Plot combined shap summary for fitted estimators and a set of test with its labels"""
 
     newDf = SHAPDf.fillna(0)
@@ -153,18 +153,18 @@ def plotSHAPSummary_NBest(SHAPDf, NBestScore, displayParams, DBpath, content='')
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-        plt.savefig(outputFigPath + '/SHAPCombined_NBest_' + NBestScore + content + '.png')
+        plt.savefig(outputFigPath + '/SHAPCombined_NBest_' + str(n) + '_' + NBestScore + content + '.png')
     if displayParams['showPlot']:
         plt.show()
 
     plt.close()
 
 
-def RUN_SHAP_Combined(displayParams, DBpath, studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, NBestScore, randomValues = None):
+def RUN_SHAP_Combined(displayParams, DBpath, studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, n, NBestScore, randomValues = None):
 
     SHAPDf,SHAPGroupDf = formatCV_SHAP_NBest(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = randomValues)
 
-    plotSHAPSummary_NBest(SHAPDf, NBestScore, displayParams, DBpath, content='Ungrouped')
-    plotSHAPSummary_NBest(SHAPGroupDf, NBestScore, displayParams, DBpath, content='Grouped')
+    plotSHAPSummary_NBest(SHAPDf, n, NBestScore, displayParams, DBpath, content='Ungrouped')
+    plotSHAPSummary_NBest(SHAPGroupDf, n, NBestScore, displayParams, DBpath, content='Grouped')
 
-    reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, NBestScore, displayParams, DBpath)
+    reportCV_SHAP_NBest(SHAPDf, SHAPGroupDf, n, NBestScore, displayParams, DBpath)

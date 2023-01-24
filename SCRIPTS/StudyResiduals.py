@@ -385,13 +385,13 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_Values, DBpath, NBestScore):
+def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_Values, DBpath, n, NBestScore):
 
     models, means, variances = analyzeCVResiduals(studies_GS_FS)
     reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
 
     plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_NBest_' + NBestScore, blended=True)
+                                     studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, blended=True)
     plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
                                      studyFolder='GaussianPlot_groupedModels')
     plotCVResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
@@ -403,4 +403,4 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_
         plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
                                           studyFolder='Histplot_groupedModels')
         plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                          studyFolder='Histplot_NBest_' + NBestScore, blended=True)
+                                          studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)

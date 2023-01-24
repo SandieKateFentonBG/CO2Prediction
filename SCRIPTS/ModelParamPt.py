@@ -12,6 +12,7 @@ def ParameterPlot2D(GSs, displayParams, DBpath, yLim = None,
 
     "to be done with single parameter"
     import seaborn as sns
+
     figFolder = 'Hyperparam'
     figTitle = paramKey + 'Plot2d'
 
@@ -20,7 +21,8 @@ def ParameterPlot2D(GSs, displayParams, DBpath, yLim = None,
     xlabel = paramKey
     ylabel = score
 
-    pts, labels = Construct3DPoints(GSs)
+    pts, labels = Construct3DPoints(GSs, key = paramKey)
+    print(pts)
 
     metric = [[pts[i][j][2] for j in range(len(pts[i]))] for i in range(len(pts))]
     param = [pts[0][i][1] for i in range(len(pts[0]))]
@@ -58,19 +60,19 @@ def ParameterPlot2D(GSs, displayParams, DBpath, yLim = None,
     plt.close()
 
 def ParameterPlot3D(GSs, displayParams, DBpath,
-                    colorsPtsLsBest=['b', 'g', 'c', 'y'], paramKey='gamma', score='mean_test_r2',
+                    colorsPtsLsBest=['b', 'g', 'c', 'r'], paramKey='gamma', score='mean_test_r2',
                     size=[6, 6], showgrid=False, log=False, maxScore=True, absVal = False, ticks=False, lims=False,
                     studyFolder = 'GS/'):
 
     figFolder = 'Hyperparam'
-    figTitle = 'RFEPlot3d'
+    figTitle = paramKey + 'Plot3d'
     ylabel = paramKey
     zlabel = score
     title = 'Influence of ' + paramKey + ' on Model Performance'
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    pts, labels = Construct3DPoints(GSs)
+    pts, labels = Construct3DPoints(GSs, key = paramKey)
 
     xl, yl, zl = unpackResPts(pts)
     lines = unpackResLines(pts)

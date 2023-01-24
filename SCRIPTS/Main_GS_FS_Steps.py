@@ -168,9 +168,10 @@ def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, NBestScore ='TestR2'
     # CONSTRUCT & REPORT
     sortedModelsData = sortedModels(GS_FSs, NBestScore= NBestScore)
     nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
-    blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR, NBestScore= NBestScore)
+    blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR, NBestScore= NBestScore, NCount = n)
     reportGS_Scores_Blending(blendModel, displayParams, DBpath, NBestScore)
-    pickleDumpMe(DBpath, displayParams, blendModel, 'GS_FS', blendModel.GSName + '_' + NBestScore) #TODO : the score was changed here
+    # pickleDumpMe(DBpath, displayParams, blendModel, 'GS_FS', blendModel.GSName + '_' + NBestScore) #TODO : the score was changed here
+    pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName + '_' + str(n) + '_' + NBestScore) #TODO : the score was changed here
 
     return blendModel
 
@@ -197,7 +198,7 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
 
     # BLEND
     print('RUNNING BLENDING')
-    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], 10, checkR2 = True, NBestScore= BLE_VALUES['NBestScore'])
+    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], n = BLE_VALUES['NCount'], checkR2 = True, NBestScore= BLE_VALUES['NBestScore'])
 
     # REPORT
     print('REPORTING GS_FS')
@@ -213,12 +214,12 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
 
     print('PLOTTING GS_FS')
     # PLOT
-    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = displayParams['plot_all'])
-    Plot_GS_FS_Weights(GS_FSs, baseFormatedDf)
-    Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
-    Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
-    Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
-    Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
+    # Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = displayParams['plot_all'])
+    # Plot_GS_FS_Weights(GS_FSs, baseFormatedDf)
+    # Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
+    # Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
+    # Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
+    # Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
 
     return GS_FSs, blendModel
 
@@ -234,8 +235,14 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
 
     return GS_FSs
 
-def import_Main_Blender(import_reference, NBestScore, label = 'LR_RIDGE_Blender'):
+def import_Main_BlenderOld(import_reference, NBestScore, label = 'LR_RIDGE_Blender'):
     path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/GS_FS/' + label + '_' + NBestScore + '.pkl'
+    Blender = pickleLoadMe(path=path, show=False)
+
+    return Blender
+
+def import_Main_Blender(import_reference, n, NBestScore, label = 'LR_RIDGE_Blender'):
+    path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/BLENDER/' + label + '_' + str(n) + '_' + NBestScore + '.pkl'
     Blender = pickleLoadMe(path=path, show=False)
 
     return Blender

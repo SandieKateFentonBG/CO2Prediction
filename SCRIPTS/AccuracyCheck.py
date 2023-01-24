@@ -43,7 +43,7 @@ def AccuracyCheck(Studies_CV_BlenderNBest, sets, name, displayParams, DBpath, to
             sheetNames = [sets[i][1] + '_' + sets[i][2] for i in range(len(sets))]  # 4
 
             print('outputPathStudy', outputPathStudy)
-            with pd.ExcelWriter(outputPathStudy + "AccuracyCheck" + ".xlsx", mode='w') as writer:
+            with pd.ExcelWriter(outputPathStudy + "AccuracyCheck" + name + ".xlsx", mode='w') as writer:
                 for df, sh in zip(AllDfs, sheetNames):
                     df.to_excel(writer, sheet_name=sh, freeze_panes=(0, 1))
 
