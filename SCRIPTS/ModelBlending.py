@@ -12,7 +12,7 @@ from sklearn.linear_model import Lasso, Ridge, ElasticNet
 
 class BlendModel:
 
-    def __init__(self, modelList, blendingConstructor, NBestScore, NCount, Gridsearch = True):
+    def __init__(self, modelList, blendingConstructor, NBestScore, NCount, Gridsearch = True, Val = False):
 
         self.modelList = modelList
 
@@ -27,7 +27,11 @@ class BlendModel:
         self.NBestScore = NBestScore # score used for selecting NBestModels
         self.N = NCount #number of best models
 
-        self.yTrain = modelList[0].learningDf.yTrain.to_numpy().ravel() #yTrain is the same for every model
+        if Val:
+            self.yTrain = modelList[0].learningDf.yVal.to_numpy().ravel() #yTrain is the same for every model
+        else:
+            self.yTrain = modelList[0].learningDf.yTrain.to_numpy().ravel() #yTrain is the same for every model
+
         self.yTest = modelList[0].learningDf.yTest.to_numpy().ravel() #yTest is the same for every model
 
         #create meta learning data
@@ -37,8 +41,13 @@ class BlendModel:
 
             predictor = model.Estimator
             learningDf = model.learningDf
+            print(learningDf.XVal.shape, learningDf.XTrain.shape, learningDf.XTest.shape)
 
-            rawXTrain, rawyTrain = learningDf.XTrain.to_numpy(), learningDf.yTrain.to_numpy().ravel()
+            if Val:
+                rawXTrain, rawyTrain = learningDf.XVal.to_numpy(), learningDf.yVal.to_numpy().ravel()
+            else :
+                rawXTrain, rawyTrain = learningDf.XTrain.to_numpy(), learningDf.yTrain.to_numpy().ravel() #todo : changed here
+
             rawXTest, rawyTest = learningDf.XTest.to_numpy(), learningDf.yTest.to_numpy().ravel()
 
             blend_train_i = predictor.predict(rawXTrain) #dim 400*1

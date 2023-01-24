@@ -109,7 +109,7 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10} #'TestAcc'
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 11} #'TestAcc'
 
 
 
