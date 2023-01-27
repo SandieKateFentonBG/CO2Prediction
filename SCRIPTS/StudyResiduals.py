@@ -118,12 +118,23 @@ def reportCV_ScoresAvg_All(studies, displayParams, DBpath):
     return ResultsDf
 
 
-def AssembleBlenderResiduals(studies_Blender):
+def AssembleNBestResiduals(studies_Blender): #todo : naming was changed
     residualsDict = dict()
     residualsDict["all"] = []
     for blender in studies_Blender:
         for model in blender.modelList:
             residualsDict["all"].append(list(model.Resid))
+
+    for k, v in residualsDict.items():
+        residualsDict[k] = mergeList(v)
+
+    return residualsDict
+
+def AssembleBlenderResiduals(studies_Blender):
+    residualsDict = dict()
+    residualsDict["all"] = []
+    for blender in studies_Blender:
+        residualsDict["all"].append(list(blender.Resid))
 
     for k, v in residualsDict.items():
         residualsDict[k] = mergeList(v)
@@ -252,7 +263,7 @@ def plotCVResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, study
 def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot', blended = False):
 
     if blended : #only takes nBestmodels
-        residualsDict = AssembleBlenderResiduals(studies)
+        residualsDict = AssembleNBestResiduals(studies)
         title = 'Residuals distribution for 10 best models over 10 runs'
     else : #takes all models
         residualsDict = AssembleCVResiduals(studies)
@@ -287,17 +298,23 @@ def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBp
 
 def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot',
                                      binwidth=25,
-                                     setxLim=[-300, 300], fontsize=14, blended = False):
+                                     setxLim=[-300, 300], fontsize=14, NBest = False, Blender = False):
     from scipy.stats import norm
     import seaborn as sns
 
     # assemble residuals
-    if blended : #only takes nBestmodels
-        residualsDict = AssembleBlenderResiduals(studies)
+    if NBest : #only takes nBestmodels
+        residualsDict = AssembleNBestResiduals(studies)
         title = 'Residuals distribution for 10 best models over 10 runs'
+        extra = '_'
+    elif Blender:  # only takes Blender results
+        residualsDict = AssembleBlenderResiduals(studies)
+        title = 'Residuals distribution for Blender Models over 10 runs ' + studies[0].GSName
+        extra = '_' + studies[0].GSName
     else : #takes all models
         residualsDict = AssembleCVResiduals(studies)
         title = 'Residuals distribution for all models over 10 runs'
+        extra = '_'
 
     listResVal = mergeList(list(residualsDict.values()))
     arr = np.array(listResVal)
@@ -355,7 +372,7 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
-        plt.savefig(outputFigPath + '/' + 'Combined' + '-' + studyFolder + '.png')
+        plt.savefig(outputFigPath + '/' + 'Combined' + '-' + studyFolder + extra + '.png')
 
     if displayParams['showPlot']:
         plt.show()
@@ -391,7 +408,9 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_
     reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
 
     plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, blended=True)
+                                     studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, NBest=True)
+    plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                     studyFolder='GaussianPlot_Blender_' + str(n) + '_' + NBestScore, Blender=True)
     plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
                                      studyFolder='GaussianPlot_groupedModels')
     plotCVResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,

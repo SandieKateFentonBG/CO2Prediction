@@ -41,7 +41,6 @@ class BlendModel:
 
             predictor = model.Estimator
             learningDf = model.learningDf
-            print(learningDf.XVal.shape, learningDf.XTrain.shape, learningDf.XTest.shape)
 
             if Val:
                 rawXTrain, rawyTrain = learningDf.XVal.to_numpy(), learningDf.yVal.to_numpy().ravel()
@@ -63,16 +62,18 @@ class BlendModel:
         self.blendXtrain = pd.concat(blend_train_sets, axis=1) #dim 400*i #naming different because second order data
         self.blendXtest = pd.concat(blend_test_sets, axis=1) #dim 20*i
 
-        # building the final model using the meta features
+        # building the final model using the meta features # this should be done by a cv of 5 folds on the training set
         if Gridsearch:
             njobs = os.cpu_count() - 1
             grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
                                 n_jobs=njobs, return_train_score=True)
             grid.fit(self.blendXtrain, self.yTrain)
+            self.Param = grid.best_params_
             self.Estimator = grid.best_estimator_
 
         else :
             self.Estimator = self.modelPredictor.fit(self.blendXtrain, self.yTrain)
+            self.Param = None
 
         self.yPred = self.Estimator.predict(self.blendXtest)
 
@@ -86,7 +87,26 @@ class BlendModel:
         self.ResidMean = round(np.mean(np.abs(self.Resid)),2) #round(np.mean(self.Resid),2)
         self.ResidVariance = round(np.var(self.Resid),2)
 
-        self.ModelWeights = self.Estimator.coef_
+        if hasattr(self.Estimator, 'coef_'): # LR, RIDGE, ELASTICNET, KRR Kernel Linear, SVR Kernel Linear
+            self.isLinear = True
+            content = self.Estimator.coef_
+            if type(content[0]) == np.ndarray:
+                content = content[0]
+
+        elif hasattr(self.Estimator, 'dual_coef_'): #KRR
+            self.isLinear = True
+            content = self.Estimator.dual_coef_
+            if type(content[0]) == np.ndarray:
+                content = content[0]
+
+        else :
+            self.isLinear = False
+            content = 'Estimator is non linear - no weights can be querried'
+        weights = [round(num, self.rounding) for num in list(content)]
+        print('weights', len(weights), weights)
+        self.ModelWeights = weights
+
+        # self.Weights = self.Estimator.coef_ #todo : this naming was changed from ModelWeights = self.Estimator.coef_
 
 def sortedModels(GS_FSs, NBestScore ='TestR2'): #'TestAcc' #todo : the score was changed from TestAcc to TestR2
     #sorting key = 'TestAcc' , last in list
@@ -151,7 +171,7 @@ def selectnBestModels(GS_FSs, sortedModelsData, n=10, checkR2 = True):
     return nBestModels
 
 
-def reportGS_Scores_Blending(blendModel, displayParams, DBpath, blendingScore):
+def reportGS_Scores_Blending(blendModel, displayParams, DBpath, NBestScore, NCount):
 
 
     if displayParams['archive']:
@@ -167,13 +187,13 @@ def reportGS_Scores_Blending(blendModel, displayParams, DBpath, blendingScore):
         BlendingDf = pd.DataFrame(columns=columns, index=index)
         for col in columns[:-1]:
             BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [blendModel.__getattribute__(col)]
-        BlendingDf['ModelWeights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0]
+        BlendingDf['Weights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0] #todo : this naming was changed from ModelWeights
         sortedDf = BlendingDf.sort_values('ModelWeights', ascending=False)
 
         AllDfs = [BlendingDf, sortedDf]
         sheetNames = ['Residuals_MeanVar', 'Sorted_Residuals_MeanVar']
 
-        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_Blending" + '_' + blendingScore + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_NBest" + '_' + str(NCount) + '_' + NBestScore + '_' + blendModel.GSName + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 

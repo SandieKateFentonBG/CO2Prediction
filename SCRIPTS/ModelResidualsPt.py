@@ -54,6 +54,54 @@ def plotModelYellowResiduals(modelGridsearch, displayParams, DBpath, yLim = None
         plt.close()
 
 
+def plotBlenderYellowResiduals(blendModel, displayParams, DBpath, NBestScore, NCount, yLim = None, xLim = None, fontsize = None,
+                               studyFolder ='BLENDER/'):
+
+    # df = blendModel.learningDf
+    if displayParams['showPlot'] or displayParams['archive']:
+
+        from yellowbrick.regressor import ResidualsPlot
+
+        # xTrain, yTrain, xTest, yTest = df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel(), df.XTest.to_numpy(), df.yTest.to_numpy().ravel()
+
+        title = 'Residuals for ' + str(blendModel.GSName) + '- BEST PARAM (%s) ' % blendModel.Param
+
+        fig = plt.figure(figsize=(10,5))#
+        if fontsize:
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
+            plt.xlabel('Predicted Value ', fontsize=14)
+            plt.ylabel('Residuals', fontsize=14)
+        ax = plt.gca()
+        if yLim:
+            plt.ylim(yLim[0], yLim[1])
+        if xLim:
+            plt.xlim(xLim[0], xLim[1])
+        visualizer = ResidualsPlot(blendModel.Estimator, title = title, fig=fig, hist =True)#"frequency" qqplot = True
+        visualizer.fit(blendModel.blendXtrain, blendModel.yTrain.ravel())  # Fit the training data to the visualizer
+        visualizer.score(blendModel.blendXtest, blendModel.yTest.ravel())  # Evaluate the model on the test data
+
+        reference = displayParams['reference']
+
+        if displayParams['archive']:
+
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'Residuals'
+            import os
+            outputFigPath = path + folder + subFolder
+            if not os.path.isdir(outputFigPath):
+                os.makedirs(outputFigPath)
+
+            visualizer.show(outpath=outputFigPath + '/' + str(blendModel.GSName) + '_' + NBestScore + '_' + str(NCount) + '.png')
+
+            # plt.savefig(outputFigPath + '/' + str(modelGridsearch.predictorName) + '_'
+            #             + str(modelGridsearch.selectorName) + '.png')
+
+        if displayParams['showPlot']:
+            visualizer.show()
+
+
+        plt.close()
+
 
 def plotModelHistResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = None, studyFolder ='GS/'):
 

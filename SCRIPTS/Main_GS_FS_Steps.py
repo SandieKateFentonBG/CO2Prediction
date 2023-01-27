@@ -160,22 +160,38 @@ def Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = False):
                     plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
                     plot_shap_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
 
-def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, NBestScore ='TestR2'):
+def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, NBestScore ='TestR2' , ConstructorKey = 'LR_RIDGE'):
     #CONSTRUCT
     LR_CONSTRUCTOR = {'name': 'LR', 'modelPredictor': LinearRegression(), 'param_dict': dict()}
     LR_RIDGE_CONSTRUCTOR = {'name': 'LR_RIDGE', 'modelPredictor': Ridge(), 'param_dict': LR_param_grid}
+    SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
+    SVR_LIN_CONSTRUCTOR = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
+    LR_ELAST_CONSTRUCTOR = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
+    CONSTRUCTOR_DICT = {'LR': LR_CONSTRUCTOR, 'LR_RIDGE' : LR_RIDGE_CONSTRUCTOR,
+                        'SVR_RBF': SVR_RBF_CONSTRUCTOR, 'SVR_LIN': SVR_LIN_CONSTRUCTOR,
+                        'LR_ELAST': LR_ELAST_CONSTRUCTOR}
+
+    CONSTRUCTOR = CONSTRUCTOR_DICT[ConstructorKey]
 
     # CONSTRUCT & REPORT
     sortedModelsData = sortedModels(GS_FSs, NBestScore= NBestScore)
     nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
-    blendModel = BlendModel(modelList=nBestModels, blendingConstructor=LR_RIDGE_CONSTRUCTOR, NBestScore= NBestScore, NCount = n)
-    reportGS_Scores_Blending(blendModel, displayParams, DBpath, NBestScore)
-    # pickleDumpMe(DBpath, displayParams, blendModel, 'GS_FS', blendModel.GSName + '_' + NBestScore) #TODO : the score was changed here
-    pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName + '_' + str(n) + '_' + NBestScore) #TODO : the score was changed here
+    blendModel = BlendModel(modelList=nBestModels, blendingConstructor=CONSTRUCTOR, NBestScore= NBestScore, NCount = n)
+    reportGS_Scores_Blending(blendModel, displayParams, DBpath, NBestScore= NBestScore, NCount = n)
+    pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName + '_' + str(n) + '_' + NBestScore)
+
 
     return blendModel
 
-def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
+def Plot_BLENDING(blendModel, plot_blend = True):
+    if plot_blend :
+        plotBlenderYellowResiduals(blendModel, displayParams=displayParams, DBpath=DB_Values['DBpath'],
+                                   NBestScore = BLE_VALUES['NBestScore'], NCount = BLE_VALUES['NCount'],
+                                   yLim=PROCESS_VALUES['residualsYLim'], xLim=PROCESS_VALUES['residualsXLim'],
+                                   studyFolder='BLENDER/')
+
+
+def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False):
     """
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
@@ -198,19 +214,20 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
 
     # BLEND
     print('RUNNING BLENDING')
-    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], n = BLE_VALUES['NCount'], checkR2 = True, NBestScore= BLE_VALUES['NBestScore'])
+    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], n = BLE_VALUES['NCount'], checkR2 = True,
+                              NBestScore= BLE_VALUES['NBestScore'], ConstructorKey = ConstructorKey)
 
     # REPORT
     print('REPORTING GS_FS')
-    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-                         baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, GSwithFS=True)
-
-    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
-    scoreListMax = [True, False, True, True, True]
-    reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=True)
-
-    reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, blender=blendModel)
-    reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, blender=blendModel)
+    # reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+    #                      baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, GSwithFS=True)
+    #
+    # scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
+    # scoreListMax = [True, False, True, True, True]
+    # reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=False)
+    #
+    # reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, blender=blendModel)
+    # reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, blender=blendModel)
 
     print('PLOTTING GS_FS')
     # PLOT
@@ -220,6 +237,9 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     # Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
     # Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
     # Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
+
+    print('PLOTTING BLENDER')
+    Plot_BLENDING(blendModel, plot_blend=True)
 
     return GS_FSs, blendModel
 
@@ -234,12 +254,6 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
         GS_FSs.append(GS_FS)
 
     return GS_FSs
-
-def import_Main_BlenderOld(import_reference, NBestScore, label = 'LR_RIDGE_Blender'):
-    path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/GS_FS/' + label + '_' + NBestScore + '.pkl'
-    Blender = pickleLoadMe(path=path, show=False)
-
-    return Blender
 
 def import_Main_Blender(import_reference, n, NBestScore, label = 'LR_RIDGE_Blender'):
     path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/BLENDER/' + label + '_' + str(n) + '_' + NBestScore + '.pkl'

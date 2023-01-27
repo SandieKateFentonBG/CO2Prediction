@@ -59,7 +59,7 @@ def reportGS_TxtScores_All (DBpath, displayParams, modelGS, objFolder ='GS_FS', 
                 print('')
 
 
-def reportGS_Scores_All (DBpath, displayParams, GS_FSs, scoreList, display = True):
+def reportGS_Scores_All (DBpath, displayParams, GS_FSs, scoreList, display = False):
 
     if displayParams['archive']:
         import os
