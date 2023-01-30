@@ -30,7 +30,7 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
                 xLabels.append(name)
 
                 weightLabelsLs.append(Model.selectedLabels)
-                weightsLs.append(Model.Weights)
+                weightsLs.append(Model.ModelWeights)
                 weightsScaledLs.append(Model.WeightsScaled)
 
     #create empty dfs

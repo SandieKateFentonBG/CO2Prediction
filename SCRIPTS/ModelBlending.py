@@ -9,6 +9,8 @@ from Model import *
 #LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Lasso, Ridge, ElasticNet
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.preprocessing import MinMaxScaler
 
 class BlendModel:
 
@@ -27,57 +29,74 @@ class BlendModel:
         self.NBestScore = NBestScore # score used for selecting NBestModels
         self.N = NCount #number of best models
 
-        if Val:
-            self.yTrain = modelList[0].learningDf.yVal.to_numpy().ravel() #yTrain is the same for every model
-        else:
-            self.yTrain = modelList[0].learningDf.yTrain.to_numpy().ravel() #yTrain is the same for every model
 
+        self.yVal = modelList[0].learningDf.yVal.to_numpy().ravel() #yTrain is the same for every model
+        self.yTrain = modelList[0].learningDf.yTrain.to_numpy().ravel() #yTrain is the same for every model
         self.yTest = modelList[0].learningDf.yTest.to_numpy().ravel() #yTest is the same for every model
 
         #create meta learning data
         blend_train_sets = []
         blend_test_sets = []
+        blend_val_sets = []
+
         for model in modelList:
 
             predictor = model.Estimator
             learningDf = model.learningDf
 
-            if Val:
-                rawXTrain, rawyTrain = learningDf.XVal.to_numpy(), learningDf.yVal.to_numpy().ravel()
-            else :
-                rawXTrain, rawyTrain = learningDf.XTrain.to_numpy(), learningDf.yTrain.to_numpy().ravel() #todo : changed here
-
+            rawXVal, rawyVal = learningDf.XVal.to_numpy(), learningDf.yVal.to_numpy().ravel()
+            rawXTrain, rawyTrain = learningDf.XTrain.to_numpy(), learningDf.yTrain.to_numpy().ravel() #todo : changed here
             rawXTest, rawyTest = learningDf.XTest.to_numpy(), learningDf.yTest.to_numpy().ravel()
 
             blend_train_i = predictor.predict(rawXTrain) #dim 400*1
             blend_test_i = predictor.predict(rawXTest) #dim 20*1
+            blend_val_i = predictor.predict(rawXVal)  # dim 20*1
 
             blend_train_i = pd.DataFrame(blend_train_i)
             blend_test_i = pd.DataFrame(blend_test_i)
+            blend_val_i = pd.DataFrame(blend_val_i)
 
             blend_train_sets.append(blend_train_i) #dim 400*i
             blend_test_sets.append(blend_test_i) #dim 20*i
+            blend_val_sets.append(blend_val_i)  # dim 20*i
 
         # # concatenating training data
         self.blendXtrain = pd.concat(blend_train_sets, axis=1) #dim 400*i #naming different because second order data
         self.blendXtest = pd.concat(blend_test_sets, axis=1) #dim 20*i
+        self.blendXval = pd.concat(blend_val_sets, axis=1) #dim 20*i
+
+        # todo : if I want to scale my y's
+        # wrapped_model = TransformedTargetRegressor(regressor=self.modelPredictor, transformer=MinMaxScaler())
+        # replace self.modelPredictor with wrapped_model
+
+        self.ScaleMean = self.blendXtrain.mean(axis=0)
+        self.ScaleStd = self.blendXtrain.std(axis=0)
+
+        self.blendXtrain = (self.blendXtrain - self.ScaleMean) / self.ScaleStd
+        self.blendXval = (self.blendXval - self.ScaleMean) / self.ScaleStd
+        self.blendXtest = (self.blendXtest - self.ScaleMean) / self.ScaleStd
+
+        if Val:
+            xtrainer, ytrainer = self.blendXval, self.yVal
+        else:
+            xtrainer, ytrainer = self.blendXtrain, self.yTrain
 
         # building the final model using the meta features # this should be done by a cv of 5 folds on the training set
         if Gridsearch:
             njobs = os.cpu_count() - 1
             grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
                                 n_jobs=njobs, return_train_score=True)
-            grid.fit(self.blendXtrain, self.yTrain)
+            grid.fit(xtrainer, ytrainer)
             self.Param = grid.best_params_
             self.Estimator = grid.best_estimator_
 
         else :
-            self.Estimator = self.modelPredictor.fit(self.blendXtrain, self.yTrain)
+            self.Estimator = self.modelPredictor.fit(xtrainer, ytrainer)
             self.Param = None
 
         self.yPred = self.Estimator.predict(self.blendXtest)
 
-        self.TrainScore = round(self.Estimator.score(self.blendXtrain, self.yTrain), self.rounding)
+        self.TrainScore = round(self.Estimator.score(xtrainer, ytrainer), self.rounding)
         self.TestScore = round(self.Estimator.score(self.blendXtest, self.yTest), self.rounding)
         self.TestAcc = round(computeAccuracy(self.yTest, self.yPred, self.accuracyTol), self.rounding)
         self.TestMSE = round(mean_squared_error(self.yTest, self.yPred), self.rounding)
@@ -187,7 +206,7 @@ def reportGS_Scores_Blending(blendModel, displayParams, DBpath, NBestScore, NCou
         BlendingDf = pd.DataFrame(columns=columns, index=index)
         for col in columns[:-1]:
             BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [blendModel.__getattribute__(col)]
-        BlendingDf['Weights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0] #todo : this naming was changed from ModelWeights
+        BlendingDf['ModelWeights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0] #todo : this naming was changed from ModelWeights
         sortedDf = BlendingDf.sort_values('ModelWeights', ascending=False)
 
         AllDfs = [BlendingDf, sortedDf]

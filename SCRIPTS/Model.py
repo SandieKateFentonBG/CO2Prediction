@@ -4,6 +4,9 @@ import numpy as np
 import os
 import pandas as pd
 
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.preprocessing import MinMaxScaler
+
 def computeAccuracy(yTrue, yPred, tolerance):
     #https: // scikit - learn.org / stable / modules / model_evaluation.html  # scoring
     validated = [1 if abs(yPred[i] - yTrue[i]) < abs(yTrue[i]) * tolerance else 0 for i in range(len(yTrue))]
@@ -41,6 +44,12 @@ class ModelGridsearch:
     def paramGridsearch(self, df):
 
         njobs = os.cpu_count() - 1 #todo : njobs was changed
+
+        # todo : if I want to scale my y's
+        # wrapped_model = TransformedTargetRegressor(regressor=self.modelPredictor, transformer=MinMaxScaler())
+        # grid = GridSearchCV(wrapped_model, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
+        #                     n_jobs=njobs, return_train_score=True) #cv=cv
+
         grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
                             n_jobs=njobs, return_train_score=True) #cv=cv
         grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel())

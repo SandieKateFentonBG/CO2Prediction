@@ -29,6 +29,27 @@ def AssembleCVResiduals(studies):
 
     return residualsDict
 
+
+
+def AssembleCVResiduals_NBest(studies, studies_Blender):
+    residualsDict = dict()
+
+    for predictor in studies[0]:
+        for learningDflabel in predictor.learningDfsList:
+            model = predictor.__getattribute__(learningDflabel)
+            residualsDict[model.GSName] = []
+
+    residualsDict["all"] = []
+    for blender in studies_Blender:
+        for model in blender.modelList:
+            residualsDict[model.GSName].append(list(model.Resid))
+
+    for k, v in residualsDict.items():
+        residualsDict[k] = mergeList(v)
+
+    return residualsDict
+
+
 def AssembleCVResults(studies, label):
     resultsDict = dict()
 
@@ -187,14 +208,29 @@ def analyzeCVResiduals(studies):
 
     return models, means, variances
 
-def plotCVResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot', binwidth=25,
-                            setxLim=[-300, 300], fontsize=14):
+
+
+
+
+
+
+def plotCVResidualsGaussian_indiv(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot', binwidth=25,
+                                  setxLim=[-300, 300], fontsize=14, studies_Blender = None):
 
     from scipy.stats import norm
     import seaborn as sns
 
+
+    if studies_Blender : #only takes nBestmodels
+        residualsDict = AssembleCVResiduals_NBest(studies, studies_Blender)
+        extra = 'NBest'
+
+    else : #takes all models
+        residualsDict = AssembleCVResiduals(studies)
+        extra = ''
+
     # assemble residuals
-    residualsDict = AssembleCVResiduals(studies)
+    # residualsDict = AssembleCVResiduals(studies)
     models, means, variances = [], [], []
 
     listResVal = mergeList(list(residualsDict.values()))
@@ -211,52 +247,53 @@ def plotCVResidualsGaussian(studies, displayParams, FORMAT_Values, DBpath, study
         print("bin min changed to :", setxLim[0])
 
     for k, v in residualsDict.items():
-        title = 'Residuals distribution for ' + k
-        x = "Residuals [%s]" % FORMAT_Values['targetLabels']
-        fig, ax = plt.subplots()
+        if len(v) > 0:
+            title = 'Residuals distribution for ' + k + '' + extra
+            x = "Residuals [%s]" % FORMAT_Values['targetLabels']
+            fig, ax = plt.subplots()
 
-        # plot the histplot and the kde
-        ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
-        plt.setp(ax.patches, linewidth=0)
-        plt.title(title, fontsize=fontsize)
-        plt.xlabel(x, fontsize=fontsize)
-        plt.ylabel("Count", fontsize=fontsize)
-        arr = np.array(v)
+            # plot the histplot and the kde
+            ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
+            plt.setp(ax.patches, linewidth=0)
+            plt.title(title, fontsize=fontsize)
+            plt.xlabel(x, fontsize=fontsize)
+            plt.ylabel("Count", fontsize=fontsize)
+            arr = np.array(v)
 
-        plt.figure(1)
-        if setxLim:
-            xLim = (setxLim[0], setxLim[1])
-        else:
-            xLim = (min(arr), max(arr))
-        plt.xlim(xLim)
-        mean = np.mean(arr)  #
-        variance = np.var(arr)
-        models.append(k)
-        means.append(round(np.abs(mean), 2))
-        variances.append(round(variance, 2))
-        sigma = np.sqrt(variance)
-        x = np.linspace(min(arr), max(arr), 100)
-        t = np.linspace(-300, 300, 100)
-        dx = binwidth
-        scale = len(arr) * dx
+            plt.figure(1)
+            if setxLim:
+                xLim = (setxLim[0], setxLim[1])
+            else:
+                xLim = (min(arr), max(arr))
+            plt.xlim(xLim)
+            mean = np.mean(arr)  #
+            variance = np.var(arr)
+            models.append(k)
+            means.append(round(np.abs(mean), 2))
+            variances.append(round(variance, 2))
+            sigma = np.sqrt(variance)
+            x = np.linspace(min(arr), max(arr), 100)
+            t = np.linspace(-300, 300, 100)
+            dx = binwidth
+            scale = len(arr) * dx
 
-        # plot the gaussian
-        plt.plot(t, norm.pdf(t, mean, sigma) * scale, color='red', linestyle='dashed', label="Gaussian curve")
-        plt.legend()
+            # plot the gaussian
+            plt.plot(t, norm.pdf(t, mean, sigma) * scale, color='red', linestyle='dashed', label="Gaussian curve")
+            plt.legend()
 
-        reference = displayParams['reference']
-        if displayParams['archive']:
-            path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
-            import os
-            outputFigPath = path + folder + subFolder
-            if not os.path.isdir(outputFigPath):
-                os.makedirs(outputFigPath)
+            reference = displayParams['reference']
+            if displayParams['archive']:
+                path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
+                import os
+                outputFigPath = path + folder + subFolder
+                if not os.path.isdir(outputFigPath):
+                    os.makedirs(outputFigPath)
 
-            plt.savefig(outputFigPath + '/' + k + '-' + studyFolder + '.png')
+                plt.savefig(outputFigPath + '/' + k + '-' + studyFolder + extra + '.png')
 
-        if displayParams['showPlot']:
-            plt.show()
-        plt.close()
+            if displayParams['showPlot']:
+                plt.show()
+            plt.close()
 
     # return models, means, variances
 
@@ -295,6 +332,9 @@ def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBp
         plt.show()
 
     plt.close()
+
+
+
 
 def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot',
                                      binwidth=25,
@@ -404,22 +444,26 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
 
 def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_Values, DBpath, n, NBestScore):
 
-    models, means, variances = analyzeCVResiduals(studies_GS_FS)
-    reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
+    # models, means, variances = analyzeCVResiduals(studies_GS_FS)
+    # reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
+    #
+    # plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+    #                                  studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, NBest=True)
+    # plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+    #                                  studyFolder='GaussianPlot_Blender_' + str(n) + '_' + NBestScore, Blender=True)
+    # plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+    #                                  studyFolder='GaussianPlot_groupedModels')
+    # plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+    #                               studyFolder='GaussianPlot_indivModels')
+    plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                  studyFolder='GaussianPlot_indivModels', studies_Blender = studies_Blender)
 
-    plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, NBest=True)
-    plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_Blender_' + str(n) + '_' + NBestScore, Blender=True)
-    plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_groupedModels')
-    plotCVResidualsGaussian(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                            studyFolder='GaussianPlot_indivModels')
 
-    if displayParams['plot_all']:
-        plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                 studyFolder='Histplot_indivModels')
-        plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                          studyFolder='Histplot_groupedModels')
-        plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                          studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
+    # if displayParams['plot_all']:
+    #     plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+    #                              studyFolder='Histplot_indivModels')
+    #     plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+    #                                       studyFolder='Histplot_groupedModels')
+    #     plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+    #                                       studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
+

@@ -153,7 +153,7 @@ def reportCV_Scores_NBest(studies_Blender, displayParams, DBpath, n, NBestScore,
 
 
 def reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath,
-                                numericLabels = ['TestAcc', 'TestR2'], ordinalCountLabels = ['selectedLabels'],
+                                numericLabels = ['TestAcc', 'TestR2', 'TrainScore', 'ResidMean', 'ResidVariance'], ordinalCountLabels = ['selectedLabels'],
                                 ordinalLabels = ['selectorName'], n = 10, NBestScore = 'TestR2'):
 
     import pandas as pd

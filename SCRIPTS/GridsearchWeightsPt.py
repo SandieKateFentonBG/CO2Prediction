@@ -101,6 +101,33 @@ def GS_averageWeight(target, GS_FSs, key = 'WeightsScaled', df = None):
 
     return means, stdvs
 
+def GS_averageWeight_NBest(target, BlendModel, key = 'WeightsScaled', df = None):
+
+    #todo : change the GS FS s for Gs Fs !!
+    means = []
+    stdvs = []
+
+    LList = []
+    VList =  []
+
+    for Model in BlendModel.modelList:
+
+            labelLs,valueLs = GS_modelWeightsList(target, Model.selectedLabels, Model.__getattribute__(key), df) #54
+            VList.append(valueLs) #7
+
+    for i in range(len(VList[0])): #todo : why vlist 0
+        single = []
+        for elem in VList:
+            single.append(elem[i])
+
+
+        av = np.mean(single)
+        st = np.std(single)
+        means.append(av)
+        stdvs.append(st)
+
+    return means, stdvs
+
 
 def GS_WeightsBarplotAll(GS_FSs, GS_FSs_for_mean, DBpath, displayParams, target, content='', df_for_empty_labels=None,
                          yLim = None, sorted = True, key = 'WeightsScaled', studyFolder='GS_FS/'):
@@ -236,4 +263,78 @@ def GS_WeightsSummaryPlot(GS_FSs, GS_FSs_for_mean, target, df_for_empty_labels, 
         plt.show()
 
     plt.close()
+
+def GS_WeightsSummaryPlot_NBest(BlendModel, target, df_for_empty_labels, displayParams, DBpath, content='',
+                          sorted=True, yLim=None,
+                          fontsize=14, studyFolder='GS_FS/'):
+
+    import pandas as pd
+    import numpy
+    import seaborn as sns
+
+    inv_weights = []
+    modelLabels = []
+
+    for Model in BlendModel.modelList:
+
+        labelLs, valueLs = GS_modelWeightsList(target, Model.selectedLabels, Model.__getattribute__('WeightsScaled'),
+                                               df_for_empty_labels)  # 54
+        inv_weights.append(valueLs)  # 7
+        # todo - check - changed naming here for labels
+        lab = Model.predictorName + '-' + Model.selectorName
+
+        modelLabels.append(lab)
+
+    weights = []
+    for i in range(len(inv_weights[0])):  # 54
+        single = []
+        for j in range(len(inv_weights)):  # 7
+            single.append(inv_weights[j][i])
+        weights.append(single)
+
+    meanWeights, stdvs = GS_averageWeight_NBest(target, BlendModel, key='WeightsScaled', df=df_for_empty_labels)
+
+    features = list(df_for_empty_labels.keys())
+    features.remove(target[0])
+
+    if sorted:
+        meanWeights, weights, features = GS_sortedListAccordingToGuide(meanWeights, weights, features)
+
+
+
+    lineTable = pd.DataFrame(weights, columns=modelLabels, index=features)
+
+    test = pd.DataFrame(meanWeights, index=features)
+    barTable = test.T
+
+    fig = plt.figure(figsize=(12, 10))
+    plt.title("Feature relative weights in calibrated models.", fontsize=fontsize)
+    sns.set_theme(style="whitegrid")
+    sns.lineplot(data=lineTable)
+    cmap = sns.diverging_palette(220, 20, as_cmap=True)
+    sns.barplot(data=barTable, palette="bwr", ci=None)  # cmap="Blues_d"palette="gwr"
+    plt.xticks(numpy.arange(len(features)), features, rotation=90, ha="right", rotation_mode="anchor",
+               size=fontsize)
+    if yLim:
+        plt.ylim(-yLim, yLim)
+    plt.ylabel('Weights', fontsize=fontsize)
+    plt.xlabel('Features', fontsize=fontsize)
+    fig.tight_layout()
+
+    reference = displayParams['reference']
+    if displayParams['archive']:
+
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'Weights'
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+
+        plt.savefig(outputFigPath + '/WeightsPlot' + content + '_NBest' + '.png')
+    if displayParams['showPlot']:
+        plt.show()
+
+    plt.close()
+
+
 

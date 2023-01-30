@@ -94,7 +94,7 @@ def Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = False):
                                score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
                                maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
 
-def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf):
+def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, Blender = None):
 
     # WEIGHTS                   #ONLY FOR GS with identical weights
     for GS_FS in GS_FSs:
@@ -105,6 +105,11 @@ def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf):
     GS_WeightsSummaryPlot(GS_FSs, GS_FSs, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
                           DBpath=DB_Values['DBpath'], content='GS_FSs', sorted=True, yLim=4,
                           df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
+    if Blender:
+        GS_WeightsSummaryPlot_NBest(Blender, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
+                                    DBpath=DB_Values['DBpath'], content='GS_FSs', sorted=True, yLim=4,
+                                    df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
+
     for GS_FS in GS_FSs:
         GS_WeightsSummaryPlot([GS_FS], GS_FSs, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
                               DBpath=DB_Values['DBpath'], content=GS_FS.predictorName + '_GS_FS', sorted=True, yLim=4,
@@ -160,7 +165,7 @@ def Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = False):
                     plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
                     plot_shap_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
 
-def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, NBestScore ='TestR2' , ConstructorKey = 'LR_RIDGE'):
+def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, NBestScore ='TestR2' , ConstructorKey = 'LR_RIDGE', TrainedOnVal = False):
     #CONSTRUCT
     LR_CONSTRUCTOR = {'name': 'LR', 'modelPredictor': LinearRegression(), 'param_dict': dict()}
     LR_RIDGE_CONSTRUCTOR = {'name': 'LR_RIDGE', 'modelPredictor': Ridge(), 'param_dict': LR_param_grid}
@@ -176,7 +181,7 @@ def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, NBestScore ='TestR2'
     # CONSTRUCT & REPORT
     sortedModelsData = sortedModels(GS_FSs, NBestScore= NBestScore)
     nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
-    blendModel = BlendModel(modelList=nBestModels, blendingConstructor=CONSTRUCTOR, NBestScore= NBestScore, NCount = n)
+    blendModel = BlendModel(modelList=nBestModels, blendingConstructor=CONSTRUCTOR, NBestScore= NBestScore, NCount = n, Val = TrainedOnVal)
     reportGS_Scores_Blending(blendModel, displayParams, DBpath, NBestScore= NBestScore, NCount = n)
     pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName + '_' + str(n) + '_' + NBestScore)
 
@@ -191,7 +196,7 @@ def Plot_BLENDING(blendModel, plot_blend = True):
                                    studyFolder='BLENDER/')
 
 
-def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False):
+def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False, BlendingOnVal = False):
     """
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
@@ -215,28 +220,28 @@ def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False):
     # BLEND
     print('RUNNING BLENDING')
     blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], n = BLE_VALUES['NCount'], checkR2 = True,
-                              NBestScore= BLE_VALUES['NBestScore'], ConstructorKey = ConstructorKey)
+                              NBestScore= BLE_VALUES['NBestScore'], ConstructorKey = ConstructorKey, TrainedOnVal = BlendingOnVal)
 
     # REPORT
     print('REPORTING GS_FS')
-    # reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
-    #                      baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, GSwithFS=True)
-    #
-    # scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
-    # scoreListMax = [True, False, True, True, True]
-    # reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=False)
-    #
-    # reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, blender=blendModel)
-    # reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, blender=blendModel)
+    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+                         baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, GSwithFS=True)
+
+    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
+    scoreListMax = [True, False, True, True, True]
+    reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=False)
+
+    reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, blender=blendModel)
+    reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, blender=blendModel)
 
     print('PLOTTING GS_FS')
     # PLOT
-    # Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = displayParams['plot_all'])
-    # Plot_GS_FS_Weights(GS_FSs, baseFormatedDf)
-    # Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
-    # Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
-    # Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
-    # Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
+    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = displayParams['plot_all'])
+    Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, blendModel)
+    Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
+    Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
+    Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
+    Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
 
     print('PLOTTING BLENDER')
     Plot_BLENDING(blendModel, plot_blend=True)
