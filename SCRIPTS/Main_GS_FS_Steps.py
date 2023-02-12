@@ -165,6 +165,36 @@ def Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = False):
                     plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
                     plot_shap_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
 
+
+def Plot_GS_FS_Hyperparam(import_reference, Plot=False):
+    if Plot:
+
+        GS_FSs_alpha = import_Main_GS_FS(import_reference,
+                                         GS_FS_List_Labels=['LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN',
+                                                            'KRR_POL'])  #
+        GS_FSs_gamma = import_Main_GS_FS(import_reference,
+                                         GS_FS_List_Labels=['KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'])  #
+        GS_FSs_degree = import_Main_GS_FS(import_reference, GS_FS_List_Labels=['KRR_POL'])  #
+        GS_FSs_epsilon = import_Main_GS_FS(import_reference, GS_FS_List_Labels=['SVR_LIN', 'SVR_RBF'])  #
+        GS_FSs_C = import_Main_GS_FS(import_reference, GS_FS_List_Labels=['SVR_LIN', 'SVR_RBF'])  #
+        GS_FSs_coef0 = import_Main_GS_FS(import_reference, GS_FS_List_Labels=['KRR_POL'])  #
+
+        for ML, key, log, maxVal, absVal in zip(
+                [GS_FSs_alpha, GS_FSs_gamma, GS_FSs_degree, GS_FSs_epsilon, GS_FSs_C, GS_FSs_coef0],
+                ['alpha', 'gamma', 'degree', 'epsilon', 'C', 'coef0'],
+                [True, True, False, True, True, True],
+                [True, True, True, True, True, True], [True, True, True, True, True, True]):
+            Model_List = unpackGS_FSs(ML, remove='')
+
+            ParameterPlot2D(Model_List, displayParams, DB_Values['DBpath'], yLim=None,
+                            paramKey=key, score='mean_test_r2', log=log, studyFolder='GS/')
+            ParameterPlot3D(Model_List, displayParams, DB_Values['DBpath'],
+                            colorsPtsLsBest=['b', 'g', 'c', 'y'], paramKey=key, score='mean_test_r2',
+                            size=[6, 6], showgrid=False, log=log, maxScore=maxVal, absVal=absVal, ticks=False,
+                            lims=False,
+                            studyFolder='GS/')
+
+
 def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, NBestScore ='TestR2' , ConstructorKey = 'LR_RIDGE', TrainedOnVal = False):
     #CONSTRUCT
     LR_CONSTRUCTOR = {'name': 'LR', 'modelPredictor': LinearRegression(), 'param_dict': dict()}
@@ -242,6 +272,7 @@ def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False, Blend
     Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
     Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
     Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
+    Plot_GS_FS_Hyperparam(import_FS_ref, Plot=False)
 
     print('PLOTTING BLENDER')
     Plot_BLENDING(blendModel, plot_blend=True)

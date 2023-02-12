@@ -30,7 +30,7 @@ class BlendModel:
         self.N = NCount #number of best models
 
 
-        self.yVal = modelList[0].learningDf.yVal.to_numpy().ravel() #yTrain is the same for every model
+        self.yVal = modelList[0].learningDf.yVal.to_numpy().ravel() #yTrain is the same for every model because they all have the same CV cut
         self.yTrain = modelList[0].learningDf.yTrain.to_numpy().ravel() #yTrain is the same for every model
         self.yTest = modelList[0].learningDf.yTest.to_numpy().ravel() #yTest is the same for every model
 

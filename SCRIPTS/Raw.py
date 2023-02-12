@@ -63,6 +63,7 @@ class RawData:
         for line in reader:
             for (labels, attribute) in [(xQuantLabels, self.xQuanti), (yLabels, self.y)]:
                 for label in labels:
+
                     attribute[label].append(float(line[header.index(label)].replace(',', '.')))
             for label in xQualLabels:
                 self.xQuali[label].append(line[header.index(label)])

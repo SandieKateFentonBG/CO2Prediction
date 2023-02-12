@@ -18,7 +18,7 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
             xLabels.append(name)
 
             weightLabelsLs.append(Model.selectedLabels)
-            weightsLs.append(Model.Weights)
+            weightsLs.append(Model.Weights) #replace with Model.ModelWeights
             weightsScaledLs.append(Model.WeightsScaled)
 
     else :
@@ -30,7 +30,7 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
                 xLabels.append(name)
 
                 weightLabelsLs.append(Model.selectedLabels)
-                weightsLs.append(Model.ModelWeights)
+                weightsLs.append(Model.Weights)
                 weightsScaledLs.append(Model.WeightsScaled)
 
     #create empty dfs
@@ -49,7 +49,12 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
         df.loc[:,'Total'] = df.sum(axis=1)
         df.loc[:,'Occurences'] = df.notnull().sum(axis=1) - 1
         df.loc[:,'Total/Occurences'] = df['Total']/ df['Occurences'] #check this
-        sortedDf = df.sort_values('Total/Occurences', ascending = False)
+        if blender :
+            df.loc[:,'Total/N'] = df['Total']/ blender.N
+        else :
+            df.loc[:, 'Total/N'] = df['Total'] / len(xLabels)
+
+        sortedDf = df.sort_values('Total/N', ascending = True)
         sortedDfs.append(sortedDf)
     allDfs += sortedDfs
 

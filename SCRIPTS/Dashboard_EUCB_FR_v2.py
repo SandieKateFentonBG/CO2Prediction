@@ -11,6 +11,18 @@ ________________________________________________________________________________
 
 displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 
+studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 42)),
+               "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}
+
+
+#todo : yLabels Format changed from string to list > update if needed ['Embodied_Carbon[kgCO2e_m2]']
+# "Regressors": ['SVR_RBF']
+# sets = [
+#     ['Embodied_Carbon[kgCO2e_m2]','EC','TestR2'],
+#     ['Embodied_Carbon[kgCO2e_m2]','EC','TestAcc'],
+#     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS', 'TestR2'],
+#     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS','TestAcc']]
+
 """
 ________________________________________________________________________________________________________________________
 DATABASE
@@ -21,6 +33,11 @@ ________________________________________________________________________________
 """
 EUCB-FR
 """
+MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
+             "DBname" : "Test",
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'}
+
+
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
              "DBname" : "EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-no_floors_ag",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'} #"EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-with_floors_ag",CSTB_res_nf_SEC_BleR2
@@ -109,7 +126,7 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10} #'TestAcc'
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE'} #'TestAcc'
 
 
 

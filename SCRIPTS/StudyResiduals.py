@@ -444,26 +444,26 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
 
 def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_Values, DBpath, n, NBestScore):
 
-    # models, means, variances = analyzeCVResiduals(studies_GS_FS)
-    # reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
-    #
-    # plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-    #                                  studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, NBest=True)
-    # plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-    #                                  studyFolder='GaussianPlot_Blender_' + str(n) + '_' + NBestScore, Blender=True)
-    # plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-    #                                  studyFolder='GaussianPlot_groupedModels')
-    # plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-    #                               studyFolder='GaussianPlot_indivModels')
+    models, means, variances = analyzeCVResiduals(studies_GS_FS)
+    reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
+
+    plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                     studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, NBest=True)
+    plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                     studyFolder='GaussianPlot_Blender_' + str(n) + '_' + NBestScore, Blender=True)
+    plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                     studyFolder='GaussianPlot_groupedModels')
+    plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                  studyFolder='GaussianPlot_indivModels')
     plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
                                   studyFolder='GaussianPlot_indivModels', studies_Blender = studies_Blender)
 
 
-    # if displayParams['plot_all']:
-    #     plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-    #                              studyFolder='Histplot_indivModels')
-    #     plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-    #                                       studyFolder='Histplot_groupedModels')
-    #     plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-    #                                       studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
+    if displayParams['plot_all']:
+        plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                 studyFolder='Histplot_indivModels')
+        plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                          studyFolder='Histplot_groupedModels')
+        plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+                                          studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
 
