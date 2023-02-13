@@ -34,7 +34,7 @@ ________________________________________________________________________________
 EUCB-FR
 """
 MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
-             "DBname" : "Test",
+             "DBname" : "Test-Concrete",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'}
 
 

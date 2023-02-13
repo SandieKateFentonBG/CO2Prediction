@@ -106,3 +106,8 @@ def GS_ConstructDataframe(GS_FSs, score):
     df = pd.DataFrame(results, index=xLabels, columns=yLabels)
 
     return df
+
+def showAttributes(obj):
+
+    for attr in dir(obj):
+        print("obj.%s = %r" % (attr, getattr(obj, attr)))
