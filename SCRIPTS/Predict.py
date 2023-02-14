@@ -22,6 +22,7 @@ class Sample:
         rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(dbRefName, show = False)
         mean = baseFormatedDf.MeanStdDf.loc["mean",:]
         std = baseFormatedDf.MeanStdDf.loc["std",:]
+        yLabels = studyParams['sets'][0][0]
         self.name = MyPred_Sample["DBname"]
 
         # RAW DATA
@@ -116,107 +117,119 @@ class Sample:
         XDf = self.formatDf(self.XDf, model)
         features = self.formatDf(self.XDfunsc, model).round(3) # to indicate unscaled values on axis -  no attributre found - doesn't work
         sample = self.input.to_string(index=False)
-        name = 'SHAP_' + content + '_' + model.GSName
+        name = self.name + '_' + content + '_' + model.GSName
 
         #SHAP
         explainer = model.SHAPexplainer
 
-        try:
+        try :
             shap_values = explainer(XDf)  # explainer.shap_values(XDf)
-            shap_wf = shap.waterfall_plot(shap_values=shap_values[0], show=displayParams['showPlot'])
-
-            # EDIT PLOT
-            plt.gcf().set_size_inches(20, 6)
-            plt.tight_layout()
-            plt.suptitle(name, ha='center', size='small', va='top')
-            # plt.suptitle(sample, ha='center', size='small', va = 'top')
-
-            # SAVE
-            reference = displayParams['reference']
-            if displayParams['archive']:
-                path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name
-                import os
-                outputFigPath = path + folder + subFolder
-                if not os.path.isdir(outputFigPath):
-                    os.makedirs(outputFigPath)
-                plt.savefig(outputFigPath + '/' + name + '.png')
-                print("file saved :", outputFigPath + '/' + name + '.png')
-                if displayParams['showPlot']:
-                    plt.show()
-
-            plt.close()
-
+            shap_wf = shap.waterfall_plot(shap_values=shap_values[0], show=displayParams['showPlot'], max_display=24)
 
         except Exception:
-            pass
-            # shap_values = explainer.shap_values(XDf)  # explainer.shap_values(XDf)
-            # expected_value = explainer.expected_value
-            # base_values = explainer.base_values
-            # shap_wf = shap.waterfall_plot(shap_values[0], base_values, show=displayParams['showPlot'])
+            sv = explainer.shap_values(XDf)
+            bv = explainer.expected_value
+            exp = shap.Explanation(sv, bv, XDf) #, feature_names=None
+            idx = 0  # datapoint to explain
+            shap_wf = shap.waterfall_plot(exp[idx], show=displayParams['showPlot'], max_display=24)
 
 
 
 
+        # EDIT PLOT
+        plt.gcf().set_size_inches(20, 10)
+        plt.tight_layout()
+        plt.suptitle(name, ha='center', size='small', va='top')
+        # plt.suptitle(sample, ha='center', size='small', va = 'top')
+
+        # SAVE
+        reference = displayParams['reference']
+        if displayParams['archive']:
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name
+            import os
+            outputFigPath = path + folder + subFolder
+            if not os.path.isdir(outputFigPath):
+                os.makedirs(outputFigPath)
+            plt.savefig(outputFigPath + '/' + name + '.png')
+            print("file saved :", outputFigPath + '/' + name + '.png')
+            if displayParams['showPlot']:
+                plt.show()
+
+        plt.close()
 
 
     def SHAP_ForcePlot(self, model, DBpath, content = "ForcePlot", sampleOnly = True ):
 
+        name = self.name + '_' + content + '_' + model.GSName
+        explainer = model.SHAPexplainer
+
+        if sampleOnly:
+            XDf = self.formatDf(self.XDf, model)
+            features = self.formatDf(self.XDfunsc, model).round(3)
+            name += 'Sample'
+        else:
+            features = model.learningDf.XTest
+            name += 'Testing'
+            # todo : UPDATE THIS - not working currently since matplotlib attribute doesn't work for multiple samples ..
+
         try:
-
-            name = 'SHAP_' + content + '_' + model.GSName
-
-            explainer = model.SHAPexplainer
             if sampleOnly:
-                XDf = self.formatDf(self.XDf, model)
-                features = self.formatDf(self.XDfunsc, model).round(3)
                 shap_values = explainer(XDf)[0].values # plot force for data sample only
-                name +=  'Sample'
+
             else:
-                features = model.learningDf.XTest
                 shap_values = model.SHAPvalues #explainer(model.learningDf.XTest) # plot force for all testing data / exclude sample
-                name +=  'Testing'
-                #todo : UPDATE THIS - not working currently since matplotlib attribute doesn't work for multiple samples ..
 
             expected_value = model.SHAPexplainer.expected_value
             shap_wf = shap.force_plot(base_value = expected_value, shap_values = shap_values, features = features, matplotlib= True,
                                        show = displayParams['showPlot'], text_rotation=45, plot_cmap = ["#ca0020", "#92c5de"]) #, show = True
 
-            plt.gcf().set_size_inches(20, 6)
-            plt.tight_layout()
-            plt.suptitle(name, ha='right', size='large')
-
-            reference = displayParams['reference']
-            if displayParams['archive']:
-                path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name
-                import os
-                outputFigPath = path + folder + subFolder
-                if not os.path.isdir(outputFigPath):
-                    os.makedirs(outputFigPath)
-                plt.savefig(outputFigPath + '/' + name + '.png')
-                print("file saved :", outputFigPath + '/' + name + '.png')
-
-                if displayParams['showPlot']:
-                    plt.show()
-
-            plt.close()
-
         except Exception:
-            pass
-            # shap_values = explainer.shap_values(XDf)  # explainer.shap_values(XDf)
-            # expected_value = explainer.expected_value
-            # base_values = explainer.base_values
-            # shap_wf = shap.waterfall_plot(shap_values[0], base_values, show=displayParams['showPlot'])
+            sv = explainer.shap_values(XDf)
+            bv = explainer.expected_value
+            exp = shap.Explanation(sv, bv, XDf)  # , feature_names=None
+            idx = 0  # datapoint to explain
 
-    def SHAP_ScatterPlot(self, model, DBpath, feature = "Gross_Floor_Area",  content = "ScatterPlot"):
+            shap_wf = shap.force_plot(base_value = bv, shap_values = sv, features = features, matplotlib= True,
+                                       show = displayParams['showPlot'], text_rotation=45, plot_cmap = ["#ca0020", "#92c5de"]) #, show = True
+
+        plt.gcf().set_size_inches(20, 6)
+        plt.tight_layout()
+        plt.suptitle(name, ha='right', size='large')
+
+        reference = displayParams['reference']
+        if displayParams['archive']:
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name
+            import os
+            outputFigPath = path + folder + subFolder
+            if not os.path.isdir(outputFigPath):
+                os.makedirs(outputFigPath)
+            plt.savefig(outputFigPath + '/' + name + '.png')
+            print("file saved :", outputFigPath + '/' + name + '.png')
+
+            if displayParams['showPlot']:
+                plt.show()
+
+        plt.close()
+
+
+
+    def SHAP_ScatterPlot(self, model, DBpath, feature = "Users_Total", content = "ScatterPlot"): #Main_Material_Timber, wood "Gross_Floor_Area"
+
+        name = self.name + '_' + content + '_' + model.GSName
+        XDf = self.formatDf(self.XDf, model)
+        explainer = model.SHAPexplainer
 
         try:
-
-            XDf = self.formatDf(self.XDf, model)
-            explainer = model.SHAPexplainer
             shap_values = explainer(model.learningDf.XTest)
             shap_wf = shap.plots.scatter(shap_values[:, feature], show = displayParams['showPlot'])
 
-            name = 'SHAP_' + content + '_' + model.GSName
+            # sv = explainer.shap_values(model.learningDf.XTest)
+            # bv = explainer.expected_value
+            # id = XDf.columns.get_loc(feature)
+            # fn = np.array(model.selectedLabels).reshape(1,-1)
+            # exp = shap.Explanation(sv, bv, XDf.to_numpy()[0], feature_names=fn)
+            #
+            # shap_wf = shap.plots.scatter(exp[:, id], show = displayParams['showPlot'])
 
             plt.gcf().set_size_inches(20, 6)
             plt.tight_layout()
@@ -237,65 +250,11 @@ class Sample:
 
             plt.close()
 
+
         except Exception:
+
             pass
-            # shap_values = explainer.shap_values(XDf)  # explainer.shap_values(XDf)
-            # expected_value = explainer.expected_value
-            # base_values = explainer.base_values
-            # shap_wf = shap.waterfall_plot(shap_values[0], base_values, show=displayParams['showPlot'])
 
-
-#REFERENCE
-
-for set in studyParams['sets']:
-    yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
-    DBname = DB_Values['acronym'] + '_' + yLabelsAc + '_rd'
-
-    for value in studyParams['randomvalues']:
-        PROCESS_VALUES['random_state'] = value
-yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = studyParams['sets'][0]
-displayParams["reference"] = DB_Values['acronym'] + '_' + yLabelsAc + '_rd' + str(PROCESS_VALUES['random_state']) + '/'
-
-# MODEL
-
-GS_FSs = import_Main_GS_FS(displayParams["reference"], GS_FS_List_Labels = studyParams['Regressors'])
-Model_List_All = unpackGS_FSs(GS_FSs, remove='')
-print(Model_List_All)
-Model_List = [Model_List_All[-1]]
-print(Model_List)
-
-def Run_Prediction(Model_List, MyPred_Sample, ArchPath):
-
-    sample = Sample(displayParams["reference"], MyPred_Sample)
-
-    pickleDumpMe(ArchPath, displayParams, sample, 'PREDICTIONS', MyPred_Sample["DBname"])
-    predDict = dict()
-    for model in Model_List:
-        pred = sample.SamplePrediction(model)
-        predDict[model.GSName] = pred
-
-        sample.SHAP_WaterfallPlot(model, DB_Values['DBpath'])
-        sample.SHAP_ScatterPlot(model, DB_Values['DBpath'])
-        sample.SHAP_ForcePlot(model, DB_Values['DBpath'])
-
-    predDf = pd.DataFrame.from_dict(predDict)
-
-
-    if displayParams['archive']:
-
-        import os
-        reference = displayParams['reference']
-        outputPathStudy = DB_Values['DBpath'] + "RESULTS/" + reference + 'RECORDS/' + 'PREDICTIONS/'
-
-        if not os.path.isdir(outputPathStudy):
-            os.makedirs(outputPathStudy)
-
-        with pd.ExcelWriter(outputPathStudy + sample.name + '_Pred_Records_All' + ".xlsx", mode='w', if_sheet_exists="overlay") as writer:
-            sample.input.T.to_excel(writer, sheet_name="Sheet1")
-            predDf.to_excel(writer, sheet_name="Sheet1", startrow=len(sample.input.T) + 5)
-
-
-Run_Prediction(Model_List_All, MyPred_Sample, DB_Values['DBpath'])
 
 
 

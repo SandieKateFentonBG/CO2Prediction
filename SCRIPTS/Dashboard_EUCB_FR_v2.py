@@ -35,7 +35,7 @@ EUCB-FR
 """
 MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
              "DBname" : "Test-Concrete",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'}
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'} #Test-Wood
 
 
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
@@ -65,7 +65,7 @@ ________________________________________________________________________________
 """
 #parameters chosen for database processing
 
-PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 43, 'test_size' : 0.5, 'train_size': 0.8,
+PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 41, 'test_size' : 0.5, 'train_size': 0.8,
                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
 
