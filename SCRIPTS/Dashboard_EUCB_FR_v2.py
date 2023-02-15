@@ -9,7 +9,7 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd42/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
+displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd41/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 
 studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 42)),
                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}
@@ -34,8 +34,8 @@ ________________________________________________________________________________
 EUCB-FR
 """
 MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
-             "DBname" : "Test-Concrete",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'} #Test-Wood
+             "DBname" : "Test-Wood",
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'} #Test-Concrete
 
 
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/

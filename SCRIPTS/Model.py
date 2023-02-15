@@ -111,13 +111,14 @@ class ModelGridsearch:
         import shap
 
         #compute initial SHAP values
-        sample = shap.sample(self.learningDf.XTrain, 30)
+
+        sample = shap.sample(self.learningDf.XTrain, nsamples = 30, random_state = 0)
         masker = shap.maskers.Independent(self.learningDf.XTrain)#for average values
         try:
-            explainer = shap.Explainer(self.Estimator, masker)
+            explainer = shap.Explainer(self.Estimator) #, masker
         except Exception:
-            explainer = shap.KernelExplainer(self.Estimator.predict, sample)
-
+            # explainer = shap.KernelExplainer(self.Estimator.predict, sample) #use thisif too slow
+            explainer = shap.KernelExplainer(self.Estimator.predict)
         self.SHAPexplainer = explainer
         self.SHAPvalues = explainer.shap_values(self.learningDf.XTest) #for SHAP VALUES
 

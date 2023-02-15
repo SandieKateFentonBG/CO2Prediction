@@ -20,9 +20,9 @@ class Sample:
 
         # IMPORT
         rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(dbRefName, show = False)
-        mean = baseFormatedDf.MeanStdDf.loc["mean",:]
-        std = baseFormatedDf.MeanStdDf.loc["std",:]
-        yLabels = studyParams['sets'][0][0]
+        self.mean = baseFormatedDf.MeanStdDf.loc["mean",:]
+        self.std = baseFormatedDf.MeanStdDf.loc["std",:]
+        self.yLabels = studyParams['sets'][0][0]
         self.name = MyPred_Sample["DBname"]
 
         # RAW DATA
@@ -38,38 +38,47 @@ class Sample:
         self.possibleQualities = rdat.possibleQualities
 
         for line in reader:
-            for (labels, attribute) in [(xQuantLabels, self.xQuanti), (yLabels, self.y)]:
+            for (labels, attribute) in [(xQuantLabels, self.xQuanti), (self.yLabels, self.y)]:
                 for label in labels:
                     attribute[label].append(float(line[header.index(label)].replace(',', '.')))
             for label in xQualLabels:
                 self.xQuali[label].append(line[header.index(label)])
+        self.xQualiDict = self.xQuali.copy()
+        self.xQuantiDict = self.xQuanti.copy()
 
-        input = self.xQuanti.copy()
-        input.update(self.xQuali)
+        self.createSample(xQuali=self.xQuali, xQuanti=self.xQuanti)
+
+    def createSample(self, xQuali, xQuanti):
+
+        self.xQuali = xQuali
+        self.xQuanti = xQuanti
+
+        input = xQuanti.copy()
+        input.update(xQuali)
         self.input = pd.DataFrame.from_dict(input)
 
-        for label in self.xQuali.keys():
-            self.xQuali[label] = [self.possibleQualities[label].index(value) for value in self.xQuali[label]]
+        for label in xQuali.keys():
+            xQuali[label] = [self.possibleQualities[label].index(value) for value in xQuali[label]]
 
         # FEATURES
         from Features import logitize
 
         # UNSCALED
         XDfunsc = self.xQuanti.copy()
-        XDfunsc.update(logitize(self.xQuali, self.possibleQualities))
+        XDfunsc.update(logitize(xQuali, self.possibleQualities))
         self.XDfunsc = pd.DataFrame.from_dict(XDfunsc) #input data digitized but unscaled
 
         #SCALED
-        self.x = dict(self.xQuanti)
+        self.x = dict(xQuanti)
         for l in self.x.keys():
-            self.x[l] = list((self.x[l] - mean[l]) / std[l])
-        self.x.update(logitize(self.xQuali, self.possibleQualities))
+            self.x[l] = list((self.x[l] - self.mean[l]) / self.std[l])
+        self.x.update(logitize(xQuali, self.possibleQualities))
 
-        XDf = self.asDataframe().drop(columns=yLabels)
-        yDf = np.multiply(self.asDataframe()[yLabels], FORMAT_Values['yUnitFactor'])
+        XDf = self.asDataframe().drop(columns=self.yLabels)
+        yDf = np.multiply(self.asDataframe()[self.yLabels], FORMAT_Values['yUnitFactor'])
         self.yDf = yDf
         self.XDf = XDf
-        self.yDf.rename(columns={yLabels[0]: FORMAT_Values['targetLabels'][0]})
+        self.yDf.rename(columns={self.yLabels[0]: FORMAT_Values['targetLabels'][0]})
 
         #todo : __new__ features object in whicjh attributes provided
         #https://stackoverflow.com/questions/47169489/how-to-create-an-object-inside-class-static-method
@@ -110,17 +119,42 @@ class Sample:
         yPred = model.Estimator.predict(XDf)
         return yPred
 
-    def SHAP_WaterfallPlot(self, model, DBpath, content = "WaterfallPlot"):
+    def blendformatDf(self, blender):
+
+        #create meta learning data
+        blend_sample_sets = []
+        for model in blender.modelList:
+
+            XDf = self.formatDf(self.XDf, model)
+            blend_train_i = model.Estimator.predict(XDf)
+            blend_train_i = pd.DataFrame(blend_train_i)
+            blend_sample_sets.append(blend_train_i)
+
+        blendXDf = pd.concat(blend_sample_sets, axis=1)
+        blendXDf = (blendXDf - blender.ScaleMean) / blender.ScaleStd
+
+        return blendXDf
+
+    def SamplePredictionBlender(self, blender):
+
+        blendXDf = self.blendformatDf(blender)
+        yPred = blender.Estimator.predict(blendXDf)
+        return yPred
+
+    def SHAP_WaterfallPlot(self, model, explainer, DBpath, content = "WaterfallPlot", Blender = False):
 
         # todo : def doesn't work vor Kernel Explainer
 
-        XDf = self.formatDf(self.XDf, model)
-        features = self.formatDf(self.XDfunsc, model).round(3) # to indicate unscaled values on axis -  no attributre found - doesn't work
+        if Blender:
+            XDf = self.blendformatDf(model)
+
+        else:
+            XDf = self.formatDf(self.XDf, model)
+            features = self.formatDf(self.XDfunsc, model).round(3) # to indicate unscaled values on axis -  no attributre found - doesn't work
+
+
         sample = self.input.to_string(index=False)
         name = self.name + '_' + content + '_' + model.GSName
-
-        #SHAP
-        explainer = model.SHAPexplainer
 
         try :
             shap_values = explainer(XDf)  # explainer.shap_values(XDf)
@@ -132,9 +166,6 @@ class Sample:
             exp = shap.Explanation(sv, bv, XDf) #, feature_names=None
             idx = 0  # datapoint to explain
             shap_wf = shap.waterfall_plot(exp[idx], show=displayParams['showPlot'], max_display=24)
-
-
-
 
         # EDIT PLOT
         plt.gcf().set_size_inches(20, 10)
@@ -158,14 +189,18 @@ class Sample:
         plt.close()
 
 
-    def SHAP_ForcePlot(self, model, DBpath, content = "ForcePlot", sampleOnly = True ):
+    def SHAP_ForcePlot(self, model, explainer, DBpath, content = "ForcePlot", sampleOnly = True, Blender = False ):
 
         name = self.name + '_' + content + '_' + model.GSName
-        explainer = model.SHAPexplainer
 
         if sampleOnly:
-            XDf = self.formatDf(self.XDf, model)
-            features = self.formatDf(self.XDfunsc, model).round(3)
+
+            if Blender:
+                XDf = self.blendformatDf(model)
+                features = []
+            else:
+                XDf = self.formatDf(self.XDf, model)
+                features = self.formatDf(self.XDfunsc, model).round(3)
             name += 'Sample'
         else:
             features = model.learningDf.XTest
@@ -213,11 +248,14 @@ class Sample:
 
 
 
-    def SHAP_ScatterPlot(self, model, DBpath, feature = "Users_Total", content = "ScatterPlot"): #Main_Material_Timber, wood "Gross_Floor_Area"
+    def SHAP_ScatterPlot(self, model, explainer, DBpath, feature = "Users_Total", content = "ScatterPlot", Blender = False): #Main_Material_Timber, wood "Gross_Floor_Area"
 
         name = self.name + '_' + content + '_' + model.GSName
-        XDf = self.formatDf(self.XDf, model)
-        explainer = model.SHAPexplainer
+
+        if Blender:
+            XDf = self.blendformatDf(model)
+        else :
+            XDf = self.formatDf(self.XDf, model)
 
         try:
             shap_values = explainer(model.learningDf.XTest)
