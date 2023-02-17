@@ -188,7 +188,6 @@ class Sample:
 
         plt.close()
 
-
     def SHAP_ForcePlot(self, model, explainer, DBpath, content = "ForcePlot", sampleOnly = True, Blender = False ):
 
         name = self.name + '_' + content + '_' + model.GSName
@@ -245,8 +244,6 @@ class Sample:
                 plt.show()
 
         plt.close()
-
-
 
     def SHAP_ScatterPlot(self, model, explainer, DBpath, feature = "Users_Total", content = "ScatterPlot", Blender = False): #Main_Material_Timber, wood "Gross_Floor_Area"
 

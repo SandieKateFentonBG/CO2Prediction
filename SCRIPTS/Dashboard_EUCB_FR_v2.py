@@ -11,7 +11,7 @@ ________________________________________________________________________________
 
 displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd41/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 
-studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 42)),
+studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 50)),
                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}
 
 
@@ -65,7 +65,7 @@ ________________________________________________________________________________
 """
 #parameters chosen for database processing
 
-PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 41, 'test_size' : 0.5, 'train_size': 0.8,
+PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 48, 'test_size' : 0.5, 'train_size': 0.8,
                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
 

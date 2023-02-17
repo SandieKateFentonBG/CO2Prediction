@@ -1,7 +1,6 @@
-from Predict import *
+from Sample import *
 
-
-def Run_Prediction_Individual( MyPred_Sample, ArchPath, Model_List=None, Blender_List=None, precomputed = False):
+def Run_Model_Predictions_Explainer(MyPred_Sample, ArchPath, Model_List=None, Blender_List=None, precomputed = False):
 
     sample = Sample(displayParams["reference"], MyPred_Sample)
 
@@ -76,12 +75,11 @@ def Run_Prediction_Individual( MyPred_Sample, ArchPath, Model_List=None, Blender
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
 
-        with pd.ExcelWriter(outputPathStudy + sample.name + '_Pred_Records' + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + 'Model_Predictions_Explainer_' + sample.name + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, SheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-
-def create_Gridsearch_Samples_1D(MyPred_Sample, feature1, feature2):
+def create_Feature_Samples_1D(MyPred_Sample, feature1, feature2):
     from copy import copy, deepcopy
 
     sample = Sample(displayParams["reference"], MyPred_Sample)
@@ -102,9 +100,7 @@ def create_Gridsearch_Samples_1D(MyPred_Sample, feature1, feature2):
 
     return samples
 
-
-
-def create_Gridsearch_Samples_2D(MyPred_Sample, feature1, feature2):
+def create_Feature_Samples_2D(MyPred_Sample, feature1, feature2):
     from copy import copy, deepcopy
 
     sample = Sample(displayParams["reference"], MyPred_Sample)
@@ -130,11 +126,9 @@ def create_Gridsearch_Samples_2D(MyPred_Sample, feature1, feature2):
 
     return samples_ls #list of sublists len(samples_ls) = feature2; len(samples_ls[0]) = feature1
 
+def create_Feature_Predictions_2D (MyPred_Sample, feature1, feature2, model):
 
-
-def create_Gridsearch_Predictions_2D (MyPred_Sample, feature1, feature2, model):
-
-    samples_ls = create_Gridsearch_Samples_2D(MyPred_Sample, feature1, feature2) #list of sublists len(samples_ls) = feature2; len(samples_ls[0]) = feature1
+    samples_ls = create_Feature_Samples_2D(MyPred_Sample, feature1, feature2) #list of sublists len(samples_ls) = feature2; len(samples_ls[0]) = feature1
     cols = samples_ls[0][0].possibleQualities[feature1]
     idxs = samples_ls[0][0].possibleQualities[feature2]
     PredDf = pd.DataFrame(columns=cols, index=idxs)
@@ -151,32 +145,58 @@ def create_Gridsearch_Predictions_2D (MyPred_Sample, feature1, feature2, model):
         PredDf.loc[name, :] = preds
 
     return PredDf
-def Pred_HeatMap(PredDf):
 
-    # fig = plt.figure()
-    # fig, ax = plt.subplots()
-    # im = ax.imshow(results)
-    fig, ax = plt.subplots(figsize=(24,15))
-    xticklabels = list(range(len(PredDf)))
-    print(type(PredDf))
-    print(PredDf)
-    print(type(PredDf.values))
-    print(PredDf.values)
-    print(type(PredDf.values[0][0]))
-    sns.heatmap(PredDf.round(2)) #, annot=True, cbar=True, cbar_kws={"shrink": .80},xticklabels = xticklabels,
-                # fmt=".001f", ax=ax, cmap="bwr", center=0, vmin=-1, vmax=1, square=True)
+def Plot_Feature_Predictions_2D(modelName, PredDf, f1, f2, displayParams, DBpath, studyFolder='PREDICTIONS/'):
 
-def Run_Prediction_Gridsearch(MyPred_Sample, feature1, feature2, Model_List=None, Blender_List=None):
+    fig, ax = plt.subplots(figsize=(16,8))
+    PredDf = PredDf.astype(float)
+
+    figFolder = 'HEATMAP'
+    figTitle = modelName +'_Feature_Predictions_' + f1 + f2
+
+    ylabel, xlabel = f1, f2
+    yLabels, xLabels = PredDf.columns, PredDf.index
+
+    title = modelName + 'Influence of Features on target - (%s)' % studyParams['sets'][0][0][0]
+    sns.heatmap(PredDf, annot=True, fmt=".001f", ax=ax, cbar_kws={"shrink": .60}, cmap="bwr")
+
+    # Show all ticks and label them with the respective list entries
+    ax.set_xticks(np.arange(len(yLabels))+(1/2))
+    ax.set_xticklabels(yLabels)
+    ax.set_yticks(np.arange(len(xLabels))+(1/2))
+    ax.set_yticklabels(xLabels)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_yticklabels(), rotation=30, ha="right", rotation_mode="anchor")
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right",rotation_mode="anchor")
+    plt.xlabel(ylabel, fontsize =10)
+    plt.ylabel(xlabel, fontsize =10)
+
+    ax.set_title(title, fontsize =15)
+    fig.tight_layout()
+
+    reference = displayParams['reference']
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+
+        plt.savefig(outputFigPath + '/' + figTitle + '.png')
+        print(outputFigPath)
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()
+
+def Run_Feature_Predictions_2D(MyPred_Sample, feature1, feature2, Model_List=None, Blender_List=None):
 
     AllDfs = []
     SheetNames = []
     for model in Model_List + Blender_List:
         SheetNames.append(model.GSName)
-        PredDf = create_Gridsearch_Predictions_2D(MyPred_Sample, feature1, feature2, model)
-        Pred_HeatMap(PredDf)
-
-
-
+        PredDf = create_Feature_Predictions_2D(MyPred_Sample, feature1, feature2, model)
+        Plot_Feature_Predictions_2D(model.GSName, PredDf, feature1, feature2, displayParams, DB_Values['DBpath'])
         AllDfs.append(PredDf)
 
     if displayParams['archive']:
@@ -188,47 +208,7 @@ def Run_Prediction_Gridsearch(MyPred_Sample, feature1, feature2, Model_List=None
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
 
-        with pd.ExcelWriter(outputPathStudy + 'Prediction_Gridsearch' + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + 'Feature_Predictions_' + feature1 + feature2 + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, SheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-
-
-
-
-
-
-
-
-
-#REFERENCE
-
-# for set in studyParams['sets']:
-#     yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
-#     DBname = DB_Values['acronym'] + '_' + yLabelsAc + '_rd'
-#
-#     for value in studyParams['randomvalues']:
-#         PROCESS_VALUES['random_state'] = value
-
-yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = studyParams['sets'][0]
-displayParams["reference"] = DB_Values['acronym'] + '_' + yLabelsAc + '_rd' + str(PROCESS_VALUES['random_state']) + '/'
-
-print(displayParams["reference"])
-
-# MODEL
-
-GS_FSs = import_Main_GS_FS(displayParams["reference"], GS_FS_List_Labels = studyParams['Regressors'])
-# Model_List_All = unpackGS_FSs(GS_FSs, remove='')
-LRidge = [GS_FSs[1].RFE_RFR]
-#
-Blender = import_Main_Blender(displayParams["reference"], n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label = BLE_VALUES['Regressor'] + '_Blender')
-B_M = Blender.modelList
-
-# Run_Prediction(MyPred_Sample, DB_Values['DBpath'], Model_List=B_M + LRidge, Blender_List=[Blender], precomputed = False)
-
-# create_Gridsearch_Samples_1D(MyPred_Sample, feature1='Structure', feature2='Main_Material')
-
-# create_Gridsearch_Samples_2D(MyPred_Sample, feature1='Structure', feature2='Main_Material')
-
-
-Run_Prediction_Gridsearch(MyPred_Sample, feature1='Structure', feature2='Main_Material', Model_List=LRidge, Blender_List=[Blender])

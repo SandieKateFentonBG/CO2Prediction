@@ -134,10 +134,26 @@ def reportCV_SHAP(SHAPDf, SHAPGroupDf, displayParams, DBpath, NBest = True, n=No
 
     sortedDfs = []
     for df in AllDfs:
+
+        dfslice = df.astype(float)
         df.loc[:, 'Total'] = df.abs().sum(axis=1)
         df.loc[:, 'Occurences'] = df.notnull().sum(axis=1) - 1
         df.loc[:, 'Total/Occurences'] = df['Total'] / df['Occurences']  # check this
         df.loc[:, 'Total/N'] = df['Total'] / len(df.columns)
+
+        df.loc[:, 'MaxValue'] = dfslice.max(axis=1)
+        idmax = dfslice.idxmax(axis=1)
+        df.loc[:, 'MaxRegressor'] = idmax.str.split('_').str[0] + '_' + idmax.str.split('_').str[1]
+        df.loc[:, 'MaxFilter'] = idmax.str.split('_').str[-3]
+        df.loc[:, 'MaxSample'] = idmax.str.split('_').str[-2]
+        df.loc[:, 'MaxSeed'] = idmax.str.split('_').str[-1]
+
+        df.loc[:, 'MinValue'] = dfslice.min(axis=1)
+        idmin = dfslice.idxmin(axis=1)
+        df.loc[:, 'MinRegressor'] = idmin.str.split('_').str[0] + '_' + idmin.str.split('_').str[1]
+        df.loc[:, 'MinFilter'] = idmin.str.split('_').str[-3]
+        df.loc[:, 'MinSample'] = idmin.str.split('_').str[-2]
+        df.loc[:, 'MinSeed'] = idmin.str.split('_').str[-1]
 
         sortedDf = df.sort_values('Total/N', ascending=False)
 

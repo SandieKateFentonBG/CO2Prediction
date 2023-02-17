@@ -50,14 +50,14 @@ for set in studyParams['sets']:
 
         # IMPORT
         GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels = studyParams['Regressors'])
+        # GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels=['KRR_LIN'])
         Blender = import_Main_Blender(import_reference, n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label = BLE_VALUES['Regressor'] + '_Blender')
 
         # STORE
         CV_AllModels.append(GS_FSs)
 
-
         #
-        # CV_BlenderNBest.append(Blender)
+        CV_BlenderNBest.append(Blender)
         # CV_Filters_Pearson.append(pearsonFilter)
         # CV_Filters_Spearman.append(spearmanFilter)
 
@@ -69,13 +69,16 @@ for set in studyParams['sets']:
     # RUN_CV_Report(CV_AllModels, CV_BlenderNBest, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues,
     #               displayParams, GSName = "LR")
 
+    # RUN_SHAP_Combined_NBest(displayParams, DB_Values["DBpath"], CV_BlenderNBest, CV_AllModels, xQuantLabels, xQualLabels, n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
+    # RUN_SHAP_Combined_All(displayParams, DB_Values["DBpath"], CV_AllModels, GSName = 'KRR_LIN', xQuantLabels = xQuantLabels, xQualLabels = xQualLabels, randomValues = randomvalues)
+
     # # META STORE
     # Studies_CV_BlenderNBest.append(CV_BlenderNBest)
 
 # AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams, DB_Values['DBpath'], tolerance=0.15)
 
 CV_Blender = CVBlend(CV_AllModels)
-print(CV_Blender)
+# print(CV_Blender)
 
 
 # Could I integrate WEC to features and predict SEC with it?
