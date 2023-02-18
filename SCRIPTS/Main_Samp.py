@@ -22,6 +22,8 @@ LRidge = GS_FSs[1].RFE_RFR
 Blender = import_Main_Blender(displayParams["reference"], n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label = BLE_VALUES['Regressor'] + '_Blender')
 B_M = Blender.modelList
 
+
+Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M + [LRidge], Blender_List=[Blender], precomputed = False)
 Run_Feature_Predictions_2D(MyPred_Sample, feature1='Structure', feature2='Main_Material', Model_List=B_M + [LRidge], Blender_List=[Blender])
 
 

@@ -140,14 +140,20 @@ def reportCV_Scores_NBest(studies_Blender, displayParams, DBpath, n, NBestScore,
             AllDfs.append(BlendingDf)
 
         for df in AllDfs:
+            print('df', df)
             slice = df.iloc[0:len(df)-1, :]
+            print('slice', slice)
             df.loc['NBest_Avg', :] = slice.mean(axis=0)
             df.loc['Blender_Increase', :] = (df.loc[studies_Blender[0].GSName, :]/df.loc['NBest_Avg', :])-1
 
-
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_NBest" + '_' + str(n) + '_' + NBestScore + '_' + studies_Blender[0].GSName + ".xlsx", mode='w') as writer:
-            for df, name in zip(AllDfs, sheetNames):
-                df.to_excel(writer, sheet_name=name)
+        if n :
+            with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_NBest" + '_' + str(n) + '_' + NBestScore + '_' + studies_Blender[0].GSName + ".xlsx", mode='w') as writer:
+                for df, name in zip(AllDfs, sheetNames):
+                    df.to_excel(writer, sheet_name=name)
+        else :
+            with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_" + NBestScore + '_' + studies_Blender[0].GSName + ".xlsx", mode='w') as writer:
+                for df, name in zip(AllDfs, sheetNames):
+                    df.to_excel(writer, sheet_name=name)
 
         return AllDfs, sheetNames
 

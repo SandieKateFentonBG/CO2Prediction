@@ -195,11 +195,22 @@ def F_FS_RFE(baseFormatedDf):
                                     showgrid=False, log=False, max=True, ticks=False, lims=False)
     return RFEs
 
-def Run_FS_Study():
+def Run_Data_Processing():
     rdat = A_RawData()
     df = B_features(rdat)
     learningDf = C_data(df)
     baseFormatedDf = D_format(learningDf)
+
+    return rdat, df, learningDf, baseFormatedDf
+
+def Run_FS_Study():
+    # rdat = A_RawData()
+    # df = B_features(rdat)
+    # learningDf = C_data(df)
+    # baseFormatedDf = D_format(learningDf)
+
+    rdat, df, learningDf, baseFormatedDf = Run_Data_Processing()
+
     spearmanFilter, pearsonFilter = E_FS_Filter(baseFormatedDf)
     RFEs = F_FS_RFE(baseFormatedDf)
 
@@ -208,13 +219,18 @@ def Run_FS_Study():
 
     return rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs
 
-def import_Main_FS(import_reference, show = False):
-
-    # #IMPORT
+def import_Processed_Data(import_reference, show = False):
     rdat = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/DATA/rdat.pkl', show = show)
     df = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/DATA/df.pkl', show = show)
     learningDf = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/DATA/learningDf.pkl', show = show)
     baseFormatedDf = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/DATA/baseFormatedDf.pkl', show = show)
+
+    return rdat, df, learningDf, baseFormatedDf
+
+def import_Main_FS(import_reference, show = False):
+
+    # #IMPORT
+    rdat, df, learningDf, baseFormatedDf = import_Processed_Data(import_reference, show = False)
     spearmanFilter = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/FS/spearmanFilter.pkl', show = show)
     pearsonFilter = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/FS/pearsonFilter.pkl', show = show)
     RFEs = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/FS/RFEs.pkl', show = show)

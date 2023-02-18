@@ -8,7 +8,10 @@ from Raw import *
 from Features import *
 from Main_FS_Steps import *
 from Main_GS_FS_Steps import *
+from HelpersFormatter import *
 import shap
+
+
 
 
 class Sample:
@@ -105,39 +108,16 @@ class Sample:
         self.Dataframe = [x, y]
         return pd.DataFrame(np.hstack((x, y)), columns=xlabels + list(self.y.keys()))
 
-    def formatDf(self, data, model):
-
-        XDf = data
-        if model.learningDf.droppedLabels != '':
-            droppedLabels = model.learningDf.droppedLabels
-            XDf = data.drop(columns=droppedLabels)
-        return XDf
 
     def SamplePrediction(self, model):
 
-        XDf = self.formatDf(self.XDf, model)
+        XDf = formatDf(self.XDf, model)
         yPred = model.Estimator.predict(XDf)
         return yPred
 
-    def blendformatDf(self, blender):
-
-        #create meta learning data
-        blend_sample_sets = []
-        for model in blender.modelList:
-
-            XDf = self.formatDf(self.XDf, model)
-            blend_train_i = model.Estimator.predict(XDf)
-            blend_train_i = pd.DataFrame(blend_train_i)
-            blend_sample_sets.append(blend_train_i)
-
-        blendXDf = pd.concat(blend_sample_sets, axis=1)
-        blendXDf = (blendXDf - blender.ScaleMean) / blender.ScaleStd
-
-        return blendXDf
-
     def SamplePredictionBlender(self, blender):
 
-        blendXDf = self.blendformatDf(blender)
+        blendXDf = formatDf_toBlender(self.XDf, blender)
         yPred = blender.Estimator.predict(blendXDf)
         return yPred
 
@@ -146,11 +126,11 @@ class Sample:
         # todo : def doesn't work vor Kernel Explainer
 
         if Blender:
-            XDf = self.blendformatDf(model)
+            XDf = formatDf_toBlender(self.XDf, model)
 
         else:
-            XDf = self.formatDf(self.XDf, model)
-            features = self.formatDf(self.XDfunsc, model).round(3) # to indicate unscaled values on axis -  no attributre found - doesn't work
+            XDf = formatDf(self.XDf, model)
+            features = formatDf(self.XDfunsc, model).round(3) # to indicate unscaled values on axis -  no attributre found - doesn't work
 
 
         sample = self.input.to_string(index=False)
@@ -195,11 +175,11 @@ class Sample:
         if sampleOnly:
 
             if Blender:
-                XDf = self.blendformatDf(model)
+                XDf = formatDf_toBlender(self.XDf, model)
                 features = []
             else:
-                XDf = self.formatDf(self.XDf, model)
-                features = self.formatDf(self.XDfunsc, model).round(3)
+                XDf = formatDf(self.XDf, model)
+                features = formatDf(self.XDfunsc, model).round(3)
             name += 'Sample'
         else:
             features = model.learningDf.XTest
@@ -250,9 +230,9 @@ class Sample:
         name = self.name + '_' + content + '_' + model.GSName
 
         if Blender:
-            XDf = self.blendformatDf(model)
+            XDf = formatDf_toBlender(self.XDf, model)
         else :
-            XDf = self.formatDf(self.XDf, model)
+            XDf = formatDf(self.XDf, model)
 
         try:
             shap_values = explainer(model.learningDf.XTest)

@@ -66,8 +66,8 @@ for set in studyParams['sets']:
     # PredictionDict = computePrediction(GS)
 
     # COMBINE
-    # RUN_CV_Report(CV_AllModels, CV_BlenderNBest, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues,
-    #               displayParams, GSName = "LR")
+    RUN_CV_Report(CV_AllModels, CV_BlenderNBest, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues,
+                  displayParams, GSName = "LR")
 
     # RUN_SHAP_Combined_NBest(displayParams, DB_Values["DBpath"], CV_BlenderNBest, CV_AllModels, xQuantLabels, xQualLabels, n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
     # RUN_SHAP_Combined_All(displayParams, DB_Values["DBpath"], CV_AllModels, GSName = 'KRR_LIN', xQuantLabels = xQuantLabels, xQualLabels = xQualLabels, randomValues = randomvalues)
@@ -85,12 +85,6 @@ CV_Blender = CVBlend(CV_AllModels)
 # could I do a 2 step ML 1. predict WEC 2. Predict SEC with WEC
 
 #todo : there was a name change from Weights to Model Weights > changes might have been done wrong > could generate errors
-
-
-
-
-
-
 
 
 
