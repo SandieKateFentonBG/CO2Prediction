@@ -1,10 +1,13 @@
 import numpy as np
 from HelpersVisualizer import *
 
-def pickleDumpMe( DBpath, displayParams, obj, objFolder, objName):
+def pickleDumpMe( DBpath, displayParams, obj, objFolder, objName, combined = False):
     #objFolder = DATA; FILTER; WRAPPER; GS
     if displayParams['archive']:
-        reference = displayParams['reference']
+        if combined :
+            reference = displayParams['reference'][:-6] + '_Combined/'
+        else:
+            reference = displayParams['reference']
         import os
         import pickle
         outputFigPath = DBpath + "RESULTS/" + reference + 'RECORDS/' + objFolder

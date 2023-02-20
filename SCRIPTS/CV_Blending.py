@@ -105,11 +105,39 @@ def Run_CV_Blending(modelList, baseFormatedDf, displayParams, DBpath,  NBestScor
     CONSTRUCTOR = CONSTRUCTOR_DICT[ConstructorKey]
 
     # CONSTRUCT & REPORT
+
+    #SINGLE
     blendModel = CV_Blender(modelList, blendingConstructor=CONSTRUCTOR, baseFormatedDf = baseFormatedDf, Gridsearch = Gridsearch)
-    # reportGS_Scores_Blending(blendModel, displayParams, DBpath, NBestScore= NBestScore, NCount = None)
-
-    reportCV_Scores_NBest([blendModel], displayParams, DB_Values['DBpath'], n=None, NBestScore=BLE_VALUES['NBestScore'], random_seeds = studyParams['randomvalues'])
-    pickleDumpMe(DBpath, displayParams, blendModel, 'CV_BLENDER', blendModel.GSName + '_'  + '_' + NBestScore)
-
-
+    reportCV_Scores_NBest([blendModel], displayParams, DB_Values['DBpath'], n=None, NBestScore=BLE_VALUES['NBestScore'], random_seeds = None)
+    pickleDumpMe(DBpath, displayParams, blendModel, 'CV_BLENDER', blendModel.GSName + "_" + blendModel.modelList[0].GSName + '_' + NBestScore, combined = True)
     return blendModel
+
+    #MULTIPLE
+    blendModel_ls =[]
+
+    for blist in modelList:
+        blendModel = CV_Blender(blist, blendingConstructor=CONSTRUCTOR, baseFormatedDf=baseFormatedDf,
+                                Gridsearch=Gridsearch)
+        blendModel_ls.append(blendModel)
+        pickleDumpMe(DBpath, displayParams, blendModel, 'CV_BLENDER',
+                     blendModel.GSName + "_" + blendModel.modelList[0].GSName + '_' + NBestScore, combined=True)
+
+    #
+    # GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']
+    #
+    # blendModel_ls = []
+    # for GSName in GS_FS_List_Labels:
+    #     n = GSName
+    #     for FS in ['_RFE_GBR', '_NoSelector', '_RFE_DTR', '_RFE_RFR', '_fl_pearson', '_fl_spearman']:
+    #         n += FS
+    #
+    #     path = DB_Values['DBpath'] + 'RESULTS/CSTB_res_nf_EC_Combined/RECORDS/CV_BLENDER/LR_RIDGE_Blender_' \
+    #            + n + '_' + NBestScore + '.pkl'
+    #
+    #     Blender = pickleLoadMe(path=path, show=False)
+    #     blendModel_ls.append(Blender)
+
+    reportCV_Scores_NBest(blendModel_ls, displayParams, DB_Values['DBpath'], n=None,
+                          NBestScore=BLE_VALUES['NBestScore'], random_seeds=None)
+
+    return blendModel_ls

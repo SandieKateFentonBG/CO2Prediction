@@ -282,12 +282,12 @@ def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False, Blend
 def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_LIN', 'KRR_RBF', 'KRR_POL', 'SVR_LIN','SVR_RBF']): #'SVR_POL'
 
     GS_FSs = []
-    for FS_GS_lab in GS_FS_List_Labels:
+    for FS_GS_lab in GS_FS_List_Labels: #9
         path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
         # path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
-        GS_FS = pickleLoadMe(path=path, show=False)
+        GS_FS = pickleLoadMe(path=path, show=False) #6
 
-        GS_FSs.append(GS_FS)
+        GS_FSs.append(GS_FS) #54
 
     return GS_FSs
 
@@ -299,9 +299,24 @@ def import_Main_Blender(import_reference, n, NBestScore, label = 'LR_RIDGE_Blend
 
 def unpackGS_FSs(GS_FSs, remove = ''):
     Model_List = []
-    for GS_FS in GS_FSs:
-        for learningDflabel in GS_FS.learningDfsList:
-            GS = GS_FS.__getattribute__(learningDflabel)
+    for GS_FS in GS_FSs: #9
+        for learningDflabel in GS_FS.learningDfsList: #6
+            GS = GS_FS.__getattribute__(learningDflabel) #54
             if GS.predictorName != remove:
                 Model_List.append(GS)
     return Model_List
+
+
+def repackGS_FSs(Model_List): #10 list de 54
+
+    models_ls = [] #54 list de 10
+    for i in range(len(Model_List[0])):  # 54
+        seeds_ls = []
+        for j in range(len(Model_List)):  # 10
+             #54
+            seeds_ls.append(Model_List[j][i])
+        models_ls.append(seeds_ls)
+    print("should be 54", len(models_ls))
+    print("should be 10", len(models_ls[0]))
+
+    return models_ls

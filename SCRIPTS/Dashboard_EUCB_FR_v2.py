@@ -11,7 +11,7 @@ ________________________________________________________________________________
 
 displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd41/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 
-studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 42)),
+studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 50)),
                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}
 
 
