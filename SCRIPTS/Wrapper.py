@@ -15,6 +15,7 @@ class WrapFeatures:
         # KFold - cross-validation splitting - ensures same split for every function run
 
         self.yLabel = formatedDf.yLabel
+        self.random_state = formatedDf.random_state
         self.method = method # ex :'LR'
         self.estimator = estimator #unfit estimator # ex : LinearRegression()
         self.FtCountFrom = output_feature_count # ex : 'rfeHyp' > defines the number of feature for the output RFE

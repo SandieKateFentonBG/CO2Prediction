@@ -24,6 +24,8 @@ class ModelGridsearch:
         self.selectedLabels = learningDf.selectedLabels # ex : ['GIFA', 'Sector']
         self.GSName = self.predictorName + '_' + self.selectorName #ex : SVR_fl_spearman ,
         self.learningDf = learningDf
+        self.random_state = learningDf.random_state
+
 
         self.param_dict = param_dict
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}

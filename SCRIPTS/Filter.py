@@ -23,6 +23,7 @@ class FilterFeatures:
         valDf = baseFormatedDf.valDf
         testDf = baseFormatedDf.testDf
         self.yLabel = baseFormatedDf.yLabel
+        self.random_state = baseFormatedDf.random_state
 
         self.method = method
         self.lowThreshhold = lowThreshhold
