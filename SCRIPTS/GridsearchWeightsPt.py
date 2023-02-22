@@ -101,7 +101,7 @@ def GS_averageWeight(target, GS_FSs, key = 'WeightsScaled', df = None):
 
     return means, stdvs
 
-def GS_averageWeight_NBest(target, BlendModel, key = 'WeightsScaled', df = None):
+def GS_averageWeight_NBest(target, NBestModel, key ='WeightsScaled', df = None):
 
     #todo : change the GS FS s for Gs Fs !!
     means = []
@@ -110,7 +110,7 @@ def GS_averageWeight_NBest(target, BlendModel, key = 'WeightsScaled', df = None)
     LList = []
     VList =  []
 
-    for Model in BlendModel.modelList:
+    for Model in NBestModel.modelList:
 
             labelLs,valueLs = GS_modelWeightsList(target, Model.selectedLabels, Model.__getattribute__(key), df) #54
             VList.append(valueLs) #7
@@ -264,9 +264,9 @@ def GS_WeightsSummaryPlot(GS_FSs, GS_FSs_for_mean, target, df_for_empty_labels, 
 
     plt.close()
 
-def GS_WeightsSummaryPlot_NBest(BlendModel, target, df_for_empty_labels, displayParams, DBpath, content='',
-                          sorted=True, yLim=None,
-                          fontsize=14, studyFolder='GS_FS/'):
+def GS_WeightsSummaryPlot_NBest(NBestModel, target, df_for_empty_labels, displayParams, DBpath, content='',
+                                sorted=True, yLim=None,
+                                fontsize=14, studyFolder='GS_FS/'):
 
     import pandas as pd
     import numpy
@@ -275,7 +275,7 @@ def GS_WeightsSummaryPlot_NBest(BlendModel, target, df_for_empty_labels, display
     inv_weights = []
     modelLabels = []
 
-    for Model in BlendModel.modelList:
+    for Model in NBestModel.modelList:
 
         labelLs, valueLs = GS_modelWeightsList(target, Model.selectedLabels, Model.__getattribute__('WeightsScaled'),
                                                df_for_empty_labels)  # 54
@@ -292,7 +292,7 @@ def GS_WeightsSummaryPlot_NBest(BlendModel, target, df_for_empty_labels, display
             single.append(inv_weights[j][i])
         weights.append(single)
 
-    meanWeights, stdvs = GS_averageWeight_NBest(target, BlendModel, key='WeightsScaled', df=df_for_empty_labels)
+    meanWeights, stdvs = GS_averageWeight_NBest(target, NBestModel, key='WeightsScaled', df=df_for_empty_labels)
 
     features = list(df_for_empty_labels.keys())
     features.remove(target[0])

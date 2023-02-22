@@ -9,6 +9,12 @@ import numpy as np
 
 #todo : find better naming
 
+
+# changed all the xTrain to xVal = what RFE is trained on
+# added XCheck = what RFE is tested on
+
+
+
 def computeCorrelation(df, method, round):
 
     "correlationMatrix: correlation matrix identifies relation between pairs of variables"
@@ -22,6 +28,7 @@ class FilterFeatures:
         trainDf = baseFormatedDf.trainDf
         valDf = baseFormatedDf.valDf
         testDf = baseFormatedDf.testDf
+        checkDf = baseFormatedDf.checkDf
         self.yLabel = baseFormatedDf.yLabel
         self.random_state = baseFormatedDf.random_state
 
@@ -31,7 +38,7 @@ class FilterFeatures:
         self.corrRounding = corrRounding
 
 
-        self.filterUncorrelated(trainDf, baseLabels, self.yLabel, method, lowThreshhold)
+        self.filterUncorrelated(valDf, baseLabels, self.yLabel, method, lowThreshhold)
 
 
         # Generates :
@@ -52,16 +59,19 @@ class FilterFeatures:
         self.trainDf = trainDf.drop(columns=self.droppedLabels)
         self.valDf = valDf.drop(columns=self.droppedLabels)
         self.testDf = testDf.drop(columns=self.droppedLabels)
+        self.checkDf = checkDf.drop(columns=self.droppedLabels)
 
         self.XTrain = self.trainDf.drop(columns=self.yLabel)
         self.XVal = self.valDf.drop(columns=self.yLabel)
         self.XTest = self.testDf.drop(columns=self.yLabel)
+        self.XCheck = self.checkDf.drop(columns=self.yLabel)
         self.yTrain = self.trainDf[self.yLabel]
         self.yVal = self.valDf[self.yLabel]
         self.yTest = self.testDf[self.yLabel]
+        self.yCheck = self.checkDf[self.yLabel]
 
 
-        self.selectedLabels = list(self.XTrain.columns.values)
+        self.selectedLabels = list(self.XVal.columns.values)
         self.selector = 'fl_' + self.method
 
 

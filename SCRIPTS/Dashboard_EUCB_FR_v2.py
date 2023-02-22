@@ -9,9 +9,9 @@ ________________________________________________________________________________
 """
 #change when running a test
 
-displayParams = {"reference" : 'CSTB_res_nf_BleR2_rd41/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
+displayParams = {"reference" : 'CSTB_study/', 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False}
 
-studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 50)),
+studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(45, 50)),
                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}
 
 
@@ -35,12 +35,12 @@ EUCB-FR
 """
 MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
              "DBname" : "Test-Wood",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'} #Test-Concrete
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_study'} #Test-Concrete
 
 
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
              "DBname" : "EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-no_floors_ag",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_res_nf'} #"EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-with_floors_ag",CSTB_res_nf_SEC_BleR2
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'CSTB_study'} #"EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-with_floors_ag",CSTB_res_nf_SEC_BleR2
 
 xQualLabels = [
 'Use_Subtype', 'Structure', 'Roof', 'Energy_Class', 'Main_Material']
@@ -65,8 +65,8 @@ ________________________________________________________________________________
 """
 #parameters chosen for database processing
 
-PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 32, 'test_size' : 0.5, 'train_size': 0.8,
-                'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1,
+PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 42, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
+                'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 42,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
 
 #todo : check 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]

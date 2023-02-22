@@ -32,9 +32,9 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
             for RFE in RFEs:
                 writer.writerow(["RFE with  ", RFE.method])
                 writer.writerow(["Number of features fixed ", RFE.n_features_to_select])
-                writer.writerow(["Score on training ", RFE.rfe_trainScore])
+                writer.writerow(["Score on training ", RFE.rfe_valScore])
                 writer.writerow(['Selected feature labels ', list(RFE.selectedLabels)])
-                writer.writerow(["Score on validation ", RFE.rfe_valScore])
+                writer.writerow(["Score on validation ", RFE.rfe_checkScore])
                 writer.writerow('')
 
         e.close()
@@ -61,9 +61,9 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
             for RFE in RFEs:
                 print("RFE with :" , RFE.method)
                 print("Number of features fixed :", RFE.n_features_to_select)
-                print("Score on training :", RFE.rfe_trainScore)
+                print("Score on training :", RFE.rfe_valScore)
                 print('Selected feature labels :', list(RFE.selectedLabels))
-                print("Score on validation :", RFE.rfe_valScore)
+                print("Score on validation :", RFE.rfe_checkScore)
                 print('')
 
 def dfAsTable (DBpath, displayParams, df, objFolder ='DATA', name = "DF"):

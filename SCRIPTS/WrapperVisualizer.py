@@ -12,7 +12,7 @@ def Construct3DPoints(ResultsList): #x : featureCount, y : valScore
         labels.append(ResultsList[j].method)
         modelRes = []
         for i in range(len(ResultsList[j].rfeHyp_featureCount)): #x : featureCount
-            paramRes = [j, ResultsList[j].rfeHyp_featureCount[i], ResultsList[j].rfeHyp_valScore[i]] #y : valScore
+            paramRes = [j, ResultsList[j].rfeHyp_featureCount[i], ResultsList[j].rfeHyp_checkScore[i]] #y : valScore
 
             modelRes.append(paramRes)
         pts.append(modelRes)

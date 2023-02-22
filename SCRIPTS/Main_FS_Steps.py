@@ -91,7 +91,7 @@ def C_data(df):
 
 def D_format(learningDf):
     """
-    GOAL - Train Validate Test Split - Scale
+    GOAL - Train Test Validate Check Split - Scale
     Dashboard Input - PROCESS_VALUES : test_size  # proportion with validation, random_state, yUnit
     """
 
@@ -99,9 +99,11 @@ def D_format(learningDf):
     baseFormatedDf = formatedDf(learningDf, xQuantLabels, xQualLabels, yLabels,
                                 yUnitFactor=FORMAT_Values['yUnitFactor'], targetLabels=FORMAT_Values['targetLabels'],
                                 random_state=PROCESS_VALUES['random_state'], test_size=PROCESS_VALUES['test_size'],
-                                train_size=PROCESS_VALUES['train_size'])
+                                train_size=PROCESS_VALUES['train_size'], check_size=PROCESS_VALUES['check_size'],
+                                val_size=PROCESS_VALUES['val_size'], fixed_seed = PROCESS_VALUES['fixed_seed'])
 
     dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.trainDf, objFolder='DATA', name = "trainDf")
+    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.checkDf, objFolder='DATA', name="checkDf")
     dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.valDf, objFolder='DATA', name = "valDf")
     dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.testDf, objFolder='DATA', name = "testDf")
 
@@ -161,18 +163,24 @@ def F_FS_RFE(baseFormatedDf):
     GOAL - select the optimal number of features or combination of features
     """
     # CONSTRUCT
-    rfe_hyp_feature_count = list(np.arange(10, len(baseFormatedDf.XTrain) - 10, 10))
+    rfe_hyp_feature_count = list(np.arange(10, len(baseFormatedDf.XVal) - 10, 10))
 
-    RFR_RFE = WrapFeatures(method='RFR', estimator=RandomForestRegressor(random_state=PROCESS_VALUES['random_state']),
+    RFR_RFE = WrapFeatures(method='RFR', estimator=RandomForestRegressor(random_state=PROCESS_VALUES['fixed_seed']),
                            formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
-                           output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'])
-    DTR_RFE = WrapFeatures(method='DTR', estimator=DecisionTreeRegressor(random_state=PROCESS_VALUES['random_state']),
+                           min_features_to_select = RFE_VALUES['RFE_n_features_to_select'],
+                           output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
+                           cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
+    DTR_RFE = WrapFeatures(method='DTR', estimator=DecisionTreeRegressor(random_state=PROCESS_VALUES['fixed_seed']),
                            formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
-                           output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'])
+                           min_features_to_select=RFE_VALUES['RFE_n_features_to_select'],
+                           output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
+                           cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
     GBR_RFE = WrapFeatures(method='GBR',
-                           estimator=GradientBoostingRegressor(random_state=PROCESS_VALUES['random_state']),
+                           estimator=GradientBoostingRegressor(random_state=PROCESS_VALUES['fixed_seed']),
                            formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
-                           output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'])
+                           min_features_to_select=RFE_VALUES['RFE_n_features_to_select'],
+                           output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
+                           cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
 
     RFEs = [RFR_RFE, DTR_RFE, GBR_RFE]
 

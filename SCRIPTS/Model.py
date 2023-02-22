@@ -120,7 +120,7 @@ class ModelGridsearch:
             explainer = shap.Explainer(self.Estimator) #, masker
         except Exception:
             # explainer = shap.KernelExplainer(self.Estimator.predict, sample) #use thisif too slow
-            explainer = shap.KernelExplainer(self.Estimator.predict)
+            explainer = shap.KernelExplainer(self.Estimator.predict, sample)
         self.SHAPexplainer = explainer
         self.SHAPvalues = explainer.shap_values(self.learningDf.XTest) #for SHAP VALUES
 

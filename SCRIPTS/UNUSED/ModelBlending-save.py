@@ -14,7 +14,7 @@ from sklearn.linear_model import Lasso, Ridge, ElasticNet
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.preprocessing import MinMaxScaler
 
-class BlendModel:
+class NBestModel:
 
     def __init__(self, modelList, blendingConstructor, NBestScore, NCount, Gridsearch = True, Val = False):
 

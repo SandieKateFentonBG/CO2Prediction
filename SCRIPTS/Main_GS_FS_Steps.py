@@ -20,7 +20,7 @@ from ModelResidualsPt import *
 from ModelParamPt import *
 from ModelMetricsPt import *
 from ModelWeightsPt import *
-from ModelBlending import *
+from NBestSelecting import *
 from Gridsearch import *
 from GridsearchPredTruthPt import *
 from GridsearchWeightsPt import *
@@ -94,7 +94,7 @@ def Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = False):
                                score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
                                maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
 
-def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, Blender = None):
+def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, NBestModel = None):
 
     # WEIGHTS                   #ONLY FOR GS with identical weights
     for GS_FS in GS_FSs:
@@ -105,8 +105,8 @@ def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, Blender = None):
     GS_WeightsSummaryPlot(GS_FSs, GS_FSs, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
                           DBpath=DB_Values['DBpath'], content='GS_FSs', sorted=True, yLim=4,
                           df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
-    if Blender:
-        GS_WeightsSummaryPlot_NBest(Blender, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
+    if NBestModel:
+        GS_WeightsSummaryPlot_NBest(NBestModel, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
                                     DBpath=DB_Values['DBpath'], content='GS_FSs', sorted=True, yLim=4,
                                     df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
 
@@ -165,7 +165,6 @@ def Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = False):
                     plot_shap_group_cat_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
                     plot_shap_DecisionPlot(GS, displayParams, DBpath=DB_Values['DBpath'], studyFolder='GS_FS/')
 
-
 def Plot_GS_FS_Hyperparam(import_reference, Plot=False):
     if Plot:
 
@@ -194,39 +193,15 @@ def Plot_GS_FS_Hyperparam(import_reference, Plot=False):
                             lims=False,
                             studyFolder='GS/')
 
+def Run_NBest(GS_FSs):
 
-def Run_Blending(GS_FSs, displayParams, DBpath, n, checkR2, NBestScore ='TestR2' , ConstructorKey = 'LR_RIDGE', TrainedOnVal = False):
-    #CONSTRUCT
-    LR_CONSTRUCTOR = {'name': 'LR', 'modelPredictor': LinearRegression(), 'param_dict': dict()}
-    LR_RIDGE_CONSTRUCTOR = {'name': 'LR_RIDGE', 'modelPredictor': Ridge(), 'param_dict': LR_param_grid}
-    SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
-    SVR_LIN_CONSTRUCTOR = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
-    LR_ELAST_CONSTRUCTOR = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
-    CONSTRUCTOR_DICT = {'LR': LR_CONSTRUCTOR, 'LR_RIDGE' : LR_RIDGE_CONSTRUCTOR,
-                        'SVR_RBF': SVR_RBF_CONSTRUCTOR, 'SVR_LIN': SVR_LIN_CONSTRUCTOR,
-                        'LR_ELAST': LR_ELAST_CONSTRUCTOR}
+    NBestModels = NBestModel(GS_FSs, NBestScore =  BLE_VALUES['NBestScore'], NCount = BLE_VALUES['NCount'])
+    pickleDumpMe(DB_Values['DBpath'], displayParams, NBestModels, 'NBEST', NBestModels.GSName)
+    NBestModels.reportGS_Scores_NBest(displayParams, DBpath=DB_Values['DBpath'])
 
-    CONSTRUCTOR = CONSTRUCTOR_DICT[ConstructorKey]
+    return NBestModels
 
-    # CONSTRUCT & REPORT
-    sortedModelsData = sortedModels(GS_FSs, NBestScore= NBestScore)
-    nBestModels = selectnBestModels(GS_FSs, sortedModelsData, n, checkR2 = checkR2)
-    blendModel = BlendModel(modelList=nBestModels, blendingConstructor=CONSTRUCTOR, NBestScore= NBestScore, NCount = n, Val = TrainedOnVal)
-    reportGS_Scores_Blending(blendModel, displayParams, DBpath, NBestScore= NBestScore, NCount = n)
-    pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName + '_' + str(n) + '_' + NBestScore)
-
-
-    return blendModel
-
-def Plot_BLENDING(blendModel, plot_blend = True):
-    if plot_blend :
-        plotBlenderYellowResiduals(blendModel, displayParams=displayParams, DBpath=DB_Values['DBpath'],
-                                   NBestScore = BLE_VALUES['NBestScore'], NCount = BLE_VALUES['NCount'],
-                                   yLim=PROCESS_VALUES['residualsYLim'], xLim=PROCESS_VALUES['residualsXLim'],
-                                   studyFolder='BLENDER/')
-
-
-def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False, BlendingOnVal = False):
+def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     """
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
@@ -247,10 +222,10 @@ def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False, Blend
         print('RUNNING GS_FS')
         GS_FSs = Run_GS_FS(learning_dfs)
 
-    # BLEND
-    print('RUNNING BLENDING')
-    blendModel = Run_Blending(GS_FSs, displayParams, DB_Values["DBpath"], n = BLE_VALUES['NCount'], checkR2 = True,
-                              NBestScore= BLE_VALUES['NBestScore'], ConstructorKey = ConstructorKey, TrainedOnVal = BlendingOnVal)
+    # BEST
+    print('')
+    print('RUNNING NBEST')
+    NBestModels = Run_NBest(GS_FSs)
 
     # REPORT
     print('REPORTING GS_FS')
@@ -261,23 +236,21 @@ def Run_GS_FS_Study(import_FS_ref, ConstructorKey, importMainGSFS = False, Blend
     scoreListMax = [True, False, True, True, True]
     reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=False)
 
-    reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, blender=blendModel)
-    reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, blender=blendModel)
+    reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, NBestModel=NBestModels)
+    reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, NBestModel=NBestModels)
 
     print('PLOTTING GS_FS')
     # PLOT
     Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = displayParams['plot_all'])
-    Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, blendModel)
+    Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, NBestModels)
     Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
     Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
     Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
     Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
     Plot_GS_FS_Hyperparam(import_FS_ref, Plot=False)
 
-    print('PLOTTING BLENDER')
-    Plot_BLENDING(blendModel, plot_blend=True)
+    return GS_FSs, NBestModels
 
-    return GS_FSs, blendModel
 
 def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_LIN', 'KRR_RBF', 'KRR_POL', 'SVR_LIN','SVR_RBF']): #'SVR_POL'
 
@@ -290,12 +263,6 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
         GS_FSs.append(GS_FS) #54
 
     return GS_FSs
-
-def import_Main_Blender(import_reference, n, NBestScore, label = 'LR_RIDGE_Blender'):
-    path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/BLENDER/' + label + '_' + str(n) + '_' + NBestScore + '.pkl'
-    Blender = pickleLoadMe(path=path, show=False)
-
-    return Blender
 
 def unpackGS_FSs(GS_FSs, remove = ''):
     Model_List = []

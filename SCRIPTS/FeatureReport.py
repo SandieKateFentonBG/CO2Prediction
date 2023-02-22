@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
+def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, NBestModel = None):
 
     yLabels_all = GS_FSs[0].__getattribute__('NoSelector').selectedLabels #ex bldg_area
     xLabels = [] #ex LR_LASSO_Fl_Spearman
@@ -11,9 +11,9 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
     weightsScaledLs = []
 
     #"query labels and values"
-    if blender: #GS_FSs. should be a Blender
-        title = "_GS_FeatureWeights_NBest_" + str(blender.N) + '_' + blender.NBestScore
-        for Model in blender.modelList: #10best
+    if NBestModel: #GS_FSs. should be a Blender
+        title = "_GS_FeatureWeights_NBest_" + str(NBestModel.N) + '_' + NBestModel.NBestScore
+        for Model in NBestModel.modelList: #10best
             name = Model.GSName
             xLabels.append(name)
 
@@ -49,8 +49,8 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
         df.loc[:,'Total'] = df.sum(axis=1)
         df.loc[:,'Occurences'] = df.notnull().sum(axis=1) - 1
         df.loc[:,'Total/Occurences'] = df['Total']/ df['Occurences'] #check this
-        if blender :
-            df.loc[:,'Total/N'] = df['Total']/ blender.N
+        if NBestModel :
+            df.loc[:,'Total/N'] = df['Total'] / NBestModel.N
         else :
             df.loc[:, 'Total/N'] = df['Total'] / len(xLabels)
 
@@ -71,7 +71,7 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, blender = None):
                 df.to_excel(writer, sheet_name=name)
 
 
-def reportGS_FeatureSHAP(DBpath, displayParams, GS_FSs, xQuantLabels, xQualLabels, blender = None):
+def reportGS_FeatureSHAP(DBpath, displayParams, GS_FSs, xQuantLabels, xQualLabels, NBestModel = None):
 
     yLabels_all = GS_FSs[0].__getattribute__('NoSelector').selectedLabels #ex bldg_area
     yLabels_cat = xQuantLabels + xQualLabels
@@ -90,9 +90,9 @@ def reportGS_FeatureSHAP(DBpath, displayParams, GS_FSs, xQuantLabels, xQualLabel
     shapGroupScoreLs = []
 
     #"query labels and values"
-    if blender: #GS_FSs. should be a Blender
-        title = "_GS_FeatureSHAP_NBest_" + str(blender.N) + '_' + blender.NBestScore
-        for Model in blender.modelList: #10best
+    if NBestModel: #GS_FSs. should be a Blender
+        title = "_GS_FeatureSHAP_NBest_" + str(NBestModel.N) + '_' + NBestModel.NBestScore
+        for Model in NBestModel.modelList: #10best
 
             name = Model.GSName
             xLabels.append(name)

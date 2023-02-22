@@ -14,7 +14,7 @@ from ModelResidualsPt import *
 from ModelParamPt import *
 from ModelMetricsPt import *
 from ModelWeightsPt import *
-from ModelBlending import *
+from NBestSelecting import *
 from Gridsearch import *
 from GridsearchPredTruthPt import *
 from GridsearchWeightsPt import *
@@ -26,7 +26,7 @@ from GridsearchSHAPPt import *
 from Main_FS_Steps import *
 from FeatureReport import *
 from StudyResiduals import *
-from ModelBlending import *
+from NBestSelecting import *
 from SHAPReport import *
 from AccuracyCheck import *
 from StudyResiduals import *
