@@ -224,4 +224,4 @@ def RUN_SHAP_Combined_All(displayParams, DBpath, studies_GS_FS, GSName,xQuantLab
     plotSHAPSummary(SHAPDf, displayParams, DBpath, content='Ungrouped_' + GSName, NBest = False)
     plotSHAPSummary(SHAPGroupDf, displayParams, DBpath, content='Grouped_' + GSName, NBest = False)
 
-    reportCV_SHAP(SHAPDf, SHAPGroupDf, displayParams, DBpath, NBest = False, GSName = GSName)
+    # reportCV_SHAP(SHAPDf, SHAPGroupDf, displayParams, DBpath, NBest = False, GSName = GSName)

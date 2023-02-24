@@ -221,13 +221,6 @@ def computePrediction(GS):
     PredictionDict['TestMSE'] = TestMSE
     PredictionDict['TestAcc'] = TestAcc
 
-    # print('TestAcc', TestAcc)
-    # print('Resid', Resid)
-    # print('yPred', yPred)
-    # print('yTest', yTest)
-
-    # for k,v in PredictionDict.items():
-    #     print(k,v)
 
     return yPred, PredictionDict
 
@@ -236,7 +229,6 @@ def computePrediction_NBest(CV_BlenderNBest):
     for BlenderNBest in CV_BlenderNBest:
         for Model in BlenderNBest.modelList:
             yPred, PredictionDict = computePrediction(Model)
-
 
 
 

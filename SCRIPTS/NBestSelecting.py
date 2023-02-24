@@ -122,12 +122,16 @@ class NBestModel:
 
 
 
-def import_NBest(import_ref, random_state):
+def import_NBest(import_ref): #, random_state
+    # path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
+    #        + '_bestModels_rd' + str(random_state) + '.pkl'
     path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
-           + '_bestModels_rd' + str(random_state) + '.pkl'
-    NBestModels = pickleLoadMe(path=path, show=True)
+           + '_bestModels_rd' + import_ref[-3:-1] + '.pkl'
+    NBestModels = pickleLoadMe(path=path, show=False)
 
     return NBestModels
+
+
 
 
 

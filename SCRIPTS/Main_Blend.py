@@ -48,11 +48,11 @@ from Model_Blending import *
 #     Model_List = unpackGS_FSs(GS_FSs)
 #     All_List.append(Model_List)
 #
-# All = repackGS_FSs(All_List)
+All = repackGS_FSs(All_List)
 #
 #
 # # BLEND
-# CV_Blender = Run_CV_Blending(All, CVbaseFormatedDf, displayParams, DB_Values["DBpath"],  NBestScore ='TestR2' , ConstructorKey = 'LR_RIDGE', Gridsearch = True)
+CV_Blender = Run_CV_Blending(All, CVbaseFormatedDf, displayParams, DB_Values["DBpath"],  NBestScore ='TestR2' , ConstructorKey = 'LR_RIDGE', Gridsearch = True)
 
 
 GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']
@@ -70,5 +70,5 @@ for GSName in GS_FS_List_Labels:
         print('model_loaded')
         blendModel_ls.append(Blender)
 
-reportCV_Scores_NBest(blendModel_ls, displayParams, DB_Values['DBpath'], n=None,
+report_Blender_Scores(blendModel_ls, displayParams, DB_Values['DBpath'], n=None,
                       NBestScore=BLE_VALUES['NBestScore'], random_seeds=None)

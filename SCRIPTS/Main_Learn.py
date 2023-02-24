@@ -13,97 +13,118 @@ from Main_BL_Steps import *
 from Main_Combine_Steps import *
 from CVBlending import *
 
-
-
-
-Studies_CV_BlenderNBest = []
-
-for set in studyParams['sets']:
-    yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
-
-
-    print("Study for :", set)
-
-    DBname = DB_Values['acronym'] + '_' + yLabelsAc + '_rd'
-
-    CV_AllModels, BL_NBest_All, CV_Filters_Pearson, CV_Filters_Spearman = [], [], [], []
-    randomvalues = studyParams['randomvalues']
-
-    for value in randomvalues:
-
-        PROCESS_VALUES['random_state'] = value
-        displayParams["reference"] = DBname + str(PROCESS_VALUES['random_state']) + '/'
-
-        # IMPORTS
-        import_reference = displayParams["reference"]
-        print('Import Study for random_state:', value)
-
-        # FEATURE PROCESSING
-        # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(import_reference, show = False)
-
-
-        # MODEL PROCESSING
-        # GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels = studyParams['Regressors'])
-        # GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels=['KRR_LIN'])
-
-        # NBEST PROCESSING
-        # NBestModels = import_NBest(import_reference, value)
-
-        # BLENDER PROCESSING
-        # Blender_NBest = import_Blender_NBest(import_reference, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
-
-
-        # RUNS
-
-        # FEATURE PROCESSING
-        # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
-
-        # MODEL PROCESSING & NBEST PROCESSING
-        GS_FSs, NBestModels = Run_GS_FS_Study(DBname + str(PROCESS_VALUES['random_state']) + '/', importMainGSFS=False)
-
-        # BLENDER PROCESSING
-        blendModel_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], import_reference, ConstructorKey='LR_RIDGE')
-
-
-#         # STORE
-#         CV_AllModels.append(GS_FSs)
 #
+#
+# Studies_CV_BlenderNBest = []
+#
+# for set in studyParams['sets']:
+#     yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
+#
+#     print("Study for :", set)
+#
+#     DBname = DB_Values['acronym'] + '_' + yLabelsAc + '_rd'
+#     All_CV, NBest_CV, Filters_Pearson_CV, Filters_Spearman_CV, Blenders_NBest_CV, Blenders_Single_CV = [],[],[],[],[],[]
+#     randomvalues = studyParams['randomvalues']
+#
+#     for value in randomvalues:
+#
+#         PROCESS_VALUES['random_state'] = value
+#         print('Import Study for random_state:', value)
+#
+#         # "IMPORT"
+#
+#         ref_prefix = DB_Values['acronym'] + '_' + studyParams['sets'][0][1]
+#         ref_suffix_single = '_rd'
+#         ref_suffix_combined = '_Combined/'
+#         ref_single = ref_prefix + ref_suffix_single + str(PROCESS_VALUES['random_state']) + '/'
+#         ref_combined = ref_prefix + ref_suffix_combined
+#         displayParams["ref_prefix"] = ref_prefix
+#         displayParams["reference"] = ref_single
+#
+#         # FEATURE PROCESSING
+#         rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(ref_single, show = False)
+#
+#         # MODEL PROCESSING
+#         GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
+#         # GS_FSs = import_Main_GS_FS(import_reference, GS_FS_List_Labels=['KRR_LIN'])
+#
+#         # NBEST PROCESSING
+#         NBestModels = import_NBest(ref_single)
+#
+#         # # BLENDER PROCESSING
+#         # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
+#
+#
+#         # "RUN"
 #         #
-#         BL_NBest_All.append(Blender_NBest)
-
-#todo : check from here
-#todo : launch from 45-50
-
-#         # CV_Filters_Pearson.append(pearsonFilter)
-#         # CV_Filters_Spearman.append(spearmanFilter)
+#         # FEATURE PROCESSING
+#         # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
+#         #
+#         # MODEL PROCESSING & NBEST PROCESSING
+#         # GS_FSs, NBestModels = Run_GS_FS_Study(DBname + str(PROCESS_VALUES['random_state']) + '/', importMainGSFS=False)
+#         #
+#         # BLENDER PROCESSING
+#         Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single, ConstructorKey='LR_RIDGE')
+#         #
 #
-#     # PREDICT
-#     # computePrediction_NBest(CV_BlenderNBest)
+#         # "STORE"
+#
+#         All_CV.append(GS_FSs)
+#         NBest_CV.append(NBestModels)
+#         Filters_Pearson_CV.append(pearsonFilter)
+#         Filters_Spearman_CV.append(spearmanFilter)
+#         Blenders_NBest_CV.append(Blender_NBest)
+#
+#     # # PREDICT
+#     # computePrediction_NBest(Blenders_NBest_CV)
 #     # PredictionDict = computePrediction(GS)
 #
 #     # COMBINE
-#     RUN_CV_Report(CV_AllModels, CV_BlenderNBest, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues,
-#                   displayParams, GSName = "LR")
+#     RUN_CV_Report(All_CV, NBest_CV, Blenders_NBest_CV, Filters_Spearman_CV, Filters_Pearson_CV, randomvalues,displayParams, GSName = "LR")
 #
-#     # RUN_SHAP_Combined_NBest(displayParams, DB_Values["DBpath"], CV_BlenderNBest, CV_AllModels, xQuantLabels, xQualLabels, n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
-#     # RUN_SHAP_Combined_All(displayParams, DB_Values["DBpath"], CV_AllModels, GSName = 'KRR_LIN', xQuantLabels = xQuantLabels, xQualLabels = xQualLabels, randomValues = randomvalues)
-#
-#     # # META STORE
-#     # Studies_CV_BlenderNBest.append(CV_BlenderNBest)
-#
-# # AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams, DB_Values['DBpath'], tolerance=0.15)
-#
-# CV_Blender = CVBlend(CV_AllModels)
-# # print(CV_Blender)
-#
-#
+
+
+    # META STORE
+    # Studies_CV_BlenderNBest.append(CV_BlenderNBest)
+
+# AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams, DB_Values['DBpath'], tolerance=0.15)
+
+
+
+ref_prefix = DB_Values['acronym'] + '_' + studyParams['sets'][0][1]
+ref_suffix_single = 'rd'
+ref_suffix_combined = '_Combined/'
+# ref_single = ref_prefix + ref_suffix_single + str(PROCESS_VALUES['random_state']) + '/'
+ref_combined = ref_prefix + ref_suffix_combined
+displayParams["ref_prefix"] = ref_prefix
+# displayParams["reference"] = ref_single
+
+
+Run_Blending_CV(displayParams, DB_Values['DBpath'], ref_prefix, ConstructorKey = 'LR_RIDGE',
+                GS_FS_List_Labels=['LR', 'LR_RIDGE', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN',
+                                   'SVR_RBF'],
+                GS_name_list=['LR_fl_spearman', 'LR_fl_pearson', 'LR_RFE_RFR', 'LR_RFE_DTR', 'LR_RFE_GBR',
+                              'LR_NoSelector',
+                              'LR_RIDGE_fl_spearman', 'LR_RIDGE_fl_pearson', 'LR_RIDGE_RFE_RFR', 'LR_RIDGE_RFE_DTR',
+                              'LR_RIDGE_RFE_GBR', 'LR_RIDGE_NoSelector', 'KRR_LIN_fl_spearman', 'KRR_LIN_fl_pearson',
+                              'KRR_LIN_RFE_RFR',
+                              'KRR_LIN_RFE_DTR', 'KRR_LIN_RFE_GBR', 'KRR_LIN_NoSelector', 'KRR_RBF_fl_spearman',
+                              'KRR_RBF_fl_pearson',
+                              'KRR_RBF_RFE_RFR', 'KRR_RBF_RFE_DTR', 'KRR_RBF_RFE_GBR', 'KRR_RBF_NoSelector',
+                              'KRR_POL_fl_spearman',
+                              'KRR_POL_fl_pearson', 'KRR_POL_RFE_RFR', 'KRR_POL_RFE_DTR', 'KRR_POL_RFE_GBR',
+                              'KRR_POL_NoSelector',
+                              'SVR_LIN_fl_spearman', 'SVR_LIN_fl_pearson', 'SVR_LIN_RFE_RFR', 'SVR_LIN_RFE_DTR',
+                              'SVR_LIN_RFE_GBR',
+                              'SVR_LIN_NoSelector', 'SVR_RBF_fl_spearman', 'SVR_RBF_fl_pearson', 'SVR_RBF_RFE_RFR',
+                              'SVR_RBF_RFE_DTR',
+                              'SVR_RBF_RFE_GBR', 'SVR_RBF_NoSelector'],
+                      single=False, predictor='SVR_RBF', ft_selector='RFE_GBR', runBlending = False)
+
 # # Could I integrate WEC to features and predict SEC with it?
 # # could I do a 2 step ML 1. predict WEC 2. Predict SEC with WEC
-#
-# #todo : there was a name change from Weights to Model Weights > changes might have been done wrong > could generate errors
 
-report_BL_NBest_All(BL_NBest_All, displayParams, DB_Values["DBpath"], studyParams['randomvalues'])
-#
-#
+# my train score is super low > why??? change this ! maybe LOO?
+
 
 

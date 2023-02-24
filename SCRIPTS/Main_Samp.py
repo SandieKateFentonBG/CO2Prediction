@@ -1,4 +1,5 @@
 from Main_Samp_Steps import *
+from Main_BL_Steps import *
 
 #REFERENCE
 
@@ -10,7 +11,16 @@ from Main_Samp_Steps import *
 #         PROCESS_VALUES['random_state'] = value
 
 yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = studyParams['sets'][0]
-displayParams["reference"] = DB_Values['acronym'] + '_' + yLabelsAc + '_rd' + str(PROCESS_VALUES['random_state']) + '/'
+
+
+
+ref_prefix = DB_Values['acronym'] + '_' + studyParams['sets'][0][1]
+ref_suffix_single = '_rd'
+ref_suffix_combined = '_Combined/'
+ref_combined = ref_prefix + ref_suffix_combined
+displayParams["ref_prefix"] = ref_prefix
+ref_single = ref_prefix + ref_suffix_single + str(PROCESS_VALUES['random_state']) + '/'
+displayParams["reference"] = ref_single
 
 print(displayParams["reference"])
 
@@ -19,12 +29,14 @@ GS_FSs = import_Main_GS_FS(displayParams["reference"], GS_FS_List_Labels = study
 # Model_List_All = unpackGS_FSs(GS_FSs, remove='')
 LRidge = GS_FSs[1].RFE_RFR
 
-Blender = import_Main_Blender(displayParams["reference"], n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label = BLE_VALUES['Regressor'] + '_Blender')
-B_M = Blender.modelList
+Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
+
+# Blender_NBest = import_Main_Blender(displayParams["reference"], n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label =BLE_VALUES['Regressor'] + '_Blender')
+B_M = Blender_NBest.modelList
 
 
-Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M + [LRidge], Blender_List=[Blender], precomputed = False)
-Run_Feature_Predictions_2D(MyPred_Sample, feature1='Structure', feature2='Main_Material', Model_List=B_M + [LRidge], Blender_List=[Blender])
+Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M + [LRidge], Blender_List=[Blender_NBest], precomputed = False)
+Run_Feature_Predictions_2D(MyPred_Sample, feature1='Structure', feature2='Main_Material', Model_List=B_M + [LRidge], Blender_List=[Blender_NBest])
 
 
 # pickleDumpMe(DB_Values['DBpath'], displayParams, predDf, 'PREDICTIONS', MyPred_Sample["DBname"])

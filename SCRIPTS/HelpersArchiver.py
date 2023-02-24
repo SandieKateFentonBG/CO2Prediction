@@ -5,7 +5,7 @@ def pickleDumpMe( DBpath, displayParams, obj, objFolder, objName, combined = Fal
     #objFolder = DATA; FILTER; WRAPPER; GS
     if displayParams['archive']:
         if combined :
-            reference = displayParams['reference'][:-6] + '_Combined/'
+            reference = displayParams['ref_prefix'] + '_Combined/'
         else:
             reference = displayParams['reference']
         import os

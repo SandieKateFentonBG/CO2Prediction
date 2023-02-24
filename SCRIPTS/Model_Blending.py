@@ -54,6 +54,14 @@ class Model_Blender:
         self.blendXtrain = Blend_Learning_Data(modelList, type='XVal')
         self.blendXtest = Blend_Learning_Data(modelList, type='XCheck')
 
+        #todo: check this
+        self.ScaleMean = self.blendXtrain.mean(axis=0)
+        self.ScaleStd = self.blendXtrain.std(axis=0)
+
+        self.blendXtrain = (self.blendXtrain - self.ScaleMean) / self.ScaleStd
+        self.blendXtest = (self.blendXtest - self.ScaleMean) / self.ScaleStd
+        #todo: check this
+
         # yVal, yCheck are identical for all modls and seed > fixed seed
         self.yTrain = modelList[0].learningDf.__getattribute__('yVal').to_numpy().ravel()
         self.yTest = modelList[0].learningDf.__getattribute__('yCheck').to_numpy().ravel()
@@ -108,7 +116,7 @@ class Model_Blender:
     def construct_Blending_Df(self):
 
         index = [model.GSName for model in self.modelList] + [self.GSName]
-        columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance',
+        columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance',
                    'ModelWeights']  #
         BlendingDf = pd.DataFrame(columns=columns, index=index)
         for col in columns[:-1]:
@@ -124,23 +132,25 @@ class Model_Blender:
             reference = displayParams['reference']
             BlendingDf = self.construct_Blending_Df()
 
-            if self.Type == 'NBest':
+            import os
+            outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
+            if not os.path.isdir(outputPathStudy):
+                os.makedirs(outputPathStudy)
 
-                import os
-                outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
-                if not os.path.isdir(outputPathStudy):
-                    os.makedirs(outputPathStudy)
+            sortedDf = BlendingDf.sort_values('ModelWeights', ascending=False)
 
-                sortedDf = BlendingDf.sort_values('ModelWeights', ascending=False)
+            AllDfs = [BlendingDf, sortedDf]
+            sheetNames = ['Residuals_MeanVar', 'Sorted_Residuals_MeanVar']
 
-                AllDfs = [BlendingDf, sortedDf]
-                sheetNames = ['Residuals_MeanVar', 'Sorted_Residuals_MeanVar']
+            with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_BL_Scores_NBest" + '_' + str(
+                    len(self.modelList)) + '_' + self.GSName + ".xlsx", mode='w') as writer:
+                for df, name in zip(AllDfs, sheetNames):
+                    df.to_excel(writer, sheet_name=name)
 
-                with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_BL_Scores_NBest" + '_' + str(
-                        len(self.modelList)) + '_' + self.GSName + ".xlsx", mode='w') as writer:
-                    for df, name in zip(AllDfs, sheetNames):
-                        df.to_excel(writer, sheet_name=name)
-
+    def plot_Blender_CV_Residuals(self, displayParams, FORMAT_Values, DBpath):
+        from StudyResiduals import plotCVResidualsGaussian_Combined
+        plotCVResidualsGaussian_Combined([self], displayParams, FORMAT_Values, DBpath,
+                                         studyFolder='GaussianPlot_LR_RIDGE_BLENDER', Blender=True, CV = True)
 
     def plotBlenderYellowResiduals(self, displayParams, DBpath, yLim=None, xLim=None,fontsize=None,studyFolder='BLENDER/'):
 
@@ -165,7 +175,7 @@ class Model_Blender:
             visualizer.fit(self.blendXtrain, self.yTrain.ravel())  # Fit the training data to the visualizer
             visualizer.score(self.blendXtest, self.yTest.ravel())  # Evaluate the model on the test data
 
-            reference = displayParams['reference']
+            reference, ref_prefix = displayParams['reference'], displayParams['ref_prefix']
 
             if displayParams['archive']:
                 import os
@@ -174,7 +184,7 @@ class Model_Blender:
                     path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + 'Residuals'
 
                 else : # save in combined
-                    path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/' + studyFolder + 'Residuals'
+                    path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/' + studyFolder + 'Residuals'
 
                 outputFigPath = path + folder + subFolder
 
@@ -188,7 +198,7 @@ class Model_Blender:
 
             plt.close()
 
-def report_BL_NBest_All(BL_NBest_All, displayParams, DBpath, random_seeds):
+def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
 
     import pandas as pd
     if displayParams['archive']:
@@ -214,7 +224,9 @@ def report_BL_NBest_All(BL_NBest_All, displayParams, DBpath, random_seeds):
             columns = ['TrainScore', 'TestScore', 'TestMSE',  'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #'TestR2',
             IncDf = pd.DataFrame(columns=columns, index=index)
             IncDf.loc['NBest_Avg', :] = df.iloc[0:len(df)-1, :].mean(axis=0)
-            IncDf.loc['Blender_Increase', :] = ((df.loc[blendModel.GSName, :] / df.iloc[0:len(df)-1, :].mean(axis=0)) - 1)
+            # IncDf.loc['Blender_Increase', :] = ((df.loc[blendModel.GSName, :] / df.iloc[0:len(df)-1, :].mean(axis=0)) - 1)
+            IncDf.loc['Blender_Increase', :] = ((df.loc[blendModel.GSName, :] - df.iloc[0:len(df)-1, :].mean(axis=0)))
+
             nwdf = pd.concat([df, IncDf])
             dflist.append(nwdf)
 
@@ -226,13 +238,6 @@ def report_BL_NBest_All(BL_NBest_All, displayParams, DBpath, random_seeds):
 
 
 
-def report_Blending_CV(self, displayParams, DBpath):
-
-    # THIS MOVES TO COMBINED
-    if self.Type == 'CV':
-        sheetNames = [model.random_state for model in self.modelList]
-
-        pass
 
 
 
@@ -240,63 +245,3 @@ def report_Blending_CV(self, displayParams, DBpath):
 
 
 
-
-
-
-
-
-
-
-
-
-
-def Run_CV_Blending(modelList, baseFormatedDf, displayParams, DBpath,  NBestScore ='TestR2' , ConstructorKey = 'LR_RIDGE', Gridsearch = True):
-    #CONSTRUCT
-    LR_CONSTRUCTOR = {'name': 'LR', 'modelPredictor': LinearRegression(), 'param_dict': dict()}
-    LR_RIDGE_CONSTRUCTOR = {'name': 'LR_RIDGE', 'modelPredictor': Ridge(), 'param_dict': LR_param_grid}
-    SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
-    SVR_LIN_CONSTRUCTOR = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
-    LR_ELAST_CONSTRUCTOR = {'name' : 'LR_ELAST',  'modelPredictor' : ElasticNet(),'param_dict' : LR_param_grid}
-    CONSTRUCTOR_DICT = {'LR': LR_CONSTRUCTOR, 'LR_RIDGE' : LR_RIDGE_CONSTRUCTOR,
-                        'SVR_RBF': SVR_RBF_CONSTRUCTOR, 'SVR_LIN': SVR_LIN_CONSTRUCTOR,
-                        'LR_ELAST': LR_ELAST_CONSTRUCTOR}
-
-    CONSTRUCTOR = CONSTRUCTOR_DICT[ConstructorKey]
-
-    # CONSTRUCT & REPORT
-
-    #SINGLE
-    blendModel = Model_Blender(modelList, blendingConstructor=CONSTRUCTOR, baseFormatedDf = baseFormatedDf, Gridsearch = Gridsearch)
-    reportCV_Scores_NBest([blendModel], displayParams, DB_Values['DBpath'], n=None, NBestScore=BLE_VALUES['NBestScore'], random_seeds = None)
-    pickleDumpMe(DBpath, displayParams, blendModel, 'CV_BLENDER', blendModel.GSName + "_" + blendModel.modelList[0].GSName + '_' + NBestScore, combined = True)
-    return blendModel
-
-    #MULTIPLE
-    blendModel_ls =[]
-
-    for blist in modelList:
-        blendModel = Model_Blender(blist, blendingConstructor=CONSTRUCTOR, baseFormatedDf=baseFormatedDf,
-                                   Gridsearch=Gridsearch)
-        blendModel_ls.append(blendModel)
-        pickleDumpMe(DBpath, displayParams, blendModel, 'CV_BLENDER',
-                     blendModel.GSName + "_" + blendModel.modelList[0].GSName + '_' + NBestScore, combined=True)
-
-    #
-    # GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']
-    #
-    # blendModel_ls = []
-    # for GSName in GS_FS_List_Labels:
-    #     n = GSName
-    #     for FS in ['_RFE_GBR', '_NoSelector', '_RFE_DTR', '_RFE_RFR', '_fl_pearson', '_fl_spearman']:
-    #         n += FS
-    #
-    #     path = DB_Values['DBpath'] + 'RESULTS/CSTB_res_nf_EC_Combined/RECORDS/CV_BLENDER/LR_RIDGE_Blender_' \
-    #            + n + '_' + NBestScore + '.pkl'
-    #
-    #     Blender = pickleLoadMe(path=path, show=False)
-    #     blendModel_ls.append(Blender)
-
-    reportCV_Scores_NBest(blendModel_ls, displayParams, DB_Values['DBpath'], n=None,
-                          NBestScore=BLE_VALUES['NBestScore'], random_seeds=None)
-
-    return blendModel_ls

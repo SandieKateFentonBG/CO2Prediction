@@ -6,6 +6,7 @@ from Dashboard_EUCB_FR_v2 import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
+from HelpersFormatter import *
 from Raw import *
 from Features import *
 from Data import *
@@ -222,10 +223,11 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
         print('RUNNING GS_FS')
         GS_FSs = Run_GS_FS(learning_dfs)
 
-    # BEST
+    # NBEST
     print('')
     print('RUNNING NBEST')
-    NBestModels = Run_NBest(GS_FSs)
+    # NBestModels = Run_NBest(GS_FSs)
+    NBestModels = import_NBest(import_FS_ref)
 
     # REPORT
     print('REPORTING GS_FS')
@@ -264,26 +266,4 @@ def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', '
 
     return GS_FSs
 
-def unpackGS_FSs(GS_FSs, remove = ''):
-    Model_List = []
-    for GS_FS in GS_FSs: #9
-        for learningDflabel in GS_FS.learningDfsList: #6
-            GS = GS_FS.__getattribute__(learningDflabel) #54
-            if GS.predictorName != remove:
-                Model_List.append(GS)
-    return Model_List
 
-
-def repackGS_FSs(Model_List): #10 list de 54
-
-    models_ls = [] #54 list de 10
-    for i in range(len(Model_List[0])):  # 54
-        seeds_ls = []
-        for j in range(len(Model_List)):  # 10
-             #54
-            seeds_ls.append(Model_List[j][i])
-        models_ls.append(seeds_ls)
-    print("should be 54", len(models_ls))
-    print("should be 10", len(models_ls[0]))
-
-    return models_ls

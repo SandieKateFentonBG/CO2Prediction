@@ -68,7 +68,6 @@ def reportCV_Filter(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, seeds
         with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Filter" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name, freeze_panes=(0, 1))
-    for n in AllDfs:
-        print(n)
+
 
 

@@ -41,3 +41,27 @@ def formatDf_toModellist(data, modelList):
     blendXDf = pd.concat(blend_sample_sets, axis=1)
 
     return blendXDf
+
+def unpackGS_FSs(GS_FSs, remove = ''):
+    Model_List = []
+    for GS_FS in GS_FSs: #9
+        for learningDflabel in GS_FS.learningDfsList: #6
+            GS = GS_FS.__getattribute__(learningDflabel) #54
+            if GS.predictorName != remove:
+                Model_List.append(GS)
+    return Model_List
+
+
+def repackGS_FSs(Model_List): #10 list de 54
+
+    models_ls = [] #54 list de 10
+    for i in range(len(Model_List[0])):  # 54
+        seeds_ls = []
+        for j in range(len(Model_List)):  # 10
+             #54
+            seeds_ls.append(Model_List[j][i])
+        models_ls.append(seeds_ls)
+    print("should be 54", len(models_ls))
+    print("should be 10", len(models_ls[0]))
+
+    return models_ls

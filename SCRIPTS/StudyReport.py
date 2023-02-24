@@ -110,60 +110,6 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
 
         e.close()
 
-def reportCV_Scores_NBest(studies_Blender, displayParams, DBpath, n, NBestScore, random_seeds = None):
-
-    import pandas as pd
-    if displayParams['archive']:
-        import os
-        reference = displayParams['reference']
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'RECORDS/'
-        outputPathStudy = path + folder + subFolder
-
-        if not os.path.isdir(outputPathStudy):
-            os.makedirs(outputPathStudy)
-
-        AllDfs = []
-        sheetNames = []
-        for blendModel in studies_Blender: #10*54
-            if random_seeds:
-                sheetNames = [str(elem) for elem in random_seeds]
-            else:
-                sheetNames.append(blendModel.modelList[0].GSName) #check this
-
-            index = [model.GSName for model in blendModel.modelList] + [blendModel.GSName]
-            columns = ['TrainScore', 'TestScore', 'TestMSE',  'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #'TestR2',
-            BlendingDf = pd.DataFrame(columns=columns, index=index)
-            for col in columns[:-1]:
-                BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [blendModel.__getattribute__(col)]
-            BlendingDf['ModelWeights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0]
-
-            AllDfs.append(BlendingDf)
-
-        dflist = []
-        for df in AllDfs:
-            slice = df.iloc[0:len(df)-1, :]
-            index = ['NBest_Avg', 'Blender_Increase']
-            columns = ['TrainScore', 'TestScore', 'TestMSE',  'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #'TestR2',
-            IncDf = pd.DataFrame(columns=columns, index=index)
-            IncDf.loc['NBest_Avg', :] = df.iloc[0:len(df)-1, :].mean(axis=0)
-            IncDf.loc['Blender_Increase', :] = ((df.loc[studies_Blender[0].GSName, :] / df.iloc[0:len(df)-1, :].mean(axis=0)) - 1)
-            nwdf = pd.concat([df, IncDf])
-            dflist.append(nwdf)
-            print(nwdf)
-            # old
-            # df.loc['NBest_Avg', :] = slice.mean(axis=0)
-            # df.loc['Blender_Increase', :] = (df.loc[studies_Blender[0].GSName, :]/df.loc['NBest_Avg', :])-1
-        print(len(sheetNames), len(dflist))
-        if n:
-            with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_NBest" + '_' + str(n) + '_' + NBestScore + '_' + studies_Blender[0].GSName + ".xlsx", mode='w') as writer:
-                for df, name in zip(dflist, sheetNames):
-                    df.to_excel(writer, sheet_name=name)
-        else:
-            with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Scores_All" + NBestScore + "_" + studies_Blender[0].modelList[0].GSName + ".xlsx", mode='w') as writer:
-                for df, name in zip(dflist, sheetNames):
-                    df.to_excel(writer, sheet_name=name)
-
-        return AllDfs, sheetNames
 
 
 def reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath,

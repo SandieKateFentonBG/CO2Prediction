@@ -338,7 +338,7 @@ def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBp
 
 def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot',
                                      binwidth=25,
-                                     setxLim=[-300, 300], fontsize=14, NBest = False, Blender = False):
+                                     setxLim=[-300, 300], fontsize=14, NBest = False, Blender = False, CV = False):
     from scipy.stats import norm
     import seaborn as sns
 
@@ -404,14 +404,15 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
     plt.plot(t, norm.pdf(t, mean, sigma) * scale, color='red', linestyle='dashed', label="Gaussian curve")
     plt.legend()
 
+    ref_prefix = displayParams["ref_prefix"]
+
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/Residuals/' + studyFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-
         plt.savefig(outputFigPath + '/' + 'Combined' + '-' + studyFolder + extra + '.png')
 
     if displayParams['showPlot']:
@@ -450,7 +451,7 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_
     plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
                                      studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, NBest=True)
     plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_Blender_' + str(n) + '_' + NBestScore, Blender=True)
+                                     studyFolder='GaussianPlot_Blender_NBest_' + str(n) + '_' + NBestScore, Blender=True)
     plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
                                      studyFolder='GaussianPlot_groupedModels')
     plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
