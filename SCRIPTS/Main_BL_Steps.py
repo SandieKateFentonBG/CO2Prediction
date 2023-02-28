@@ -8,7 +8,8 @@ from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
 
 #SCRIPT IMPORTS
-from Model_Blending import *
+# from Model_Blending import *
+from Model_Blending_CV import *
 from HelpersFormatter import *
 from Main_GS_FS_Steps import import_Main_GS_FS
 
@@ -31,11 +32,11 @@ def Run_Blending_NBest(modelList, displayParams, DBpath, ref_single, Constructor
     # CONSTRUCT & REPORT
     print('RUNNING BLENDING')
     blendModel = Model_Blender(modelList, CONSTRUCTOR, Gridsearch = True, Type='NBest')
-    blendModel.report_Blending_NBest(displayParams, DBpath)
+    report_Blending_NBest(blendModel, displayParams, DBpath)
     pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName)
 
     # LOAD
-    blendModel = import_Blender_NBest(ref_single)
+    blendModel = import_Blender_NBest(ref_single, label = ConstructorKey + '_Blender_NBest')
 
 
     # PLOT
@@ -165,50 +166,64 @@ def report_Blender_CV(studies_Blender, displayParams, DBpath):
         AllDfs = []
         sheetNames = []
         for blendModel in studies_Blender:
-            sheetNames.append(blendModel.GSName) #check this
-            print("blendModel.GSName", blendModel.GSName)
-            index = [model.GSName for model in blendModel.modelList] + [blendModel.GSName]
-            columns = ['TrainScore', 'TestScore', 'TestMSE',  'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #'TestR2',
-            BlendingDf = pd.DataFrame(columns=columns, index=index)
-            for col in columns[:-1]:
-                BlendingDf[col] = [model.__getattribute__(col) for model in blendModel.modelList] + [blendModel.__getattribute__(col)]
-            BlendingDf['ModelWeights'] = [round(elem,3) for elem in list(blendModel.ModelWeights)] + [0]
 
+            BlendingDf = construct_Blending_Df(blendModel)
             AllDfs.append(BlendingDf)
+            sheetNames.append(blendModel.GSName)
 
-        dflist = []
+        columns = ['TrainScore', 'TestScore', 'TestMSE',  'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #'TestR2',
 
-        BLSummaryDf = pd.DataFrame(columns=columns)
-        NBestSummaryDf = pd.DataFrame(columns=columns)
-        IncSummaryDf = pd.DataFrame(columns=columns)
-        print(len(AllDfs), len(studies_Blender))
+        BestBlenderDf, AvgBlenderDf, BestModel, AvgModel = pd.DataFrame(columns=columns), pd.DataFrame(columns=columns), pd.DataFrame(columns=columns), pd.DataFrame(columns=columns)
+        BestBlender_BestModel, AvgBlender_AvgModel = pd.DataFrame(columns=columns), pd.DataFrame(columns=columns)
+
+
         for df, blendmodel in zip(AllDfs, studies_Blender):
-            slice = df.iloc[0:len(df)-1, :]
-            index = ['NBest_Avg', 'Blender_Increase']
-            columns = ['TrainScore', 'TestScore', 'TestMSE',  'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights'] #'TestR2',
-            IncDf = pd.DataFrame(columns=columns, index=index)
-            IncDf.loc['NBest_Avg', :] = df.iloc[0:len(df)-1, :].mean(axis=0)
-            IncDf.loc['Blender_Increase', :] = ((df.loc[blendmodel.GSName, :] - df.iloc[0:len(df)-1, :].mean(axis=0)))
-            # IncDf.loc['Blender_Increase', :] = ((df.loc[blendmodel.GSName, :] / df.iloc[0:len(df)-1, :].mean(axis=0)) - 1)
-            nwdf = pd.concat([df, IncDf])
-
-            BLSummaryDf.loc[blendmodel.GSName, :] = df.loc[blendmodel.GSName, :]
-            NBestSummaryDf.loc[blendmodel.GSName, :] = df.iloc[0:len(df)-1, :].mean(axis=0)
-            IncSummaryDf.loc[blendmodel.GSName, :] = ((df.loc[blendmodel.GSName, :] - df.iloc[0:len(df)-1, :].mean(axis=0)))
-
-            dflist.append(nwdf)
+            BestBlenderDf.loc[blendmodel.GSName, :] = df.loc[blendmodel.GSName, :]
+            AvgBlenderDf.loc[blendmodel.GSName, :] = df.loc['Blender_Mean', :]
+            BestModel.loc[blendmodel.GSName, :] = df.iloc[0, :]
+            AvgModel.loc[blendmodel.GSName, :] = df.loc['NBest_Avg', :]
+            BestBlender_BestModel.loc[blendmodel.GSName, :] = df.loc['BestBlender-BestModel', :]
+            AvgBlender_AvgModel.loc[blendmodel.GSName, :] = df.loc['AvgBlender-NBestAvg', :]
 
         # summarize and sort
-        SummaryDf = pd.concat([BLSummaryDf, NBestSummaryDf, IncSummaryDf], axis = 1, keys = ['BLSummaryDf', 'NBestSummaryDf', 'IncSummaryDf'])
-        sortedDf = SummaryDf.sort_values(('IncSummaryDf', 'TestScore'), ascending=True)
+        SummaryDf = pd.concat([BestBlenderDf, AvgBlenderDf, BestModel, AvgModel, BestBlender_BestModel, AvgBlender_AvgModel],
+                              axis = 1, keys = ['BestBlenderDf', 'AvgBlenderDf', 'BestModel', 'AvgModel', 'BestBlender-BestModel', 'AvgBlender-AvgModel'])
+        sortedDf = SummaryDf.sort_values(('AvgBlender-AvgModel', 'ResidVariance'), ascending=True)
         sheetNames = ['SummaryDf'] + ['SortedSummaryDf'] + sheetNames
-        dflist = [SummaryDf] + [sortedDf] + dflist
+        dflist = [SummaryDf] + [sortedDf] + AllDfs
 
-        with pd.ExcelWriter(outputPathStudy + ref_prefix + "_BL_Scores_CV" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + ref_prefix + '_' + BLE_VALUES['Regressor'] + "_BL_Scores_CV" + ".xlsx", mode='w') as writer:
             for df, name in zip(dflist, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
         return AllDfs, sheetNames
+
+
+# def construct_CVAnalysis_Blending_CV_Df(blender):
+#
+#     index = [str(elem) for elem in list(range(len(blender.Estimators)))] + ['Mean', 'Std']
+#     columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance',
+#                'ModelWeights']  #
+#     BlendingDf = pd.DataFrame(columns=columns, index=index)
+#     for col, name in zip(['TrainScores', 'TestScores', 'TestMSEs', 'TestAccs', 'ResidMeans', 'ResidVariances'],
+#                 ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance']):
+#
+#         BlendingDf[name] = [blender.__getattribute__(col)] + [blender.__getattribute__(col).mean()] + [blender.__getattribute__(col).std()]  #[i] for i in range(len())] + [self.__getattribute__(col)]
+#
+#     return BlendingDf
+#
+# def construct_Increase_Analysis_Blending_CV_Df(baseDf, blendModel):
+#     slice = baseDf.iloc[0:len(baseDf) - 1, :]
+#     index = ['NBest_Avg', 'Blender_Increase']
+#     columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance', 'ModelWeights']  # 'TestR2',
+#     IncDf = pd.DataFrame(columns=columns, index=index)
+#     IncDf.loc['NBest_Avg', :] = baseDf.iloc[0:len(baseDf) - 1, :].mean(axis=0)
+#     # IncDf.loc['Blender_Increase', :] = ((df.loc[blendmodel.GSName, :] - df.iloc[0:len(df)-1, :].mean(axis=0)))
+#     # IncDf.loc['Blender_Increase', :] = ((df.loc[blendmodel.GSName, :] / df.iloc[0:len(df)-1, :].mean(axis=0)) - 1)
+#     IncDf.loc['Blender_NBest_Avg_Increase', :] = ((baseDf.loc[blendModel.GSName, :] - baseDf.iloc[0:len(baseDf) - 1, :].mean(axis=0)))
+#     IncDf.loc['Blender_NBest_Increase', :] = (baseDf.loc[blendModel.GSName, :] - baseDf.iloc[0, :])
+#
+#     return IncDf
 
 
 

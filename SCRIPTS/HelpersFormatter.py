@@ -1,5 +1,15 @@
 import pandas as pd
 
+def get_minvalue(inputlist):
+    min_value = min(inputlist)
+    min_index = inputlist.index(min_value)
+    return min_index
+
+def get_maxvalue(inputlist):
+    max_value = max(inputlist)
+    min_index = inputlist.index(max_value)
+    return min_index
+
 def formatDf(data, model):
     XDf = data
     if model.learningDf.droppedLabels != '':

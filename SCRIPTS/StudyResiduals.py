@@ -457,7 +457,7 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_
     plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
                                   studyFolder='GaussianPlot_indivModels')
     plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                  studyFolder='GaussianPlot_indivModels', studies_Blender = studies_Blender)
+                                  studyFolder='GaussianPlot_indivModels_NBest', studies_Blender = studies_Blender)
 
 
     if displayParams['plot_all']:
