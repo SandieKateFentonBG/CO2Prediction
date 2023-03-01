@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def GS_ParameterPlot2D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = None,
-                    score ='TestAcc', studyFolder = 'GS_FS/'):
+                    score ='TestAcc', studyFolder = 'GS_FS/', combined = False):
 
     "to be done with single parameter"
     import seaborn as sns
@@ -37,15 +37,24 @@ def GS_ParameterPlot2D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = 
         plt.ylim(-yLim, yLim)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
-    reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
-        import os
-        outputFigPath = path + folder + subFolder
+        if combined :
+            reference = displayParams['reference']
+            import os
+            reference = displayParams['reference']
+            path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/'
+            outputFigPath = path + folder + subFolder
+            print(outputFigPath)
+
+        else :
+            reference = displayParams['reference']
+
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
+            import os
+            outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-
-        plt.savefig(outputFigPath + '/' + figTitle + '.png')
+            plt.savefig(outputFigPath + '/' + figTitle + '.png')
 
     if displayParams['showPlot']:
         plt.show()

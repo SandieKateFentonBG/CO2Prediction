@@ -29,8 +29,6 @@ def AssembleCVResiduals(studies):
 
     return residualsDict
 
-
-
 def AssembleCVResiduals_NBest(studies, studies_Blender):
     residualsDict = dict()
 
@@ -53,48 +51,36 @@ def AssembleCVResiduals_NBest(studies, studies_Blender):
 def AssembleCVResults(studies, label):
     resultsDict = dict()
 
+    #create empty dictionary
     for predictor in studies[0]:
         for learningDflabel in predictor.learningDfsList:
             model = predictor.__getattribute__(learningDflabel)
             resultsDict[model.GSName] = []
-
+    #fill in with all studies
     for study in studies:
         for predictor in study:
             for learningDflabel in predictor.learningDfsList:
                 model = predictor.__getattribute__(learningDflabel)
                 resultsDict[model.GSName].append(model.__getattribute__(label))
 
-    # for k, v in residualsDict.items():
-    #     residualsDict[k] = mergeList(v)
-
     return resultsDict
 
-def reportCV_ScoresAvg_All(studies, displayParams, DBpath):
 
-    """    create a dictionary compiling model accuracies for all 10 studies,
-    as well as average accuracy, residual Mean and Residual Variance"""
-
+def computeCV_Scores_Avg_All(studies):
+    import numpy as np
     SummaryDict = dict()
-    FullDict = dict()
-
+    #
     for predictor in studies[0]:
         for learningDflabel in predictor.learningDfsList:
             model = predictor.__getattribute__(learningDflabel)
             SummaryDict[model.GSName] = []
-            FullDict[model.GSName] = []
-
-    for label in ['TestAcc']: #, 'TestMSE', 'ResidMean'
-        list = []
-        for study in studies: #10
-            for predictor in study: #9
-                for learningDflabel in predictor.learningDfsList: #6
-                    model = predictor.__getattribute__(learningDflabel)
-                    list.append(model.__getattribute__(label))
-                    FullDict[model.GSName].append(list)
 
     TestAccDict = AssembleCVResults(studies, 'TestAcc')
     TestMSEDict = AssembleCVResults(studies, 'TestMSE')
     ResidMeanDict = AssembleCVResults(studies, 'ResidMean')
+    ResidVarianceDict = AssembleCVResults(studies, 'ResidVariance')
+    TrainScoreDict = AssembleCVResults(studies, 'TrainScore')
+    TestScoreDict = AssembleCVResults(studies, 'TestScore')
 
     for k in TestAccDict.keys():
         avgAcc1 = round(np.mean(TestAccDict[k]), 3)
@@ -103,23 +89,49 @@ def reportCV_ScoresAvg_All(studies, displayParams, DBpath):
         stdAcc2 = round(np.std(TestMSEDict[k]), 3)
         avgAcc3 = round(np.mean(ResidMeanDict[k]), 3)
         stdAcc3 = round(np.std(ResidMeanDict[k]), 3)
-        SummaryDict[k] = [avgAcc1, stdAcc1, avgAcc2, stdAcc2, avgAcc3, stdAcc3]
 
-        #
-        # for k, v in FullDict.items():
-        #     for list in v:
-        #         avgAcc = round(np.mean(list), 3)
-        #         stdAcc = round(np.std(list), 3)
-        #         SummaryDict[k]+=[avgAcc, stdAcc]
-        #         print(k, len(list), avgAcc, stdAcc)
+        avgAcc4 = round(np.mean(ResidVarianceDict[k]), 3)
+        stdAcc4 = round(np.std(ResidVarianceDict[k]), 3)
+        avgAcc5 = round(np.mean(TrainScoreDict[k]), 3)
+        stdAcc5 = round(np.std(TrainScoreDict[k]), 3)
+        avgAcc6 = round(np.mean(TestScoreDict[k]), 3)
+        stdAcc6 = round(np.std(TestScoreDict[k]), 3)
+        SummaryDict[k] = [avgAcc1, stdAcc1, avgAcc2, stdAcc2, avgAcc3, stdAcc3,
+                          avgAcc4, stdAcc4, avgAcc5, stdAcc5, avgAcc6, stdAcc6]
 
     # track results
-    columns = ['TestAcc-Mean','TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std','Resid-Mean','Resid-Std']
+    columns = ['TestAcc-Mean', 'TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std', 'Resid-Mean', 'Resid-Std',
+               'ResidVariance-Mean', 'ResidVariance-Std', 'TrainScore-Mean', 'TrainScore-Std', 'TestR2-Mean',
+               'TestR2-Std']
     ResultsDf = pd.DataFrame(columns=columns, index=SummaryDict.keys())
     for i in range(len(columns)):
         ResultsDf[columns[i]] = [SummaryDict[k][i] for k in SummaryDict.keys()]
-    # ResidualsDf['variance'] = variances
-    sortedDf = ResultsDf.sort_values('TestAcc-Mean', ascending=False)
+
+    return ResultsDf
+
+
+def find_Overall_Best_Models(studies, n=10, NBestScore='TestR2'):
+    ResultsDf = computeCV_Scores_Avg_All(studies)
+    sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=False)
+    BestModelNames = list(sortedDf.index[0:n])
+    print(BestModelNames)
+
+    return BestModelNames
+
+
+
+
+
+
+def reportCV_ScoresAvg_All(studies, displayParams, DBpath, NBestScore='TestR2'):
+
+    """    create a dictionary compiling model accuracies for all 10 studies,
+    as well as average accuracy, residual Mean and Residual Variance"""
+
+    ResultsDf = computeCV_Scores_Avg_All(studies)
+    sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=False)
+
+
     AllDfs = [ResultsDf, sortedDf]
     sheetNames = ['GridsearchResults', 'Sorted_GridsearchResults']
 
@@ -467,4 +479,6 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_
                                           studyFolder='Histplot_groupedModels')
         plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
                                           studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
+
+
 

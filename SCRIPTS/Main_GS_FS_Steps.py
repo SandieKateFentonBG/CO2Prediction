@@ -194,11 +194,45 @@ def Plot_GS_FS_Hyperparam(import_reference, Plot=False):
                             lims=False,
                             studyFolder='GS/')
 
-def Run_NBest(GS_FSs):
+def Run_NBest(GS_FSs, OverallBest = False):
 
-    NBestModels = NBestModel(GS_FSs, NBestScore =  BLE_VALUES['NBestScore'], NCount = BLE_VALUES['NCount'])
+    if OverallBest:
+        NBestModels = OBestModel(GS_FSs, NBestScore=BLE_VALUES['NBestScore'], NCount=BLE_VALUES['NCount'], BestModelNames = BLE_VALUES['BestModelNames'])
+    else:
+        NBestModels = NBestModel(GS_FSs, NBestScore =  BLE_VALUES['NBestScore'], NCount = BLE_VALUES['NCount'])
     pickleDumpMe(DB_Values['DBpath'], displayParams, NBestModels, 'NBEST', NBestModels.GSName)
-    NBestModels.reportGS_Scores_NBest(displayParams, DBpath=DB_Values['DBpath'])
+    reportGS_Scores_NBest(NBestModels, displayParams, DBpath=DB_Values['DBpath'])
+
+    return NBestModels
+
+def Run_NBest_Study(import_FS_ref, importNBest = False, OverallBest = False):
+
+    # # IMPORT Main_GS_FS
+    print('IMPORTING GS_FS')
+    GS_FSs = import_Main_GS_FS(import_FS_ref)
+    baseFormatedDf = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_FS_ref +'RECORDS/DATA/baseFormatedDf.pkl', show = False) #check this
+
+    # NBEST
+
+    # # IMPORT NBEST
+    if importNBest : #models already calibrated
+        print('')
+        print('IMPORTING NBEST')
+        NBestModels = import_NBest(import_FS_ref, OverallBest = OverallBest)
+    else:
+        print('')
+        print('RUNNING NBEST')
+        NBestModels = Run_NBest(GS_FSs, OverallBest = OverallBest)
+
+    # REPORT
+    print('REPORTING GS_FS & NBEST')
+
+    reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, NBestModel=NBestModels)
+    reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, NBestModel=NBestModels)
+
+    print('PLOTTING GS_FS & NBEST')
+    # PLOT
+    Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, NBestModels)
 
     return NBestModels
 
@@ -223,12 +257,6 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
         print('RUNNING GS_FS')
         GS_FSs = Run_GS_FS(learning_dfs)
 
-    # NBEST
-    print('')
-    print('RUNNING NBEST')
-    # NBestModels = Run_NBest(GS_FSs)
-    NBestModels = import_NBest(import_FS_ref)
-
     # REPORT
     print('REPORTING GS_FS')
     reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
@@ -238,20 +266,17 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     scoreListMax = [True, False, True, True, True]
     reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=False)
 
-    reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, NBestModel=NBestModels)
-    reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, NBestModel=NBestModels)
-
     print('PLOTTING GS_FS')
     # PLOT
     Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = displayParams['plot_all'])
-    Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, NBestModels)
+
     Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
     Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
     Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
     Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
     Plot_GS_FS_Hyperparam(import_FS_ref, Plot=False)
 
-    return GS_FSs, NBestModels
+    return GS_FSs
 
 
 def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_LIN', 'KRR_RBF', 'KRR_POL', 'SVR_LIN','SVR_RBF']): #'SVR_POL'

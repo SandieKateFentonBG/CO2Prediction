@@ -8,6 +8,7 @@ from Dashboard_EUCB_FR_v2 import *
 from Model import *
 from BlendingReport import *
 from HelpersArchiver import *
+from HelpersFormatter import *
 
 # LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression
@@ -31,7 +32,7 @@ class NBestModel:
         self.modelList = nBestModels
         self.GSName = str(self.N) + '_bestModels_rd' + str(self.modelList[0].random_state)
 
-    def sortedModels(self, GS_FSs):  # 'TestAcc' #todo : the score was changed from TestAcc to TestR2
+    def sortedModels(self, GS_FSs):  # 'TestAcc'
         # sorting key = 'TestAcc' , last in list
         keys = ['predictorName', 'selectorName', self.NBestScore]
 
@@ -94,39 +95,39 @@ class NBestModel:
 
         return nBestModels
 
-    def reportGS_Scores_NBest(self, displayParams, DBpath):
+def reportGS_Scores_NBest(NBestModels, displayParams, DBpath):
+
+    if displayParams['archive']:
+        import os
+        reference = displayParams['reference']
+        outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
+
+        if not os.path.isdir(outputPathStudy):
+            os.makedirs(outputPathStudy)
+
+        index = [model.GSName for model in NBestModels.modelList]
+        columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance']  #
+        BestModelDf = pd.DataFrame(columns=columns, index=index)
+        for col in columns[:-1]:
+            BestModelDf[col] = [model.__getattribute__(col) for model in NBestModels.modelList]
+
+        AllDfs = [BestModelDf]
+        sheetNames = ['Residuals_MeanVar']
+
+
+        with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_" + NBestModels.GSName + ".xlsx", mode='w') as writer:
+            for df, name in zip(AllDfs, sheetNames):
+                df.to_excel(writer, sheet_name=name)
 
 
 
-        if displayParams['archive']:
-            import os
-            reference = displayParams['reference']
-            outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
-
-            if not os.path.isdir(outputPathStudy):
-                os.makedirs(outputPathStudy)
-
-            index = [model.GSName for model in self.modelList]
-            columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance']  #
-            BestModelDf = pd.DataFrame(columns=columns, index=index)
-            for col in columns[:-1]:
-                BestModelDf[col] = [model.__getattribute__(col) for model in self.modelList]
-
-            AllDfs = [BestModelDf]
-            sheetNames = ['Residuals_MeanVar']
-
-
-            with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_" + self.GSName + ".xlsx", mode='w') as writer:
-                for df, name in zip(AllDfs, sheetNames):
-                    df.to_excel(writer, sheet_name=name)
-
-
-
-def import_NBest(import_ref): #, random_state
-    # path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
-    #        + '_bestModels_rd' + str(random_state) + '.pkl'
-    path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
-           + '_bestModels_rd' + import_ref[-3:-1] + '.pkl'
+def import_NBest(import_ref, OverallBest = False): #, random_state
+    if OverallBest:
+        path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
+               + '_O_bestModels_rd' + import_ref[-3:-1] + '.pkl'
+    else :
+        path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
+               + '_bestModels_rd' + import_ref[-3:-1] + '.pkl'
     NBestModels = pickleLoadMe(path=path, show=False)
 
     return NBestModels
@@ -134,7 +135,30 @@ def import_NBest(import_ref): #, random_state
 
 
 
+class OBestModel:
 
+    def __init__(self, GS_FSs, NBestScore, NCount, BestModelNames):
+
+
+        self.rounding = 3
+        self.NBestScore = NBestScore  # score used for selecting NBestModels
+        self.N = NCount  # number of best models
+
+        oBestModels = self.selectoBestModels(GS_FSs, BestModelNames)
+
+        self.modelList = oBestModels
+        self.GSName = str(self.N) + '_O_bestModels_rd' + str(self.modelList[0].random_state)
+
+    def selectoBestModels(self, GS_FSs, BestModelNames):
+
+        oBestModels = []
+
+        GS_FSs = unpackGS_FSs(GS_FSs)
+        for Model in GS_FSs:
+            if Model.GSName in BestModelNames:
+                oBestModels.append(Model)
+
+        return oBestModels
 
 
 

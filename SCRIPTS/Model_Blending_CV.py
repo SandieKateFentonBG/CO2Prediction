@@ -339,7 +339,7 @@ def report_Blending_NBest(blendModel, displayParams, DBpath):
     if displayParams['archive']:
 
         reference = displayParams['reference']
-        BlendingDf = blendModel.construct_Blending_Df()
+        BlendingDf = construct_Blending_Df(blendModel)
 
         import os
         outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
