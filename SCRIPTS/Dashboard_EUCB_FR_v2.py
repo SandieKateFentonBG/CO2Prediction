@@ -126,10 +126,10 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
               'BestModelNames' : ['SVR_RBF_NoSelector', 'SVR_RBF_RFE_GBR', 'SVR_RBF_fl_spearman', 'SVR_RBF_RFE_DTR',
                                   'SVR_RBF_fl_pearson', 'SVR_RBF_RFE_RFR', 'KRR_POL_NoSelector', 'KRR_POL_RFE_GBR',
-                                  'KRR_RBF_NoSelector', 'KRR_RBF_RFE_GBR']} #'TestAcc'LR_RIDGE
+                                  'KRR_RBF_NoSelector', 'KRR_RBF_RFE_GBR']} #'TestAcc'SVR_RBF
 
 
 

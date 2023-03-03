@@ -1,20 +1,10 @@
 # SCRIPT IMPORTS
 from Model import *
 from HelpersFormatter import *
-from HelpersArchiver import *
-from BlendingReport import *
+from SCRIPTS.UNUSED.BlendingReport import *
 from Dashboard_EUCB_FR_v2 import *
 
 #LIBRARY IMPORTS
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.linear_model import Lasso, Ridge, ElasticNet
-from sklearn.svm import SVR
-from sklearn.kernel_ridge import KernelRidge
-from StudyReport import *
 from sklearn.model_selection import KFold
 
 def prepare_blending_cv(modelList):
@@ -63,7 +53,6 @@ def split_blending_cv(X, y, k = 5):
 
     return kfolds
 
-
 def Blend_Learning_Data(modelList, type = 'XVal'):
 
     # create meta learning data
@@ -96,6 +85,7 @@ class Model_Blender:
         self.accuracyTol = 0.15
         self.rounding = 3
 
+        #prepare data for outer loop - Cross-Validation
         blendDf, yMeta = prepare_blending_cv(modelList)
         kfolds = split_blending_cv(blendDf, yMeta, k = 5)
 
@@ -196,9 +186,6 @@ class Model_Blender:
         weights = [round(num, self.rounding) for num in list(content)]
         self.ModelWeights = weights
 
-
-
-
     def plot_Blender_CV_Residuals(self, displayParams, FORMAT_Values, DBpath):
         from StudyResiduals import plotCVResidualsGaussian_Combined
         plotCVResidualsGaussian_Combined([self], displayParams, FORMAT_Values, DBpath,
@@ -252,7 +239,6 @@ class Model_Blender:
 
 def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
 
-
     import pandas as pd
     if displayParams['archive']:
         import os
@@ -274,7 +260,6 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
                 outputPathStudy + reference[:-6] + '_' + BLE_VALUES['Regressor'] + "_BL_Scores_NBest" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
-
 
 def construct_NBest_Df(blendModel):
 

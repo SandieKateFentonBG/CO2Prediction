@@ -110,10 +110,11 @@ def computeCV_Scores_Avg_All(studies):
     return ResultsDf
 
 
-def find_Overall_Best_Models(studies, n=10, NBestScore='TestR2'):
-    ResultsDf = computeCV_Scores_Avg_All(studies)
+def find_Overall_Best_Models(ResultsDf, n=10, NBestScore='TestR2'):
+
     sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=False)
     BestModelNames = list(sortedDf.index[0:n])
+    print("The ", str(n), 'Models with Best ', NBestScore, "are:")
     print(BestModelNames)
 
     return BestModelNames
@@ -123,14 +124,13 @@ def find_Overall_Best_Models(studies, n=10, NBestScore='TestR2'):
 
 
 
-def reportCV_ScoresAvg_All(studies, displayParams, DBpath, NBestScore='TestR2'):
+def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore='TestR2'):
 
     """    create a dictionary compiling model accuracies for all 10 studies,
     as well as average accuracy, residual Mean and Residual Variance"""
 
-    ResultsDf = computeCV_Scores_Avg_All(studies)
+    # ResultsDf = computeCV_Scores_Avg_All(studies)
     sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=False)
-
 
     AllDfs = [ResultsDf, sortedDf]
     sheetNames = ['GridsearchResults', 'Sorted_GridsearchResults']
@@ -455,21 +455,23 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-def RUN_CombinedResiduals(studies_GS_FS, studies_Blender, displayParams, FORMAT_Values, DBpath, n, NBestScore):
+def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, displayParams, FORMAT_Values, DBpath, n, NBestScore):
 
     models, means, variances = analyzeCVResiduals(studies_GS_FS)
     reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
 
+    BLName = studies_Blender[0].GSName
+
+    plotCVResidualsGaussian_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath,
+                                     studyFolder='GaussianPlot_NBest', NBest=True)
     plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_NBest_' + str(n) + '_' + NBestScore, NBest=True)
-    plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_Blender_NBest_' + str(n) + '_' + NBestScore, Blender=True)
+                                     studyFolder='GaussianPlot_Combined_' + BLName, Blender=True)
     plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
                                      studyFolder='GaussianPlot_groupedModels')
     plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
                                   studyFolder='GaussianPlot_indivModels')
     plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                  studyFolder='GaussianPlot_indivModels_NBest', studies_Blender = studies_Blender)
+                                  studyFolder='GaussianPlot_indiv_'+ BLName, studies_Blender = studies_Blender)
 
 
     if displayParams['plot_all']:

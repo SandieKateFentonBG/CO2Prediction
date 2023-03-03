@@ -81,19 +81,19 @@ def Run_GS_FS(learning_dfs): #, xQtQlLabels = (xQuantLabels, xQualLabels)
 #
     return GS_FSs
 
-def Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = False):
+def Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, combined = False, plot_all = False):
 
     # SCORES
     for scoreLabel in scoreList:
-        heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score=scoreLabel, studyFolder='GS_FS/')
+        heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score=scoreLabel, studyFolder='GS_FS/', combined = combined)
 
     if plot_all:
         for scoreLabel, scoreMax in zip(scoreList, scoreListMax):
             GS_ParameterPlot2D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None, score=scoreLabel,
-                               studyFolder='GS_FS/')
+                               studyFolder='GS_FS/', combined = combined)
             GS_ParameterPlot3D(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', yLim=None,
                                score=scoreLabel, colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6], showgrid=True,
-                               maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/')
+                               maxScore=scoreMax, absVal=False, ticks=False, lims=False, studyFolder='GS_FS/', combined = combined)
 
 def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, NBestModel = None):
 
@@ -281,12 +281,14 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
 
 def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_LIN', 'KRR_RBF', 'KRR_POL', 'SVR_LIN','SVR_RBF']): #'SVR_POL'
 
+    # if Combined:import_reference = ref_prefix + '_Combined/'
+    # is single:import_reference = ref_prefix + 'rd' + str(PROCESS_VALUES['random_state']) + '/'
+
     GS_FSs = []
     for FS_GS_lab in GS_FS_List_Labels: #9
         path = DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
-        # path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/' + import_reference + 'RECORDS/GS_FS/' + FS_GS_lab + '.pkl'
+        print("importing : ", path)
         GS_FS = pickleLoadMe(path=path, show=False) #6
-
         GS_FSs.append(GS_FS) #54
 
     return GS_FSs

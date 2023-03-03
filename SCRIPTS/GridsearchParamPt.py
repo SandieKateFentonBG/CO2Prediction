@@ -37,24 +37,20 @@ def GS_ParameterPlot2D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = 
         plt.ylim(-yLim, yLim)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
+
     if displayParams['archive']:
-        if combined :
+        if combined:
+            reference = displayParams['ref_prefix'] + '_Combined/'
+        else:
             reference = displayParams['reference']
-            import os
-            reference = displayParams['reference']
-            path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/'
-            outputFigPath = path + folder + subFolder
-            print(outputFigPath)
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
+        outputFigPath = path + folder + subFolder
 
-        else :
-            reference = displayParams['reference']
-
-            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
-            import os
-            outputFigPath = path + folder + subFolder
+        import os
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-            plt.savefig(outputFigPath + '/' + figTitle + '.png')
+        plt.savefig(outputFigPath + '/' + figTitle + '.png')
+        print("Image saved here :", outputFigPath + '/' + figTitle + '.png')
 
     if displayParams['showPlot']:
         plt.show()
@@ -65,7 +61,7 @@ def GS_ParameterPlot2D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = 
 def GS_ParameterPlot3D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = None,
                     score ='TestAcc', colorsPtsLsBest=['b', 'g', 'c', 'y', 'r'], size=[6, 6],
                     showgrid=False,  maxScore=True, absVal = False, ticks=False, lims=False,
-                    studyFolder = 'GS_FS/'):
+                    studyFolder = 'GS_FS/', combined = False):
 
     figFolder = 'GRID'
     figTitle = content + '_' + score + '_Plot3d'
@@ -125,22 +121,38 @@ def GS_ParameterPlot3D(GS_FSs, displayParams, DBpath, content = 'GS_FS', yLim = 
 
     fig.set_size_inches(size[0], size[1])
     ax.grid(showgrid)#color='.25', linestyle='-', linewidth=0.5
-    reference = displayParams['reference']
+
     if displayParams['archive']:
+        if combined:
+            reference = displayParams['ref_prefix'] + '_Combined/'
+        else:
+            reference = displayParams['reference']
         path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
-        import os
         outputFigPath = path + folder + subFolder
+
+        import os
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-
         plt.savefig(outputFigPath + '/' + figTitle + '.png')
+        print("Image saved here :", outputFigPath + '/' + figTitle + '.png')
+
+
+    # reference = displayParams['reference']
+    # if displayParams['archive']:
+    #     path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
+    #     import os
+    #     outputFigPath = path + folder + subFolder
+    #     if not os.path.isdir(outputFigPath):
+    #         os.makedirs(outputFigPath)
+    #
+    #     plt.savefig(outputFigPath + '/' + figTitle + '.png')
 
     if displayParams['showPlot']:
         plt.show()
     plt.close()
 
 
-def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', studyFolder='GS_FS/'):
+def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', studyFolder='GS_FS/', combined = False):
 
     figFolder = 'GRID'
     figTitle = content + '_' + score + '_heatmap'
@@ -186,16 +198,30 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
     ax.set_title(title)
     fig.tight_layout()
 
-    reference = displayParams['reference']
     if displayParams['archive']:
+        if combined:
+            reference = displayParams['ref_prefix'] + '_Combined/'
+        else:
+            reference = displayParams['reference']
         path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
-        import os
         outputFigPath = path + folder + subFolder
+
+        import os
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-
         plt.savefig(outputFigPath + '/' + figTitle + '.png')
-        print(outputFigPath)
+        print("Image saved here :", outputFigPath + '/' + figTitle + '.png')
+
+    # reference = displayParams['reference']
+    # if displayParams['archive']:
+    #     path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
+    #     import os
+    #     outputFigPath = path + folder + subFolder
+    #     if not os.path.isdir(outputFigPath):
+    #         os.makedirs(outputFigPath)
+    #
+    #     plt.savefig(outputFigPath + '/' + figTitle + '.png')
+    #     print(outputFigPath)
     if displayParams['showPlot']:
         plt.show()
     plt.close()

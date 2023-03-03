@@ -11,6 +11,7 @@ from sklearn.kernel_ridge import KernelRidge
 # from Model_Blending import *
 from Model_Blending_CV import *
 from HelpersFormatter import *
+from HelpersArchiver import *
 from Main_GS_FS_Steps import import_Main_GS_FS
 
 
@@ -146,6 +147,7 @@ def import_Blender_CV(blendmodelName, ref_prefix, ref_suffix_combined = '_Combin
 
 def import_Blender_NBest(ref_single, label ='LR_RIDGE_Blender_NBest'):
     path = DB_Values['DBpath'] + 'RESULTS/' + ref_single + 'RECORDS/BLENDER/' + label + '.pkl'
+    print(path)
     Blender = pickleLoadMe(path=path, show=False)
 
     return Blender
@@ -199,31 +201,6 @@ def report_Blender_CV(studies_Blender, displayParams, DBpath):
         return AllDfs, sheetNames
 
 
-# def construct_CVAnalysis_Blending_CV_Df(blender):
-#
-#     index = [str(elem) for elem in list(range(len(blender.Estimators)))] + ['Mean', 'Std']
-#     columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance',
-#                'ModelWeights']  #
-#     BlendingDf = pd.DataFrame(columns=columns, index=index)
-#     for col, name in zip(['TrainScores', 'TestScores', 'TestMSEs', 'TestAccs', 'ResidMeans', 'ResidVariances'],
-#                 ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance']):
-#
-#         BlendingDf[name] = [blender.__getattribute__(col)] + [blender.__getattribute__(col).mean()] + [blender.__getattribute__(col).std()]  #[i] for i in range(len())] + [self.__getattribute__(col)]
-#
-#     return BlendingDf
-#
-# def construct_Increase_Analysis_Blending_CV_Df(baseDf, blendModel):
-#     slice = baseDf.iloc[0:len(baseDf) - 1, :]
-#     index = ['NBest_Avg', 'Blender_Increase']
-#     columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance', 'ModelWeights']  # 'TestR2',
-#     IncDf = pd.DataFrame(columns=columns, index=index)
-#     IncDf.loc['NBest_Avg', :] = baseDf.iloc[0:len(baseDf) - 1, :].mean(axis=0)
-#     # IncDf.loc['Blender_Increase', :] = ((df.loc[blendmodel.GSName, :] - df.iloc[0:len(df)-1, :].mean(axis=0)))
-#     # IncDf.loc['Blender_Increase', :] = ((df.loc[blendmodel.GSName, :] / df.iloc[0:len(df)-1, :].mean(axis=0)) - 1)
-#     IncDf.loc['Blender_NBest_Avg_Increase', :] = ((baseDf.loc[blendModel.GSName, :] - baseDf.iloc[0:len(baseDf) - 1, :].mean(axis=0)))
-#     IncDf.loc['Blender_NBest_Increase', :] = (baseDf.loc[blendModel.GSName, :] - baseDf.iloc[0, :])
-#
-#     return IncDf
 
 
 

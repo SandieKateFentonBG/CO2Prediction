@@ -209,9 +209,9 @@ def plotSHAPSummary(SHAPDf, displayParams, DBpath, content='', NBest = True, n=N
 
 
 
-def RUN_SHAP_Combined_NBest(displayParams, DBpath, studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, n, NBestScore, randomValues = None):
+def RUN_SHAP_Combined_NBest(displayParams, DBpath, studies_NBest, studies_GS_FS, xQuantLabels, xQualLabels, n, NBestScore, randomValues = None):
 
-    SHAPDf,SHAPGroupDf = formatCV_SHAP_toDf(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = randomValues)
+    SHAPDf,SHAPGroupDf = formatCV_SHAP_toDf(studies_NBest, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = randomValues)
 
     plotSHAPSummary(SHAPDf, displayParams, DBpath, content='Ungrouped', n=n, NBestScore=NBestScore)
     plotSHAPSummary(SHAPGroupDf, displayParams, DBpath, content='Grouped', n=n, NBestScore=NBestScore)

@@ -1,42 +1,80 @@
 
-
 from GridsearchParamPt import GS_ParameterPlot2D
+from StudyResiduals import *
+from Main_GS_FS_Steps import *
 
 
+def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
 
+    if studies:
+        AvgDict = computeCV_Scores_Avg_All(studies)
+    else:
+        AvgDict = ResultsDf
 
-def avgModel(example, AvgDict):
+    print("AvgDict", AvgDict)
+    # studies = 10 * 9 * 6 - GS_FSs
+    # Gsearch = 9 * 6 - GS_FS
+    # PSearch = 6 - FS
+    # Model - 1
 
-    new = example
-    for learningDflabel in example.learningDfsList: #6
-        GS = new.__getattribute__(learningDflabel) #54
+    #create empty Gridsearch
+    new = studies[0]
 
-        columns = ['TestAcc-Mean', 'TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std', 'Resid-Mean', 'Resid-Std',
-                   'ResidVariance-Mean', 'ResidVariance-Std', 'TrainScore-Mean', 'TrainScore-Std', 'TestR2-Mean',
-                   'TestR2-Std']
+    print("new - should be a list of 9 GS", new)
+    print("studies[0]", studies[0])
+    print("check", studies[0] == new)
 
-        TestAcc, TestAccStd, TestMSE, TestMSEStd, Resid, ResidStd, ResidVariance, \
-        ResidVarianceStd, TrainScore, TrainScoreStd, TestR2, TestR2Std = AvgDict.loc[GS.GSName, :]
+    for predictor in new : #9
+        for learningDflabel in predictor.learningDfsList:  # 6
+            GS = predictor.__getattribute__(learningDflabel)
 
+            TestAcc, TestAccStd, TestMSE, TestMSEStd, Resid, ResidStd, ResidVariance, \
+            ResidVarianceStd, TrainScore, TrainScoreStd, TestR2, TestR2Std = AvgDict.loc[GS.GSName, :]
 
-        setattr(GS, 'TrainScore', TrainScore)
-        setattr(GS,'TestScore', TestR2)
-        setattr(GS,'TestAcc', TestAcc)
-        setattr(GS,'TestMSE', TestMSE)
-        setattr(GS,'TestR2', TestR2)
-        setattr(GS,'ResidMean', Resid)
-        setattr(GS,'ResidVariance', ResidVariance)
+            setattr(GS, 'TrainScore', TrainScore)
+            setattr(GS, 'TestScore', TestR2)
+            setattr(GS, 'TestAcc', TestAcc)
+            setattr(GS, 'TestMSE', TestMSE)
+            setattr(GS, 'TestR2', TestR2)
+            setattr(GS, 'ResidMean', Resid)
+            setattr(GS, 'ResidVariance', ResidVariance)
+            setattr(predictor, learningDflabel, GS)
 
-        #todo : add > pickle dump new GSFS
+        pickleDumpMe(DBpath, displayParams, predictor, 'GS_FS', predictor.predictorName, combined=True)
+
+    print("new", new)
+    print("studies[0]", studies[0])
+    print("check", studies[0] == new)
 
     return new
 
 
-# todo : run as in MainGS FS steps > for all keys
-GS_ParameterPlot2D(GS_FSs, displayParams, DBpath, content='GS_FS', yLim=None, score='TestAcc', studyFolder='GS_FS/', combined = True)
 
+def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combined =  None):
 
+    if not studies:
+        All_CV = import_Main_GS_FS(ref_combined,
+                               GS_FS_List_Labels=['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_LIN', 'KRR_RBF',
+                                                  'KRR_POL', 'SVR_LIN', 'SVR_RBF'])
+    else:
+        All_CV = studies
 
+    # CREATE AVG MODEL
+    ResultsDf = computeCV_Scores_Avg_All(All_CV)
+    GS_FSs = avgModel(All_CV, DBpath, displayParams, ResultsDf = ResultsDf)
+
+    # REPORT
+    reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore=BLE_VALUES['NBestScore'])
+
+    #PLOT
+    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
+    scoreListMax = [True, False, True, True, True]
+    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, combined=True, plot_all=True)
+
+    # FIND NBEST
+    BestModelNames = find_Overall_Best_Models(ResultsDf, n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
+
+    return GS_FSs
 
 
 

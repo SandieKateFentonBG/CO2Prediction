@@ -48,3 +48,7 @@ GOAL - select the optimal number of features or combination of features
 """
 
 > consider leave one out instead for wrapper : loo = LeaveOneOut() #alternative to cv
+
+
+# # # # Could I integrate WEC to features and predict SEC with it?
+# # # # could I do a 2 step ML 1. predict WEC 2. Predict SEC with WEC
