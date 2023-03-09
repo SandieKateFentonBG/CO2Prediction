@@ -33,6 +33,7 @@ def split_blending_cv(X, y, k = 5):
     kfolds = []
     for train_index, test_index in kf.split(X):
         fold = []
+
         X_train, X_test = X.iloc[train_index,:], X.iloc[test_index, :]
         y_train, y_test = y[train_index], y[test_index]
 
@@ -46,10 +47,12 @@ def split_blending_cv(X, y, k = 5):
         fold.append(X_test)
         fold.append(y_train)
         fold.append(y_test)
+        fold.append(ScaleMean) #todo : added
+        fold.append(ScaleStd) #todo : added
 
         kfolds.append(fold)
         #kfolds = [fold,..., fold, fold]
-        # fold =  [X_train,X_test, y_train, y_test]
+        # fold =  [X_train,X_test, y_train, y_test, ScaleMean, ScaleStd]
 
     return kfolds
 
@@ -90,7 +93,7 @@ class Model_Blender:
         kfolds = split_blending_cv(blendDf, yMeta, k = 5)
 
         #kfolds = [fold,..., fold, fold]
-        # fold =  [X_train,X_test, y_train, y_test]
+        # fold =  [X_train,X_test, y_train, y_test, ScaleMean, ScaleStd]
 
         self.Estimators = []
         self.Params = []
@@ -104,9 +107,11 @@ class Model_Blender:
         self.ResidMeans = []
         self.ResidVariances = []
         self.blendXtrains, self.blendXtests, self.yTrains, self.yTests = [], [], [], []
+        self.ScaleMeans = []
+        self.ScaleStds = []
 
         for fold in kfolds:
-            X_train, X_test, y_train, y_test = fold
+            X_train, X_test, y_train, y_test, ScaleMean, ScaleStd = fold #todo : added 'ScaleMean, ScaleStd'
             xtrainer, ytrainer = X_train, y_train
 
 
@@ -149,6 +154,8 @@ class Model_Blender:
             self.blendXtests.append(X_test)
             self.yTrains.append(y_train)
             self.yTests.append(y_test)
+            self.ScaleMeans.append(ScaleMean) #todo : added 'ScaleMean, ScaleStd'
+            self.ScaleStds.append(ScaleStd) #todo : added 'ScaleMean, ScaleStd'
 
         idx = get_minvalue(self.ResidVariances)
 
@@ -167,6 +174,8 @@ class Model_Blender:
         self.blendXtest = self.blendXtests[idx]
         self.yTrain = self.yTrains[idx]
         self.yTest = self.yTests[idx]
+        self.ScaleMean = self.ScaleMeans[idx]
+        self.ScaleStd = self.ScaleStds[idx]
 
         if hasattr(self.Estimator, 'coef_'):  # LR, RIDGE, ELASTICNET, KRR Kernel Linear, SVR Kernel Linear
             self.isLinear = True

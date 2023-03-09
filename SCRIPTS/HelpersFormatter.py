@@ -31,6 +31,13 @@ def formatDf_toBlender(data, blender, Scale = True):
 
         blendXDf = pd.concat(blend_sample_sets, axis=1)
 
+        # todo : remove this part
+        if hasattr(blender, 'ScaleMean'):
+            pass
+        else:
+            blender.__setattr__('ScaleMean', blender.blendXtrain.mean(axis=0))
+            blender.__setattr__('ScaleStd', blender.blendXtrain.std(axis=0))
+
         if Scale:
             blendXDf = (blendXDf - blender.ScaleMean) / blender.ScaleStd
 
