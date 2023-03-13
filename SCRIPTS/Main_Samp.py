@@ -27,7 +27,9 @@ print(displayParams["reference"])
 # ">>IMPORT"
 
 # # BLENDER PROCESSING
-Blender_NBest = import_Blender_NBest(ref_single, label=BLE_VALUES['Regressor'] + '_Blender_NBest')
+# Blender_NBest = import_Blender_NBest(ref_single, label=BLE_VALUES['Regressor'] + '_Blender_NBest')
+Blender_SVR = import_Blender_NBest(ref_single, label='LR_RIDGE' + '_Blender_NBest')
+Blender_LR = import_Blender_NBest(ref_single, label='SVR_RBF' + '_Blender_NBest')
 
 # # MODEL
 # GS_FSs = import_Main_GS_FS(displayParams["reference"], GS_FS_List_Labels = studyParams['Regressors'])
@@ -37,11 +39,11 @@ Blender_NBest = import_Blender_NBest(ref_single, label=BLE_VALUES['Regressor'] +
 # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
 
 # Blender_NBest = import_Main_Blender(displayParams["reference"], n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label =BLE_VALUES['Regressor'] + '_Blender')
-B_M = Blender_NBest.modelList
+# B_M = Blender_NBest.modelList
+B_M = Blender_SVR.modelList
 
-
-Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M, Blender_List=[Blender_NBest], precomputed = False)
-Run_Feature_Predictions_2D(MyPred_Sample, feature1='Structure', feature2='Main_Material', Model_List=B_M, Blender_List=[Blender_NBest])
+Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR], precomputed = False)
+Run_Feature_Predictions_2D(MyPred_Sample, feature1='Structure', feature2='Main_Material', Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR])
 
 
 # pickleDumpMe(DB_Values['DBpath'], displayParams, predDf, 'PREDICTIONS', MyPred_Sample["DBname"])
