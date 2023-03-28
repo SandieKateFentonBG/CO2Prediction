@@ -46,7 +46,7 @@ class WrapFeatures:
                 self.RFElimination(formatedDf, self.rfeHyp_maxcheckFtCount, pretrained = True)
             if self.FtCountFrom == 'rfeCV' :
                 print('RFE - CV Calibration')
-                self.RFEliminationCV(formatedDf, step, cv, scoring)
+                self.RFEliminationCV(formatedDf, step, cv, scoring, min_features_to_select)
                 self.RFElimination(formatedDf, self.rfecv.n_features_, pretrained = True)
             if type(output_feature_count) == int:
                 print('RFE - Retrieving Resuts for ', output_feature_count)

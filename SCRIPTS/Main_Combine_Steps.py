@@ -10,13 +10,13 @@ from Model_Blending_CV import *
 def RUN_Training_Report(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues, displayParams,
                   GSName = "All"):
 
-    #FEATURE PROCESSING
+    # FEATURE PROCESSING
     "Assessment of all filtered features - frequency of features selected or dropped"
     reportCV_Filter(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues, displayParams,
                     DBpath=DB_Values['DBpath'])
 
-    #MODEL PROCESSING
-    reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
+    # #MODEL PROCESSING
+    # reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
 
     "Assessment of all Models - ranked table for all seeds and samples - features SHAP values Grouped and Ungrouped - List + Plots"
     RUN_SHAP_Combined_All(displayParams, DB_Values["DBpath"], CV_AllModels, GSName, xQuantLabels, xQualLabels, randomValues=None)

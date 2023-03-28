@@ -5,7 +5,8 @@
 """""
 
 #DASHBOARD IMPORT
-from Dashboard_EUCB_FR_v2 import *
+# from Dashboard_EUCB_FR_v2 import *
+from Dashboard_EUCB_Frames import *
 
 #SCRIPT IMPORTS
 from Main_GS_FS_Steps import *
@@ -44,10 +45,11 @@ for set in studyParams['sets']:
 
         # # ">>RUN"
         # #
-        # # FEATURE PROCESSING
+        # # # FEATURE PROCESSING
         # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
-        # #
-        # # MODEL PROCESSING
+        #
+        # # #
+        # # # MODEL PROCESSING
         # GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
 
 

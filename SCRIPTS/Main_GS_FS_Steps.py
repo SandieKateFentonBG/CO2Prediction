@@ -48,7 +48,7 @@ import shap
 
 
 
-def Run_GS_FS(learning_dfs): #, xQtQlLabels = (xQuantLabels, xQualLabels)
+def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLabels)
     """
     GOAL -  Calibrate model hyperparameters for different learning Dfs
     Dashboard Input - GS_VALUES ; _param_grids
@@ -65,9 +65,10 @@ def Run_GS_FS(learning_dfs): #, xQtQlLabels = (xQuantLabels, xQualLabels)
     SVR_LIN_CONSTRUCTOR = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
     SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
 
-    GS_CONSTRUCTOR = [LR_CONSTRUCTOR, LR_RIDGE_CONSTRUCTOR, LR_LASSO_CONSTRUCTOR, LR_ELAST_CONSTRUCTOR, KRR_LIN_CONSTRUCTOR,
+    All_CONSTRUCTOR = [LR_CONSTRUCTOR, LR_RIDGE_CONSTRUCTOR, LR_LASSO_CONSTRUCTOR, LR_ELAST_CONSTRUCTOR, KRR_LIN_CONSTRUCTOR,
                       KRR_RBF_CONSTRUCTOR,KRR_POL_CONSTRUCTOR, SVR_LIN_CONSTRUCTOR, SVR_RBF_CONSTRUCTOR]
-
+    GS_CONSTRUCTOR = [elem for elem in All_CONSTRUCTOR if elem['name'] in regressors]
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>GS_CONSTRUCTOR', len(GS_CONSTRUCTOR))
     # CONSTRUCT & REPORT
 
     GS_FSs = []
@@ -250,12 +251,12 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     if importMainGSFS : #models already calibrated
         print('')
         print('IMPORTING GS_FS')
-        GS_FSs = import_Main_GS_FS(import_FS_ref)
+        GS_FSs = import_Main_GS_FS(import_FS_ref, GS_FS_List_Labels=studyParams['Regressors'])
     else:
     # RUN GS_FS
         print('')
         print('RUNNING GS_FS')
-        GS_FSs = Run_GS_FS(learning_dfs)
+        GS_FSs = Run_GS_FS(learning_dfs, regressors=studyParams['Regressors'])
 
     # REPORT
     print('REPORTING GS_FS')
@@ -279,7 +280,7 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     return GS_FSs
 
 
-def import_Main_GS_FS(import_reference, GS_FS_List_Labels = ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_LIN', 'KRR_RBF', 'KRR_POL', 'SVR_LIN','SVR_RBF']): #'SVR_POL'
+def import_Main_GS_FS(import_reference, GS_FS_List_Labels = studyParams['Regressors']): #'SVR_POL'
 
     # if Combined:import_reference = ref_prefix + '_Combined/'
     # is single:import_reference = ref_prefix + 'rd' + str(PROCESS_VALUES['random_state']) + '/'

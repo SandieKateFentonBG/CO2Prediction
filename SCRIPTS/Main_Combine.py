@@ -5,7 +5,8 @@
 """""
 
 #DASHBOARD IMPORT
-from Dashboard_EUCB_FR_v2 import *
+# from Dashboard_EUCB_FR_v2 import *
+from Dashboard_EUCB_Frames import *
 
 #SCRIPT IMPORTS
 from Main_GS_FS_Steps import *
@@ -42,7 +43,7 @@ for set in studyParams['sets']:
         # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['KRR_LIN'])
         #
         # # NBEST PROCESSING
-        NBestModels = import_NBest(ref_single, OverallBest = BLE_VALUES['OverallBest'])
+        # NBestModels = import_NBest(ref_single, OverallBest = BLE_VALUES['OverallBest'])
 
         # # # BLENDER PROCESSING
         # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
@@ -50,7 +51,7 @@ for set in studyParams['sets']:
         # ">>RUN"
 
         # # NBEST PROCESSING
-        # NBestModels = Run_NBest_Study(ref_single, importNBest=False, OverallBest = BLE_VALUES['OverallBest'])
+        NBestModels = Run_NBest_Study(ref_single, importNBest=False, OverallBest = BLE_VALUES['OverallBest'])
         #
         # # BLENDER PROCESSING
         Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single,
@@ -64,10 +65,10 @@ for set in studyParams['sets']:
 
     # COMBINE
 
-    # RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, randomvalues, displayParams)
+    RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, randomvalues, displayParams)
 
     # META STORE
 
-    # Studies_CV_BlenderNBest.append(CV_BlenderNBest)
+    Studies_CV_BlenderNBest.append(Blenders_NBest_CV)
 
 # AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams, DB_Values['DBpath'], tolerance=0.15)

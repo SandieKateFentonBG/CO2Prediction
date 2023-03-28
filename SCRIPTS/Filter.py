@@ -26,6 +26,7 @@ class FilterFeatures:
     def __init__(self, baseFormatedDf, baseLabels, method ="spearman", corrRounding = 2,
                  lowThreshhold = 0.1, highThreshhold = 0.65):
         trainDf = baseFormatedDf.trainDf
+
         valDf = baseFormatedDf.valDf
         testDf = baseFormatedDf.testDf
         checkDf = baseFormatedDf.checkDf
@@ -37,9 +38,7 @@ class FilterFeatures:
         self.highThreshhold = highThreshhold
         self.corrRounding = corrRounding
 
-
         self.filterUncorrelated(valDf, baseLabels, self.yLabel, method, lowThreshhold)
-
 
         # Generates :
         # self.correlationMatrix_All = correlationMatrix_All
@@ -55,12 +54,10 @@ class FilterFeatures:
         # self.DfNoRedundant = DfNoRedundant
 
         self.droppedLabels = self.uncorrelatedLabels + self.redundantLabels
-
         self.trainDf = trainDf.drop(columns=self.droppedLabels)
         self.valDf = valDf.drop(columns=self.droppedLabels)
         self.testDf = testDf.drop(columns=self.droppedLabels)
         self.checkDf = checkDf.drop(columns=self.droppedLabels)
-
         self.XTrain = self.trainDf.drop(columns=self.yLabel)
         self.XVal = self.valDf.drop(columns=self.yLabel)
         self.XTest = self.testDf.drop(columns=self.yLabel)
@@ -69,7 +66,6 @@ class FilterFeatures:
         self.yVal = self.valDf[self.yLabel]
         self.yTest = self.testDf[self.yLabel]
         self.yCheck = self.checkDf[self.yLabel]
-
 
         self.selectedLabels = list(self.XVal.columns.values)
         self.selector = 'fl_' + self.method
@@ -123,7 +119,7 @@ class FilterFeatures:
         redundantLabelsAll = [column for column in upper_tri.columns if any(upper_tri[column] >= highThreshhold)]
 
         #this drops one of the two features that are collinear
-        self.redundantLabels = [l for l in redundantLabelsAll if l not in baseLabels]
+        self.redundantLabels = [l for l in redundantLabelsAll if l not in baseLabels + [self.yLabel]]
 
 
         #filter df

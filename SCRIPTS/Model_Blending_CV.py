@@ -2,7 +2,7 @@
 from Model import *
 from HelpersFormatter import *
 from SCRIPTS.UNUSED.BlendingReport import *
-from Dashboard_EUCB_FR_v2 import *
+from Dashboard_EUCB_Frames import *
 
 #LIBRARY IMPORTS
 from sklearn.model_selection import KFold

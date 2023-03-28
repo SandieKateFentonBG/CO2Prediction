@@ -4,7 +4,8 @@
 """""
 
 #DASHBOARD IMPORT
-from Dashboard_EUCB_FR_v2 import *
+# from Dashboard_EUCB_FR_v2 import *
+from Dashboard_EUCB_Frames import *
 
 #SCRIPT IMPORTS
 from Main_BL_Steps import *

@@ -3,7 +3,8 @@
 # from dashBoard import *
 # from Dashboard_PM_v2 import *
 # from Dashboard_EUCB_FR import *
-from Dashboard_EUCB_FR_v2 import *
+# from Dashboard_EUCB_FR_v2 import *
+from Dashboard_EUCB_Frames import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -218,8 +219,11 @@ def Run_FS_Study():
     # baseFormatedDf = D_format(learningDf)
 
     rdat, df, learningDf, baseFormatedDf = Run_Data_Processing()
+    print(baseFormatedDf.yLabel)
 
     spearmanFilter, pearsonFilter = E_FS_Filter(baseFormatedDf)
+    # spearmanFilter, pearsonFilter = None, None
+
     RFEs = F_FS_RFE(baseFormatedDf)
 
     reportProcessing(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf,

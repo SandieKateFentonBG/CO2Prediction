@@ -23,19 +23,21 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
             writer.writerow(["test", type(baseFormatedDf.testDf), baseFormatedDf.testDf.shape])
             writer.writerow([''])
             writer.writerow(['FILTER'])
-            for filter in FiltersLs :
-                writer.writerow(['FILTER ', filter.method])
-                writer.writerow(['LABELS ', filter.trainDf.shape, type(filter.trainDf)])
-                writer.writerow([filter.selectedLabels])
-                writer.writerow('')
-            writer.writerow(['RFE'])
-            for RFE in RFEs:
-                writer.writerow(["RFE with  ", RFE.method])
-                writer.writerow(["Number of features fixed ", RFE.n_features_to_select])
-                writer.writerow(["Score on training ", RFE.rfe_valScore])
-                writer.writerow(['Selected feature labels ', list(RFE.selectedLabels)])
-                writer.writerow(["Score on validation ", RFE.rfe_checkScore])
-                writer.writerow('')
+            if FiltersLs:
+                for filter in FiltersLs :
+                    writer.writerow(['FILTER ', filter.method])
+                    writer.writerow(['LABELS ', filter.trainDf.shape, type(filter.trainDf)])
+                    writer.writerow([filter.selectedLabels])
+                    writer.writerow('')
+                writer.writerow(['RFE'])
+            if RFEs :
+                for RFE in RFEs:
+                    writer.writerow(["RFE with  ", RFE.method])
+                    writer.writerow(["Number of features fixed ", RFE.n_features_to_select])
+                    writer.writerow(["Score on training ", RFE.rfe_valScore])
+                    writer.writerow(['Selected feature labels ', list(RFE.selectedLabels)])
+                    writer.writerow(["Score on validation ", RFE.rfe_checkScore])
+                    writer.writerow('')
 
         e.close()
 

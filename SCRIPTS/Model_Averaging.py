@@ -6,8 +6,10 @@ from Main_GS_FS_Steps import *
 
 def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
 
+    "#todo : fix this : either provide studies = list of GS OR provide ResultsDf"
+
     if studies:
-        AvgDict = computeCV_Scores_Avg_All(studies)
+        AvgDict = computeCV_Scores_Avg_All(studies) # creates ResultsDf
     else:
         AvgDict = ResultsDf
 
@@ -54,14 +56,13 @@ def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combine
 
     if not studies:
         All_CV = import_Main_GS_FS(ref_combined,
-                               GS_FS_List_Labels=['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_LIN', 'KRR_RBF',
-                                                  'KRR_POL', 'SVR_LIN', 'SVR_RBF'])
+                               GS_FS_List_Labels=studyParams['Regressors'])
     else:
         All_CV = studies
 
     # CREATE AVG MODEL
     ResultsDf = computeCV_Scores_Avg_All(All_CV)
-    GS_FSs = avgModel(All_CV, DBpath, displayParams, ResultsDf = ResultsDf)
+    GS_FSs = avgModel(DBpath, displayParams, studies=All_CV, ResultsDf = ResultsDf) #
 
     # REPORT
     reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore=BLE_VALUES['NBestScore'])
