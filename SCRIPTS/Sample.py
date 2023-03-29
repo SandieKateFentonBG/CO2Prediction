@@ -121,7 +121,7 @@ class Sample:
         yPred = blender.Estimator.predict(blendXDf)
         return yPred
 
-    def SHAP_WaterfallPlot(self, model, explainer, DBpath, content = "WaterfallPlot", Blender = False):
+    def SHAP_WaterfallPlot(self, model, explainer, DBpath, content = "WaterfallPlot", Grouped = False, Blender = False):
 
         # todo : def doesn't work vor Kernel Explainer
 
@@ -132,20 +132,33 @@ class Sample:
             XDf = formatDf(self.XDf, model)
             features = formatDf(self.XDfunsc, model).round(3) # to indicate unscaled values on axis -  no attributre found - doesn't work
 
+        sv = explainer.shap_values(XDf)
+        bv = explainer.expected_value
+        exp = shap.Explanation(sv, bv, XDf) #, feature_names=None
+        idx = 0  # datapoint to explain
 
-        sample = self.input.to_string(index=False)
-        name = self.name + '_' + content + '_' + model.GSName
+        myExplainer = exp[idx]
 
-        try :
-            shap_values = explainer(XDf)  # explainer.shap_values(XDf)
-            shap_wf = shap.waterfall_plot(shap_values=shap_values[0], show=displayParams['showPlot'], max_display=24)
+        extra = '_Ungrouped'
 
-        except Exception:
-            sv = explainer.shap_values(XDf)
-            bv = explainer.expected_value
-            exp = shap.Explanation(sv, bv, XDf) #, feature_names=None
-            idx = 0  # datapoint to explain
-            shap_wf = shap.waterfall_plot(exp[idx], show=displayParams['showPlot'], max_display=24)
+        if Grouped : #only do this for no selector - for understanding of full group values
+
+            if model.learningDf.selector == 'NoSelector':
+
+                SHAPGroupKeys, SHAPGroupvalues = self.group_data(model, exp[idx].values)
+                myExplainer.__setattr__('feature_names', SHAPGroupKeys)
+                myExplainer.__setattr__('values', SHAPGroupvalues)
+                myExplainer.__setattr__('features', formatDf(self.input, model))
+                myExplainer.__setattr__('data', formatDf(self.input, model).T.squeeze())
+                extra = '_Grouped'
+
+            else:
+                return
+
+        # sample = self.input.to_string(index=False)
+        name = self.name + '_' + content + extra + '_' + model.GSName
+
+        shap_wf = shap.waterfall_plot(myExplainer, show=displayParams['showPlot'], max_display=24)
 
         # EDIT PLOT
         plt.gcf().set_size_inches(20, 10)
@@ -168,7 +181,84 @@ class Sample:
 
         plt.close()
 
-    def SHAP_ForcePlot(self, model, explainer, DBpath, content = "ForcePlot", sampleOnly = True, Blender = False ):
+    def group_data(self, model, shap_values):
+
+        # compute new SHAP values
+
+        #transform data
+        SHAPGroupKeys = list(model.SHAPGroup_RemapDict.keys())
+        lengthList = list(model.SHAPGroup_RemapDict.values())
+
+        # split shap values into a list for each feature
+        values_split = np.split(shap_values, np.cumsum(lengthList[:-1]))
+
+        # sum values within each list
+        SHAPGroupvalues = [sum(l) for l in values_split]
+        #format values to array
+        SHAPGroupvalues = np.array(SHAPGroupvalues)
+
+        return SHAPGroupKeys, SHAPGroupvalues
+
+
+    # def SHAP_WaterfallPlot_Grouped(self, model, explainer, DBpath, content = "WaterfallPlot_Grouped", Blender = False):
+    #
+    #     # todo : def doesn't work for Kernel Explainer
+    #
+    #     if Blender:
+    #         XDf = formatDf_toBlender(self.XDf, model)
+    #
+    #     else:
+    #         XDf = formatDf(self.XDf, model)
+    #         features = formatDf(self.XDfunsc, model).round(3) # to indicate unscaled values on axis -  no attributre found - doesn't work
+    #
+    #
+    #     sample = self.input.to_string(index=False)
+    #     name = self.name + '_' + content + '_' + model.GSName
+    #
+    #     try :
+    #         shap_values = explainer(XDf)  # explainer.shap_values(XDf)
+    #         SHAPGroupKeys, SHAPGroupvalues = self.group_data(model, shap_values[0])
+    #         shap_wf = shap.waterfall_plot(shap_values=SHAPGroupvalues, feature_names=SHAPGroupKeys,
+    #                                       show=displayParams['showPlot'], max_display=24)
+    #
+    #     except Exception:
+    #
+    #         sv = explainer.shap_values(XDf)
+    #         bv = explainer.expected_value
+    #         exp = shap.Explanation(sv, bv, XDf) #, feature_names=None
+    #         idx = 0  # datapoint to explain
+    #         myExplainer = exp[idx]
+    #
+    #         SHAPGroupKeys, SHAPGroupvalues = self.group_data(model, exp[idx].values)
+    #         myExplainer.__setattr__('feature_names', SHAPGroupKeys)
+    #         myExplainer.__setattr__('values', SHAPGroupvalues)
+    #
+    #         shap_wf = shap.waterfall_plot(myExplainer,
+    #                                       show=displayParams['showPlot'], max_display=24) #feature_names=SHAPGroupKeys,
+    #
+    #     # EDIT PLOT
+    #     plt.gcf().set_size_inches(20, 10)
+    #     plt.tight_layout()
+    #     plt.suptitle(name, ha='center', size='small', va='top')
+    #     # plt.suptitle(sample, ha='center', size='small', va = 'top')
+    #
+    #     # SAVE
+    #     reference = displayParams['reference']
+    #     if displayParams['archive']:
+    #         path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name
+    #         import os
+    #         outputFigPath = path + folder + subFolder
+    #         if not os.path.isdir(outputFigPath):
+    #             os.makedirs(outputFigPath)
+    #         plt.savefig(outputFigPath + '/' + name + '.png')
+    #         print("file saved :", outputFigPath + '/' + name + '.png')
+    #         if displayParams['showPlot']:
+    #             plt.show()
+    #
+    #     plt.close()
+
+
+    def SHAP_ForcePlot(self, model, explainer, DBpath, content = "ForcePlot", sampleOnly = True, Grouped = False, Blender = False ):
 
         name = self.name + '_' + content + '_' + model.GSName
 
@@ -181,30 +271,60 @@ class Sample:
                 XDf = formatDf(self.XDf, model)
                 features = formatDf(self.XDfunsc, model).round(3)
             name += 'Sample'
+
         else:
             features = model.learningDf.XTest
             name += 'Testing'
             # todo : UPDATE THIS - not working currently since matplotlib attribute doesn't work for multiple samples ..
 
-        try:
-            if sampleOnly:
-                shap_values = explainer(XDf)[0].values # plot force for data sample only
+        # try:
+        #     if sampleOnly:
+        #         shap_values = explainer(XDf)[0].values # plot force for data sample only
+        #         feature_names = explainer(XDf)[0].feature_names
+        #         print("1")
+        #         print("shap_values", len(shap_values), shap_values)
+        #         print("features", len(features), features)
+        #
+        #         if Grouped:
+        #
+        #
+        #
+        #             print("2")
+        #             feature_names, shap_values = self.group_data(model, shap_values)
+        #             print("shap_values", len(shap_values), shap_values)
+        #             features = self.input
+        #             print("features", len(features), features)
+        #             name += '_Grouped'
+        #
+        #     else:
+        #         shap_values = model.SHAPvalues #explainer(model.learningDf.XTest) # plot force for all testing data / exclude sample
+        #
+        #
+        #     expected_value = model.SHAPexplainer.expected_value
+        #
+        #
+        #     shap_wf = shap.force_plot(base_value = expected_value, shap_values = shap_values, features = features, feature_names = feature_names, matplotlib= True,
+        #                                show = displayParams['showPlot'], text_rotation=45, plot_cmap = ["#ca0020", "#92c5de"]) #, show = True
+        #
+        # except Exception:
+        sv = explainer.shap_values(XDf)
+        bv = explainer.expected_value
+        exp = shap.Explanation(sv, bv, XDf)  # , feature_names=None
+        idx = 0  # datapoint to explain
 
-            else:
-                shap_values = model.SHAPvalues #explainer(model.learningDf.XTest) # plot force for all testing data / exclude sample
+        if Grouped: #only do this for no selector - for understanding full group values
 
-            expected_value = model.SHAPexplainer.expected_value
-            shap_wf = shap.force_plot(base_value = expected_value, shap_values = shap_values, features = features, matplotlib= True,
-                                       show = displayParams['showPlot'], text_rotation=45, plot_cmap = ["#ca0020", "#92c5de"]) #, show = True
+            if model.learningDf.selector == 'NoSelector':
 
-        except Exception:
-            sv = explainer.shap_values(XDf)
-            bv = explainer.expected_value
-            exp = shap.Explanation(sv, bv, XDf)  # , feature_names=None
-            idx = 0  # datapoint to explain
+                feature_names, sv = self.group_data(model, exp[idx].values)
+                features = formatDf(self.input, model)
+                name += '_Grouped'
 
-            shap_wf = shap.force_plot(base_value = bv, shap_values = sv, features = features, matplotlib= True,
-                                       show = displayParams['showPlot'], text_rotation=45, plot_cmap = ["#ca0020", "#92c5de"]) #, show = True
+            else :
+                pass
+
+        shap_wf = shap.force_plot(base_value = bv, shap_values = sv, features = features, matplotlib= True,
+                                   show = displayParams['showPlot'], text_rotation=45, plot_cmap = ["#ca0020", "#92c5de"]) #, show = True
 
         plt.gcf().set_size_inches(20, 6)
         plt.tight_layout()
@@ -267,7 +387,7 @@ class Sample:
 
 
         except Exception:
-
+            "didn't' work"
             pass
 
 

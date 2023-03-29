@@ -33,6 +33,11 @@ def Run_Model_Predictions_Explainer(MyPred_Sample, ArchPath, Model_List=None, Bl
             sample.SHAP_ScatterPlot(model, explainer, DB_Values['DBpath'])
             sample.SHAP_ForcePlot(model, explainer, DB_Values['DBpath'])
 
+            sample.SHAP_WaterfallPlot(model, explainer, DB_Values['DBpath'], Grouped = True)
+            sample.SHAP_ScatterPlot(model, explainer, DB_Values['DBpath'])
+            sample.SHAP_ForcePlot(model, explainer, DB_Values['DBpath'], Grouped = True)
+
+
     if Blender_List :
 
         for model in Blender_List:
@@ -61,8 +66,6 @@ def Run_Model_Predictions_Explainer(MyPred_Sample, ArchPath, Model_List=None, Bl
     PredDf = pd.DataFrame(columns=['avg', 'pred'], index=names)
     PredDf.loc[:, 'avg'] = avgs
     PredDf.loc[:, 'pred'] = preds
-
-    print(PredDf)
 
     AllDfs = [sample.input.T, PredDf]
 
