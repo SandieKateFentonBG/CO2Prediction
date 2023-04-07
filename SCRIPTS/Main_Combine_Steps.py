@@ -16,7 +16,7 @@ def RUN_Training_Report(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, r
                     DBpath=DB_Values['DBpath'])
 
     # #MODEL PROCESSING
-    # reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
+    reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
 
     "Assessment of all Models - ranked table for all seeds and samples - features SHAP values Grouped and Ungrouped - List + Plots"
     RUN_SHAP_Combined_All(displayParams, DB_Values["DBpath"], CV_AllModels, GSName, xQuantLabels, xQualLabels, randomValues=None)
@@ -39,6 +39,7 @@ def RUN_Combine_Report(CV_AllModels, CV_NBest, CV_BlenderNBest, randomvalues, di
     #BLENDER PROCESSING
     "Assessment of Blender models made from NBest models - sheet per seed - Score metrics, weights and increases - list"
     report_BL_NBest_CV(CV_BlenderNBest, displayParams,  DB_Values['DBpath'], randomvalues)
+
     "Assessment of Model residuals - Nbest, Blender_NBest,  - List, Gaussian Plot, Hist plot, "
     RUN_CombinedResiduals(CV_AllModels, CV_NBest, CV_BlenderNBest, displayParams, FORMAT_Values, DBpath = DB_Values['DBpath'], n= BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
 

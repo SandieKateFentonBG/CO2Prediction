@@ -6,7 +6,7 @@
 
 #DASHBOARD IMPORT
 # from Dashboard_EUCB_FR_v2 import *
-from Dashboard_EUCB_Frames import *
+from Dashboard_EUCB_Structures import *
 
 #SCRIPT IMPORTS
 from Main_GS_FS_Steps import *
@@ -27,30 +27,31 @@ for set in studyParams['sets']:
     for value in randomvalues:
 
         PROCESS_VALUES['random_state'] = value
-        print('Import Study for random_state:', value)
-
-        # ">>IMPORT"
 
         ref_prefix = DB_Values['acronym'] + '_' + studyParams['sets'][0][1]
         ref_suffix_single, ref_suffix_combined = '_rd'+ str(PROCESS_VALUES['random_state']) + '/', '_Combined/'
         ref_single, ref_combined = ref_prefix + ref_suffix_single, ref_prefix + ref_suffix_combined
         displayParams["ref_prefix"], displayParams["reference"] = ref_prefix, ref_single
 
+        # ">>IMPORT"
+
+        print('Import Study for random_state:', value)
+
         # FEATURE PROCESSING
-        rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(ref_single, show = False)
+        # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(ref_single, show = False)
 
         # MODEL PROCESSING
-        GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
+        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
         # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['KRR_LIN'])
 
-        # # ">>RUN"
-        # #
-        # # # FEATURE PROCESSING
-        # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
+        # ">>RUN"
         #
-        # # #
-        # # # MODEL PROCESSING
-        # GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
+        # # FEATURE PROCESSING
+        rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
+
+        # #
+        # # MODEL PROCESSING
+        GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
 
 
         # "STORE"
@@ -62,3 +63,4 @@ for set in studyParams['sets']:
     # "AVG & NBEST"
 
     RUN_Training_Report(All_CV, Filters_Spearman_CV, Filters_Pearson_CV, randomvalues, displayParams, GSName="All")
+

@@ -2,7 +2,8 @@
 # from dashBoard import *
 # from Dashboard_PM_v2 import *
 # from Dashboard_EUCB_FR import *
-from Dashboard_EUCB_FR_v2 import *
+# from Dashboard_EUCB_FR_v2 import *
+from Dashboard_EUCB_Structures import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
@@ -198,7 +199,10 @@ def Plot_GS_FS_Hyperparam(import_reference, Plot=False):
 def Run_NBest(GS_FSs, OverallBest = False):
 
     if OverallBest:
-        NBestModels = OBestModel(GS_FSs, NBestScore=BLE_VALUES['NBestScore'], NCount=BLE_VALUES['NCount'], BestModelNames = BLE_VALUES['BestModelNames'])
+        BestModelNames = pickleLoadMe(path=DB_Values['DBpath'] + 'RESULTS/' + displayParams['ref_prefix'] + '_Combined/' +
+                              'RECORDS/GS_FS/BestModelNames.pkl')
+
+        NBestModels = OBestModel(GS_FSs, NBestScore=BLE_VALUES['NBestScore'], NCount=BLE_VALUES['NCount'], BestModelNames = BestModelNames)
     else:
         NBestModels = NBestModel(GS_FSs, NBestScore =  BLE_VALUES['NBestScore'], NCount = BLE_VALUES['NCount'])
     pickleDumpMe(DB_Values['DBpath'], displayParams, NBestModels, 'NBEST', NBestModels.GSName)
@@ -211,6 +215,7 @@ def Run_NBest_Study(import_FS_ref, importNBest = False, OverallBest = False):
     # # IMPORT Main_GS_FS
     print('IMPORTING GS_FS')
     GS_FSs = import_Main_GS_FS(import_FS_ref)
+
     baseFormatedDf = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_FS_ref +'RECORDS/DATA/baseFormatedDf.pkl', show = False) #check this
 
     # NBEST

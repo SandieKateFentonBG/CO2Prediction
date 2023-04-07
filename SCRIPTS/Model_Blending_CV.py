@@ -2,7 +2,7 @@
 from Model import *
 from HelpersFormatter import *
 from SCRIPTS.UNUSED.BlendingReport import *
-from Dashboard_EUCB_Frames import *
+from Dashboard_EUCB_Structures import *
 
 #LIBRARY IMPORTS
 from sklearn.model_selection import KFold
@@ -157,6 +157,8 @@ class Model_Blender:
             self.ScaleMeans.append(ScaleMean) #todo : added 'ScaleMean, ScaleStd'
             self.ScaleStds.append(ScaleStd) #todo : added 'ScaleMean, ScaleStd'
 
+        "Best Blender Model is selected as model with lowest variance residual "
+
         idx = get_minvalue(self.ResidVariances)
 
         self.Estimator = self.Estimators[idx]
@@ -264,6 +266,37 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
         for blendModel in BL_NBest_All:
             BlendingDf = construct_Blending_Df(blendModel)
             AllDfs.append(BlendingDf)
+
+        sheetNames += ['Avg']
+
+
+        index = [model.GSName for model in BL_NBest_All[0].modelList] #+ ['NBest_Avg'] + [BLE_VALUES['Regressor'] + "_Blender_NBest"]
+        columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance', 'ModelWeights']
+        Avgdf = pd.DataFrame(columns=columns, index=index, dtype=float)
+        for id in index:
+            for col in columns:
+                lists = [elem.loc[id, col] for elem in AllDfs]
+                Avgdf.loc[id, col] = np.mean(lists)
+        NBest_Avg = Avgdf.mean(axis=0)
+        NBest_Std = Avgdf.std(axis=0)
+        Avgdf.loc['NBest_Avg', :] = NBest_Avg
+        Avgdf.loc['NBest_Std', :] = NBest_Std
+        id_blender = BLE_VALUES['Regressor'] + "_Blender_NBest"
+
+        for col in columns:
+            lists_bl = [elem.loc[id_blender, col] for elem in AllDfs]
+            Avgdf.loc[id_blender + '_Avg', col] = np.mean(lists_bl)
+            Avgdf.loc[id_blender + '_Std', col] = np.std(lists_bl)
+
+        index = ['', 'BlenderAvg-BestModelAvg', 'BlenderAvg-NBestAvg']
+        columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance', 'ModelWeights']
+        ExtraDf = pd.DataFrame(columns=columns, index=index, dtype=float)
+        ExtraDf.loc['BlenderAvg-BestModelAvg', :] = (Avgdf.loc[id_blender + "_Avg", :] - Avgdf.iloc[0, :])
+        ExtraDf.loc['BlenderAvg-NBestAvg', :] = (Avgdf.loc[id_blender + "_Avg", :] - Avgdf.loc['NBest_Avg', :])
+
+        Combined_Df = pd.concat([Avgdf, ExtraDf])
+
+        AllDfs.append(Combined_Df)
 
         with pd.ExcelWriter(
                 outputPathStudy + reference[:-6] + '_' + BLE_VALUES['Regressor'] + "_BL_Scores_NBest" + ".xlsx", mode='w') as writer:

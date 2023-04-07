@@ -62,6 +62,7 @@ def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combine
 
     # CREATE AVG MODEL
     ResultsDf = computeCV_Scores_Avg_All(All_CV)
+
     GS_FSs = avgModel(DBpath, displayParams, studies=All_CV, ResultsDf = ResultsDf) #
 
     # REPORT
@@ -73,9 +74,12 @@ def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combine
     Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, combined=True, plot_all=True)
 
     # FIND NBEST
-    BestModelNames = find_Overall_Best_Models(ResultsDf, n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
+    BestModelNames = find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
 
-    return GS_FSs
+    # return GS_FSs
+
+
+
 
 
 

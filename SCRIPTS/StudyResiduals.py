@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
+from HelpersArchiver import *
+
 
 def mergeList(list):
     #merge multiplelists in single list
@@ -111,12 +113,15 @@ def computeCV_Scores_Avg_All(studies):
     return ResultsDf
 
 
-def find_Overall_Best_Models(ResultsDf, n=10, NBestScore='TestR2'):
+def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=10, NBestScore='TestR2'):
 
     sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=False)
     BestModelNames = list(sortedDf.index[0:n])
     print("The ", str(n), 'Models with Best ', NBestScore, "are:")
     print(BestModelNames)
+
+    pickleDumpMe(DBpath, displayParams, BestModelNames, 'GS_FS', 'BestModelNames', combined=True)
+
 
     return BestModelNames
 

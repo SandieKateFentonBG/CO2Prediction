@@ -3,8 +3,8 @@
 # from dashBoard import *
 # from Dashboard_PM_v2 import *
 # from Dashboard_EUCB_FR import *
-from Dashboard_EUCB_FR_v2 import *
-from Dashboard_EUCB_Frames import *
+# from Dashboard_EUCB_FR_v2 import *
+from Dashboard_EUCB_Structures import *
 
 #SCRIPT IMPORTS
 from HelpersArchiver import *
