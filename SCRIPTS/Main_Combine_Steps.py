@@ -15,8 +15,7 @@ def RUN_Training_Report(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, r
     reportCV_Filter(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues, displayParams,
                     DBpath=DB_Values['DBpath'])
 
-    # #MODEL PROCESSING
-    reportCV_ScoresAvg_All(CV_AllModels, displayParams, DB_Values['DBpath'])
+    #here
 
     "Assessment of all Models - ranked table for all seeds and samples - features SHAP values Grouped and Ungrouped - List + Plots"
     RUN_SHAP_Combined_All(displayParams, DB_Values["DBpath"], CV_AllModels, GSName, xQuantLabels, xQualLabels, randomValues=None)
@@ -25,7 +24,6 @@ def RUN_Training_Report(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, r
     "Computation of average values for models over CV runs, creation of AvgModelObject, identification of overall best models" \
     "Assessment of all models Avg and Std : 'TestAcc-Mean','TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std','Resid-Mean','Resid-Std' - List"
     RUN_Avg_Model(DB_Values['DBpath'], displayParams, BLE_VALUES, studies=CV_AllModels, ref_combined=None)
-
 
 
 def RUN_Combine_Report(CV_AllModels, CV_NBest, CV_BlenderNBest, randomvalues, displayParams):

@@ -22,10 +22,6 @@ def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
     #create empty Gridsearch
     new = studies[0]
 
-    print("new - should be a list of 9 GS", new)
-    print("studies[0]", studies[0])
-    print("check", studies[0] == new)
-
     for predictor in new : #9
         for learningDflabel in predictor.learningDfsList:  # 6
             GS = predictor.__getattribute__(learningDflabel)
@@ -44,9 +40,6 @@ def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
 
         pickleDumpMe(DBpath, displayParams, predictor, 'GS_FS', predictor.predictorName, combined=True)
 
-    print("new", new)
-    print("studies[0]", studies[0])
-    print("check", studies[0] == new)
 
     return new
 

@@ -130,12 +130,12 @@ def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=10, NBestScore=
 
 
 
-def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore='TestR2'):
+def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore='TestR2'): #ResultsDf
 
     """    create a dictionary compiling model accuracies for all 10 studies,
     as well as average accuracy, residual Mean and Residual Variance"""
 
-    # ResultsDf = computeCV_Scores_Avg_All(studies)
+
     sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=False)
 
     AllDfs = [ResultsDf, sortedDf]

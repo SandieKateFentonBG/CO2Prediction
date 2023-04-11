@@ -9,7 +9,7 @@ ________________________________________________________________________________
 
 displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None} #'CSTB_study_EC'
 
-studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(42, 50)),
+studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 50)),
                "Regressors": ['KRR_RBF', 'KRR_POL','SVR_RBF']}
 
 """
@@ -104,8 +104,8 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
-              'BestModelNames' : None} #'TestAcc'SVR_RBF
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
+              'BestModelNames' : None} #'TestAcc'LR_RIDGE
 
 
 # ['SVR_RBF_RFE_GBR', 'SVR_RBF_RFE_RFR', 'SVR_RBF_NoSelector', 'KRR_POL_RFE_GBR',

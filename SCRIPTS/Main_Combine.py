@@ -39,7 +39,7 @@ for set in studyParams['sets']:
         displayParams["ref_prefix"], displayParams["reference"] = ref_prefix, ref_single
 
         # MODEL PROCESSING
-        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
+        GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
         # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['KRR_LIN'])
         #
         # NBEST PROCESSING
@@ -59,16 +59,16 @@ for set in studyParams['sets']:
 
         # ">>STORE"
 
-        # All_CV.append(GS_FSs)
-        # NBest_CV.append(NBestModels)
+        All_CV.append(GS_FSs)
+        NBest_CV.append(NBestModels)
         Blenders_NBest_CV.append(Blender_NBest)
 
     # COMBINE
 
-    # RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, randomvalues, displayParams)
+    RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, randomvalues, displayParams)
 
-    "Assessment of Blender models made from NBest models - sheet per seed - Score metrics, weights and increases - list"
-    report_BL_NBest_CV(Blenders_NBest_CV, displayParams,  DB_Values['DBpath'], randomvalues)
+    # "Assessment of Blender models made from NBest models - sheet per seed - Score metrics, weights and increases - list"
+    # report_BL_NBest_CV(Blenders_NBest_CV, displayParams,  DB_Values['DBpath'], randomvalues)
 
     # META STORE
 
