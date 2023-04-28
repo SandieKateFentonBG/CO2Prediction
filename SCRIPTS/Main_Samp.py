@@ -42,8 +42,8 @@ Blender_LR = import_Blender_NBest(ref_single, label='SVR_RBF' + '_Blender_NBest'
 # B_M = Blender_NBest.modelList
 B_M = Blender_SVR.modelList
 
-Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR], precomputed = False)
-Run_Feature_Predictions_2D(MyPred_Sample, feature1='Structure', feature2='Main_Material', Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR])
+# Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR], precomputed = False)
+Run_Feature_Predictions_2D(MyPred_Sample, feature1='Structure', feature2='Life_Cycle_Scopes', Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR])
 
 
 # pickleDumpMe(DB_Values['DBpath'], displayParams, predDf, 'PREDICTIONS', MyPred_Sample["DBname"])
