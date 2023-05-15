@@ -14,7 +14,7 @@ acronym = 'EngStructures'
 
 displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None} #'CSTB_study_EC'
 
-studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(31, 40)),
+studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(30, 40)),
                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}
 
 
@@ -37,8 +37,8 @@ ________________________________________________________________________________
 EUCB-FR
 """
 MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
-             "DBname" : "Test-Concrete",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym} #Test-Wood
+             "DBname" : "Test-Wood",
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym} #Test-Concrete
 
 
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
@@ -68,7 +68,7 @@ ________________________________________________________________________________
 """
 #parameters chosen for database processing
 
-PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 7, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
+PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 32, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
 
@@ -129,8 +129,8 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
-              'BestModelNames' : None} #'TestAcc'LR_RIDGE
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
+              'BestModelNames' : None} #'TestAcc'SVR_RBF
 
 
 

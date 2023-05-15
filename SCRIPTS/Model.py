@@ -47,11 +47,6 @@ class ModelGridsearch:
 
         njobs = os.cpu_count() - 1 #todo : njobs was changed
 
-        # todo : if I want to scale my y's
-        # wrapped_model = TransformedTargetRegressor(regressor=self.modelPredictor, transformer=MinMaxScaler())
-        # grid = GridSearchCV(wrapped_model, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
-        #                     n_jobs=njobs, return_train_score=True) #cv=cv
-
         grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
                             n_jobs=njobs, return_train_score=True) #cv=cv
         grid.fit(df.XTrain.to_numpy(), df.yTrain.to_numpy().ravel())

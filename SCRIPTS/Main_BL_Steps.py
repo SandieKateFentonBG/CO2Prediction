@@ -1,6 +1,8 @@
 #DASHBOARD IMPORT
 # from Dashboard_EUCB_FR_v2 import *
-from Dashboard_EUCB_Structures import *
+# from Dashboard_EUCB_Structures import *
+from Dashboard_Current import *
+
 
 #LIBRARY IMPORTS
 from sklearn.linear_model import LinearRegression

@@ -166,14 +166,34 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
     xLabel = 'Predictor'
     pts, xLabels = GS_Construct3DPoints(GS_FSs, score)
     xl, yl, zl = unpackResPts(pts)
-
-
-    zl = [np.round(elem, 2) for elem in zl]
+    if score == 'TestMSE':
+        zl = [np.sqrt(elem) for elem in zl]
+        zl = [np.round(elem, 0) for elem in zl]
+        score = 'TestRMSE'
+    else:
+        zl = [np.round(elem, 2) for elem in zl]
 
     results = np.reshape(zl, (len(xLabels), len(yLabels)))
     fig = plt.figure()
     fig, ax = plt.subplots()
-    im = ax.imshow(results)
+
+    # Remove extreme values
+    cutOffThreshhold = 3
+    q3, q1 = np.percentile(zl, [75, 25])
+    iqr = q3 - q1  # Interquartile range
+    vmin = q1 - cutOffThreshhold * iqr
+    vmax = q3 + cutOffThreshhold * iqr
+
+
+    # plot
+    im = ax.imshow(results, vmin=vmin, vmax=vmax)
+
+    # Create colorbar
+
+    cbar_kw = {}
+    cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
+    cbar.ax.set_ylabel(score, rotation=-90, va="bottom")
+
 
 
     # Show all ticks and label them with the respective list entries
@@ -183,10 +203,15 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
     ax.set_yticklabels(xLabels)
 
 
+    # Let the horizontal axes labeling appear on top.
+    ax.tick_params(top=True, bottom=False,
+                   labeltop=True, labelbottom=False)
+
+
     df = pd.DataFrame(results, index=xLabels, columns=yLabels)
 
     # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+    plt.setp(ax.get_xticklabels(), rotation=-30, ha="right",
              rotation_mode="anchor")
 
     # Loop over data dimensions and create text annotations.
@@ -195,7 +220,19 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
             text = ax.text(j, i, results[i, j],
                            ha="center", va="center", color="w")
 
-    ax.set_title(title)
+
+    # Turn spines off and create white grid.
+    print(ax.spines)
+    for k in ['right', 'left', 'top', 'bottom']:
+        ax.spines[k].set_visible(False)
+
+    ax.set_xticks(np.arange(len(yLabels)+1)-.5, minor=True)
+    ax.set_yticks(np.arange(len(xLabels)+1)-.5, minor=True)
+    ax.grid(which="minor", color="w", linestyle='-', linewidth=3)
+    ax.tick_params(which="minor", bottom=False, left=False)
+
+
+    # ax.set_title(title)
     fig.tight_layout()
 
     if displayParams['archive']:
