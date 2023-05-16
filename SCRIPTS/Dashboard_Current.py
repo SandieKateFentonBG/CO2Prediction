@@ -129,7 +129,7 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
               'BestModelNames' : None} #'TestAcc'SVR_RBF
 
 

@@ -47,7 +47,7 @@ for set in studyParams['sets']:
         NBestModels = import_NBest(ref_single, OverallBest = BLE_VALUES['OverallBest'])
 
         # # BLENDER PROCESSING
-        # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
+        Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
 
         # ">>RUN"
 
@@ -55,8 +55,8 @@ for set in studyParams['sets']:
         # NBestModels = Run_NBest_Study(ref_single, importNBest=False, OverallBest = BLE_VALUES['OverallBest'])
         #
         # # BLENDER PROCESSING
-        Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single,
-                                           ConstructorKey=BLE_VALUES['Regressor'])
+        # Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single,
+        #                                    ConstructorKey=BLE_VALUES['Regressor'])
 
         # ">>STORE"
 
@@ -66,13 +66,32 @@ for set in studyParams['sets']:
 
     # COMBINE
 
-    RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, randomvalues, displayParams)
+    # RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, randomvalues, displayParams)
 
-    # "Assessment of Blender models made from NBest models - sheet per seed - Score metrics, weights and increases - list"
-    # report_BL_NBest_CV(Blenders_NBest_CV, displayParams,  DB_Values['DBpath'], randomvalues)
+    DBpath = DB_Values['DBpath']
+
+    studies_GS_FS, studies_NBest, studies_Blender = All_CV, NBest_CV, Blenders_NBest_CV
+
+    BLName = studies_Blender[0].GSName
+
+    # plotCVResidualsGaussian_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath,
+    #                                  studyFolder='GaussianPlot_NBest', NBest=True)
+    # plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+    #                                  studyFolder='GaussianPlot_Combined_' + BLName, Blender=True)
+    # plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+    #                                  studyFolder='GaussianPlot_groupedModels')
+    plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                  studyFolder='GaussianPlot_indivModels')
+    plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                  studyFolder='GaussianPlot_indiv_' + BLName, studies_Blender=studies_Blender)
+
+
+
+
+
 
     # META STORE
 
-    Studies_CV_BlenderNBest.append(Blenders_NBest_CV)
+    # Studies_CV_BlenderNBest.append(Blenders_NBest_CV)
 
 # AccuracyCheck(Studies_CV_BlenderNBest, sets, DB_Values['acronym'], displayParams, DB_Values['DBpath'], tolerance=0.15)

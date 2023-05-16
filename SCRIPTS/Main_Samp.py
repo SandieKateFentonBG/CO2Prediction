@@ -50,24 +50,25 @@ from Main_BL_Steps import *
 # # predDf = pickleLoadMe(path=path, show=False)
 
 
-# yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = studyParams['sets'][0]
-#
-# ref_prefix = DB_Values['acronym'] + '_' + studyParams['sets'][0][1]
-# ref_suffix_single = '_rd'
-# ref_suffix_combined = '_Combined/'
-# ref_combined = ref_prefix + ref_suffix_combined
-# displayParams["ref_prefix"] = ref_prefix
-# ref_single = ref_prefix + ref_suffix_single + str(PROCESS_VALUES['random_state']) + '/'
-# displayParams["reference"] = ref_single
-#
-# print(displayParams["reference"])
-#
-# GS_FSs = import_Main_GS_FS(ref_combined, GS_FS_List_Labels = studyParams['Regressors'])
-#
-# scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
-# scoreListMax = [True, False, True, True, True]
-#
-# for scoreLabel in scoreList:
-#     heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score=scoreLabel, studyFolder='GS_FS/',
-#             combined=True)
+yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = studyParams['sets'][0]
+
+ref_prefix = DB_Values['acronym'] + '_' + studyParams['sets'][0][1]
+ref_suffix_single = '_rd'
+ref_suffix_combined = '_Combined/'
+ref_combined = ref_prefix + ref_suffix_combined
+displayParams["ref_prefix"] = ref_prefix
+ref_single = ref_prefix + ref_suffix_single + str(PROCESS_VALUES['random_state']) + '/'
+displayParams["reference"] = ref_single
+
+print(displayParams["reference"])
+
+GS_FSs = import_Main_GS_FS(ref_combined, GS_FS_List_Labels = studyParams['Regressors'])
+
+scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
+scoreListMax = [True, False, True, True, True]
+
+for scoreLabel in scoreList:
+    heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score=scoreLabel, studyFolder='GS_FS/',
+            combined=True)
+
 

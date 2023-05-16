@@ -233,7 +233,7 @@ def analyzeCVResiduals(studies):
 
 
 def plotCVResidualsGaussian_indiv(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot', binwidth=25,
-                                  setxLim=[-300, 300], fontsize=14, studies_Blender = None):
+                                  setxLim=[-300, 300], fontsize=12, studies_Blender = None):
 
     from scipy.stats import norm
     import seaborn as sns
@@ -242,7 +242,7 @@ def plotCVResidualsGaussian_indiv(studies, displayParams, FORMAT_Values, DBpath,
     if studies_Blender : #only takes nBestmodels
         residualsDict = AssembleCVResiduals_NBest(studies, studies_Blender)
         extra = 'NBest'
-
+        a = ''
     else : #takes all models
         residualsDict = AssembleCVResiduals(studies)
         extra = ''
@@ -253,6 +253,9 @@ def plotCVResidualsGaussian_indiv(studies, displayParams, FORMAT_Values, DBpath,
 
     listResVal = mergeList(list(residualsDict.values()))
     resmin, resmax = min(listResVal), max(listResVal)
+
+    #TODO : toggle this if you want to have identical boundary values on x axis for all graphs
+
     if resmax > setxLim[1]:
         import math
         setxLim[1] = math.ceil(resmax / 100) * 100
@@ -264,18 +267,23 @@ def plotCVResidualsGaussian_indiv(studies, displayParams, FORMAT_Values, DBpath,
         print("residuals out of binrange  :", resmin)
         print("bin min changed to :", setxLim[0])
 
+    #TODO :
+
     for k, v in residualsDict.items():
         if len(v) > 0:
             title = 'Residuals distribution for ' + k + '' + extra
-            x = "Residuals [%s]" % FORMAT_Values['targetLabels']
+            x = "Residuals %s" % FORMAT_Values['targetLabels']
             fig, ax = plt.subplots()
 
             # plot the histplot and the kde
             ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
+            for u in ['right', 'top']:
+                ax.spines[u].set_visible(False)
+
             plt.setp(ax.patches, linewidth=0)
-            plt.title(title, fontsize=fontsize)
+            # plt.title(title, fontsize=fontsize)
             plt.xlabel(x, fontsize=fontsize)
-            plt.ylabel("Count", fontsize=fontsize)
+            plt.ylabel("Tested samples" + "(" + k + ")", fontsize=fontsize)
             arr = np.array(v)
 
             plt.figure(1)
@@ -356,7 +364,7 @@ def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBp
 
 def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot',
                                      binwidth=25,
-                                     setxLim=[-300, 300], fontsize=14, NBest = False, Blender = False, CV = False):
+                                     setxLim=[-300, 300], fontsize=12, NBest = False, Blender = False, CV = False):
     from scipy.stats import norm
     import seaborn as sns
 
@@ -364,15 +372,18 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
     if NBest : #only takes nBestmodels
         residualsDict = AssembleNBestResiduals(studies)
         title = 'Residuals distribution for 10 best models over 10 runs'
+        a = '10 selected models'
         extra = '_'
     elif Blender:  # only takes Blender results
         residualsDict = AssembleBlenderResiduals(studies)
         title = 'Residuals distribution for Blender Models over 10 runs ' + studies[0].GSName
         extra = '_' + studies[0].GSName
+        a = studies[0].GSName
     else : #takes all models
         residualsDict = AssembleCVResiduals(studies)
         title = 'Residuals distribution for all models over 10 runs'
         extra = '_'
+        a = 'All Models'
 
     listResVal = mergeList(list(residualsDict.values()))
     arr = np.array(listResVal)
@@ -383,6 +394,9 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
     sigma = np.sqrt(variance)
 
     resmin, resmax = min(listResVal), max(listResVal)
+
+    #TODO : toggle this if you want to have identical boundary values on x axis for all graphs
+
     if resmax > setxLim[1]:
         import math
         setxLim[1] = math.ceil(resmax / 100) * 100
@@ -394,17 +408,22 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
         print("residuals out of binrange  :", resmin)
         print("bin min changed to :", setxLim[0])
 
+    #TODO :
+
     # for k, v in residualsDict.items():
     # title = 'Residuals distribution for '
-    x = "Residuals [%s]" % FORMAT_Values['targetLabels']
+    x = "Residuals %s" % FORMAT_Values['targetLabels']
     fig, ax = plt.subplots()
 
     # plot the histplot and the kde
-    ax = sns.histplot(listResVal, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
+    ax = sns.histplot(listResVal, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve") #
+    for k in ['right', 'top']:
+        ax.spines[k].set_visible(False)
+
     plt.setp(ax.patches, linewidth=0)
-    plt.title(title, fontsize=fontsize)
+    # plt.title(title, fontsize=fontsize)
     plt.xlabel(x, fontsize=fontsize)
-    plt.ylabel("Count", fontsize=fontsize)
+    plt.ylabel("Tested samples (" + a + ")", fontsize=fontsize)
 
     plt.figure(1)
     if setxLim:
