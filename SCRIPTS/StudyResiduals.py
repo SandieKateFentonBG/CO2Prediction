@@ -127,9 +127,6 @@ def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=10, NBestScore=
 
 
 
-
-
-
 def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore='TestR2'): #ResultsDf
 
     """    create a dictionary compiling model accuracies for all 10 studies,
@@ -180,6 +177,48 @@ def AssembleBlenderResiduals(studies_Blender):
 
     return residualsDict
 
+def AssembleBlenderElements(studies_Blender, element):
+    residualsDict = dict()
+    residualsDict[element] = []
+    for blender in studies_Blender:
+        residualsDict[element].append(list(blender.__getattribute__(element)))
+
+    for k, v in residualsDict.items():
+        residualsDict[k] = mergeList(v)
+
+    return residualsDict
+
+def AssembleNBestElements(studies_Blender, element): #todo : naming was changed
+    residualsDict = dict()
+    residualsDict[element] = []
+    for blender in studies_Blender:
+        for model in blender.modelList:
+            residualsDict[element].append(list(model.__getattribute__(element)))
+
+    for k, v in residualsDict.items():
+        residualsDict[k] = mergeList(v)
+
+    return residualsDict
+
+def AssembleCVElements(studies, element):
+    modelDict, elemDict = dict(), dict()
+    elemDict[element] = []
+    for predictor in studies[0]:
+        for learningDflabel in predictor.learningDfsList:
+            model = predictor.__getattribute__(learningDflabel)
+            modelDict[model.GSName] = []
+
+    for study in studies:
+        for predictor in study:
+            for learningDflabel in predictor.learningDfsList:
+                model = predictor.__getattribute__(learningDflabel)
+                modelDict[model.GSName].append(list(model.__getattribute__(element)))
+
+    for k, v in modelDict.items():
+        modelDict[k] = mergeList(v)
+
+    return modelDict
+
 def plotCVResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot'):
 
     residualsDict = AssembleCVResiduals(studies)
@@ -209,119 +248,6 @@ def plotCVResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, stud
             plt.show()
 
         plt.close()
-
-def analyzeCVResiduals(studies):
-
-    # assemble residuals
-    residualsDict = AssembleCVResiduals(studies)
-    models, means, variances = [], [], []
-
-    for k, v in residualsDict.items():
-        arr = np.array(v)
-        mean = np.mean(arr)  #
-        variance = np.var(arr)
-        models.append(k)
-        means.append(round(np.abs(mean), 2))
-        variances.append(round(variance, 2))
-
-    return models, means, variances
-
-
-
-
-
-
-
-def plotCVResidualsGaussian_indiv(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot', binwidth=25,
-                                  setxLim=[-300, 300], fontsize=12, studies_Blender = None):
-
-    from scipy.stats import norm
-    import seaborn as sns
-
-
-    if studies_Blender : #only takes nBestmodels
-        residualsDict = AssembleCVResiduals_NBest(studies, studies_Blender)
-        extra = 'NBest'
-        a = ''
-    else : #takes all models
-        residualsDict = AssembleCVResiduals(studies)
-        extra = ''
-
-    # assemble residuals
-    # residualsDict = AssembleCVResiduals(studies)
-    models, means, variances = [], [], []
-
-    listResVal = mergeList(list(residualsDict.values()))
-    resmin, resmax = min(listResVal), max(listResVal)
-
-    #TODO : toggle this if you want to have identical boundary values on x axis for all graphs
-
-    if resmax > setxLim[1]:
-        import math
-        setxLim[1] = math.ceil(resmax / 100) * 100
-        print("residuals out of binrange  :", resmax)
-        print("bin max changed to :", setxLim[1])
-    if resmin < setxLim[0]:
-        import math
-        setxLim[0] = math.floor(resmin / 100) * 100
-        print("residuals out of binrange  :", resmin)
-        print("bin min changed to :", setxLim[0])
-
-    #TODO :
-
-    for k, v in residualsDict.items():
-        if len(v) > 0:
-            title = 'Residuals distribution for ' + k + '' + extra
-            x = "Residuals %s" % FORMAT_Values['targetLabels']
-            fig, ax = plt.subplots()
-
-            # plot the histplot and the kde
-            ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
-            for u in ['right', 'top']:
-                ax.spines[u].set_visible(False)
-
-            plt.setp(ax.patches, linewidth=0)
-            # plt.title(title, fontsize=fontsize)
-            plt.xlabel(x, fontsize=fontsize)
-            plt.ylabel("Tested samples" + "(" + k + ")", fontsize=fontsize)
-            arr = np.array(v)
-
-            plt.figure(1)
-            if setxLim:
-                xLim = (setxLim[0], setxLim[1])
-            else:
-                xLim = (min(arr), max(arr))
-            plt.xlim(xLim)
-            mean = np.mean(arr)  #
-            variance = np.var(arr)
-            models.append(k)
-            means.append(round(np.abs(mean), 2))
-            variances.append(round(variance, 2))
-            sigma = np.sqrt(variance)
-            x = np.linspace(min(arr), max(arr), 100)
-            t = np.linspace(-300, 300, 100)
-            dx = binwidth
-            scale = len(arr) * dx
-
-            # plot the gaussian
-            plt.plot(t, norm.pdf(t, mean, sigma) * scale, color='red', linestyle='dashed', label="Gaussian curve")
-            plt.legend()
-
-            reference = displayParams['reference']
-            if displayParams['archive']:
-                path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
-                import os
-                outputFigPath = path + folder + subFolder
-                if not os.path.isdir(outputFigPath):
-                    os.makedirs(outputFigPath)
-
-                plt.savefig(outputFigPath + '/' + k + '-' + studyFolder + extra + '.png')
-
-            if displayParams['showPlot']:
-                plt.show()
-            plt.close()
-
-    # return models, means, variances
 
 def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder ='Histplot', blended = False):
 
@@ -359,12 +285,118 @@ def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBp
 
     plt.close()
 
+def analyzeCVResiduals(studies):
+
+    # assemble residuals
+    residualsDict = AssembleCVResiduals(studies)
+    models, means, variances = [], [], []
+
+    for k, v in residualsDict.items():
+        arr = np.array(v)
+        mean = np.mean(arr)  #
+        variance = np.var(arr)
+        models.append(k)
+        means.append(round(np.abs(mean), 2))
+        variances.append(round(variance, 2))
+
+    return models, means, variances
 
 
+def ResidualPlot_Distri_Indiv(studies, displayParams, FORMAT_Values, DBpath, adaptXLim = True, binwidth=25,
+                              setxLim=[-300, 300], fontsize=12, studies_Blender = None):
 
-def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpath, studyFolder='GaussianPlot',
-                                     binwidth=25,
-                                     setxLim=[-300, 300], fontsize=12, NBest = False, Blender = False, CV = False):
+    from scipy.stats import norm
+    import seaborn as sns
+
+
+    if studies_Blender : #only takes nBestmodels
+        residualsDict = AssembleCVResiduals_NBest(studies, studies_Blender)
+        extra = 'NBest'
+
+    else : #takes all models
+        residualsDict = AssembleCVResiduals(studies)
+        extra = ''
+
+
+    # assemble residuals
+    # residualsDict = AssembleCVResiduals(studies)
+    models, means, variances = [], [], []
+
+    listResVal = mergeList(list(residualsDict.values()))
+    resmin, resmax = min(listResVal), max(listResVal)
+
+    if adaptXLim :
+
+        if resmax > setxLim[1]:
+            import math
+            setxLim[1] = math.ceil(resmax / 100) * 100
+            print("residuals out of binrange  :", resmax)
+            print("bin max changed to :", setxLim[1])
+        if resmin < setxLim[0]:
+            import math
+            setxLim[0] = math.floor(resmin / 100) * 100
+            print("residuals out of binrange  :", resmin)
+            print("bin min changed to :", setxLim[0])
+
+
+    for k, v in residualsDict.items():
+        if len(v) > 0:
+            title = 'Residuals distribution for ' + k + '' + extra
+            x = "Residuals %s" % FORMAT_Values['targetLabels']
+            fig, ax = plt.subplots()
+
+            # plot the histplot and the kde
+            ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
+            for u in ['right', 'top']:
+                ax.spines[u].set_visible(False)
+
+            plt.setp(ax.patches, linewidth=0)
+            # plt.title(title, fontsize=fontsize)
+            plt.xlabel(x, fontsize=fontsize)
+            plt.ylabel("Distribution" + "(" + k + ")", fontsize=fontsize)
+            arr = np.array(v)
+
+            plt.figure(1)
+            if setxLim:
+                xLim = (setxLim[0], setxLim[1])
+            else:
+                xLim = (min(arr), max(arr))
+            plt.xlim(xLim)
+            mean = np.mean(arr)  #
+            variance = np.var(arr)
+            models.append(k)
+            means.append(round(np.abs(mean), 2))
+            variances.append(round(variance, 2))
+            sigma = np.sqrt(variance)
+            x = np.linspace(min(arr), max(arr), 100)
+            t = np.linspace(-300, 300, 100)
+            dx = binwidth
+            scale = len(arr) * dx
+
+            # plot the gaussian
+            plt.plot(t, norm.pdf(t, mean, sigma) * scale, color='red', linestyle='dashed', label="Gaussian curve")
+            plt.legend()
+            ref_prefix = displayParams["ref_prefix"]
+            reference = displayParams['reference']
+            if displayParams['archive']:
+                path, folder, subFolder = DBpath, "RESULTS/",  ref_prefix + '_Combined/' + 'VISU/Residuals/Indiv'
+                import os
+                outputFigPath = path + folder + subFolder
+                if not os.path.isdir(outputFigPath):
+                    os.makedirs(outputFigPath)
+
+                plt.savefig(outputFigPath + '/' + 'Distri_Indiv' + '-' + k + extra + '.png')
+
+            if displayParams['showPlot']:
+                plt.show()
+            plt.close()
+
+    # return models, means, variances
+
+
+def ResidualPlot_Distri_Combined(studies, displayParams, FORMAT_Values, DBpath,
+                                 binwidth=25, adaptXLim = True,
+                                 setxLim=[-300, 300], fontsize=12, NBest = False, Blender = False):
     from scipy.stats import norm
     import seaborn as sns
 
@@ -373,7 +405,7 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
         residualsDict = AssembleNBestResiduals(studies)
         title = 'Residuals distribution for 10 best models over 10 runs'
         a = '10 selected models'
-        extra = '_'
+        extra = 'NBest'
     elif Blender:  # only takes Blender results
         residualsDict = AssembleBlenderResiduals(studies)
         title = 'Residuals distribution for Blender Models over 10 runs ' + studies[0].GSName
@@ -382,36 +414,29 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
     else : #takes all models
         residualsDict = AssembleCVResiduals(studies)
         title = 'Residuals distribution for all models over 10 runs'
-        extra = '_'
+        extra = 'All'
         a = 'All Models'
 
     listResVal = mergeList(list(residualsDict.values()))
     arr = np.array(listResVal)
-
     mean = np.mean(arr)
-
     variance = np.var(arr)
     sigma = np.sqrt(variance)
 
-    resmin, resmax = min(listResVal), max(listResVal)
 
-    #TODO : toggle this if you want to have identical boundary values on x axis for all graphs
+    if adaptXLim :
+        resmin, resmax = min(listResVal), max(listResVal)
+        if resmax > setxLim[1]:
+            import math
+            setxLim[1] = math.ceil(resmax / 100) * 100
+            print("residuals out of binrange  :", resmax)
+            print("bin max changed to :", setxLim[1])
+        if resmin < setxLim[0]:
+            import math
+            setxLim[0] = math.floor(resmin / 100) * 100
+            print("residuals out of binrange  :", resmin)
+            print("bin min changed to :", setxLim[0])
 
-    if resmax > setxLim[1]:
-        import math
-        setxLim[1] = math.ceil(resmax / 100) * 100
-        print("residuals out of binrange  :", resmax)
-        print("bin max changed to :", setxLim[1])
-    if resmin < setxLim[0]:
-        import math
-        setxLim[0] = math.floor(resmin / 100) * 100
-        print("residuals out of binrange  :", resmin)
-        print("bin min changed to :", setxLim[0])
-
-    #TODO :
-
-    # for k, v in residualsDict.items():
-    # title = 'Residuals distribution for '
     x = "Residuals %s" % FORMAT_Values['targetLabels']
     fig, ax = plt.subplots()
 
@@ -423,7 +448,7 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
     plt.setp(ax.patches, linewidth=0)
     # plt.title(title, fontsize=fontsize)
     plt.xlabel(x, fontsize=fontsize)
-    plt.ylabel("Tested samples (" + a + ")", fontsize=fontsize)
+    plt.ylabel("Distribution (" + a + ")", fontsize=fontsize)
 
     plt.figure(1)
     if setxLim:
@@ -442,15 +467,15 @@ def plotCVResidualsGaussian_Combined(studies, displayParams, FORMAT_Values, DBpa
     plt.legend()
 
     ref_prefix = displayParams["ref_prefix"]
-
     reference = displayParams['reference']
+
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/Residuals/' + studyFolder
+        path, folder, subFolder = DBpath, "RESULTS/",  ref_prefix + '_Combined/' + 'VISU/Residuals/Combined'
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-        plt.savefig(outputFigPath + '/' + 'Combined' + '-' + studyFolder + extra + '.png')
+        plt.savefig(outputFigPath + '/' + 'Distri_Combined' + '-' + extra + '.png')
 
     if displayParams['showPlot']:
         plt.show()
@@ -480,32 +505,265 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, displayParams, FORMAT_Values, DBpath, n, NBestScore):
+def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, displayParams, FORMAT_Values, DBpath, randomvalues):
 
     models, means, variances = analyzeCVResiduals(studies_GS_FS)
     reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
 
-    BLName = studies_Blender[0].GSName
-
-    plotCVResidualsGaussian_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_NBest', NBest=True)
-    plotCVResidualsGaussian_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_Combined_' + BLName, Blender=True)
-    plotCVResidualsGaussian_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_groupedModels')
-    plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                  studyFolder='GaussianPlot_indivModels')
-    plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                  studyFolder='GaussianPlot_indiv_'+ BLName, studies_Blender = studies_Blender)
+    # if displayParams['plot_all']:
+    #     plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+    #                              studyFolder='Histplot_indivModels')
+    #     plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+    #                                       studyFolder='Histplot_groupedModels')
+    #     plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+    #                                       studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
 
 
-    if displayParams['plot_all']:
-        plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                 studyFolder='Histplot_indivModels')
-        plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-                                          studyFolder='Histplot_groupedModels')
-        plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-                                          studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
+    ResidualPlot_Scatter_Distri_Combined(studies_NBest, displayParams, DBpath, NBest=True, setyLim=[-300, 300], setxLim=[400, 900])
+    ResidualPlot_Scatter_Distri_Combined(studies_Blender, displayParams,  DBpath, Blender=True, setyLim=[-300, 300], setxLim=[400, 900])
+    ResidualPlot_Scatter_Distri_Combined(studies_GS_FS, displayParams, DBpath, setyLim=[-300, 300], setxLim=[400, 900])
+
+    ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, setyLim=[400, 900], setxLim=[-300, 300])
+    ResidualPlot_Scatter_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=[400, 900], setxLim=[-300, 300])
+    ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=[400, 900], setxLim=[-300, 300])
+
+    # ResidualPlot_Scatter_Distri_Indiv(studies_Blender, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=True)
+    # # ResidualPlot_Scatter_Distri_Indiv(studies_GS_FS, randomvalues, displayParams, DB_Values['DBpath'], yLim=None, xLim=None, fontsize=None,Blender=False)
+
+    ResidualPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, adaptXLim = False, setxLim=[-300, 300])
+    ResidualPlot_Distri_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath, Blender=True, adaptXLim = False,  setxLim=[-300, 300])
+    ResidualPlot_Distri_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim = False,  setxLim=[-300, 300])
+
+    ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=[-300, 300], fontsize=12, studies_Blender=studies_Blender)
+    ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=[-300, 300], fontsize=12)
 
 
 
+
+
+def ResidualPlot_Scatter_Distri_Indiv(studies, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None, Blender=False):
+
+    """Draws yellowbrick residuals (scatter plot and distribution) for individual pre-trained models"""
+
+    if displayParams['showPlot'] or displayParams['archive']:
+        import matplotlib.pyplot as plt
+        from yellowbrick.regressor import ResidualsPlot
+
+        fig = plt.figure(figsize=(10, 5))  #
+        if fontsize:
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
+            plt.xlabel('Predicted Value ', fontsize=14)
+            plt.ylabel('Residuals', fontsize=14)
+        ax = plt.gca()
+        if yLim:
+            plt.ylim(yLim[0], yLim[1])
+        if xLim:
+            plt.xlim(xLim[0], xLim[1])
+
+        for model, v in zip(studies, randomvalues):
+            if Blender:
+
+                title, name = 'Residuals for ' + model.GSName, model.GSName
+                visualizer = ResidualsPlot(model.Estimator, title=title, fig=fig, hist=True)
+                visualizer.score(model.blendXtrain, model.yTrain, train=True)
+                visualizer.score(model.blendXtest, model.yTest, train=False)
+
+            else:
+                for predictor in model:
+                    for learningDflabel in predictor.learningDfsList:
+                        elem = predictor.__getattribute__(learningDflabel)
+                        title, name = 'Residuals for ' + elem.GSName,  elem.GSName
+                        visualizer = ResidualsPlot(elem.Estimator, title=title, fig=fig, hist=True)
+                        visualizer.score(elem.learningDf.XTrain, elem.learningDf.yTrain, train=True)
+                        visualizer.score(elem.learningDf.XTest, elem.learningDf.yTest, train=False)
+
+            if displayParams['archive']:
+                import os
+                path, folder, subFolder = DBpath, "RESULTS/", displayParams["ref_prefix"] +'_rd' + str(v) + '/' + 'VISU/Residuals/Indiv'
+                outputFigPath = path + folder + subFolder
+                print(outputFigPath)
+
+                if not os.path.isdir(outputFigPath):
+                    os.makedirs(outputFigPath)
+
+                visualizer.show(outpath=outputFigPath + '/' + 'Scatter_Distri_Indiv' + '-' + name + str(v) + '.png')
+
+            if displayParams['showPlot']:
+                visualizer.show()
+
+            plt.close()
+
+
+def ResidualPlot_Scatter_Distri_Combined(studies, displayParams, DBpath, setyLim=None, setxLim=None, fontsize=None, NBest=False, Blender=False):
+
+    """ Plot Residual distribution of merged models - Scatter plot and Distribution plot (yellow brick style)"""
+
+    if displayParams['showPlot'] or displayParams['archive']:
+        import matplotlib.pyplot as plt
+        from yellowbrick.draw import manual_legend
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+        if NBest:  # only takes nBestmodels
+            title = 'Residuals distribution for 10 best models over 10 runs'
+            y_pred = AssembleNBestElements(studies, 'yPred')
+            residuals = AssembleNBestElements(studies, 'Resid')
+            a = '10 selected models'
+            extra = 'NBest'
+
+        elif Blender:  # only takes Blender results
+            title = 'Residuals distribution for Blender Models over 10 runs ' + studies[0].GSName
+            y_pred = AssembleBlenderElements(studies, 'yPred')
+            residuals = AssembleBlenderElements(studies, 'Resid')
+            extra = studies[0].GSName
+            a = studies[0].GSName
+
+        else:  # takes all models
+            y_pred = AssembleCVElements(studies, 'yPred')
+            residuals = AssembleCVElements(studies, 'Resid')
+            title = 'Residuals distribution for all models over 10 runs'
+            extra = 'All'
+            a = 'All Models'
+
+        l1 = mergeList(list(y_pred.values()))
+        l2 = mergeList(list(residuals.values()))
+
+        label = "Test" # $R^2 = {:0.3f}$".format(self.train_score_)
+        color = "b"
+        line_color = "b"
+
+        fig = plt.figure(figsize=(10, 5))  #
+        if fontsize:
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
+            plt.xlabel('Predicted Value ', fontsize=14)
+            plt.ylabel('Residuals', fontsize=14)
+
+        if setyLim:
+            yLim = (setyLim[0], setyLim[1])
+            plt.ylim(yLim)
+        if setxLim:
+            xLim = (setxLim[0], setxLim[1])
+            plt.xlim(xLim)
+
+
+        ax = plt.gca()
+
+        ax.scatter(l1, l2, c=color, label=label)
+        divider = make_axes_locatable(ax)
+
+        hax = divider.append_axes("right", size=1, pad=0.1, sharey=ax)
+        hax.yaxis.tick_right()
+        hax.grid(False, axis="x")
+
+        hax.hist(l2, bins=50, orientation="horizontal", color=color)
+        plt.sca(ax)
+
+        # Add the title to the plot
+        ax.set_title(title)
+
+        # Set the legend with full opacity patches using manual legend
+        manual_legend(ax, labels = [label], colors = [color], loc="best", frameon=True)
+
+        # Create a full line across the figure at zero error.
+        ax.axhline(y=0) #, c=line_color
+
+        # Set the axes labels
+        ax.set_ylabel("Residuals")
+        ax.set_xlabel("Predicted Value")
+
+        # Finalize the histogram axes
+        hax.axhline(y=0) #, c=line_color
+        hax.set_xlabel("Distribution")
+
+
+
+        reference, ref_prefix = displayParams['reference'], displayParams['ref_prefix']
+
+        if displayParams['archive']:
+            import os
+
+            path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/Residuals/Combined'
+            outputFigPath = path + folder + subFolder
+
+            if not os.path.isdir(outputFigPath):
+                os.makedirs(outputFigPath)
+
+            plt.savefig(outputFigPath + '/' + 'Scatter_Distri_Combined' + '-' + extra + '.png')
+
+        if displayParams['showPlot']:
+            plt.show()
+
+        plt.close()
+
+
+def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
+                                  binwidth=25, setyLim=[400, 900],
+                                  setxLim=[-300, 300], fontsize=12, NBest=False, Blender=False, CV=False):
+
+    """ Plot Residual distribution of merged models - Scatter plot and Distribution plot (yellow brick style)"""
+
+    from scipy.stats import norm
+    import seaborn as sns
+
+    if NBest:  # only takes nBestmodels
+        title = 'Residuals distribution for 10 best models over 10 runs'
+        y_pred = AssembleNBestElements(studies, 'yPred')
+        residuals = AssembleNBestElements(studies, 'Resid')
+        a = '10 selected models'
+        extra = 'NBest'
+
+    elif Blender:  # only takes Blender results
+        title = 'Residuals distribution for Blender Models over 10 runs ' + studies[0].GSName
+        y_pred = AssembleBlenderElements(studies, 'yPred')
+        residuals = AssembleBlenderElements(studies, 'Resid')
+        extra = studies[0].GSName
+        a = studies[0].GSName
+
+    else:  # takes all models
+        y_pred = AssembleCVElements(studies, 'yPred')
+        residuals = AssembleCVElements(studies, 'Resid')
+        title = 'Residuals distribution for all models over 10 runs'
+        extra = 'All'
+        a = 'All Models'
+
+    y_pred = mergeList(list(y_pred.values()))
+    residuals = mergeList(list(residuals.values()))
+    y_pred_arr = np.array(y_pred)
+    residuals_arr = np.array(residuals)
+    x = "Residuals %s" % FORMAT_Values['targetLabels']
+
+    fig, ax = plt.subplots()
+    ax = sns.scatterplot(y = y_pred, x = residuals)
+
+
+    for k in ['right', 'top']:
+        ax.spines[k].set_visible(False)
+
+    plt.setp(ax.patches, linewidth=0)
+    plt.xlabel(x, fontsize=fontsize)
+    plt.ylabel("Predicted values (" + a + ")", fontsize=fontsize)
+
+    plt.figure(1)
+    if setxLim:
+        xLim = (setxLim[0], setxLim[1])
+        plt.xlim(xLim)
+
+    if setyLim:
+        yLim = (setyLim[0], setyLim[1])
+        plt.ylim(yLim)
+
+    ref_prefix = displayParams["ref_prefix"]
+
+    reference = displayParams['reference']
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/Residuals/Combined'
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/' + 'Scatter_Combined' + '-' + extra + '.png')
+
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()

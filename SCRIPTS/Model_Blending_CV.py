@@ -199,9 +199,9 @@ class Model_Blender:
         self.ModelWeights = weights
 
     def plot_Blender_CV_Residuals(self, displayParams, FORMAT_Values, DBpath):
-        from StudyResiduals import plotCVResidualsGaussian_Combined
-        plotCVResidualsGaussian_Combined([self], displayParams, FORMAT_Values, DBpath,
-                                         studyFolder='GaussianPlot_' + BLE_VALUES['Regressor'] +'_BLENDER', Blender=True, CV = True)
+        from StudyResiduals import ResidualPlot_Distri_Combined
+        ResidualPlot_Distri_Combined([self], displayParams, FORMAT_Values, DBpath,
+                                     studyFolder='GaussianPlot_' + BLE_VALUES['Regressor'] +'_BLENDER', Blender=True, CV = True)
 
     def plotBlenderYellowResiduals(self, displayParams, DBpath, yLim=None, xLim=None,fontsize=None,studyFolder='BLENDER/'):
 

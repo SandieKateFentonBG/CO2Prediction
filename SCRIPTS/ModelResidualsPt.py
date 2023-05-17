@@ -56,7 +56,6 @@ def plotModelYellowResiduals(modelGridsearch, displayParams, DBpath, yLim = None
 
 
 
-
 def plotModelHistResiduals(modelGridsearch, displayParams, DBpath, bins=None, binrange = None, studyFolder ='GS/'):
 
     #todo : adapt bin count / bin range
