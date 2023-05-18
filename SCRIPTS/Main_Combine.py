@@ -25,6 +25,8 @@ for set in studyParams['sets']:
 
     print("Study for :", set)
     All_CV, NBest_CV, Filters_Pearson_CV, Filters_Spearman_CV, Blenders_NBest_CV, Blenders_Single_CV = [],[],[],[],[],[]
+    # KRR_LINs, SVR_RBFs, SVR_LINs, KRR_RBFs, KRR_POLs, LRs, LR_RIDGEs, LR_ELASTs, LR_LASSOs = [], [], [], [], [], [], [], [], []
+    # LR_RIDGE_BLs, SVR_RBF_BLs, SVR_RBFs = [], [], []
     randomvalues = studyParams['randomvalues']
 
     for value in randomvalues:
@@ -40,14 +42,20 @@ for set in studyParams['sets']:
         displayParams["ref_prefix"], displayParams["reference"] = ref_prefix, ref_single
 
         # MODEL PROCESSING
-        GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
-        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['KRR_LIN'])
+        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
+
+        SVR_RBF = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['SVR_RBF'])
+
+
         #
         # # NBEST PROCESSING
         NBestModels = import_NBest(ref_single, OverallBest = BLE_VALUES['OverallBest'])
         #
         # # # BLENDER PROCESSING
-        Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
+        # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
+        # LR_RIDGE_BL = import_Blender_NBest(ref_single, label = 'LR_RIDGE' + '_Blender_NBest')
+        # SVR_RBF_BL = import_Blender_NBest(ref_single, label = 'SVR_RBF' + '_Blender_NBest')
+
         # ">>RUN"
 
         # # NBEST PROCESSING
@@ -58,44 +66,19 @@ for set in studyParams['sets']:
         #                                    ConstructorKey=BLE_VALUES['Regressor'])
 
         # ">>STORE"
-
-        All_CV.append(GS_FSs)
+        # All_CV.append(GS_FSs)
         NBest_CV.append(NBestModels)
-        Blenders_NBest_CV.append(Blender_NBest)
+        # Blenders_NBest_CV.append(Blender_NBest)
+
 
     # COMBINE
 
     # RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, randomvalues, displayParams)
 
-
     studies_GS_FS, studies_NBest, studies_Blender = All_CV, NBest_CV, Blenders_NBest_CV
-
-    RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, displayParams, FORMAT_Values, DB_Values['DBpath'],
-                          randomvalues)
-
-
-    # plotCVResidualsGaussian_indiv(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'],
-    #                               studyFolder='GaussianPlot_indiv_' + studies_Blender[0].GSName, studies_Blender=studies_Blender)
-
-    # ResidualPlot_Scatter_Distri_Combined(studies_NBest, displayParams, DB_Values['DBpath'], NBest=True, setyLim=[-300, 300], setxLim=[400, 900])
-    # ResidualPlot_Scatter_Distri_Combined(studies_Blender, displayParams,  DB_Values['DBpath'], Blender=True, setyLim=[-300, 300], setxLim=[400, 900])
-    # ResidualPlot_Scatter_Distri_Combined(studies_GS_FS, displayParams, DB_Values['DBpath'], setyLim=[-300, 300], setxLim=[400, 900])
-
-    # ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DB_Values['DBpath'], NBest=True, setyLim=[400, 900], setxLim=[-300, 300])
-    # ResidualPlot_Scatter_Combined(studies_Blender, displayParams, FORMAT_Values, DB_Values['DBpath'], Blender=True, setyLim=[400, 900], setxLim=[-300, 300])
-    # ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'], setyLim=[400, 900], setxLim=[-300, 300])
-
-    # ResidualPlot_Scatter_Distri_Indiv(studies_Blender, randomvalues, displayParams, DB_Values['DBpath'], yLim=None, xLim=None, fontsize=None,Blender=True)
-    ## ResidualPlot_Scatter_Distri_Indiv(studies_GS_FS, randomvalues, displayParams, DB_Values['DBpath'], yLim=None, xLim=None, fontsize=None,Blender=False)
-
-    # ResidualPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DB_Values['DBpath'], NBest=True, adaptXLim = False, setxLim=[-300, 300])
-    # ResidualPlot_Distri_Combined(studies_Blender, displayParams, FORMAT_Values, DB_Values['DBpath'], Blender=True, adaptXLim = False,  setxLim=[-300, 300])
-    # ResidualPlot_Distri_Combined(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'], adaptXLim = False,  setxLim=[-300, 300])
-
-    # ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'], adaptXLim=False, setxLim=[-300, 300], fontsize=12, studies_Blender=studies_Blender)
-    # ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'], adaptXLim=False, setxLim=[-300, 300], fontsize=12)
-
-
+    #
+    # RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, displayParams, FORMAT_Values, DB_Values['DBpath'],
+    #                       randomvalues)
 
     # META STORE
 

@@ -527,7 +527,7 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, display
     ResidualPlot_Scatter_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=[400, 900], setxLim=[-300, 300])
     ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=[400, 900], setxLim=[-300, 300])
 
-    # ResidualPlot_Scatter_Distri_Indiv(studies_Blender, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=True)
+    ResidualPlot_Scatter_Distri_Indiv(studies_Blender, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=True)
     # # ResidualPlot_Scatter_Distri_Indiv(studies_GS_FS, randomvalues, displayParams, DB_Values['DBpath'], yLim=None, xLim=None, fontsize=None,Blender=False)
 
     ResidualPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, adaptXLim = False, setxLim=[-300, 300])
@@ -536,10 +536,9 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, display
 
     ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=[-300, 300], fontsize=12, studies_Blender=studies_Blender)
     ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=[-300, 300], fontsize=12)
-
-
-
-
+    # ResidualPlot_Scatter_Tailored(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'],
+    #                                   setyLim=[400, 900], name='All' + str(value),
+    #                                   setxLim=[-300, 300])
 
 def ResidualPlot_Scatter_Distri_Indiv(studies, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None, Blender=False):
 
@@ -701,7 +700,7 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
                                   binwidth=25, setyLim=[400, 900],
                                   setxLim=[-300, 300], fontsize=12, NBest=False, Blender=False, CV=False):
 
-    """ Plot Residual distribution of merged models - Scatter plot and Distribution plot (yellow brick style)"""
+    """ Plot Residual distribution of merged models - Scatter plot """
 
     from scipy.stats import norm
     import seaborn as sns
@@ -734,7 +733,7 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
     x = "Residuals %s" % FORMAT_Values['targetLabels']
 
     fig, ax = plt.subplots()
-    ax = sns.scatterplot(y = y_pred, x = residuals)
+    ax = sns.scatterplot(y = y_pred, x = residuals, edgecolor = None)
 
 
     for k in ['right', 'top']:
@@ -763,6 +762,75 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
         plt.savefig(outputFigPath + '/' + 'Scatter_Combined' + '-' + extra + '.png')
+
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()
+
+
+def ResidualPlot_Scatter_Tailored(studies, displayParams, FORMAT_Values, DBpath,
+                                   setyLim=[400, 900], name = 'test',
+                                  setxLim=[-300, 300], fontsize=12, folder = 'Combined'):
+
+    """ Plot Residual distribution of merged models - Scatter plot - studies should be from GS_FS for tailored single random seed or sigle model"""
+    """
+    # ex 1 :  for single model over many seeds - to paste in Main Combine
+    # KRR_LINs, SVR_RBFs, SVR_POLs, KRR_RBFs, KRR_POLs, LRs, LR_RIDGEs = [], [], [], [], [], [], []
+    # SVR_RBF = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['SVR_RBF'])
+    # SVR_RBFs.append(SVR_RBF)
+    
+    # ex 2 : for all models over single seed - to paste in main combine
+    # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=studyParams['Regressors'])
+    # ResidualPlot_Scatter_Tailored([GS_FSs], displayParams, FORMAT_Values, DB_Values['DBpath'],
+    #                               setyLim=[400, 900], name='rd' + str(value),
+    #                               setxLim=[-300, 300])
+    """
+
+    from scipy.stats import norm
+    import seaborn as sns
+
+
+    y_pred = AssembleCVElements(studies, 'yPred')
+    residuals = AssembleCVElements(studies, 'Resid')
+    title = 'Residuals distribution for' + name
+
+
+    y_pred = mergeList(list(y_pred.values()))
+    residuals = mergeList(list(residuals.values()))
+    y_pred_arr = np.array(y_pred)
+    residuals_arr = np.array(residuals)
+    x = "Residuals %s" % FORMAT_Values['targetLabels']
+
+    fig, ax = plt.subplots()
+    ax = sns.scatterplot(y = y_pred, x = residuals, edgecolor = None)
+
+
+    for k in ['right', 'top']:
+        ax.spines[k].set_visible(False)
+
+    plt.setp(ax.patches, linewidth=0)
+    plt.xlabel(x, fontsize=fontsize)
+    plt.ylabel("Predicted values (" + name + ")", fontsize=fontsize)
+
+    plt.figure(1)
+    if setxLim:
+        xLim = (setxLim[0], setxLim[1])
+        plt.xlim(xLim)
+
+    if setyLim:
+        yLim = (setyLim[0], setyLim[1])
+        plt.ylim(yLim)
+
+    ref_prefix = displayParams["ref_prefix"]
+
+    reference = displayParams['reference']
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/Residuals/' + folder
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/' + 'Scatter_Combined' + '-' + name + '.png')
 
     if displayParams['showPlot']:
         plt.show()
