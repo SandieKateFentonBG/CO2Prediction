@@ -65,10 +65,24 @@ class formatedDf:
         self.XVal = pd.DataFrame(data=XVal, columns=columnsNamesArr)
         self.XTest = pd.DataFrame(data=XTest, columns=columnsNamesArr)
         self.XCheck = pd.DataFrame(data=XCheck, columns=columnsNamesArr)
-        self.yTrain = pd.DataFrame(data=yTrain, columns=yLabels)
-        self.yVal = pd.DataFrame(data=yVal, columns=yLabels)
-        self.yTest = pd.DataFrame(data=yTest, columns=yLabels)
-        self.yCheck = pd.DataFrame(data=yCheck, columns=yLabels)
+
+
+        #todo : ! thius  was chnaged so that all learning dfs have same content  >
+        # we want type 'pandas.core.series.Series rather than pandas.core.frame.DataFrame
+        # could cause issues
+
+
+        # self.yTrain = pd.DataFrame(data=yTrain, columns=yLabels)
+        # self.yVal = pd.DataFrame(data=yVal, columns=yLabels)
+        # self.yTest = pd.DataFrame(data=yTest, columns=yLabels)
+        # self.yCheck = pd.DataFrame(data=yCheck, columns=yLabels)
+        #
+
+        self.yTrain = self.trainDf[self.yLabel]
+        self.yVal = self.valDf[self.yLabel]
+        self.yTest = self.testDf[self.yLabel]
+        self.yCheck = self.checkDf[self.yLabel]
+
 
     def scaleXDf(self, xQuantLabels):
         #todo : this scaling depends upon the data distribution - if data is gaussian, standardization / standard scaler makes sense

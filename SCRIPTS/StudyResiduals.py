@@ -126,7 +126,6 @@ def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=10, NBestScore=
     return BestModelNames
 
 
-
 def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore='TestR2'): #ResultsDf
 
     """    create a dictionary compiling model accuracies for all 10 studies,
@@ -193,7 +192,16 @@ def AssembleNBestElements(studies_Blender, element): #todo : naming was changed
     residualsDict[element] = []
     for blender in studies_Blender:
         for model in blender.modelList:
-            residualsDict[element].append(list(model.__getattribute__(element)))
+            if hasattr(model, element):
+                residualsDict[element].append(list(model.__getattribute__(element)))
+            else:
+                # residualsDict[element].append(list(model.learningDf.__getattribute__(element)))
+                # todo : this should be removed when
+                # todo model.learningDf.yTest hasType pandas.core.series.Series rather than pandas.core.frame.DataFrame
+                if element == 'yTest':
+                    residualsDict[element].append(list(model.learningDf.testDf[model.learningDf.yLabel]))
+                else:
+                    residualsDict[element].append(list(model.learningDf.__getattribute__(element)))
 
     for k, v in residualsDict.items():
         residualsDict[k] = mergeList(v)
@@ -212,7 +220,15 @@ def AssembleCVElements(studies, element):
         for predictor in study:
             for learningDflabel in predictor.learningDfsList:
                 model = predictor.__getattribute__(learningDflabel)
-                modelDict[model.GSName].append(list(model.__getattribute__(element)))
+                if hasattr(model, element):
+                    modelDict[model.GSName].append(list(model.__getattribute__(element)))
+                else:
+                    # todo : this should be removed when
+                    # todo model.learningDf.yTest hasType pandas.core.series.Series rather than pandas.core.frame.DataFrame
+                    if element == 'yTest':
+                        modelDict[model.GSName].append(list(model.learningDf.testDf[model.learningDf.yLabel]))
+                    else:
+                        modelDict[model.GSName].append(list(model.learningDf.__getattribute__(element)))
 
     for k, v in modelDict.items():
         modelDict[k] = mergeList(v)
@@ -697,51 +713,56 @@ def ResidualPlot_Scatter_Distri_Combined(studies, displayParams, DBpath, setyLim
 
 
 def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
-                                  binwidth=25, setyLim=[400, 900],
-                                  setxLim=[-300, 300], fontsize=12, NBest=False, Blender=False, CV=False):
+                                  binwidth=25, setyLim=[400, 900], labels = None,
+                                  setxLim=[-300, 300], fontsize=12, NBest=False, Blender=False, folder = 'Combined',
+                                  y_axis = 'yPred', x_axis = 'Resid', yLabel = 'Predicted value', xLabel = 'Residuals'):
 
     """ Plot Residual distribution of merged models - Scatter plot """
 
     from scipy.stats import norm
     import seaborn as sns
 
+
+
     if NBest:  # only takes nBestmodels
         title = 'Residuals distribution for 10 best models over 10 runs'
-        y_pred = AssembleNBestElements(studies, 'yPred')
-        residuals = AssembleNBestElements(studies, 'Resid')
+        yAxis = AssembleNBestElements(studies, y_axis)
+        xAxis = AssembleNBestElements(studies, x_axis)
         a = '10 selected models'
         extra = 'NBest'
 
     elif Blender:  # only takes Blender results
         title = 'Residuals distribution for Blender Models over 10 runs ' + studies[0].GSName
-        y_pred = AssembleBlenderElements(studies, 'yPred')
-        residuals = AssembleBlenderElements(studies, 'Resid')
+        yAxis = AssembleBlenderElements(studies, y_axis)
+        xAxis = AssembleBlenderElements(studies, x_axis)
         extra = studies[0].GSName
         a = studies[0].GSName
 
     else:  # takes all models
-        y_pred = AssembleCVElements(studies, 'yPred')
-        residuals = AssembleCVElements(studies, 'Resid')
+        yAxis = AssembleCVElements(studies, y_axis)
+        xAxis = AssembleCVElements(studies, x_axis)
         title = 'Residuals distribution for all models over 10 runs'
         extra = 'All'
         a = 'All Models'
 
-    y_pred = mergeList(list(y_pred.values()))
-    residuals = mergeList(list(residuals.values()))
-    y_pred_arr = np.array(y_pred)
-    residuals_arr = np.array(residuals)
-    x = "Residuals %s" % FORMAT_Values['targetLabels']
+    yAxis = mergeList(list(yAxis.values()))
+    xAxis = mergeList(list(xAxis.values()))
+
+    yAxis_arr = np.array(yAxis)
+    xAxis_arr = np.array(xAxis)
+    x = xLabel + " %s" % FORMAT_Values['targetLabels']
 
     fig, ax = plt.subplots()
-    ax = sns.scatterplot(y = y_pred, x = residuals, edgecolor = None)
-
+    ax = sns.scatterplot(y = yAxis, x = xAxis, edgecolor = None, size = 10)
+    if labels:
+        plt.legend(labels=labels)
 
     for k in ['right', 'top']:
         ax.spines[k].set_visible(False)
 
     plt.setp(ax.patches, linewidth=0)
     plt.xlabel(x, fontsize=fontsize)
-    plt.ylabel("Predicted values (" + a + ")", fontsize=fontsize)
+    plt.ylabel(yLabel + "(" + a + ")", fontsize=fontsize)
 
     plt.figure(1)
     if setxLim:
@@ -756,12 +777,12 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
 
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/Residuals/Combined'
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/Residuals/' + folder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
-        plt.savefig(outputFigPath + '/' + 'Scatter_Combined' + '-' + extra + '.png')
+        plt.savefig(outputFigPath + '/' + 'Scatter_Combined' + '-' + x_axis + '-' + y_axis + '-' + extra + '.png')
 
     if displayParams['showPlot']:
         plt.show()
@@ -769,10 +790,11 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
 
 
 def ResidualPlot_Scatter_Tailored(studies, displayParams, FORMAT_Values, DBpath,
-                                   setyLim=[400, 900], name = 'test',
-                                  setxLim=[-300, 300], fontsize=12, folder = 'Combined'):
+                                   setyLim=[400, 900], name = 'test', labels = None,
+                                  setxLim=[-300, 300], fontsize=12, folder = 'Combined', y_axis = 'yPred', x_axis = 'Resid', yLabel = 'Predicted value', xLabel = 'Residuals'):
 
-    """ Plot Residual distribution of merged models - Scatter plot - studies should be from GS_FS for tailored single random seed or sigle model"""
+    """ Plot Residual distribution of merged base models (not blender or nbest) - and tailor naming / folder
+     - Scatter plot - studies should be from GS_FS for tailored single random seed or sigle model"""
     """
     # ex 1 :  for single model over many seeds - to paste in Main Combine
     # KRR_LINs, SVR_RBFs, SVR_POLs, KRR_RBFs, KRR_POLs, LRs, LR_RIDGEs = [], [], [], [], [], [], []
@@ -790,27 +812,28 @@ def ResidualPlot_Scatter_Tailored(studies, displayParams, FORMAT_Values, DBpath,
     import seaborn as sns
 
 
-    y_pred = AssembleCVElements(studies, 'yPred')
-    residuals = AssembleCVElements(studies, 'Resid')
+    yAxis = AssembleCVElements(studies, y_axis)
+    xAxis = AssembleCVElements(studies, x_axis)
     title = 'Residuals distribution for' + name
 
 
-    y_pred = mergeList(list(y_pred.values()))
-    residuals = mergeList(list(residuals.values()))
-    y_pred_arr = np.array(y_pred)
-    residuals_arr = np.array(residuals)
-    x = "Residuals %s" % FORMAT_Values['targetLabels']
+    yAxis = mergeList(list(yAxis.values()))
+    xAxis = mergeList(list(xAxis.values()))
+    yAxis_arr = np.array(yAxis)
+    xAxis_arr = np.array(xAxis)
+    x = xLabel + " %s" % FORMAT_Values['targetLabels']
 
     fig, ax = plt.subplots()
-    ax = sns.scatterplot(y = y_pred, x = residuals, edgecolor = None)
-
+    ax = sns.scatterplot(y = yAxis, x = xAxis, edgecolor = None, size = 10)
+    if labels :
+        plt.legend(labels=labels)
 
     for k in ['right', 'top']:
         ax.spines[k].set_visible(False)
 
     plt.setp(ax.patches, linewidth=0)
     plt.xlabel(x, fontsize=fontsize)
-    plt.ylabel("Predicted values (" + name + ")", fontsize=fontsize)
+    plt.ylabel(yLabel + " (" + name + ")", fontsize=fontsize)
 
     plt.figure(1)
     if setxLim:

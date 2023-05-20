@@ -12,7 +12,7 @@ ________________________________________________________________________________
 
 acronym = 'EngStructures'
 
-displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None} #'CSTB_study_EC'
+displayParams = {"reference" : None, 'showPlot': True, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None} #'CSTB_study_EC'
 
 studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(30, 40)),
                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}

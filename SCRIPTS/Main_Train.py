@@ -49,7 +49,7 @@ for set in studyParams['sets']:
         # # # ">>RUN"
         # # #
         # # # # FEATURE PROCESSING
-        # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
+        rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
         # #
         # # # #
         # # # # MODEL PROCESSING
