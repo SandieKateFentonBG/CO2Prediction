@@ -77,7 +77,7 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
     for constructor in GS_CONSTRUCTOR :
         GS_FS = ModelFeatureSelectionGridsearch(predictorName=constructor['name'], learningDfs=learning_dfs,
                                             modelPredictor=constructor['modelPredictor'], param_dict=constructor['param_dict'],
-                                                xQtQlLabels = (xQuantLabels, xQualLabels))
+                                                xQtQlLabels = (xQuantLabels, xQualLabels), acc = PROCESS_VALUES['accuracyTol'])
         GS_FSs.append(GS_FS)
         reportGS_TxtScores_All(DB_Values['DBpath'], displayParams, GS_FS, objFolder='GS_FS', display=True)
         pickleDumpMe(DB_Values['DBpath'], displayParams, GS_FS, 'GS_FS', constructor['name'])

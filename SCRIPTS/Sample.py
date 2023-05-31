@@ -15,7 +15,7 @@ import shap
 
 
 class Sample:
-    def __init__(self, dbRefName, MyPred_Sample): #, delimiter, firstLine, xQualLabels, xQuantLabels, model):#self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels, updateLabels=None
+    def __init__(self, dbRefName, MyPred_Sample, dbName=MyPred_Sample['DBname']): #, delimiter, firstLine, xQualLabels, xQuantLabels, model):#self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels, updateLabels=None
 
         """
 
@@ -30,7 +30,7 @@ class Sample:
 
         # RAW DATA
         from Raw import open_csv_at_given_line
-        header, reader = open_csv_at_given_line(path=MyPred_Sample['DBpath'], dbName=MyPred_Sample['DBname'],
+        header, reader = open_csv_at_given_line(path=MyPred_Sample['DBpath'], dbName=dbName,
                                                 delimiter=MyPred_Sample['DBdelimiter'],
                                                 firstLine=MyPred_Sample['DBfirstLine'])
 

@@ -68,13 +68,18 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
                 print("Score on validation :", RFE.rfe_checkScore)
                 print('')
 
-def dfAsTable (DBpath, displayParams, df, objFolder ='DATA', name = "DF"):
+def dfAsTable (DBpath, displayParams, df, objFolder ='DATA', name = "DF", combined = False):
 
     import pandas as pd
 
     if displayParams['archive']:
         import os
-        reference = displayParams['reference']
+        if combined :
+            reference = displayParams['ref_prefix'] + '_Combined/'
+        else:
+            reference = displayParams['reference']
+
+        # reference = displayParams['reference']
         outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/' + objFolder + '/'
 
         if not os.path.isdir(outputPathStudy):

@@ -76,7 +76,7 @@ def Blend_Learning_Data(modelList, type = 'XVal'):
 
 class Model_Blender:
 
-    def __init__(self, modelList, blendingConstructor, Gridsearch = True, Type ='NBest'):
+    def __init__(self, modelList, blendingConstructor, acc, Gridsearch = True, Type ='NBest'):
 
         self.modelList = modelList
         self.GSName = blendingConstructor['name'] + '_Blender_' + Type
@@ -86,7 +86,7 @@ class Model_Blender:
         self.param_dict = blendingConstructor['param_dict']
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
         self.refit = 'r2'  # Score used for refitting the blender
-        self.accuracyTol = 0.15
+        self.accuracyTol = acc
         self.rounding = 3
 
         #prepare data for outer loop - Cross-Validation
@@ -201,7 +201,7 @@ class Model_Blender:
     def plot_Blender_CV_Residuals(self, displayParams, FORMAT_Values, DBpath):
         from StudyResiduals import ResidualPlot_Distri_Combined
         ResidualPlot_Distri_Combined([self], displayParams, FORMAT_Values, DBpath,
-                                     studyFolder='GaussianPlot_' + BLE_VALUES['Regressor'] +'_BLENDER', Blender=True, CV = True)
+                                     studyFolder='GaussianPlot_' + self.GSName +'_BLENDER', Blender=True, CV = True)#BLE_VALUES['Regressor']
 
     def plotBlenderYellowResiduals(self, displayParams, DBpath, yLim=None, xLim=None,fontsize=None,studyFolder='BLENDER/'):
 
@@ -282,8 +282,9 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
         NBest_Std = Avgdf.std(axis=0)
         Avgdf.loc['NBest_Avg', :] = NBest_Avg
         Avgdf.loc['NBest_Std', :] = NBest_Std
-        id_blender = BLE_VALUES['Regressor'] + "_Blender_NBest"
 
+        # id_blender = BLE_VALUES['Regressor'] + "_Blender_NBest"
+        id_blender = BL_NBest_All[0].GSName
         for col in columns:
             lists_bl = [elem.loc[id_blender, col] for elem in AllDfs]
             Avgdf.loc[id_blender + '_Avg', col] = np.mean(lists_bl)
@@ -300,7 +301,7 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
         AllDfs.append(Combined_Df)
 
         with pd.ExcelWriter(
-                outputPathStudy + reference[:-6] + '_' + BLE_VALUES['Regressor'] + "_BL_Scores_NBest" + ".xlsx", mode='w') as writer:
+                outputPathStudy + reference[:-6] + '_' + BL_NBest_All[0].GSName + "_BL_Scores_NBest" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
@@ -379,10 +380,9 @@ def report_Blending_NBest(blendModel, displayParams, DBpath):
         AllDfs = [BlendingDf, sortedDf]
         sheetNames = ['Residuals_MeanVar', 'Sorted_Residuals_MeanVar']
 
-        with pd.ExcelWriter(outputPathStudy + reference[:-1] + '_' + BLE_VALUES['Regressor'] + "_BL_Scores_NBest" + '_' + str(
-                len(blendModel.modelList)) + '_' + blendModel.GSName + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + reference[:-1] + '_' + blendModel.GSName + "_Scores" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
-                df.to_excel(writer, sheet_name=name)
+                df.to_excel(writer, sheet_name=name) #todo :BLE_VALUES['Regressor']
 
 
 

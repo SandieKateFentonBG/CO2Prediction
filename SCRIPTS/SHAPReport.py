@@ -218,10 +218,12 @@ def RUN_SHAP_Combined_NBest(displayParams, DBpath, studies_NBest, studies_GS_FS,
     reportCV_SHAP(SHAPDf, SHAPGroupDf, displayParams, DBpath, NBest = True, n=n, NBestScore=NBestScore, GSName = None)
 
 def RUN_SHAP_Combined_All(displayParams, DBpath, studies_GS_FS, GSName,xQuantLabels, xQualLabels, randomValues=None):
+    print('formatCV_SHAP_toDf')
     SHAPDf, SHAPGroupDf = formatCV_SHAP_toDf(studies_GS_FS, studies_GS_FS, xQuantLabels, xQualLabels,
                                              randomValues=randomValues, NBest = False)
-
+    print('Ungrouped_plotSHAPSummary')
     plotSHAPSummary(SHAPDf, displayParams, DBpath, content='Ungrouped_' + GSName, NBest = False)
+    print('Grouped_plotSHAPSummary')
     plotSHAPSummary(SHAPGroupDf, displayParams, DBpath, content='Grouped_' + GSName, NBest = False)
 
     # reportCV_SHAP(SHAPDf, SHAPGroupDf, displayParams, DBpath, NBest = False, GSName = GSName)

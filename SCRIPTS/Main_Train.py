@@ -35,25 +35,27 @@ for set in studyParams['sets']:
         displayParams["ref_prefix"], displayParams["reference"] = ref_prefix, ref_single
 
         # ">>IMPORT"
+        #
+        # print('Import Study for random_state:', value)
+        #
+        # # FEATURE PROCESSING
+        # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(ref_single, show = False)
+        #
+        # # MODEL PROCESSING
+        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
+        #
+        # # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['KRR_LIN'])
 
-        print('Import Study for random_state:', value)
+        # # ">>RUN"
 
-        # FEATURE PROCESSING
-        rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(ref_single, show = False)
-
-        # MODEL PROCESSING
-        GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
-
-        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['KRR_LIN'])
-
-        # # # ">>RUN"
+        print('Run Study for random_state:', value)
         # # #
         # # # # FEATURE PROCESSING
         rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
-        # #
-        # # # #
+        #
+        # # #
         # # # # MODEL PROCESSING
-        # GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
+        GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
 
         # "STORE"
 
@@ -67,4 +69,3 @@ for set in studyParams['sets']:
 
 
 
-# heatmap(GS_FSs, displayParams, DB_Values['DBpath'], content='GS_FS', score='TestAcc', studyFolder='GS_FS/', combined=False)

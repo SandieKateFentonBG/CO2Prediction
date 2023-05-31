@@ -64,7 +64,7 @@ def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combine
     #PLOT
     scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
     scoreListMax = [True, False, True, True, True]
-    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, combined=True, plot_all=True)
+    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, combined=True, plot_all=displayParams['plot_all'])
 
     # FIND NBEST
     BestModelNames = find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])

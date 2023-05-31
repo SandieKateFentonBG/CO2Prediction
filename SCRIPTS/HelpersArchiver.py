@@ -15,6 +15,7 @@ def pickleDumpMe( DBpath, displayParams, obj, objFolder, objName, combined = Fal
             os.makedirs(outputFigPath)
         outputFigPath = f'{outputFigPath}/{objName}.pkl'
 
+
         with open(outputFigPath, 'wb') as handle:
             pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 

@@ -1,6 +1,6 @@
 from Model import *
 
-def AccuracyCheck(Studies_CV_BlenderNBest, sets, name, displayParams, DBpath, tolerance=0.15):
+def AccuracyCheck(Studies_CV_BlenderNBest, sets, displayParams, DBpath, tolerance):
 
     import pandas as pd
     AllDfs = []
@@ -31,10 +31,13 @@ def AccuracyCheck(Studies_CV_BlenderNBest, sets, name, displayParams, DBpath, to
 
         AllDfs.append(CombinedDf)
 
+        reference, ref_prefix = displayParams['reference'], displayParams['ref_prefix']
+
         if displayParams['archive']:
             import os
 
-            path, folder, subFolder = DBpath, "RESULTS/", name + '/'
+            path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'RECORDS'+ '/'
+            # path, folder, subFolder = DBpath, "RESULTS/", name
             outputPathStudy = path + folder + subFolder
 
             if not os.path.isdir(outputPathStudy):
@@ -43,7 +46,7 @@ def AccuracyCheck(Studies_CV_BlenderNBest, sets, name, displayParams, DBpath, to
             sheetNames = [sets[i][1] + '_' + sets[i][2] for i in range(len(sets))]  # 4
 
             print('outputPathStudy', outputPathStudy)
-            with pd.ExcelWriter(outputPathStudy + "AccuracyCheck" + name + ".xlsx", mode='w') as writer:
+            with pd.ExcelWriter(outputPathStudy + "AccuracyCheck" + ref_prefix + ".xlsx", mode='w') as writer:
                 for df, sh in zip(AllDfs, sheetNames):
                     df.to_excel(writer, sheet_name=sh, freeze_panes=(0, 1))
 

@@ -187,6 +187,22 @@ def AssembleBlenderElements(studies_Blender, element):
 
     return residualsDict
 
+
+def AssembleSingleElements(studies_single, element):
+    residualsDict = dict()
+    residualsDict[element] = []
+    for model in studies_single:
+        if hasattr(model, element):
+            residualsDict[element].append(list(model.__getattribute__(element)))
+        else:
+            residualsDict[element].append(list(model.learningDf.__getattribute__(element)))
+
+    for k, v in residualsDict.items():
+        residualsDict[k] = mergeList(v)
+
+    return residualsDict
+
+
 def AssembleNBestElements(studies_Blender, element): #todo : naming was changed
     residualsDict = dict()
     residualsDict[element] = []
@@ -196,7 +212,7 @@ def AssembleNBestElements(studies_Blender, element): #todo : naming was changed
                 residualsDict[element].append(list(model.__getattribute__(element)))
             else:
                 # residualsDict[element].append(list(model.learningDf.__getattribute__(element)))
-                # todo : this should be removed when
+                # todo : this should be removed when fixed
                 # todo model.learningDf.yTest hasType pandas.core.series.Series rather than pandas.core.frame.DataFrame
                 if element == 'yTest':
                     residualsDict[element].append(list(model.learningDf.testDf[model.learningDf.yLabel]))
@@ -521,10 +537,60 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, displayParams, FORMAT_Values, DBpath, randomvalues):
+def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, studies_regressor, studies_model, displayParams,
+                          FORMAT_Values, DBpath, randomvalues, setyLim=[-300, 300], setxLim=[0, 1500]): #setyLim=[-300, 300], setxLim=[400, 900]
 
     models, means, variances = analyzeCVResiduals(studies_GS_FS)
     reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
+
+
+    ResidualPlot_Scatter_Distri_Combined(studies_NBest, displayParams, DBpath, NBest=True, setyLim=setyLim, setxLim=setxLim)
+    for blender_type in studies_Blender:
+        ResidualPlot_Scatter_Distri_Combined(blender_type, displayParams,  DBpath, Blender=True, setyLim=setyLim, setxLim=setxLim)
+    ResidualPlot_Scatter_Distri_Combined(studies_GS_FS, displayParams, DBpath, setyLim=setyLim, setxLim=setxLim)
+
+    for blender_type in studies_Blender:
+        ResidualPlot_Scatter_Distri_Indiv(blender_type, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=True)
+    # ResidualPlot_Scatter_Distri_Indiv(studies_GS_FS, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=False)
+
+    ResidualPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, adaptXLim = False, setxLim=setyLim)
+    for blender_type in studies_Blender:
+        ResidualPlot_Distri_Combined(blender_type, displayParams, FORMAT_Values, DBpath, Blender=True, adaptXLim = False,  setxLim=setyLim)
+    # ResidualPlot_Distri_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim = False,  setxLim=setyLim)
+    for blender_type in studies_Blender:
+        ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=setyLim, fontsize=12, studies_Blender=blender_type)
+    # ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=setyLim, fontsize=12)
+
+    # todo : this should be updated
+    bl_lr_labels = ["R² = 0.5; PA =  30%"]
+    bl_svr_labels = ["R² = ; PA =  %"]
+    bl_labels = [bl_lr_labels]#, bl_svr_labels
+    nb_labels = ["R² = 0.28; PA =  31%"]
+    rg_labels = ["R² = 0.289; PA =  31%"]
+    md_labels = ["R² = 0.289; PA =  31%"]
+
+    for blender_type, lab in zip(studies_Blender, bl_labels):
+        ResidualPlot_Scatter_Combined(blender_type, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=None, setxLim=None,
+                                      y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = lab)
+    ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, setyLim=None, setxLim=None,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = nb_labels)
+    ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=None, setxLim=None,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth')
+    ResidualPlot_Scatter_Combined(studies_regressor, displayParams, FORMAT_Values, DBpath, setyLim=None, setxLim=None,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = rg_labels)
+    ResidualPlot_Scatter_Combined(studies_model, displayParams, FORMAT_Values, DBpath, setyLim=None, setxLim=None, SingleModel = True,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = md_labels)
+
+
+
+
+    # ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, setyLim=[400, 900], setxLim=[-300, 300])
+    # ResidualPlot_Scatter_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=[400, 900], setxLim=[-300, 300])
+    # ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=[400, 900], setxLim=[-300, 300])
+
+
+
+
 
     # if displayParams['plot_all']:
     #     plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
@@ -535,23 +601,6 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, display
     #                                       studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
 
 
-    ResidualPlot_Scatter_Distri_Combined(studies_NBest, displayParams, DBpath, NBest=True, setyLim=[-300, 300], setxLim=[400, 900])
-    ResidualPlot_Scatter_Distri_Combined(studies_Blender, displayParams,  DBpath, Blender=True, setyLim=[-300, 300], setxLim=[400, 900])
-    ResidualPlot_Scatter_Distri_Combined(studies_GS_FS, displayParams, DBpath, setyLim=[-300, 300], setxLim=[400, 900])
-
-    ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, setyLim=[400, 900], setxLim=[-300, 300])
-    ResidualPlot_Scatter_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=[400, 900], setxLim=[-300, 300])
-    ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=[400, 900], setxLim=[-300, 300])
-
-    ResidualPlot_Scatter_Distri_Indiv(studies_Blender, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=True)
-    # # ResidualPlot_Scatter_Distri_Indiv(studies_GS_FS, randomvalues, displayParams, DB_Values['DBpath'], yLim=None, xLim=None, fontsize=None,Blender=False)
-
-    ResidualPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, adaptXLim = False, setxLim=[-300, 300])
-    ResidualPlot_Distri_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath, Blender=True, adaptXLim = False,  setxLim=[-300, 300])
-    ResidualPlot_Distri_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim = False,  setxLim=[-300, 300])
-
-    ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=[-300, 300], fontsize=12, studies_Blender=studies_Blender)
-    ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=[-300, 300], fontsize=12)
     # ResidualPlot_Scatter_Tailored(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'],
     #                                   setyLim=[400, 900], name='All' + str(value),
     #                                   setxLim=[-300, 300])
@@ -713,7 +762,7 @@ def ResidualPlot_Scatter_Distri_Combined(studies, displayParams, DBpath, setyLim
 
 
 def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
-                                  binwidth=25, setyLim=[400, 900], labels = None,
+                                  binwidth=25, setyLim=[400, 900], labels = None, SingleModel = False,
                                   setxLim=[-300, 300], fontsize=12, NBest=False, Blender=False, folder = 'Combined',
                                   y_axis = 'yPred', x_axis = 'Resid', yLabel = 'Predicted value', xLabel = 'Residuals'):
 
@@ -723,8 +772,14 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
     import seaborn as sns
 
 
+    if SingleModel:  # only takes single model ex SVR_RBF.RFE_RFR
+        title = 'Residuals distribution for ' + studies[0].GSName + ' models over 10 runs'
+        yAxis = AssembleSingleElements(studies, y_axis)
+        xAxis = AssembleSingleElements(studies, x_axis)
+        a = studies[0].GSName
+        extra = studies[0].GSName
 
-    if NBest:  # only takes nBestmodels
+    elif NBest:  # only takes nBestmodels
         title = 'Residuals distribution for 10 best models over 10 runs'
         yAxis = AssembleNBestElements(studies, y_axis)
         xAxis = AssembleNBestElements(studies, x_axis)

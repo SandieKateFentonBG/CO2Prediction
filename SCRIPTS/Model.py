@@ -16,7 +16,7 @@ def computeAccuracy(yTrue, yPred, tolerance):
 
 class ModelGridsearch:
 
-    def __init__(self, predictorName, learningDf, modelPredictor, param_dict, xQtQlLabels = None):
+    def __init__(self, predictorName, learningDf, modelPredictor, param_dict, acc, xQtQlLabels = None):
 
         self.predictorName = predictorName #ex : SVR
         self.modelPredictor = modelPredictor# ex : SVR()
@@ -34,7 +34,7 @@ class ModelGridsearch:
 
         print('Calibrating hyperparameters')
         self.paramGridsearch(learningDf)
-        self.accuracyTol = 0.15
+        self.accuracyTol = acc
 
         print('Retrieving best results')
         self.computeBestModel(learningDf)

@@ -3,7 +3,7 @@ from datetime import datetime
 
 class ModelFeatureSelectionGridsearch:
 
-    def __init__(self, predictorName, learningDfs, modelPredictor, param_dict, xQtQlLabels = None):
+    def __init__(self, predictorName, learningDfs, modelPredictor, param_dict, acc, xQtQlLabels = None):
 
         self.predictorName = predictorName
         self.learningDfsList = []
@@ -18,7 +18,7 @@ class ModelFeatureSelectionGridsearch:
 
             self.learningDfsList.append(learningDf.selector)
             M_GS = ModelGridsearch(predictorName, learningDf=learningDf, modelPredictor=modelPredictor,
-                                   param_dict=param_dict, xQtQlLabels = xQtQlLabels)
+                                   param_dict=param_dict, xQtQlLabels = xQtQlLabels, acc = acc)
 
             self.__setattr__(learningDf.selector,M_GS)
 

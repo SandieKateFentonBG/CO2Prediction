@@ -37,6 +37,13 @@ class formatedDf:
         self.testDf = pd.concat([self.XTest, self.yTest], axis=1)
         self.checkDf = pd.concat([self.XCheck, self.yCheck], axis=1)
 
+        # todo : !
+        self.yTrain = self.trainDf[self.yLabel]
+        self.yVal = self.valDf[self.yLabel]
+        self.yTest = self.testDf[self.yLabel]
+        self.yCheck = self.checkDf[self.yLabel]
+        # todo : !
+
         #self.MeanStdDf
         self.selector = 'NoSelector'
         self.droppedLabels = ''
@@ -71,17 +78,15 @@ class formatedDf:
         # we want type 'pandas.core.series.Series rather than pandas.core.frame.DataFrame
         # could cause issues
 
+        # todo : will be reformatted just after
+        self.yTrain = pd.DataFrame(data=yTrain, columns=yLabels)
+        self.yVal = pd.DataFrame(data=yVal, columns=yLabels)
+        self.yTest = pd.DataFrame(data=yTest, columns=yLabels)
+        self.yCheck = pd.DataFrame(data=yCheck, columns=yLabels)
 
-        # self.yTrain = pd.DataFrame(data=yTrain, columns=yLabels)
-        # self.yVal = pd.DataFrame(data=yVal, columns=yLabels)
-        # self.yTest = pd.DataFrame(data=yTest, columns=yLabels)
-        # self.yCheck = pd.DataFrame(data=yCheck, columns=yLabels)
-        #
 
-        self.yTrain = self.trainDf[self.yLabel]
-        self.yVal = self.valDf[self.yLabel]
-        self.yTest = self.testDf[self.yLabel]
-        self.yCheck = self.checkDf[self.yLabel]
+
+
 
 
     def scaleXDf(self, xQuantLabels):

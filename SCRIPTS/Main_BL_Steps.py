@@ -35,7 +35,7 @@ def Run_Blending_NBest(modelList, displayParams, DBpath, ref_single, Constructor
 
     # CONSTRUCT & REPORT
     print('RUNNING BLENDING')
-    blendModel = Model_Blender(modelList, CONSTRUCTOR, Gridsearch = True, Type='NBest')
+    blendModel = Model_Blender(modelList, CONSTRUCTOR, acc = PROCESS_VALUES['accuracyTol'],  Gridsearch = True, Type='NBest')
     report_Blending_NBest(blendModel, displayParams, DBpath)
     pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName)
 

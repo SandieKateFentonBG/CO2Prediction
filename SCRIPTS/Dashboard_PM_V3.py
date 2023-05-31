@@ -7,10 +7,13 @@
 # """
 # #change when running a test
 #
-# displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None} #'CSTB_study_EC'
+# acronym = 'PM_V3'
 #
-# studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(40, 50)),
-#                "Regressors": ['KRR_RBF', 'KRR_POL','SVR_RBF']}
+# displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
+#
+# studyParams = {"sets": [[['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2']], 'randomvalues': list(range(30, 40)),
+#                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}
+#
 #
 # """
 # ________________________________________________________________________________________________________________________
@@ -20,33 +23,34 @@
 # #parameters specific to the database processed
 #
 # """
-# EUCB-FR
+# Price&Myers V3
 # """
-# MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
-#              "DBname" : "EU-ECB_dataset_feature_engineered_sf_mass_fram_str_sample_wood",
-#              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'STRUCT_study'} #Test-Concrete
 #
 #
-# DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
-#              "DBname" : "EU-ECB_dataset_feature_engineered_sf_mass_fram_str",#EU-ECB_dataset_feature_engineered_sf_framestr
-#              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : 'STRUCT_study'} #"EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-with_floors_ag",CSTB_res_nf_SEC_BleR2
 #
-# xQualLabels = [
-# 'Use_Type','Use_Subtype', 'Site_Country', 'Completion_Year', 'QTO_Type', 'bldg_area_interval', 'Structure', 'Roof',
-#     'Energy_Class_Country', 'Energy_Class_General', 'Main_Material', 'Second_Material',	'Lifespan',	'Life_Cycle_Scopes', 'LCA_Scope_handling_D']
 #
-# xQuantLabels = ['Gross_Floor_Area'] #, 'Floors_Above_Ground', 'Floors_Below_Ground', 'Users_Total'
 #
-# RemoveOutliersFrom = ['Gross_Floor_Area'] #'Floors_Above_Ground', 'Users_Total'
 #
-# yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
-# # yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
+# MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+#              "DBname" : "Test-Wood",
+#              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym} #Test-Concrete
 #
-# FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
+# DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", "DBname" : "P&M_Carbon_Database_2023",
+#              "DBdelimiter" : ';', "DBfirstLine" : 5, 'acronym' : acronym}
+#
+# xQualLabels = ['Calculation Design Stage','Location','Value Type','Project Sector', 'Type', 'Passivhaus', 'Basement',
+#                'Foundation Type', 'Ground Floor Type', 'Superstructure Type', 'Cladding Type', 'Fire Rating']#
+# xQuantLabels = ['GIFA (m2)', 'Calculation Year', 'Project Value (poundm)','Storeys (#)']
+#
+# RemoveOutliersFrom = xQuantLabels
+# yLabels = ['A1-C4 Rate (kgCO2e/m2)']
+#
+# # ['A1-A3 Rate (kgCO2e/m2)',	'A1-A5 Rate (kgCO2e/m2)',	'A1-C4 Rate (kgCO2e/m2)',	'A1-D Rate (kgCO2e/m2)',	'SCORS Rating']
+#
+# FORMAT_Values = {'yUnitFactor': 1, 'targetLabels' : ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}
 #
 # #'yUnitFactor' converts from yLabel unit to target Label unit:
 # # ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
-#
 #
 # """
 # ________________________________________________________________________________________________________________________
@@ -55,9 +59,12 @@
 # """
 # #parameters chosen for database processing
 #
+#
 # PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : 42, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
-#                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 42,
-#                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.15, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
+#                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40,
+#                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.10, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
+#
+# #todo : check 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]
 #
 #
 # """
@@ -73,9 +80,9 @@
 # ________________________________________________________________________________________________________________________
 # """
 #
+#
 # RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))',
 #               'RFE_process' : 'short', 'output_feature_count':'rfeCV'}
-#
 #
 #
 # """
@@ -83,7 +90,6 @@
 # MODEL
 # ________________________________________________________________________________________________________________________
 # """
-#
 # GS_VALUES = {'coef0_range' : list(10.0 ** np.arange(-2, 2)),
 #             'regul_range' : list(10.0 ** np.arange(-4, 4)),
 #             'influence_range' : list(10.0 ** np.arange(-4, 4)),
@@ -100,18 +106,23 @@
 #
 # """
 # ________________________________________________________________________________________________________________________
+# HYPERPARAM
+# ________________________________________________________________________________________________________________________
+# """
+#
+# # # Example for Single Hyperparameter plot
+# KRR_param_grid1={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['linear']}
+# KRR_param_grid2={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['polynomial']}
+# KRR_param_grid3={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['rbf']}
+#
+#
+# """
+# ________________________________________________________________________________________________________________________
 # FEATURE SELECTION
 # ________________________________________________________________________________________________________________________
 # """
 #
-# BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
-#               'BestModelNames' : None} #'TestAcc'LR_RIDGE
+# BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
+#               'BestModelNames' : None} #'TestAcc'SVR_RBF
 #
-#
-# # ['SVR_RBF_RFE_GBR', 'SVR_RBF_RFE_RFR', 'SVR_RBF_NoSelector', 'KRR_POL_RFE_GBR',
-# #                                   'KRR_RBF_RFE_GBR', 'KRR_RBF_NoSelector', 'KRR_RBF_RFE_RFR', 'KRR_POL_RFE_RFR',
-# #                                   'KRR_POL_NoSelector', 'KRR_POL_RFE_DTR']
-#
-# # ['SVR_RBF_RFE_RFR', 'SVR_RBF_fl_pearson', 'SVR_RBF_NoSelector', 'KRR_RBF_RFE_GBR', 'KRR_RBF_fl_pearson',
-# # 'KRR_RBF_RFE_DTR', 'SVR_RBF_RFE_GBR', 'KRR_POL_fl_pearson', 'SVR_RBF_RFE_DTR', 'KRR_POL_NoSelector']
 #
