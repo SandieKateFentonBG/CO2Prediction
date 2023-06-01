@@ -26,6 +26,8 @@ Divided_Labels = {'A123C34 Rate (kgCO2e/m2)' : ['Carbon A123C34 (kgCO2e)', 'GIFA
 AddedLabels = [k for k in Summed_Labels.keys()] + [k for k in Divided_Labels.keys()]
 splittingFt = 'Superstructure Type'
 
+
+
 class DataAnalysis:
     def __init__(self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
                  Summed_Labels, Divided_Labels):
@@ -57,12 +59,18 @@ class DataAnalysis:
         keys = [k for k in self.xQuanti.keys()] + [l for l in self.xQuali.keys()] + [m for m in self.y.keys()]
         vals = [k for k in self.xQuanti.values()] + [l for l in self.xQuali.values()] + [m for m in self.y.values()]
 
+        # Feature analysis
         self.possibleQualities = dict()
         for label, column in self.xQuali.items():
             self.possibleQualities[label] = []
             for value in column:
                 if value not in self.possibleQualities[label]:
                     self.possibleQualities[label].append(value)
+        self.rawDfsorted = None
+        self.workingDfsorted = None
+        self.scaleDfsorted = None
+        self.normalizeDfsorted = None
+        self.splittingFt = None
 
         #as dataframe
         self.rawDf = pd.DataFrame(columns=keys) #, index=list(range(vals[0]))
@@ -72,10 +80,8 @@ class DataAnalysis:
 
         #ADD
         for k,v in Summed_Labels.items():
-            print(k, v)
             self.rawDf.loc[:, k] = sum([self.rawDf[v[i]] for i in range(len(v))])
         for k,v in Divided_Labels.items():
-            print(k, v)
             self.rawDf.loc[:, k] = self.rawDf[v[0]] / self.rawDf[v[1]]
 
         # >> 2 NO OUTLIER DATAFRAME
@@ -94,7 +100,8 @@ class DataAnalysis:
             self.normalizeDf[k] = (self.workingDf[k] - colMin) / (colMax - colMin)
 
 
-    def createSubsets(self, splittingFt, df):
+
+    def createSubsets(self, splittingFt, df, order = None):
 
         # >> 4 SUBSET DATAFRAME
         subsets = []
@@ -103,6 +110,7 @@ class DataAnalysis:
             newsubset = df.loc[df[splittingFt] == quality]
             subsets.append(newsubset)
             feature_dict[quality] = newsubset
+        self.splittingFt = feature_dict
         self.__setattr__(splittingFt, feature_dict)
 
         return subsets
@@ -124,45 +132,53 @@ class DataAnalysis:
 
 
 
-    def studyDatabase(self, path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf']):
+    def studyDatabase(self, path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'], orderFt = None):
 
-        qualities = self.possibleQualities[splittingFt]
+        # ANALYZE
         singleDf_List = [self.__getattribute__(l) for l in labels]
-        subsetDf_list_unmerged = [self.createSubsets(splittingFt, self.__getattribute__(l)) for l in labels]
-
         singleDA_List = []
         for df in singleDf_List:
             dfDA = self.analyzeDataframe(df)
             singleDA_List.append(dfDA)
-
-        subsetDf_list = []
-        subsetDA_list = []
-        for df_list in subsetDf_list_unmerged: #df_list ex 5 qualities
-            DA_list = []
-            df_list_merged = pd.concat(df_list, axis=0)
-            for df,qual in zip(df_list, qualities):
-                dfDA = self.analyzeDataframe(df, index=[qual])
-                DA_list.append(dfDA)
-            DA_list_merged = pd.concat(DA_list, axis=0)
-            subsetDf_list.append(df_list_merged)
-            subsetDA_list.append(DA_list_merged)
-
-        # tables = singleDf_List + singleDA_List + subsetDf_list + subsetDA_list
+        # STORE
         all_labels = []
         all_tables = []
-        # for pair in [[singleDf_List, singleDA_List][subsetDf_list, subsetDA_list]]:
+        name = 'DataAnalysis'
         for df, DA, lab in zip(singleDf_List, singleDA_List, labels):
             all_tables.append(df)
             all_tables.append(DA)
             all_labels.append(lab)
             all_labels.append(lab + 'DA')
-        for df, DA, lab in zip(subsetDf_list, subsetDA_list, labels):
-            all_tables.append(df)
-            all_tables.append(DA)
-            all_labels.append(lab + splittingFt)
-            all_labels.append(lab + 'DA' + splittingFt)
+
+        if splittingFt:
+            # ANALYZE
+            if orderFt:
+                self.possibleQualities[splittingFt] = orderFt
+            qualities = self.possibleQualities[splittingFt]
+            subsetDf_list_unmerged = [self.createSubsets(splittingFt, self.__getattribute__(l)) for l in labels]
+            subsetDf_list = []
+            subsetDA_list = []
+            for df_list in subsetDf_list_unmerged: #df_list ex 5 qualities
+                DA_list = []
+                df_list_merged = pd.concat(df_list, axis=0)
+
+                for df,qual in zip(df_list, qualities):
+                    dfDA = self.analyzeDataframe(df, index=[qual])
+                    DA_list.append(dfDA)
+                DA_list_merged = pd.concat(DA_list, axis=0)
+                subsetDf_list.append(df_list_merged)
+                subsetDA_list.append(DA_list_merged)
+            # STORE
+            name += splittingFt
+            for df, DA, lab in zip(subsetDf_list, subsetDA_list, labels):
+                self.__setattr__(lab + 'sorted', df)
+                all_tables.append(df)
+                all_tables.append(DA)
+                all_labels.append(lab + splittingFt)
+                all_labels.append(lab + 'DA' + splittingFt)
 
         if displayParams['archive']:
+
             import os
 
             reference = displayParams['ref_prefix'] + '_Combined/'
@@ -170,26 +186,140 @@ class DataAnalysis:
             if not os.path.isdir(outputPathStudy):
                 os.makedirs(outputPathStudy)
 
-            with pd.ExcelWriter(outputPathStudy + 'DataAnalysis' + ".xlsx", mode='w') as writer:
+            with pd.ExcelWriter(outputPathStudy + name + ".xlsx", mode='w') as writer:
 
                 for df, name in zip(all_tables, all_labels):
                     df.to_excel(writer, sheet_name=name)
 
 
-        pickleDumpMe(path, displayParams, DA, 'DATA', 'DataAnalysis', combined=True)
+def DataAnalysis_boxPlot (DBpath, ref_prefix, data, x, y, legend = None, name ='', order = None) :
+
+    fig = plt.figure() #figsize=(20, 5)
+    dodge = True
+    if not legend:
+        hue = y
+        dodge = False
+    else:
+        hue = legend
+    ax = sns.boxplot(data=data, x=x, y=y, hue = hue, order = order, dodge=dodge, palette = "vlag") # hue=y,
+    if not legend:
+        plt.legend([], [], frameon=False)
+    fig.tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None)
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA'
+        import os
+
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/' + 'DA_boxPlot' + name + '.png')
+
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()
+
+def DataAnalysis_boxPlot_Multi_1D(DBpath, ref_prefix, data, labels, y, legend = None, name ='', order = None):
+    l = len(labels)
+    fig, axes = plt.subplots(1, l, sharey=True) #, figsize=(16, 8), sharex=True,
+    for i in range(len(labels)):
+        dodge = True
+        if not legend:
+            hue = y
+            dodge = False
+        else:
+            hue = legend
+        ax = sns.boxplot(ax=axes[i], data=data, x=labels[i], y=y, hue=hue, order=order, dodge=dodge, palette = "vlag") # hue=y,, 0
+
+    for ax in axes:
+        ax.legend([], [], frameon=False)
+
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA'
+        import os
+
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/' + 'DA_boxPlot' + name + '.png')
+
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()
+
+def DataAnalysis_boxPlot_Multi_2D(DBpath, ref_prefix, data, labels, y, legend = None, name ='', order = None):
+    w = len(labels)
+    h = len(labels[0])
+    fig, axes = plt.subplots(h, w, sharey=True) #, figsize=(16, 8), sharex=True,
+    for i in range(w):
+        print(labels[i])
+        for j in range(h):
+            print(labels[i][j])
+            dodge = True
+            if not legend:
+                hue = y
+                dodge = False
+            else:
+                hue = legend
+            ax = sns.boxplot(ax=axes[i, j], data=data, x=labels[i][j], y=y, hue=hue, order=order, dodge=dodge, palette = "vlag") # hue=y,, 0
+
+    for axs in axes:
+        for ax in axs:
+            ax.legend([], [], frameon=False)
+
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA'
+        import os
+
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/' + 'DA_boxPlot' + name + '.png')
+
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()
 
 
-# ggplot
+def import_DataAnalysis(ref_prefix, name):
 
-DA = DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
-                 Summed_Labels, Divided_Labels)
-DA.studyDatabase(path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'])
+    path = DB_Values['DBpath'] + 'RESULTS/' + ref_prefix + '_Combined/' + 'RECORDS/DATA/' + name + '.pkl'
+    DA = pickleLoadMe(path=path, show=False)
+
+    return DA
+
+
+order = ['Concrete (In-Situ)', 'Concrete (Precast)','Concrete (PT)','Timber Frame (Glulam/CLT)',
+         'Timber Frame (Softwood)','Steel Frame/Precast', 'Steel Frame/Composite','Steel Frame/Timber',
+         'Steel Frame/Other', 'Masonry/Concrete','Masonry/Timber', 'Masonry & Timber','Other']
+
+# DA = DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
+#                  Summed_Labels, Divided_Labels)
+# DA.studyDatabase(path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'], orderFt = order)
+# pickleDumpMe(path, displayParams, DA, 'DATA', 'DataAnalysis' + splittingFt, combined=True)
+DAi = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
+
+
+# #plot normal
+# DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+#                       data=DAi.workingDf, x="A123C34 Rate (kgCO2e/m2)", y='Superstructure Type')
+# #plot sorted
+# DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+#                       data=DAi.workingDfsorted, x="A123C34 Rate (kgCO2e/m2)", y='Superstructure Type', legend = 'Calculation Year', name = 'sorted') #DAi.__getattribute__('workingDfsorted')
+# #plot single
+# DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+#                       data=DAi.splittingFt['Concrete (In-Situ)'], x="A123C34 Rate (kgCO2e/m2)", y='Cladding Type', name = 'Concrete') #DAi.__getattribute__(splittingFt)
+
+labels_1D = ['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)', 'Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)']
+
+labels_2D = [['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)'], ['Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)']]
+
+# DataAnalysis_boxPlot_Multi_1D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DAi.workingDfsorted,
+#                            labels = labels_1D, y ='Superstructure Type', legend = None, name ='Multi_1D')
+DataAnalysis_boxPlot_Multi_2D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DAi.workingDfsorted,
+                           labels = labels_2D, y ='Superstructure Type', legend = None, name ='Multi_2D')
 
 
 
-
-#
-#
 # # STOCK
 # pickleDumpMe(DB_Values['DBpath'], displayParams, dataframe, 'DATA', 'rdat', combined=True)
 # dfAsTable(DB_Values['DBpath'], displayParams, dataframe, objFolder='DATA', name = "DF", combined = True)
