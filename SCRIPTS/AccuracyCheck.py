@@ -46,9 +46,11 @@ def AccuracyCheck(Studies_CV_BlenderNBest, sets, displayParams, DBpath, toleranc
             sheetNames = [sets[i][1] + '_' + sets[i][2] for i in range(len(sets))]  # 4
 
             print('outputPathStudy', outputPathStudy)
+
             with pd.ExcelWriter(outputPathStudy + "AccuracyCheck" + ref_prefix + ".xlsx", mode='w') as writer:
                 for df, sh in zip(AllDfs, sheetNames):
                     df.to_excel(writer, sheet_name=sh, freeze_panes=(0, 1))
+            #todo : chack naming > and indentation? if you have multpe elemens in the blender?
 
 
 

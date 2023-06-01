@@ -52,8 +52,8 @@ for set in studyParams['sets']:
         # # #
         # # # # # BLENDER PROCESSING
         # # # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
-        # # LR_RIDGE_BL = import_Blender_NBest(ref_single, label = 'LR_RIDGE' + '_Blender_NBest')
-        SVR_RBF_BL = import_Blender_NBest(ref_single, label = 'SVR_RBF' + '_Blender_NBest')
+        LR_RIDGE_BL = import_Blender_NBest(ref_single, label = 'LR_RIDGE' + '_Blender_NBest')
+        # SVR_RBF_BL = import_Blender_NBest(ref_single, label = 'SVR_RBF' + '_Blender_NBest')
 
         # ">>RUN"
 
@@ -70,10 +70,10 @@ for set in studyParams['sets']:
         models_CV.append(model)
         All_CV.append(GS_FSs)
         NBest_CV.append(NBestModels)
-        # LR_RIDGE_BLs.append(LR_RIDGE_BL)
-        SVR_RBF_BLs.append(SVR_RBF_BL)
+        LR_RIDGE_BLs.append(LR_RIDGE_BL)
+        # SVR_RBF_BLs.append(SVR_RBF_BL)
 
-    Blenders_NBest_CV = [SVR_RBF_BLs] #LR_RIDGE_BLs,
+    Blenders_NBest_CV = [LR_RIDGE_BLs] #,SVR_RBF_BLs
 
     # COMBINE
 

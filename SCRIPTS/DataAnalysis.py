@@ -46,8 +46,7 @@ class DataAnalysis:
         self.xQuali = {k: [] for k in xQualLabels}
         self.xQuanti = {k: [] for k in xQuantLabels}
         self.y = {k: [] for k in yLabels}
-        self.AddedLabels = Summed_Labels + Divided_Labels
-
+        self.AddedLabels = [k for k in Summed_Labels.keys()] + [k for k in Divided_Labels.keys()]
         for line in reader:
             for (labels, attribute) in [(xQuantLabels, self.xQuanti), (yLabels, self.y)]:
                 for label in labels:
@@ -99,17 +98,21 @@ class DataAnalysis:
 
         # >> 4 SUBSET DATAFRAME
         subsets = []
+        feature_dict = dict()
         for quality in self.possibleQualities[splittingFt]:
             newsubset = df.loc[df[splittingFt] == quality]
             subsets.append(newsubset)
+            feature_dict[quality] = newsubset
+        self.__setattr__(splittingFt, feature_dict)
+
         return subsets
 
-    def analyzeDataframe(self, df):
+    def analyzeDataframe(self, df, index = ['']):
 
         # >> 5 ANALYZE DATAFRAME
         # ANALYZE
         cols = df.columns.values.tolist()
-        statDf = pd.DataFrame(columns=cols)
+        statDf = pd.DataFrame(columns=cols, index = index) #done to leave empty space
         statDf.loc['Mean', :] = df.mean(axis=0)
         statDf.loc['Stdv', :] = df.std(axis=0)
         statDf.loc['Min', :] = df.min(axis=0)
@@ -119,44 +122,74 @@ class DataAnalysis:
 
         return statDf
 
+
+
+    def studyDatabase(self, path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf']):
+
+        qualities = self.possibleQualities[splittingFt]
+        singleDf_List = [self.__getattribute__(l) for l in labels]
+        subsetDf_list_unmerged = [self.createSubsets(splittingFt, self.__getattribute__(l)) for l in labels]
+
+        singleDA_List = []
+        for df in singleDf_List:
+            dfDA = self.analyzeDataframe(df)
+            singleDA_List.append(dfDA)
+
+        subsetDf_list = []
+        subsetDA_list = []
+        for df_list in subsetDf_list_unmerged: #df_list ex 5 qualities
+            DA_list = []
+            df_list_merged = pd.concat(df_list, axis=0)
+            for df,qual in zip(df_list, qualities):
+                dfDA = self.analyzeDataframe(df, index=[qual])
+                DA_list.append(dfDA)
+            DA_list_merged = pd.concat(DA_list, axis=0)
+            subsetDf_list.append(df_list_merged)
+            subsetDA_list.append(DA_list_merged)
+
+        # tables = singleDf_List + singleDA_List + subsetDf_list + subsetDA_list
+        all_labels = []
+        all_tables = []
+        # for pair in [[singleDf_List, singleDA_List][subsetDf_list, subsetDA_list]]:
+        for df, DA, lab in zip(singleDf_List, singleDA_List, labels):
+            all_tables.append(df)
+            all_tables.append(DA)
+            all_labels.append(lab)
+            all_labels.append(lab + 'DA')
+        for df, DA, lab in zip(subsetDf_list, subsetDA_list, labels):
+            all_tables.append(df)
+            all_tables.append(DA)
+            all_labels.append(lab + splittingFt)
+            all_labels.append(lab + 'DA' + splittingFt)
+
+        if displayParams['archive']:
+            import os
+
+            reference = displayParams['ref_prefix'] + '_Combined/'
+            outputPathStudy = path + "RESULTS/" + reference + 'RECORDS/' + 'DATA' + '/'
+            if not os.path.isdir(outputPathStudy):
+                os.makedirs(outputPathStudy)
+
+            with pd.ExcelWriter(outputPathStudy + 'DataAnalysis' + ".xlsx", mode='w') as writer:
+
+                for df, name in zip(all_tables, all_labels):
+                    df.to_excel(writer, sheet_name=name)
+
+
+        pickleDumpMe(path, displayParams, DA, 'DATA', 'DataAnalysis', combined=True)
+
+
+# ggplot
+
 DA = DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
                  Summed_Labels, Divided_Labels)
-qualities = DA.possibleQualities[splittingFt],
-workingDfsubsets = DA.createSubsets(splittingFt, DA.workingDf)
-scaleDfsubsets = DA.createSubsets(splittingFt, DA.scaleDf)
-normalizeDfsubsets = DA.createSubsets(splittingFt, DA.normalizeDf)
-list =[DA.workingDf] + workingDfsubsets
-studies = []
-for df in list:
-    dfDA = DA.analyzeDataframe(df)
-    studies.append(dfDA)
-
-labels = ['rawDf', 'workingDf', 'workingDA', 'workingDfss', 'workingDfssDA', 'scaleDfss', 'scaleDfssDA', 'normalizeDfss', 'normalizeDfssDA' ]
+DA.studyDatabase(path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'])
 
 
-#todo :
-# export all as excel
-# dump class to pickle
-
-# >> 1 BASE DATAFRAME
-# >> 2 NO OUTLIER DATAFRAME
-# >> 3 SCALE DATAFRAME
-# >> 4 SUBSET DATAFRAME
-# >> 5 ANALYZE DATAFRAME
 
 
-# make an object
-#save to excel
-#analyse subsets
-
-
-# scaleDf
-# normalizeDf
-# statDf
-# subsets quality in possibleQualities[splittingFt]:
-# noOutlierDf
-# dataframe
-
-# STOCK
-pickleDumpMe(DB_Values['DBpath'], displayParams, dataframe, 'DATA', 'rdat', combined=True)
-dfAsTable(DB_Values['DBpath'], displayParams, dataframe, objFolder='DATA', name = "DF", combined = True)
+#
+#
+# # STOCK
+# pickleDumpMe(DB_Values['DBpath'], displayParams, dataframe, 'DATA', 'rdat', combined=True)
+# dfAsTable(DB_Values['DBpath'], displayParams, dataframe, objFolder='DATA', name = "DF", combined = True)
