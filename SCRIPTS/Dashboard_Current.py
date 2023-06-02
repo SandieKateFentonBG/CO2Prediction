@@ -11,7 +11,7 @@ ________________________________________________________________________________
 #change when running a test
 sample_nb = 42
 sample_values = list(range(40, 50))
-displayParams = {"reference" : None, 'showPlot': True, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
+displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
 
 set_1 = [['A123-C34 Rate (kgCO2e/m2)'],'EC','TestR2'] # ylabel, content, metric
 acronym = 'PM_V3_A123-C34'

@@ -23,11 +23,20 @@ RemoveOutliersFrom = xQuantLabels + yLabels
 #CHANGES   !! LABELS MUST BE IN INITIAL IMPORT!
 Summed_Labels = {'Carbon A123C34 (kgCO2e)' : ['Carbon A1-A3 (kgCO2e)', 'Carbon C3-C4 (kgCO2e)']} #SUMMED
 Divided_Labels = {'A123C34 Rate (kgCO2e/m2)' : ['Carbon A123C34 (kgCO2e)', 'GIFA (m2)']} #SUMMED LABELS MUST BE IN INITIAL IMPORT!
-AddedLabels = [k for k in Summed_Labels.keys()] + [k for k in Divided_Labels.keys()]
+# AddedLabels = [k for k in Summed_Labels.keys()] + [k for k in Divided_Labels.keys()]
 splittingFt = 'Superstructure Type'
-
-
-
+order = ['Concrete (In-Situ)', 'Concrete (Precast)','Concrete (PT)','Timber Frame (Glulam/CLT)',
+         'Timber Frame (Softwood)','Steel Frame/Precast', 'Steel Frame/Composite','Steel Frame/Timber',
+         'Steel Frame/Other', 'Masonry/Concrete','Masonry/Timber', 'Masonry & Timber','Other']
+mainTarget = 'A123C34 Rate (kgCO2e/m2)'
+labels_1D = ['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)', 'Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)']
+labels_2D_norm = [['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)', 'Carbon A1-A3 (kgCO2e)_normalize', 'A1-A3 Rate (kgCO2e/m2)_normalize'],
+                  ['Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)', 'Carbon A123C34 (kgCO2e)_normalize', 'A123C34 Rate (kgCO2e/m2)_normalize']]
+labels_2D_scale = [['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)', 'Carbon A1-A3 (kgCO2e)_scale', 'A1-A3 Rate (kgCO2e/m2)_scale'],
+    ['Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)', 'Carbon A123C34 (kgCO2e)_scale','A123C34 Rate (kgCO2e/m2)_scale']]
+exploded_ft = 'Calculation Year' #qual feature with few different values
+splittingFt_focus = 'Concrete (In-Situ)' #order[0]
+splittingFt_2 = 'Cladding Type'
 class DataAnalysis:
     def __init__(self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
                  Summed_Labels, Divided_Labels):
@@ -93,12 +102,19 @@ class DataAnalysis:
         #SCALE
         self.scaleDf = self.workingDf.copy()
         self.normalizeDf = self.workingDf.copy()
-        for k in xQuantLabels + yLabels + AddedLabels:
+        for k in xQuantLabels + yLabels + self.AddedLabels:
             colMean, colStd = self.workingDf[k].mean(axis=0), self.workingDf[k].std(axis=0)
             colMax, colMin = self.workingDf[k].max(axis=0), self.workingDf[k].min(axis=0)
             self.scaleDf[k] = (self.workingDf[k] - colMean) / colStd
             self.normalizeDf[k] = (self.workingDf[k] - colMin) / (colMax - colMin)
 
+        self.workingDfFull = None # workingDf + scaleDf + normalizeDf
+        self.sortingDfFull = None # workingDfsorted + scaleDfsorted + normalizeDfsorted
+
+        # store into big df for plotters
+        new_scaleDf = self.scaleDf.copy().add_suffix("_scale")
+        new_normalizeDf = self.normalizeDf.copy().add_suffix("_normalize")
+        self.workingDfFull = pd.concat([self.workingDf, new_scaleDf, new_normalizeDf], axis=1)
 
 
     def createSubsets(self, splittingFt, df, order = None):
@@ -129,8 +145,6 @@ class DataAnalysis:
         statDf.loc['Mode'] = mode_df.loc[0]
 
         return statDf
-
-
 
     def studyDatabase(self, path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'], orderFt = None):
 
@@ -177,6 +191,11 @@ class DataAnalysis:
                 all_labels.append(lab + splittingFt)
                 all_labels.append(lab + 'DA' + splittingFt)
 
+        # store into big df for plotters
+        new_scaleDf = self.scaleDfsorted.copy().add_suffix("_scale")
+        new_normalizeDf = self.normalizeDfsorted.copy().add_suffix("_normalize")
+        self.sortingDfFull = pd.concat([self.workingDfsorted,new_scaleDf, new_normalizeDf], axis=1) #todo
+
         if displayParams['archive']:
 
             import os
@@ -190,7 +209,6 @@ class DataAnalysis:
 
                 for df, name in zip(all_tables, all_labels):
                     df.to_excel(writer, sheet_name=name)
-
 
 def DataAnalysis_boxPlot (DBpath, ref_prefix, data, x, y, legend = None, name ='', order = None) :
 
@@ -220,7 +238,7 @@ def DataAnalysis_boxPlot (DBpath, ref_prefix, data, x, y, legend = None, name ='
 
 def DataAnalysis_boxPlot_Multi_1D(DBpath, ref_prefix, data, labels, y, legend = None, name ='', order = None):
     l = len(labels)
-    fig, axes = plt.subplots(1, l, sharey=True) #, figsize=(16, 8), sharex=True,
+    fig, axes = plt.subplots(1, l, figsize=(18, 5),sharey=True) #,  sharex=True,
     for i in range(len(labels)):
         dodge = True
         if not legend:
@@ -232,6 +250,8 @@ def DataAnalysis_boxPlot_Multi_1D(DBpath, ref_prefix, data, labels, y, legend = 
 
     for ax in axes:
         ax.legend([], [], frameon=False)
+
+    fig.tight_layout(pad=1.08)
 
     if displayParams['archive']:
         path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA'
@@ -247,13 +267,11 @@ def DataAnalysis_boxPlot_Multi_1D(DBpath, ref_prefix, data, labels, y, legend = 
     plt.close()
 
 def DataAnalysis_boxPlot_Multi_2D(DBpath, ref_prefix, data, labels, y, legend = None, name ='', order = None):
-    w = len(labels)
-    h = len(labels[0])
-    fig, axes = plt.subplots(h, w, sharey=True) #, figsize=(16, 8), sharex=True,
-    for i in range(w):
-        print(labels[i])
-        for j in range(h):
-            print(labels[i][j])
+    cols = len(labels[0])
+    rows = len(labels)
+    fig, axes = plt.subplots(rows, cols, figsize=(18, 10),sharey=True) #,  sharex=True,
+    for i in range(rows):
+        for j in range(cols):
             dodge = True
             if not legend:
                 hue = y
@@ -265,6 +283,8 @@ def DataAnalysis_boxPlot_Multi_2D(DBpath, ref_prefix, data, labels, y, legend = 
     for axs in axes:
         for ax in axs:
             ax.legend([], [], frameon=False)
+
+    fig.tight_layout(pad=1.08)
 
     if displayParams['archive']:
         path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA'
@@ -279,7 +299,6 @@ def DataAnalysis_boxPlot_Multi_2D(DBpath, ref_prefix, data, labels, y, legend = 
         plt.show()
     plt.close()
 
-
 def import_DataAnalysis(ref_prefix, name):
 
     path = DB_Values['DBpath'] + 'RESULTS/' + ref_prefix + '_Combined/' + 'RECORDS/DATA/' + name + '.pkl'
@@ -287,39 +306,44 @@ def import_DataAnalysis(ref_prefix, name):
 
     return DA
 
+def run_DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
+                     Summed_Labels, Divided_Labels, splittingFt, order, mainTarget,
+                     labels_1D, labels_2D_norm, labels_2D_scale, exploded_ft, splittingFt_focus, splittingFt_2):
 
-order = ['Concrete (In-Situ)', 'Concrete (Precast)','Concrete (PT)','Timber Frame (Glulam/CLT)',
-         'Timber Frame (Softwood)','Steel Frame/Precast', 'Steel Frame/Composite','Steel Frame/Timber',
-         'Steel Frame/Other', 'Masonry/Concrete','Masonry/Timber', 'Masonry & Timber','Other']
+    # RUN
+    DA = DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
+                     Summed_Labels, Divided_Labels)
+    DA.studyDatabase(path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'], orderFt = order)
+    pickleDumpMe(path, displayParams, DA, 'DATA', 'DataAnalysis' + splittingFt, combined=True)
 
-# DA = DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
-#                  Summed_Labels, Divided_Labels)
-# DA.studyDatabase(path, splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'], orderFt = order)
-# pickleDumpMe(path, displayParams, DA, 'DATA', 'DataAnalysis' + splittingFt, combined=True)
-DAi = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
+    # IMPORT
+    DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
 
-
-# #plot normal
-# DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
-#                       data=DAi.workingDf, x="A123C34 Rate (kgCO2e/m2)", y='Superstructure Type')
-# #plot sorted
-# DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
-#                       data=DAi.workingDfsorted, x="A123C34 Rate (kgCO2e/m2)", y='Superstructure Type', legend = 'Calculation Year', name = 'sorted') #DAi.__getattribute__('workingDfsorted')
-# #plot single
-# DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
-#                       data=DAi.splittingFt['Concrete (In-Situ)'], x="A123C34 Rate (kgCO2e/m2)", y='Cladding Type', name = 'Concrete') #DAi.__getattribute__(splittingFt)
-
-labels_1D = ['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)', 'Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)']
-
-labels_2D = [['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)'], ['Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)']]
-
-# DataAnalysis_boxPlot_Multi_1D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DAi.workingDfsorted,
-#                            labels = labels_1D, y ='Superstructure Type', legend = None, name ='Multi_1D')
-DataAnalysis_boxPlot_Multi_2D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DAi.workingDfsorted,
-                           labels = labels_2D, y ='Superstructure Type', legend = None, name ='Multi_2D')
+    # SINGLE DF EXPORT TO EXCEL
+    dfAsTable(DB_Values['DBpath'], displayParams, DA.sortingDfFull, objFolder='DATA', name = "DAi.sortingDfFull", combined = True)
 
 
+    #plot normal
+    DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+                          data=DA.workingDf, x=mainTarget, y=splittingFt)
+    #plot exploded feature
+    DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+                          data=DA.workingDfsorted, x=mainTarget, y=splittingFt, legend = exploded_ft, name = '_explo') #DAi.__getattribute__('workingDfsorted')
+    #plot single feature
+    DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+                          data=DA.splittingFt[splittingFt_focus], x=mainTarget, y=splittingFt_2, name = splittingFt_focus) #DAi.__getattribute__(splittingFt)
+    #plot mutliple 1D
+    DataAnalysis_boxPlot_Multi_1D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.workingDfsorted,
+                               labels = labels_1D, y =splittingFt, legend = None, name ='Multi_1D')
+    #plot mutliple 2D
+    DataAnalysis_boxPlot_Multi_2D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.sortingDfFull,
+                               labels = labels_2D_norm, y =splittingFt, legend = None, name ='Multi_2D_norm')
+    #plot mutliple 2D
+    DataAnalysis_boxPlot_Multi_2D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.sortingDfFull,
+                               labels = labels_2D_scale, y =splittingFt, legend = None, name ='Multi_2D_scale')
 
-# # STOCK
-# pickleDumpMe(DB_Values['DBpath'], displayParams, dataframe, 'DATA', 'rdat', combined=True)
-# dfAsTable(DB_Values['DBpath'], displayParams, dataframe, objFolder='DATA', name = "DF", combined = True)
+
+
+run_DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
+                     Summed_Labels, Divided_Labels, splittingFt, order, mainTarget,
+                     labels_1D, labels_2D_norm, labels_2D_scale, exploded_ft, splittingFt_focus, splittingFt_2)
