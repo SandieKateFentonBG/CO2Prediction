@@ -1,10 +1,10 @@
 from Sample import *
 
-def Run_Model_Predictions_Explainer(MyPred_Sample, ArchPath, Model_List=None, Blender_List=None, precomputed = False, dbName=MyPred_Sample['DBname']):
+def Run_Model_Predictions_Explainer(sample, ArchPath, Model_List=None, Blender_List=None, precomputed = False):
 
-    sample = Sample(displayParams["reference"], MyPred_Sample, dbName)
-
-    pickleDumpMe(ArchPath, displayParams, sample, 'PREDICTIONS', MyPred_Sample["DBname"])
+    # sample = Sample(displayParams["reference"], MyPred_Sample)
+    #
+    # pickleDumpMe(ArchPath, displayParams, sample, 'PREDICTIONS', MyPred_Sample["DBname"])
 
     names, avgs, preds= [],[],[]
 
@@ -82,6 +82,8 @@ def Run_Model_Predictions_Explainer(MyPred_Sample, ArchPath, Model_List=None, Bl
             for df, name in zip(AllDfs, SheetNames):
                 df.to_excel(writer, sheet_name=name)
 
+    pickleDumpMe(ArchPath, displayParams, sample, 'PREDICTIONS', sample.name)
+
 def create_Feature_Samples_1D(MyPred_Sample, feature1, feature2):
     from copy import copy, deepcopy
 
@@ -98,13 +100,18 @@ def create_Feature_Samples_1D(MyPred_Sample, feature1, feature2):
         newSample.createSample(newxQuali, newxQuanti)
         samples.append(newSample)
 
-    for s in samples:
-        print("sample.xQuali", s.xQuali)
 
     return samples
 
-def create_Feature_Samples_2D(MyPred_Sample, feature1, feature2, feature1_values = None, feature2_values = None):
+def create_Feature_Samples_2D(MyPred_Sample):
     from copy import copy, deepcopy
+
+    feature1 = MyPred_Sample['Cols']
+    feature2 = MyPred_Sample['Rows']
+    feature1_values = MyPred_Sample['col_values']
+    feature2_values = MyPred_Sample['row_values']
+    feature1ordered = MyPred_Sample['orderFtCols']
+    feature2ordered = MyPred_Sample['orderFtRows']
 
     sample = Sample(displayParams["reference"], MyPred_Sample)
 
@@ -186,9 +193,15 @@ def create_Feature_Samples_2D(MyPred_Sample, feature1, feature2, feature1_values
 
     return samples_ls #list of sublists len(samples_ls) = feature2; len(samples_ls[0]) = feature1
 
-def create_Feature_Predictions_2D (MyPred_Sample, feature1, feature2, model, feature1_values = None, feature2_values = None):
+def create_Feature_Predictions_2D (MyPred_Sample, model):
+    feature1 = MyPred_Sample['Cols']
+    feature2 = MyPred_Sample['Rows']
+    feature1_values = MyPred_Sample['col_values']
+    feature2_values = MyPred_Sample['row_values']
+    feature1ordered = MyPred_Sample['orderFtCols']
+    feature2ordered = MyPred_Sample['orderFtRows']
 
-    samples_ls = create_Feature_Samples_2D(MyPred_Sample, feature1, feature2, feature1_values = feature1_values, feature2_values = feature2_values) #list of sublists len(samples_ls) = feature2; len(samples_ls[0]) = feature1
+    samples_ls = create_Feature_Samples_2D(MyPred_Sample) #list of sublists len(samples_ls) = feature2; len(samples_ls[0]) = feature1
 
     # consider 4 options quali - quanti :
 
@@ -197,19 +210,23 @@ def create_Feature_Predictions_2D (MyPred_Sample, feature1, feature2, model, fea
         cols = samples_ls[0][0].possibleQualities[feature1]
         idxs = samples_ls[0][0].possibleQualities[feature2]
 
-    if feature2 in samples_ls[0][0].xQuali.keys() and feature1 in samples_ls[0][0].xQuanti.keys():
+    elif feature2 in samples_ls[0][0].xQuali.keys() and feature1 in samples_ls[0][0].xQuanti.keys():
 
         cols = [str(elem) for elem in feature1_values]
         idxs = samples_ls[0][0].possibleQualities[feature2]
 
-    if feature2 in samples_ls[0][0].xQuanti.keys() and feature1 in samples_ls[0][0].xQuali.keys():
+    elif feature2 in samples_ls[0][0].xQuanti.keys() and feature1 in samples_ls[0][0].xQuali.keys():
         cols = samples_ls[0][0].possibleQualities[feature1]
         idxs = [str(elem) for elem in feature2_values]
 
-    if feature2 in samples_ls[0][0].xQuanti.keys() and feature1 in samples_ls[0][0].xQuanti.keys():
+    elif feature2 in samples_ls[0][0].xQuanti.keys() and feature1 in samples_ls[0][0].xQuanti.keys():
 
         cols = [str(elem) for elem in feature1_values]
         idxs = [str(elem) for elem in feature2_values]
+
+    else :
+        print('error in MyPredSample')
+
 
     PredDf = pd.DataFrame(columns=cols, index=idxs)
 
@@ -224,12 +241,23 @@ def create_Feature_Predictions_2D (MyPred_Sample, feature1, feature2, model, fea
 
         PredDf.loc[name, :] = preds
 
+    if feature2ordered:
+        PredDf = PredDf.reindex(index=feature2ordered)
+
+    if feature1ordered:
+        PredDf = PredDf.reindex(columns=feature1ordered)
+
+
     return PredDf
 
-def Plot_Feature_Predictions_2D(modelName, PredDf, f1, f2, displayParams, DBpath, studyFolder='PREDICTIONS/'):
+def Plot_Feature_Predictions_2D(modelName, PredDf, MyPred_Sample, displayParams, DBpath, studyFolder='PREDICTIONS/'):
 
-    fig, ax = plt.subplots(figsize=(12,8))#
+    f1 = MyPred_Sample['Cols']
+    f2 = MyPred_Sample['Rows']
+
+    fig, ax = plt.subplots(figsize=(16,8))#
     PredDf = PredDf.astype(float)
+    PredDf = PredDf.round(1)
     fontsize = 12
 
     figFolder = 'HEATMAP'
@@ -263,32 +291,33 @@ def Plot_Feature_Predictions_2D(modelName, PredDf, f1, f2, displayParams, DBpath
     # cbar.ax.tick_params(labelsize=14)
     cbar.set_label(title, fontsize=fontsize)
 
-
-
     fig.tight_layout()
 
     reference = displayParams['reference']
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + figFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + studyFolder + MyPred_Sample['DBname'] + '/'+ figFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
         plt.savefig(outputFigPath + '/' + figTitle + '.png')
-        print(outputFigPath)
+
     if displayParams['showPlot']:
         plt.show()
     plt.close()
 
-def Run_Feature_Predictions_2D(MyPred_Sample, feature1, feature2, Model_List=None, Blender_List=None, feature1_values = None, feature2_values = None):
-
+def Run_Feature_Predictions_2D(MyPred_Sample,  Model_List=None, Blender_List=None):
+    # feature1, feature2,, feature1_values = None, feature2_values = None,
+    #                                            feature1ordered = None, feature2ordered = None
+    feature1 = MyPred_Sample['Cols']
+    feature2 = MyPred_Sample['Rows']
     AllDfs = []
     SheetNames = []
     for model in Model_List + Blender_List:
         SheetNames.append(model.GSName)
-        PredDf = create_Feature_Predictions_2D(MyPred_Sample, feature1, feature2, model, feature1_values = feature1_values, feature2_values = feature2_values)
-        Plot_Feature_Predictions_2D(model.GSName, PredDf, feature1, feature2, displayParams, DB_Values['DBpath'])
+        PredDf = create_Feature_Predictions_2D(MyPred_Sample,  model)
+        Plot_Feature_Predictions_2D(model.GSName, PredDf, MyPred_Sample, displayParams, DB_Values['DBpath'])
         AllDfs.append(PredDf)
 
     if displayParams['archive']:
@@ -304,3 +333,21 @@ def Run_Feature_Predictions_2D(MyPred_Sample, feature1, feature2, Model_List=Non
             for df, name in zip(AllDfs, SheetNames):
                 df.to_excel(writer, sheet_name=name)
 
+
+
+def RUN_Samp_Steps(MyPred_Sample, DBpath, ref_single, Model_List, Blender_List, precomputed = False):
+
+
+    # RUN
+    sample = Sample(displayParams["reference"], MyPred_Sample)
+    # STORE
+    pickleDumpMe(DBpath, displayParams, sample, 'PREDICTIONS', MyPred_Sample["DBname"])
+    # IMPORT
+    sample = import_SAMPLE(ref_single, name=MyPred_Sample['DBname'])
+    # EXPLAIN
+    Run_Model_Predictions_Explainer(sample, DBpath, Model_List=Model_List,
+                                    Blender_List=Blender_List,precomputed=precomputed)
+    # COMPARE
+    Run_Feature_Predictions_2D(MyPred_Sample,  Model_List=Model_List, Blender_List=Blender_List)
+
+    return sample

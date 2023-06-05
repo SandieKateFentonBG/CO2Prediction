@@ -35,9 +35,9 @@ Price&Myers V3
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", "DBname" : "P&M_Carbon_Database_2023",
              "DBdelimiter" : ';', "DBfirstLine" : 5, 'acronym' : acronym}
 
-xQualLabels = ['Stage','Location','Value','Sector', 'Building_site', 'Passive', 'Basement',
-               'Foundation', 'Ground_Floor', 'Superstructure', 'Cladding', 'Fire_Rating']#
-xQuantLabels = ['Floor_Area', 'Calculation_Year', 'Value','Storeys']
+xQualLabels = ['Calculation Design Stage','Location','Value Type','Project Sector', 'Type', 'Passivhaus', 'Basement',
+               'Foundation Type', 'Ground Floor Type', 'Superstructure Type', 'Cladding Type', 'Fire Rating']#
+xQuantLabels = ['GIFA (m2)', 'Calculation Year', 'Project Value (poundm)','Storeys (#)']
 
 RemoveOutliersFrom = xQuantLabels
 yLabels = set_1[0]
@@ -49,8 +49,7 @@ FORMAT_Values = {'yUnitFactor': 1, 'targetLabels' : ['kgCO2e/m2'], 'TargetMinMax
 #'yUnitFactor' converts from yLabel unit to target Label unit:
 # ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
 
-# 	['Calculation_Year','Stage','Location','Floor_Area','Value','Value_Type','Sector','Building_site','Storeys','Passive',
-# 'Basement','Foundation','Ground_Floor','Superstructure','Cladding','Fire_Rating']
+
 
 #SAMPLES
 
@@ -58,7 +57,7 @@ FORMAT_Values = {'yUnitFactor': 1, 'targetLabels' : ['kgCO2e/m2'], 'TargetMinMax
 
 # MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
 #              "DBname" : "PM_V3_Test",
-#              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Storeys', 'Rows':'Superstructure',
+#              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Storeys (#)', 'Rows':'Superstructure Type',
 #             'col_values' : list(range(12)), 'row_values' : None, 'orderFtCols' : None, "orderFtRows" : ['Concrete (In-Situ)',
 #                         'Concrete (Precast)', 'Concrete (PT)', 'Timber Frame (Glulam/CLT)',
 #                           'Timber Frame (Softwood)', 'Steel Frame/Precast', 'Steel Frame/Composite',
@@ -68,7 +67,7 @@ FORMAT_Values = {'yUnitFactor': 1, 'targetLabels' : ['kgCO2e/m2'], 'TargetMinMax
 
 MyPred_Sample2 = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : "PM_V3_Test",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Type', 'Rows':'Superstructure',
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Type', 'Rows':'Superstructure Type',
             'col_values' : None, 'row_values' : None, 'orderFtCols' : None, "orderFtRows" : ['Concrete (In-Situ)',
                         'Concrete (Precast)', 'Concrete (PT)', 'Timber Frame (Glulam/CLT)',
                           'Timber Frame (Softwood)', 'Steel Frame/Precast', 'Steel Frame/Composite',
@@ -77,7 +76,7 @@ MyPred_Sample2 = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
 
 MyPred_Sample3 = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : "PM_V3_Test",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Cladding', 'Rows':'Superstructure',
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Cladding Type', 'Rows':'Superstructure Type',
             'col_values' : None, 'row_values' : None, 'orderFtCols' : None, "orderFtRows" : ['Concrete (In-Situ)',
                         'Concrete (Precast)', 'Concrete (PT)', 'Timber Frame (Glulam/CLT)',
                           'Timber Frame (Softwood)', 'Steel Frame/Precast', 'Steel Frame/Composite',
@@ -86,7 +85,7 @@ MyPred_Sample3 = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
 
 MyPred_Sample4 = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : "PM_V3_Test",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Floor_Area', 'Rows':'Superstructure',
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'GIFA (m2)', 'Rows':'Superstructure Type',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None, "orderFtRows" : ['Concrete (In-Situ)',
                         'Concrete (Precast)', 'Concrete (PT)', 'Timber Frame (Glulam/CLT)',
                           'Timber Frame (Softwood)', 'Steel Frame/Precast', 'Steel Frame/Composite',
@@ -97,7 +96,7 @@ MyPred_Sample4 = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
 
 MyPred_Sample_TIMBER = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : "PM_V3_TIMBER",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Cladding', 'Rows':'Superstructure',
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Cladding Type', 'Rows':'Superstructure Type',
             'col_values' : None, 'row_values' : None, 'orderFtCols' : None, "orderFtRows" : ['Concrete (In-Situ)',
                         'Concrete (Precast)', 'Concrete (PT)', 'Timber Frame (Glulam/CLT)',
                           'Timber Frame (Softwood)', 'Steel Frame/Precast', 'Steel Frame/Composite',
@@ -106,7 +105,7 @@ MyPred_Sample_TIMBER = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
 
 MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : "PM_V3_CONCRETE",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Cladding', 'Rows':'Superstructure',
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Cladding Type', 'Rows':'Superstructure Type',
             'col_values' : None, 'row_values' : None, 'orderFtCols' : None, "orderFtRows" : ['Concrete (In-Situ)',
                         'Concrete (Precast)', 'Concrete (PT)', 'Timber Frame (Glulam/CLT)',
                           'Timber Frame (Softwood)', 'Steel Frame/Precast', 'Steel Frame/Composite',
@@ -115,13 +114,12 @@ MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
 
 MyPred_Sample_GLT = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : "PM_V3_GLT",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Cladding', 'Rows':'Superstructure',
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Cladding Type', 'Rows':'Superstructure Type',
             'col_values' : None, 'row_values' : None, 'orderFtCols' : None, "orderFtRows" : ['Concrete (In-Situ)',
                         'Concrete (Precast)', 'Concrete (PT)', 'Timber Frame (Glulam/CLT)',
                           'Timber Frame (Softwood)', 'Steel Frame/Precast', 'Steel Frame/Composite',
                           'Steel Frame/Timber',
                           'Steel Frame/Other', 'Masonry/Concrete', 'Masonry/Timber', 'Masonry & Timber', 'Other']}
-
 
 
 
@@ -135,16 +133,16 @@ DATA ANALYSIS
 # displayParams["ref_prefix"] = DB_Values['acronym'] + '_' + studyParams['sets'][0][1]
 # # ['A123-C34 Rate (kgCO2e/m2)', 'A1-A3 Rate (kgCO2e/m2)',	'A1-A5 Rate (kgCO2e/m2)',	'A1-C4 Rate (kgCO2e/m2)',	'A1-D Rate (kgCO2e/m2)']
 # yLabels = ['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)', 'Carbon C3-C4 (kgCO2e)']
-# xQualLabels = ['Stage','Location','Value','Project Sector', 'Type', 'Passivhaus', 'Basement',
-#                'Foundation', 'Ground_Floor', 'Superstructure', 'Cladding', 'Fire_Rating']#
-# xQuantLabels = ['Floor_Area', 'Calculation_Year', 'Value','Storeys']
+# xQualLabels = ['Calculation Design Stage','Location','Value Type','Project Sector', 'Type', 'Passivhaus', 'Basement',
+#                'Foundation Type', 'Ground Floor Type', 'Superstructure Type', 'Cladding Type', 'Fire Rating']#
+# xQuantLabels = ['GIFA (m2)', 'Calculation Year', 'Project Value (poundm)','Storeys (#)']
 # RemoveOutliersFrom = xQuantLabels + yLabels
 #
 # #CHANGES   !! LABELS MUST BE IN INITIAL IMPORT!
 # Summed_Labels = {'Carbon A123C34 (kgCO2e)' : ['Carbon A1-A3 (kgCO2e)', 'Carbon C3-C4 (kgCO2e)']} #SUMMED
-# Divided_Labels = {'A123C34 Rate (kgCO2e/m2)' : ['Carbon A123C34 (kgCO2e)', 'Floor_Area']} #SUMMED LABELS MUST BE IN INITIAL IMPORT!
+# Divided_Labels = {'A123C34 Rate (kgCO2e/m2)' : ['Carbon A123C34 (kgCO2e)', 'GIFA (m2)']} #SUMMED LABELS MUST BE IN INITIAL IMPORT!
 # # AddedLabels = [k for k in Summed_Labels.keys()] + [k for k in Divided_Labels.keys()]
-# splittingFt = 'Superstructure'
+# splittingFt = 'Superstructure Type'
 # order = ['Concrete (In-Situ)', 'Concrete (Precast)','Concrete (PT)','Timber Frame (Glulam/CLT)',
 #          'Timber Frame (Softwood)','Steel Frame/Precast', 'Steel Frame/Composite','Steel Frame/Timber',
 #          'Steel Frame/Other', 'Masonry/Concrete','Masonry/Timber', 'Masonry & Timber','Other']
@@ -154,20 +152,20 @@ DATA ANALYSIS
 #                   ['Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)', 'Carbon A123C34 (kgCO2e)_normalize', 'A123C34 Rate (kgCO2e/m2)_normalize']]
 # labels_2D_scale = [['Carbon A1-A3 (kgCO2e)', 'A1-A3 Rate (kgCO2e/m2)', 'Carbon A1-A3 (kgCO2e)_scale', 'A1-A3 Rate (kgCO2e/m2)_scale'],
 #     ['Carbon A123C34 (kgCO2e)', 'A123C34 Rate (kgCO2e/m2)', 'Carbon A123C34 (kgCO2e)_scale','A123C34 Rate (kgCO2e/m2)_scale']]
-# exploded_ft = 'Calculation_Year' #qual feature with few different values
+# exploded_ft = 'Calculation Year' #qual feature with few different values
 # splittingFt_focus = 'Concrete (In-Situ)' #order[0]
-# splittingFt_2 = 'Cladding'
+# splittingFt_2 = 'Cladding Type'
 #
 # ## VARIANT
 #
 # # labels_2D_norm = []
 # # labels_2D_scale = []
-# # exploded_ft ='Stage'
+# # exploded_ft ='Calculation Design Stage'
 # # focus = 'TimberFrameGlulamCLT' #!! no '/' in your name !!
-# # mainTarget = 'Storeys'
-# # labels_1D = ['Storeys', 'Storeys_scale', 'Storeys_normalize']
+# # mainTarget = 'Storeys (#)'
+# # labels_1D = ['Storeys (#)', 'Storeys (#)_scale', 'Storeys (#)_normalize']
 # # splittingFt_focus = 'Timber Frame (Glulam/CLT)'
-# # splittingFt_2 = 'Foundation'
+# # splittingFt_2 = 'Foundation Type'
 
 
 

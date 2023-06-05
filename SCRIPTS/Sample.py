@@ -15,7 +15,7 @@ import shap
 
 
 class Sample:
-    def __init__(self, dbRefName, MyPred_Sample, dbName=MyPred_Sample['DBname']): #, delimiter, firstLine, xQualLabels, xQuantLabels, model):#self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels, updateLabels=None
+    def __init__(self, dbRefName, MyPred_Sample): #, delimiter, firstLine, xQualLabels, xQuantLabels, model):#self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels, updateLabels=None
 
         """
 
@@ -30,7 +30,8 @@ class Sample:
 
         # RAW DATA
         from Raw import open_csv_at_given_line
-        header, reader = open_csv_at_given_line(path=MyPred_Sample['DBpath'], dbName=dbName,
+        # dbName = MyPred_Sample['DBname']
+        header, reader = open_csv_at_given_line(path=MyPred_Sample['DBpath'], dbName=MyPred_Sample['DBname'],
                                                 delimiter=MyPred_Sample['DBdelimiter'],
                                                 firstLine=MyPred_Sample['DBfirstLine'])
 
@@ -50,6 +51,8 @@ class Sample:
         self.xQuantiDict = self.xQuanti.copy()
 
         self.createSample(xQuali=self.xQuali, xQuanti=self.xQuanti)
+        self.SHAPGroupKeys = None
+        self.SHAPGroupvalues = None
 
     def createSample(self, xQuali, xQuanti):
 
@@ -152,6 +155,8 @@ class Sample:
                 myExplainer.__setattr__('data', formatDf(self.input, model).T.squeeze())
                 extra = '_Grouped'
 
+                # todo : pickledump this myExplainer >
+
             else:
                 return
 
@@ -169,7 +174,7 @@ class Sample:
         # SAVE
         reference = displayParams['reference']
         if displayParams['archive']:
-            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name + '/WATERFALL'
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
@@ -181,9 +186,16 @@ class Sample:
 
         plt.close()
 
+        self.__setattr__('explainer', myExplainer)
+        self.explainer = myExplainer
+
     def group_data(self, model, shap_values):
 
         # compute new SHAP values
+        #TODO : REMOVE PRINTS
+        print(model.GSName)
+        print('CHECK THIS : model.SHAPGroup_RemapDict.keys()', model.SHAPGroup_RemapDict.keys())
+        print('model.SHAPGroup_RemapDict.values()', model.SHAPGroup_RemapDict.values())
 
         #transform data
         SHAPGroupKeys = list(model.SHAPGroup_RemapDict.keys())
@@ -196,6 +208,9 @@ class Sample:
         SHAPGroupvalues = [sum(l) for l in values_split]
         #format values to array
         SHAPGroupvalues = np.array(SHAPGroupvalues)
+
+        self.SHAPGroupKeys = SHAPGroupKeys
+        self.SHAPGroupvalues = SHAPGroupvalues
 
         return SHAPGroupKeys, SHAPGroupvalues
 
@@ -332,7 +347,7 @@ class Sample:
 
         reference = displayParams['reference']
         if displayParams['archive']:
-            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name + '/FORCE'
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
@@ -372,7 +387,7 @@ class Sample:
 
             reference = displayParams['reference']
             if displayParams['archive']:
-                path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name
+                path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/' + 'PREDICTIONS/' + self.name + '/SCATTER'
                 import os
                 outputFigPath = path + folder + subFolder
                 if not os.path.isdir(outputFigPath):
@@ -392,5 +407,10 @@ class Sample:
 
 
 
+def import_SAMPLE(ref_single, name):
 
+    path = DB_Values['DBpath'] + 'RESULTS/' + ref_single + 'RECORDS/PREDICTIONS/' + name + '.pkl'
+    SA = pickleLoadMe(path=path, show=False)
+
+    return SA
 

@@ -22,6 +22,7 @@ displayParams["ref_prefix"] = ref_prefix
 ref_single = ref_prefix + ref_suffix_single + str(PROCESS_VALUES['random_state']) + '/'
 displayParams["reference"] = ref_single
 
+
 print(displayParams["reference"])
 
 # ">>IMPORT"
@@ -30,24 +31,46 @@ print(displayParams["reference"])
 # Blender_NBest = import_Blender_NBest(ref_single, label=BLE_VALUES['Regressor'] + '_Blender_NBest')
 Blender_SVR = import_Blender_NBest(ref_single, label='LR_RIDGE' + '_Blender_NBest')
 Blender_LR = import_Blender_NBest(ref_single, label='SVR_RBF' + '_Blender_NBest')
-
-# # MODEL
-# GS_FSs = import_Main_GS_FS(displayParams["reference"], GS_FS_List_Labels = studyParams['Regressors'])
-# # Model_List_All = unpackGS_FSs(GS_FSs, remove='')
-# LRidge = GS_FSs[1].RFE_RFR
 #
-# Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
-
-# Blender_NBest = import_Main_Blender(displayParams["reference"], n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label =BLE_VALUES['Regressor'] + '_Blender')
-# B_M = Blender_NBest.modelList
+# # # MODEL
+# # GS_FSs = import_Main_GS_FS(displayParams["reference"], GS_FS_List_Labels = studyParams['Regressors'])
+# # # Model_List_All = unpackGS_FSs(GS_FSs, remove='')
+# # LRidge = GS_FSs[1].RFE_RFR
+# #
+# # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
+#
+# # Blender_NBest = import_Main_Blender(displayParams["reference"], n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label =BLE_VALUES['Regressor'] + '_Blender')
+# # B_M = Blender_NBest.modelList
 B_M = Blender_SVR.modelList
 
-# Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR],
-#                                 precomputed = False, dbName='Test-Concrete')
-# Run_Model_Predictions_Explainer(MyPred_Sample, DB_Values["DBpath"], Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR],
-#                                 precomputed = False, dbName=MyPred_Sample['DBname'])
-Run_Feature_Predictions_2D(MyPred_Sample, feature1='Storeys (#)', feature2='Superstructure Type', Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR]
-                           , feature1_values = list(range(12)), feature2_values = None)
+
+for s in [MyPred_Sample_CONCRETE, MyPred_Sample_TIMBER, MyPred_Sample_GLT]:
+    sample = RUN_Samp_Steps(s, DBpath=DB_Values["DBpath"], ref_single = ref_single, Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR], precomputed = False)
+    print(sample.SHAPGroupKeys)
+    print(sample.SHAPGroupvalues)
+
+regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['LR_ELAST'])  # SVR_RBF
+print(regressor)
+for s in regressor[0].learningDfsList:
+    print(s)
+    model = regressor[0].__getattribute__(s)
+    for k, v in model.SHAPGroup_RemapDict.items():
+        print(k, v)
+    print('')
+
+# model = regressor[0].RFE_RFR
+# print(model)
+# for k, v in model.SHAPGroup_RemapDict.items():
+#     print(k,v)
+#
+# print('')
+# model2 = regressor[0].NoSelector
+# print(model2)
+# for k, v in model2.SHAPGroup_RemapDict.items():
+#     print(k,v)
+
+# # IMPORT
+# sample_CONCRETE = import_SAMPLE(displayParams["ref_prefix"], name=MyPred_Sample_CONCRETE['DBname'])
 
 
 
