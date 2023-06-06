@@ -63,6 +63,15 @@ SAMPLE
 #              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym} #Test-Concrete
 
 
+
+MyPred_Sample_CONCRETEselection = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+             "DBname" : "EU-ECB-S-Concrete",
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
+            'col_values' : None, 'row_values' : None,
+                          'orderFtCols' : ['Ceramics (e.g., fired clay bricks)','Stone (granite, limestone, etc)','Concrete w/o reinforcement','Timber, wood','Other'],
+                          "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
+
+
 MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : "EU-ECB-S-Concrete",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',

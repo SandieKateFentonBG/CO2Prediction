@@ -242,10 +242,14 @@ def create_Feature_Predictions_2D (MyPred_Sample, model):
         PredDf.loc[name, :] = preds
 
     if feature2ordered:
+        PredDf = PredDf.loc[feature2ordered, :]
         PredDf = PredDf.reindex(index=feature2ordered)
+        # PredDf = PredDf.reindex(index=feature2ordered)
 
     if feature1ordered:
+        PredDf = PredDf.loc[:, feature1ordered]
         PredDf = PredDf.reindex(columns=feature1ordered)
+        # PredDf = PredDf.reindex(columns=feature1ordered)
 
 
     return PredDf
@@ -258,17 +262,17 @@ def Plot_Feature_Predictions_2D(modelName, PredDf, MyPred_Sample, displayParams,
     fig, ax = plt.subplots(figsize=(16,8))#
     PredDf = PredDf.astype(float)
     PredDf = PredDf.round(1)
-    fontsize = 12
+    fontsize = 14
 
     figFolder = 'HEATMAP'
     figTitle = modelName +'_Feature_Predictions_' + f1 + f2
 
     ylabel, xlabel = f1, f2
     yLabels, xLabels = PredDf.columns, PredDf.index
-    title = f1 + "-" + f2 + "( %s )" % studyParams['sets'][0][0][0]
+    title = studyParams['sets'][0][0][0] #f1 + "-" + f2 + "( %s )" %
 
     # title = modelName + 'Influence of Features on target - (%s)' % studyParams['sets'][0][0][0]
-    heatmap  = sns.heatmap(PredDf, annot=True, fmt=".001f", ax=ax, cbar_kws={"shrink": .70,  "orientation": "horizontal"}, cmap="bwr",
+    heatmap  = sns.heatmap(PredDf, annot=True, annot_kws={"size":fontsize}, fmt=".001f", ax=ax, cbar_kws={"shrink": .70,  "orientation": "horizontal"}, cmap="bwr",
                 linewidths=3, linecolor="white", square=True) #'label': title,
 
     # Show all ticks and label them with the respective list entries
@@ -288,10 +292,11 @@ def Plot_Feature_Predictions_2D(modelName, PredDf, MyPred_Sample, displayParams,
     # plt.ylabel("", fontsize =12) #xlabel
 
     cbar = heatmap.collections[0].colorbar
-    # cbar.ax.tick_params(labelsize=14)
+    cbar.ax.tick_params(labelsize=fontsize)
     cbar.set_label(title, fontsize=fontsize)
 
     fig.tight_layout()
+    # fig.tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None)
 
     reference = displayParams['reference']
     if displayParams['archive']:
@@ -345,8 +350,8 @@ def RUN_Samp_Steps(MyPred_Sample, DBpath, ref_single, Model_List, Blender_List, 
     # IMPORT
     sample = import_SAMPLE(ref_single, name=MyPred_Sample['DBname'])
     # EXPLAIN
-    Run_Model_Predictions_Explainer(sample, DBpath, Model_List=Model_List,
-                                    Blender_List=Blender_List,precomputed=precomputed)
+    # Run_Model_Predictions_Explainer(sample, DBpath, Model_List=Model_List,
+    #                                 Blender_List=Blender_List,precomputed=precomputed)
     # COMPARE
     Run_Feature_Predictions_2D(MyPred_Sample,  Model_List=Model_List, Blender_List=Blender_List)
 

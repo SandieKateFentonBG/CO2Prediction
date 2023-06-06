@@ -44,33 +44,19 @@ Blender_LR = import_Blender_NBest(ref_single, label='SVR_RBF' + '_Blender_NBest'
 B_M = Blender_SVR.modelList
 
 
-for s in [MyPred_Sample_CONCRETE, MyPred_Sample_TIMBER, MyPred_Sample_GLT]:
+for s in [MyPred_Sample_CONCRETEselection]: #MyPred_Sample_CONCRETE, MyPred_Sample_TIMBER, MyPred_Sample_GLT
     sample = RUN_Samp_Steps(s, DBpath=DB_Values["DBpath"], ref_single = ref_single, Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR], precomputed = False)
     print(sample.SHAPGroupKeys)
     print(sample.SHAPGroupvalues)
 
-regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['LR_ELAST'])  # SVR_RBF
-print(regressor)
-for s in regressor[0].learningDfsList:
-    print(s)
-    model = regressor[0].__getattribute__(s)
-    for k, v in model.SHAPGroup_RemapDict.items():
-        print(k, v)
-    print('')
-
-# model = regressor[0].RFE_RFR
-# print(model)
-# for k, v in model.SHAPGroup_RemapDict.items():
-#     print(k,v)
-#
-# print('')
-# model2 = regressor[0].NoSelector
-# print(model2)
-# for k, v in model2.SHAPGroup_RemapDict.items():
-#     print(k,v)
-
-# # IMPORT
-# sample_CONCRETE = import_SAMPLE(displayParams["ref_prefix"], name=MyPred_Sample_CONCRETE['DBname'])
+# regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['LR_ELAST'])  # SVR_RBF
+# print(regressor)
+# for s in regressor[0].learningDfsList:
+#     print(s)
+#     model = regressor[0].__getattribute__(s)
+#     for k, v in model.SHAPGroup_RemapDict.items():
+#         print(k, v)
+#     print('')
 
 
 
