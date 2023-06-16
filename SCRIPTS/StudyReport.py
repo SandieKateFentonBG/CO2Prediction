@@ -1,4 +1,4 @@
-def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df, learningDf,
                          baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = True):
 
     if displayParams['archive']:
@@ -37,6 +37,7 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
 
             writer.writerow(["Full df ", df.shape])
             writer.writerow(["Outliers removed ", learningDf.shape])
+            writer.writerow(["Under represented features removed ", dat.removedDict])
             writer.writerow('')
             writer.writerow(['FORMAT'])
             writer.writerow(["train", baseFormatedDf.trainDf.shape])

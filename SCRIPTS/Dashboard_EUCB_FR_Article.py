@@ -45,7 +45,7 @@ xQualLabels = ['Use_Subtype', 'Structure', 'Roof', 'Energy_Class', 'Main_Materia
 
 xQuantLabels = ['Gross_Floor_Area', 'Users_Total', 'Floors_Below_Ground'] #, 'Floors_Above_Ground'
 
-RemoveOutliersFrom = ['Gross_Floor_Area', 'Users_Total'] #'Floors_Above_Ground'
+# RemoveOutliersFrom = ['Gross_Floor_Area', 'Users_Total'] #'Floors_Above_Ground'
 
 yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
 
@@ -61,6 +61,15 @@ SAMPLE
 # MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
 #              "DBname" : "Test-Wood",
 #              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym} #Test-Concrete
+
+
+
+MyPred_Sample_CONCRETEselection = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+             "DBname" : "EU-ECB-S-Concrete",
+             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
+            'col_values' : None, 'row_values' : None,
+                          'orderFtCols' : ['Ceramics (e.g., fired clay bricks)','Stone (granite, limestone, etc)','Concrete w/o reinforcement','Timber, wood','Other'],
+                          "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
 
 
 MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
@@ -118,7 +127,9 @@ ________________________________________________________________________________
 """
 #parameters chosen for database processing
 
-PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
+PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshhold' : 5, 'removeUnderrepresenteds' : False,
+                'RemoveOutliersFrom' : ['Gross_Floor_Area', 'Users_Total'], 'removeUnderrepresentedsFrom' : xQualLabels,
+                  'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
                 'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
 

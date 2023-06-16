@@ -4,6 +4,9 @@ import numpy as np
 
 #data = lines
 
+
+
+
 def removeOutliers(dataframe, labels, cutOffThreshhold):
     """
 
@@ -43,6 +46,38 @@ def removeOutlier(df, colName, cutOffThreshhold):
     fence_high = q3 + cutOffThreshhold * iqr
     return df.loc[(df[colName] > fence_low) & (df[colName] < fence_high)]
 
+def removeUnderrepresented(df, colName, cutOffThreshold):
+
+    underrepresented_values = set()
+
+    newdf = df.groupby(colName).filter(lambda x: len(x) > cutOffThreshold)
+    if newdf.shape != df.shape:
+        underrepresented_values = set(df[colName].unique()) - set(newdf[colName].unique())
+    removed = dict()
+    if len(underrepresented_values) > 0:
+        removed[colName] = []
+        for value in underrepresented_values:
+            removed[colName].append(value)
+
+    return newdf, removed
 
 
+
+
+def removeUnderrepresenteds(dataframe, labels, cutOffThreshhold):
+    """
+
+    :param labels: labels to remove underrepresented values from - here we take xQuali
+    :param cutOffThreshhold: default 1.5
+    :return: Dataframe without outliers
+
+    """
+
+    removedDict = dict()
+    for l in labels:
+        noOutlierDf, removed = removeUnderrepresented(dataframe, l, cutOffThreshhold)
+        removedDict.update(removed)
+        dataframe = noOutlierDf
+
+    return noOutlierDf, removedDict
 

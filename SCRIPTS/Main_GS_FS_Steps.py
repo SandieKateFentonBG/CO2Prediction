@@ -248,7 +248,7 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
     # #IMPORT Main_FS
-    rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(import_FS_ref,
+    rdat, dat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(import_FS_ref,
                                                                                                show=False)
     learning_dfs = [spearmanFilter, pearsonFilter] + RFEs + [baseFormatedDf]
 
@@ -266,7 +266,7 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
 
     # REPORT
     print('REPORTING GS_FS')
-    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, df, learningDf,
+    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df, learningDf,
                          baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, GSwithFS=True)
 
     scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']

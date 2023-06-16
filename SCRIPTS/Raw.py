@@ -114,7 +114,7 @@ class RawData:
             sns.scatterplot(data=df, x=xLabel, y=yLabel, hue=yLabel, ax=ax)
             reference = displayParams['reference']
             if displayParams['archive']:
-                path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/DATA'
+                path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/DATA/RAW'
                 import os
                 outputFigPath = path + folder + subFolder
 

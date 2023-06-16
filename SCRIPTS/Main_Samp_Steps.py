@@ -30,12 +30,12 @@ def Run_Model_Predictions_Explainer(sample, ArchPath, Model_List=None, Blender_L
 
             # PLOT
             sample.SHAP_WaterfallPlot(model, explainer, DB_Values['DBpath'])
-            sample.SHAP_ScatterPlot(model, explainer, DB_Values['DBpath'])
-            sample.SHAP_ForcePlot(model, explainer, DB_Values['DBpath'])
+            # sample.SHAP_ScatterPlot(model, explainer, DB_Values['DBpath'])
+            # sample.SHAP_ForcePlot(model, explainer, DB_Values['DBpath'])
 
             sample.SHAP_WaterfallPlot(model, explainer, DB_Values['DBpath'], Grouped = True)
-            sample.SHAP_ScatterPlot(model, explainer, DB_Values['DBpath'])
-            sample.SHAP_ForcePlot(model, explainer, DB_Values['DBpath'], Grouped = True)
+            # sample.SHAP_ScatterPlot(model, explainer, DB_Values['DBpath'])
+            # sample.SHAP_ForcePlot(model, explainer, DB_Values['DBpath'], Grouped = True)
 
 
     if Blender_List :
@@ -350,8 +350,8 @@ def RUN_Samp_Steps(MyPred_Sample, DBpath, ref_single, Model_List, Blender_List, 
     # IMPORT
     sample = import_SAMPLE(ref_single, name=MyPred_Sample['DBname'])
     # EXPLAIN
-    # Run_Model_Predictions_Explainer(sample, DBpath, Model_List=Model_List,
-    #                                 Blender_List=Blender_List,precomputed=precomputed)
+    Run_Model_Predictions_Explainer(sample, DBpath, Model_List=Model_List,
+                                    Blender_List=Blender_List,precomputed=precomputed)
     # COMPARE
     Run_Feature_Predictions_2D(MyPred_Sample,  Model_List=Model_List, Blender_List=Blender_List)
 

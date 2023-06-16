@@ -73,8 +73,11 @@ class DataAnalysis:
 
         # >> 2 NO OUTLIER DATAFRAME
 
-        self.workingDf = removeOutliers(self.rawDf, labels=DARemoveOutliersFrom,
-                                        cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
+        workingDf, self.removedDict = removeUnderrepresenteds(self.rawDf, labels=PROCESS_VALUES['removeUnderrepresentedsFrom'],
+                                             cutOffThreshhold=PROCESS_VALUES['UnderrepresentedCutOffThreshhold'])
+        self.workingDf = removeOutliers(workingDf, labels=PROCESS_VALUES['RemoveOutliersFrom'] + DAyLabels,
+                                   cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
+
         # >> 3 SCALE DATAFRAME
 
         #SCALE
@@ -86,8 +89,6 @@ class DataAnalysis:
             self.scaleDf[k] = (self.workingDf[k] - colMean) / colStd
             self.normalizeDf[k] = (self.workingDf[k] - colMin) / (colMax - colMin)
 
-
-
         self.workingDfFull = None # workingDf + scaleDf + normalizeDf
         self.sortingDfFull = None # workingDfsorted + scaleDfsorted + normalizeDfsorted
 
@@ -96,6 +97,53 @@ class DataAnalysis:
         new_normalizeDf = self.normalizeDf.copy().add_suffix("_normalize")
         self.workingDfFull = pd.concat([self.workingDf, new_scaleDf, new_normalizeDf], axis=1)
 
+    def DataAnalysis_Scatterplots(self, DBpath, ref_prefix, dataname, ylabel):
+
+        for xLabel in [l for l in self.xQuali.keys()] + [l for l in self.xQuanti.keys()]:
+            self.DataAnalysis_Scatterplot(DBpath, ref_prefix, dataname, ylabel, xLabel)
+
+    def DataAnalysis_Scatterplot(self, DBpath, ref_prefix, dataname, yLabel, xLabel):
+
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+        import pandas as pd
+        import numpy as np
+
+
+        fontsize = 10
+        removed = ''
+        if xLabel in self.removedDict.keys():
+            removed = '\n Removed :' + str(self.removedDict[xLabel])
+        data = self.__getattribute__(dataname)
+        fig, ax = plt.subplots(figsize=(8, 8))
+        # ax.set_title(title)
+
+        if xLabel in self.xQuali.keys():
+            labels = self.possibleQualities[xLabel]
+            x = np.arange(len(labels))
+            ax.set_ylabel(yLabel, fontsize = fontsize)
+            ax.set_xlabel(xLabel + removed, fontsize = fontsize)
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels, fontsize = fontsize)
+            plt.setp(ax.get_xticklabels(), rotation=25, ha="right",
+                     rotation_mode="anchor")
+
+        sns.scatterplot(data=data, x=xLabel, y=yLabel, hue=yLabel, ax=ax)
+
+        # fig.tight_layout(pad=1.08)
+
+        if displayParams['archive']:
+            path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA/' + dataname
+            import os
+
+            outputFigPath = path + folder + subFolder
+            if not os.path.isdir(outputFigPath):
+                os.makedirs(outputFigPath)
+            plt.savefig(outputFigPath + '/' + xLabel + '-' + yLabel + '.png')
+
+        if displayParams['showPlot']:
+            plt.show()
+        plt.close()
 
     def createSubsets(self, splittingFt, df, order = None):
 
@@ -309,18 +357,21 @@ def run_DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabe
     # RUN
     DA = DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
                      Summed_Labels, Divided_Labels)
+    dfAsTable(DB_Values['DBpath'], displayParams, DA.workingDf, objFolder='DATA', name = "DA.workingDf", combined = True)
+    dfAsTable(DB_Values['DBpath'], displayParams, DA.rawDf, objFolder='DATA', name = "DA.rawDf", combined = True)
 
+    DA.DataAnalysis_Scatterplots(DB_Values['DBpath'], displayParams["ref_prefix"], dataname='workingDf', ylabel=mainTarget)
     # dfAsTable(DB_Values['DBpath'], displayParams, DA.workingDf, objFolder='DATA', name = "mycheck", combined = True)
 
-    DA.studyDatabase(path, splittingFt = splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'],
-                     orderFt = order)
-    pickleDumpMe(path, displayParams, DA, 'DATA', 'DataAnalysis' + splittingFt, combined=True)
-
-    # IMPORT
-    # DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
-
-    # SINGLE DF EXPORT TO EXCEL
-    dfAsTable(DB_Values['DBpath'], displayParams, DA.sortingDfFull, objFolder='DATA', name = "DAi.sortingDfFull", combined = True)
+    # DA.studyDatabase(path, splittingFt = splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'],
+    #                  orderFt = order)
+    # pickleDumpMe(path, displayParams, DA, 'DATA', 'DataAnalysis' + splittingFt, combined=True)
+    #
+    # # IMPORT
+    # # DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
+    #
+    # # SINGLE DF EXPORT TO EXCEL
+    # dfAsTable(DB_Values['DBpath'], displayParams, DA.sortingDfFull, objFolder='DATA', name = "DAi.sortingDfFull", combined = True)
 
 
     # # #plot normal

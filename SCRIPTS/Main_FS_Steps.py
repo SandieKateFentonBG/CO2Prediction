@@ -68,26 +68,47 @@ def B_features(rdat):
     # REPORT
     print("Full df", df.shape)
     print(df)
+
     dfAsTable(DB_Values['DBpath'], displayParams, df, objFolder='DATA', name = "DF")
 
     # STOCK
-    pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df')
+    pickleDumpMe(DB_Values['DBpath'], displayParams, dat, 'DATA', 'dat')
+    pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'Fulldf')
 
-    return df
+    return dat, df
 
-def C_data(df):
+def C_data(dat):
     """
     GOAL - Remove outliers - only exist/removed on Quantitative features
     Dashboard Input - PROCESS_VALUES : OutlierCutOffThreshhold
     """
     # CONSTRUCT
-    learningDf = removeOutliers(df, labels=RemoveOutliersFrom + yLabels,
+
+    if PROCESS_VALUES['removeUnderrepresenteds']:
+
+        df, removedDict = dat.removeUnderrepresenteds(
+            cutOffThreshhold=PROCESS_VALUES['UnderrepresentedCutOffThreshhold'],
+            removeUnderrepresentedsFrom=PROCESS_VALUES['removeUnderrepresentedsFrom'])
+
+        # REPORT
+        print("Underrepresented removed", df.shape)
+        print("Features removed:")
+        for k, v in removedDict.items():
+            print(k, v)
+
+    else:
+        df = dat.asDataframe()
+
+    learningDf = removeOutliers(df, labels=PROCESS_VALUES['RemoveOutliersFrom'] + yLabels,
                                 cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
     dfAsTable(DB_Values['DBpath'], displayParams, learningDf, objFolder='DATA', name = "learningDf")
+
     # REPORT
     print("Outliers removed ", learningDf.shape)
+
     # STOCK
     pickleDumpMe(DB_Values['DBpath'], displayParams, learningDf, 'DATA', 'learningDf')
+
 
     return learningDf
 
@@ -207,19 +228,15 @@ def F_FS_RFE(baseFormatedDf):
 
 def Run_Data_Processing():
     rdat = A_RawData()
-    df = B_features(rdat)
-    learningDf = C_data(df)
+    dat, df = B_features(rdat)
+    learningDf = C_data(dat)
     baseFormatedDf = D_format(learningDf)
 
-    return rdat, df, learningDf, baseFormatedDf
+    return rdat, dat, df, learningDf, baseFormatedDf
 
 def Run_FS_Study():
-    # rdat = A_RawData()
-    # df = B_features(rdat)
-    # learningDf = C_data(df)
-    # baseFormatedDf = D_format(learningDf)
 
-    rdat, df, learningDf, baseFormatedDf = Run_Data_Processing()
+    rdat, dat, df, learningDf, baseFormatedDf = Run_Data_Processing()
     print(baseFormatedDf.yLabel)
 
     spearmanFilter, pearsonFilter = E_FS_Filter(baseFormatedDf)
@@ -229,21 +246,25 @@ def Run_FS_Study():
 
     reportProcessing(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf,
                      [spearmanFilter, pearsonFilter], RFEs)
-
-    return rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs
+    # todo : 'dat' was added to all functions
+    return rdat, dat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs
 
 def import_Processed_Data(import_reference, show = False):
     rdat = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/DATA/rdat.pkl', show = show)
+    try:
+        dat = pickleLoadMe(path=DB_Values['DBpath'] + 'RESULTS/' + import_reference + 'RECORDS/DATA/dat.pkl', show=show)
+    except Exception:
+        dat = None #if the training was made before this existed
     df = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/DATA/df.pkl', show = show)
     learningDf = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/DATA/learningDf.pkl', show = show)
     baseFormatedDf = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/DATA/baseFormatedDf.pkl', show = show)
 
-    return rdat, df, learningDf, baseFormatedDf
+    return rdat, dat, df, learningDf, baseFormatedDf
 
 def import_Main_FS(import_reference, show = False):
 
     # #IMPORT
-    rdat, df, learningDf, baseFormatedDf = import_Processed_Data(import_reference, show = False)
+    rdat, dat, df, learningDf, baseFormatedDf = import_Processed_Data(import_reference, show = False)
     spearmanFilter = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/FS/spearmanFilter.pkl', show = show)
     pearsonFilter = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/FS/pearsonFilter.pkl', show = show)
     RFEs = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_reference +'RECORDS/FS/RFEs.pkl', show = show)
@@ -252,4 +273,4 @@ def import_Main_FS(import_reference, show = False):
     learning_dfs = [spearmanFilter, pearsonFilter] + RFEs + [baseFormatedDf]
 
 
-    return rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs
+    return rdat, dat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs

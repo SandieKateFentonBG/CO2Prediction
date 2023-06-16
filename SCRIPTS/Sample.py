@@ -2,11 +2,7 @@
 # from dashBoard import *
 # from Dashboard_PM_v2 import *
 # from Dashboard_EUCB_FR import *
-from Dashboard_EUCB_FR_v2 import *
 
-from Raw import *
-from Features import *
-from Main_FS_Steps import *
 from Main_GS_FS_Steps import *
 from HelpersFormatter import *
 import shap
@@ -22,7 +18,8 @@ class Sample:
         """
 
         # IMPORT
-        rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(dbRefName, show = False)
+        # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(dbRefName, show = False)
+        rdat, dat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(dbRefName, show = False)
         self.mean = baseFormatedDf.MeanStdDf.loc["mean",:]
         self.std = baseFormatedDf.MeanStdDf.loc["std",:]
         self.yLabels = studyParams['sets'][0][0]
@@ -143,8 +140,11 @@ class Sample:
         myExplainer = exp[idx]
 
         extra = '_Ungrouped'
+        pltheight = 10
 
         if Grouped : #only do this for no selector - for understanding of full group values
+
+            pltheight = 5
 
             if model.learningDf.selector == 'NoSelector':
 
@@ -166,9 +166,15 @@ class Sample:
         shap_wf = shap.waterfall_plot(myExplainer, show=displayParams['showPlot'], max_display=24)
 
         # EDIT PLOT
-        plt.gcf().set_size_inches(20, 10)
+        plt.gcf().set_size_inches(12, pltheight)
         plt.tight_layout()
-        plt.suptitle(name, ha='center', size='small', va='top')
+        # plt.suptitle(name, ha='center', size='small', va='top')
+        fontsize = 12
+        # Adjust the font size of the plot labels
+        plt.xticks(fontsize=fontsize)  # Increase the font size of the x-axis tick labels
+        plt.yticks(fontsize=fontsize)  # Increase the font size of the y-axis tick labels
+        plt.rcParams.update({'font.size': fontsize})  # Adjust the font size to your desired value
+
         # plt.suptitle(sample, ha='center', size='small', va = 'top')
 
         # SAVE
