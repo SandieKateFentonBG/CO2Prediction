@@ -7,13 +7,14 @@ ________________________________________________________________________________
 """
 #change when running a test
 sample_nb = 32
-sample_values = list(range(30, 40))
+sample_values = list(range(30, 32))
 displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
 
 set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2'] # ylabel, content, metric
-acronym = 'EngStructures'
-studyParams = {"sets": [set_1], 'randomvalues': sample_values,
-               "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']}
+acronym = 'testtest'
+studyParams = {"sets": [set_1], 'randomvalues': sample_values, 'fl_selectors' : ['spearman', 'pearson'],
+               'RFE_selectors' : ['DTR', 'GBR', 'RFR'], #['spearman', 'pearson', 'NoSelector', 'DTR', 'GBR', 'RFR']
+               "Regressors": ['LR', 'LR_RIDGE']} #['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
 
 
 
@@ -130,8 +131,8 @@ ________________________________________________________________________________
 PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshhold' : 5, 'removeUnderrepresenteds' : False,
                 'RemoveOutliersFrom' : ['Gross_Floor_Area', 'Users_Total'], 'removeUnderrepresentedsFrom' : xQualLabels,
                   'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
-                'corrMethod1' : "spearman", 'corrMethod2' : "pearson", 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40,
-                     'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]}
+                'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40,
+                     'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.15, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]} #'corrMethod1' : "spearman", 'corrMethod2' : "pearson",
 
 #todo : check 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]
 
@@ -172,6 +173,30 @@ KRR_param_grid={'alpha': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence
 SVR_param_grid={'C': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_range'], 'degree' : GS_VALUES['degree'],
                 'epsilon': GS_VALUES['margin_range'],  'coef0' : GS_VALUES['coef0_range']}
 
+
+MLP_LBFG_param_grid={ 'hidden_layer_sizes': [(2,), (10,), (100,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
+                 'alpha': list(10.0 ** -np.arange(1, 7)), 'verbose' : True}
+MLP_SGD_param_grid={ 'hidden_layer_sizes': [(2,), (10,), (100,)], 'activation' : ['relu'], 'solver': ['sgd'],
+                 'alpha': list(10.0 ** -np.arange(1, 7)), 'verbose' : True} #should be further hypertuned
+
+
+# hidden_layer_sizes : array-like of shape(n_layers - 2,), default=(100,)
+# activation : {‘identity’, ‘logistic’, ‘tanh’, ‘relu’}, default=’relu’
+# solver :{‘lbfgs’, ‘sgd’, ‘adam’}, default=’adam’
+# alpha : float, default=0.0001 # L2 regul_range
+# batch_size : int, default=’auto’ => batch_size=min(200, n_samples) # Size of minibatches for stochastic optimizers
+# learning_rate : {‘constant’, ‘invscaling’, ‘adaptive’}, default=’constant’ #Only used when solver=’sgd’.
+# learning_rate_init : float, default=0.001 #Only used when solver=’sgd’ or ‘adam’.
+# power_t : float, default=0.5 #exponent for ‘invscaling’, only used when solver=’sgd’.
+# max_iter : int, default=200 # for stochastic solvers (‘sgd’, ‘adam’), determines number of epochs (times each point is used)
+# shuffle : bool, default=True #Whether to shuffle samples in each iteration. Only used when solver=’sgd’ or ‘adam’.
+# random_state : int, RandomState instance, default=None #random number generation for weights and bias initialization, train-test split if early stopping is used, and batch sampling when solver=’sgd’ or ‘adam’.
+# tol : float, default=1e-4 #Tolerance for the optimization.
+# verbose : bool, default=False # print progress messages to stdout.
+
+
+
+
 """
 ________________________________________________________________________________________________________________________
 HYPERPARAM
@@ -190,8 +215,8 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
-              'BestModelNames' : None} #'TestAcc'SVR_RBF
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
+              'BestModelNames' : None} #'TestAcc'SVR_RBFLR_RIDGE
 
 
 

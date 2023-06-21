@@ -29,8 +29,8 @@ print(displayParams["reference"])
 
 # # BLENDER PROCESSING
 # Blender_NBest = import_Blender_NBest(ref_single, label=BLE_VALUES['Regressor'] + '_Blender_NBest')
-Blender_SVR = import_Blender_NBest(ref_single, label='LR_RIDGE' + '_Blender_NBest')
-Blender_LR = import_Blender_NBest(ref_single, label='SVR_RBF' + '_Blender_NBest')
+Blender_SVR = import_Blender_NBest(ref_single, label='SVR_RBF' + '_Blender_NBest')
+Blender_LR = import_Blender_NBest(ref_single, label='LR_RIDGE' + '_Blender_NBest')
 #
 # # # MODEL
 # # GS_FSs = import_Main_GS_FS(displayParams["reference"], GS_FS_List_Labels = studyParams['Regressors'])
@@ -41,7 +41,7 @@ Blender_LR = import_Blender_NBest(ref_single, label='SVR_RBF' + '_Blender_NBest'
 #
 # # Blender_NBest = import_Main_Blender(displayParams["reference"], n = BLE_VALUES['NCount'], NBestScore = BLE_VALUES['NBestScore'], label =BLE_VALUES['Regressor'] + '_Blender')
 # # B_M = Blender_NBest.modelList
-B_M = Blender_SVR.modelList
+B_M = Blender_LR.modelList
 
 
 for s in [MyPred_Sample_CONCRETEselection, MyPred_Sample_CONCRETE, MyPred_Sample_TIMBER, MyPred_Sample_GLT]: #

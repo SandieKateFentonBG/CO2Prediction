@@ -24,6 +24,7 @@ for set in studyParams['sets']:
 
     print("Study for :", set)
     All_CV, NBest_CV, regressors_CV,LR_RIDGE_BLs, SVR_RBF_BLs, models_CV = [],[],[],[],[],[]
+    Blender_NBests = []
     # KRR_LINs, SVR_RBFs, SVR_LINs, KRR_RBFs, KRR_POLs, LRs, LR_RIDGEs, LR_ELASTs, LR_LASSOs = [], [], [], [], [], [], [], [], []
     # Blenders_NBest_CV,  SVR_RBFs = [], []
     randomvalues = studyParams['randomvalues']
@@ -43,26 +44,26 @@ for set in studyParams['sets']:
         # MODEL PROCESSING
         GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
 
-        regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['LR_ELAST']) #SVR_RBF
+        regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['LR_RIDGE']) #SVR_RBF
         model = regressor[0].RFE_RFR
         #
         # # #
         # # # NBEST PROCESSING
-        NBestModels = import_NBest(ref_single, OverallBest = BLE_VALUES['OverallBest'])
+        # NBestModels = import_NBest(ref_single, OverallBest = BLE_VALUES['OverallBest'])
         # # #
         # # # # # BLENDER PROCESSING
         # # # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
-        LR_RIDGE_BL = import_Blender_NBest(ref_single, label = 'LR_RIDGE' + '_Blender_NBest')
+        # LR_RIDGE_BL = import_Blender_NBest(ref_single, label = 'LR_RIDGE' + '_Blender_NBest')
         # SVR_RBF_BL = import_Blender_NBest(ref_single, label = 'SVR_RBF' + '_Blender_NBest')
 
         # ">>RUN"
 
         # # # NBEST PROCESSING
-        # NBestModels = Run_NBest_Study(ref_single, importNBest=False, OverallBest = BLE_VALUES['OverallBest'])
+        NBestModels = Run_NBest_Study(ref_single, importNBest=False, OverallBest = BLE_VALUES['OverallBest'])
         #
         # # BLENDER PROCESSING
-        # Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single,
-        #                                    ConstructorKey=BLE_VALUES['Regressor'])
+        Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single,
+                                           ConstructorKey=BLE_VALUES['Regressor'])
 
         # ">>STORE"
 
@@ -70,10 +71,13 @@ for set in studyParams['sets']:
         models_CV.append(model)
         All_CV.append(GS_FSs)
         NBest_CV.append(NBestModels)
-        LR_RIDGE_BLs.append(LR_RIDGE_BL)
-        # SVR_RBF_BLs.append(SVR_RBF_BL)
+        Blender_NBests.append(Blender_NBest)
+        # LR_RIDGE_BLs.append(LR_RIDGE_BL)
+        # # SVR_RBF_BLs.append(SVR_RBF_BL)
 
-    Blenders_NBest_CV = [LR_RIDGE_BLs] #,SVR_RBF_BLs
+    Blenders_NBest_CV = [Blender_NBests]
+
+    # Blenders_NBest_CV = [LR_RIDGE_BLs] #,SVR_RBF_BLs
 
     # COMBINE
 

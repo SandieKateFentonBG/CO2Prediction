@@ -32,6 +32,9 @@ class ModelGridsearch:
         self.rounding = 3
         self.refit = 'r2' # criteria for best performing param / used for plotting
 
+        # refit = True means that after performing k - fold Cv (i.e., training on a subset of the data),
+        # it refits the model using the best hyperparameters from the gridsearch, on the complete training set.
+
         print('Calibrating hyperparameters')
         self.paramGridsearch(learningDf)
         self.accuracyTol = acc

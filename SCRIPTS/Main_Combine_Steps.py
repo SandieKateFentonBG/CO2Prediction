@@ -7,13 +7,13 @@ from FilterReport  import *
 from Model_Averaging import *
 from Model_Blending_CV import *
 
-def RUN_Training_Report(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues, displayParams,
+def RUN_Training_Report(CV_AllModels, Filters_CV, randomvalues, displayParams, studyParams,
                   GSName = "All"):
 
     print("CV_Filter")
     # FEATURE PROCESSING
     "Assessment of all filtered features - frequency of features selected or dropped"
-    reportCV_Filter(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, randomvalues, displayParams,
+    reportCV_Filter(CV_AllModels, Filters_CV, randomvalues, displayParams, studyParams,
                     DBpath=DB_Values['DBpath'])
 
     print("SHAP_Combined")

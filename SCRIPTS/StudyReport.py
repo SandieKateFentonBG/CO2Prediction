@@ -44,21 +44,24 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
             writer.writerow(["validate", baseFormatedDf.valDf.shape])
             writer.writerow(["test", baseFormatedDf.testDf.shape])
             writer.writerow([''])
-            writer.writerow(['FILTER'])
-            for filter in FiltersLs :
-                writer.writerow(['FILTER ', filter.method])
-                writer.writerow(['LABELS ', filter.trainDf.shape[1]-1]) #todo this was changed - check
-                writer.writerow([filter.selectedLabels])
-                writer.writerow('')
 
-            writer.writerow(['RFE'])
-            for RFE in RFEs:
-                writer.writerow(["RFE with  ", RFE.method])
-                writer.writerow(["Number of features fixed ", RFE.n_features_to_select])
-                writer.writerow(['Selected feature labels ', list(RFE.selectedLabels)])
-                writer.writerow(["Score on training ", RFE.rfe_valScore])
-                writer.writerow(["Score on validation ", RFE.rfe_checkScore])
-                writer.writerow('')
+            if len(FiltersLs)>0:
+                writer.writerow(['FILTER'])
+                for filter in FiltersLs :
+                    writer.writerow(['FILTER ', filter.method])
+                    writer.writerow(['LABELS ', filter.trainDf.shape[1]-1]) #todo this was changed - check
+                    writer.writerow([filter.selectedLabels])
+                    writer.writerow('')
+
+            if len(RFEs) > 0:
+                writer.writerow(['RFE'])
+                for RFE in RFEs:
+                    writer.writerow(["RFE with  ", RFE.method])
+                    writer.writerow(["Number of features fixed ", RFE.n_features_to_select])
+                    writer.writerow(['Selected feature labels ', list(RFE.selectedLabels)])
+                    writer.writerow(["Score on training ", RFE.rfe_valScore])
+                    writer.writerow(["Score on validation ", RFE.rfe_checkScore])
+                    writer.writerow('')
 
             writer.writerow('')
 

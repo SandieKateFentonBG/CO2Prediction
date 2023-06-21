@@ -43,6 +43,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import Lasso, Ridge, ElasticNet
 from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
+from sklearn.neural_network import MLPRegressor
 import shap
 
 
@@ -66,9 +67,12 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
     KRR_POL_CONSTRUCTOR = {'name' : 'KRR_POL',  'modelPredictor' : KernelRidge(kernel = 'poly'),'param_dict' : KRR_param_grid}
     SVR_LIN_CONSTRUCTOR = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
     SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
+    MLP_LBFG_CONSTRUCTOR = {'name': 'MLP_LBFG', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_param_grid}
+    MLP_SGD_CONSTRUCTOR = {'name': 'MLP_SGD', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_param_grid}
 
     All_CONSTRUCTOR = [LR_CONSTRUCTOR, LR_RIDGE_CONSTRUCTOR, LR_LASSO_CONSTRUCTOR, LR_ELAST_CONSTRUCTOR, KRR_LIN_CONSTRUCTOR,
-                      KRR_RBF_CONSTRUCTOR,KRR_POL_CONSTRUCTOR, SVR_LIN_CONSTRUCTOR, SVR_RBF_CONSTRUCTOR]
+                      KRR_RBF_CONSTRUCTOR,KRR_POL_CONSTRUCTOR, SVR_LIN_CONSTRUCTOR, SVR_RBF_CONSTRUCTOR] #MLP_LBFG_CONSTRUCTOR, MLP_SGD_CONSTRUCTOR
+
     GS_CONSTRUCTOR = [elem for elem in All_CONSTRUCTOR if elem['name'] in regressors]
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>GS_CONSTRUCTOR', len(GS_CONSTRUCTOR))
     # CONSTRUCT & REPORT
@@ -248,9 +252,15 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
     # #IMPORT Main_FS
-    rdat, dat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(import_FS_ref,
+    rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(import_FS_ref,
                                                                                                show=False)
-    learning_dfs = [spearmanFilter, pearsonFilter] + RFEs + [baseFormatedDf]
+    learning_dfs = [baseFormatedDf] #not sure order counts
+    if len(filterList)>0:
+        learning_dfs += filterList
+    if len(RFEList)>0:
+        learning_dfs += RFEList
+
+    # todo : this was changed from ldf = filterList + RFEList + [baseFormatedDf] to be sure no empty learning dfs are provided  > check it works
 
 
     # # IMPORT Main_GS_FS
@@ -267,7 +277,7 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
     # REPORT
     print('REPORTING GS_FS')
     reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df, learningDf,
-                         baseFormatedDf, FiltersLs=[spearmanFilter, pearsonFilter], RFEs=RFEs, GSlist=GS_FSs, GSwithFS=True)
+                         baseFormatedDf, FiltersLs=filterList, RFEs=RFEList, GSlist=GS_FSs, GSwithFS=True)
 
     scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
     scoreListMax = [True, False, True, True, True]

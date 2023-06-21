@@ -18,8 +18,9 @@ class Sample:
         """
 
         # IMPORT
+        # todo :  spearmanFilter, pearsonFilter was changed to filterList
         # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(dbRefName, show = False)
-        rdat, dat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(dbRefName, show = False)
+        rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(dbRefName, show = False)
         self.mean = baseFormatedDf.MeanStdDf.loc["mean",:]
         self.std = baseFormatedDf.MeanStdDf.loc["std",:]
         self.yLabels = studyParams['sets'][0][0]

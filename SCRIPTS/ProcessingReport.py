@@ -23,14 +23,14 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
             writer.writerow(["test", type(baseFormatedDf.testDf), baseFormatedDf.testDf.shape])
             writer.writerow([''])
             writer.writerow(['FILTER'])
-            if FiltersLs:
+            if len(FiltersLs)>0:
                 for filter in FiltersLs :
                     writer.writerow(['FILTER ', filter.method])
                     writer.writerow(['LABELS ', filter.trainDf.shape, type(filter.trainDf)])
                     writer.writerow([filter.selectedLabels])
                     writer.writerow('')
                 writer.writerow(['RFE'])
-            if RFEs :
+            if len(RFEs)>0 :
                 for RFE in RFEs:
                     writer.writerow(["RFE with  ", RFE.method])
                     writer.writerow(["Number of features fixed ", RFE.n_features_to_select])

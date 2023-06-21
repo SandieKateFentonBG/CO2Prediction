@@ -1,12 +1,26 @@
 
 
-def reportCV_Filter(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, seeds, displayParams, DBpath):
+def split_list(main_list):
+    n = len(main_list[0])
+    sub_lists = [[] for _ in range(n)]
+
+    for sublist in main_list:
+        for i, item in enumerate(sublist):
+            sub_lists[i].append(item)
+
+    return sub_lists
+
+
+def reportCV_Filter(CV_AllModels, filterList, seeds, displayParams, studyParams, DBpath):
 
     import pandas as pd
 
     AllDfs = []
 
-    for CV_Filters in [CV_Filters_Spearman, CV_Filters_Pearson]:
+    sub_lists = split_list(filterList)
+    print('should be the same :' , len(sub_lists), len(studyParams['fl_selectors']))
+
+    for CV_Filters in sub_lists: # 2 filters
         #dataframe labels
         horizTitles = []
         horizLabels_selected = []
@@ -56,8 +70,17 @@ def reportCV_Filter(CV_AllModels, CV_Filters_Spearman, CV_Filters_Pearson, seeds
         sortedDfs.append(sortedDf)
     AllDfs += sortedDfs
 
-    sheetNames = ["Spearman", "Spearman-rank", "Pearson", "Pearson-rank",
-                  "Spearman-sorted", "Spearman-rank-sorted", "Pearson-sorted", "Pearson-rank-sorted"]
+    sheetNames = []
+    for name in studyParams['fl_selectors']:
+        sheetNames += [name, name + '-rank']
+    for name in studyParams['fl_selectors']:
+        sheetNames += [name + '-sorted', name + '-rank-sorted']
+
+    print('sheetNames', sheetNames,
+          'should be : ["Spearman", "Spearman-rank", "Pearson", "Pearson-rank", "Spearman-sorted", "Spearman-rank-sorted", "Pearson-sorted", "Pearson-rank-sorted"]')
+
+    # sheetNames = ["Spearman", "Spearman-rank", "Pearson", "Pearson-rank",
+    #               "Spearman-sorted", "Spearman-rank-sorted", "Pearson-sorted", "Pearson-rank-sorted"]
     # export
     if displayParams['archive']:
         import os

@@ -22,7 +22,7 @@ for set in studyParams['sets']:
     yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
 
     print("Study for :", set)
-    All_CV, NBest_CV, Filters_Pearson_CV, Filters_Spearman_CV, Blenders_NBest_CV, Blenders_Single_CV = [],[],[],[],[],[]
+    All_CV, NBest_CV, Filters_CV, Blenders_NBest_CV, Blenders_Single_CV = [],[],[],[],[]
     randomvalues = studyParams['randomvalues']
 
     for value in randomvalues:
@@ -39,7 +39,7 @@ for set in studyParams['sets']:
         print('Import Study for random_state:', value)
 
         # FEATURE PROCESSING
-        # rdat, dat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(ref_single, show = False)
+        # rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(ref_single, show = False)
         #
         # # MODEL PROCESSING
         # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
@@ -51,8 +51,9 @@ for set in studyParams['sets']:
         print('Run Study for random_state:', value)
         # #
         # # # FEATURE PROCESSING
-        rdat, dat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = Run_FS_Study()
-        #
+        rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = Run_FS_Study()
+
+        # todo :  spearmanFilter, pearsonFilter was changed to filterList
         # #
         # # # MODEL PROCESSING
         GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
@@ -60,12 +61,21 @@ for set in studyParams['sets']:
         # "STORE"
 
         All_CV.append(GS_FSs)
-        Filters_Pearson_CV.append(pearsonFilter)
-        Filters_Spearman_CV.append(spearmanFilter)
+
+        Filters_CV.append(filterList)
+
+        #
+        # = filterList[i] for
+        #
+        # for name, filter in zip(studyParams['fl_selectors'], filterList):
+        #     if s == 'pearson':
+        #         Filters_Pearson_CV.append(pearsonFilter)
+        #     if s == 'spearman'
+        #         Filters_Spearman_CV.append(spearmanFilter)
 
     # "AVG & NBEST"
 
-    RUN_Training_Report(All_CV, Filters_Spearman_CV, Filters_Pearson_CV, randomvalues, displayParams, GSName="All")
+    RUN_Training_Report(All_CV, Filters_CV, randomvalues, displayParams, studyParams, GSName="All")
 
 
 
