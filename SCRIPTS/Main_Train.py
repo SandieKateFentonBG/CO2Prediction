@@ -39,10 +39,10 @@ for set in studyParams['sets']:
         print('Import Study for random_state:', value)
 
         # FEATURE PROCESSING
-        # rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(ref_single, show = False)
-        #
-        # # MODEL PROCESSING
-        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
+        rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(ref_single, show = False)
+
+        # MODEL PROCESSING
+        GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
         #
         # # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['KRR_LIN'])
 
@@ -51,12 +51,12 @@ for set in studyParams['sets']:
         print('Run Study for random_state:', value)
         # #
         # # # FEATURE PROCESSING
-        rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = Run_FS_Study()
+        # rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = Run_FS_Study()
 
         # todo :  spearmanFilter, pearsonFilter was changed to filterList
         # #
         # # # MODEL PROCESSING
-        GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
+        # GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
 
         # "STORE"
 

@@ -10,11 +10,12 @@ from Model_Blending_CV import *
 def RUN_Training_Report(CV_AllModels, Filters_CV, randomvalues, displayParams, studyParams,
                   GSName = "All"):
 
-    print("CV_Filter")
-    # FEATURE PROCESSING
-    "Assessment of all filtered features - frequency of features selected or dropped"
-    reportCV_Filter(CV_AllModels, Filters_CV, randomvalues, displayParams, studyParams,
-                    DBpath=DB_Values['DBpath'])
+    if len(studyParams['fl_selectors'])>0:
+        print("CV_Filter")
+        # FEATURE PROCESSING
+        "Assessment of all filtered features - frequency of features selected or dropped"
+        reportCV_Filter(CV_AllModels, Filters_CV, randomvalues, displayParams, studyParams,
+                        DBpath=DB_Values['DBpath'])
 
     print("SHAP_Combined")
 

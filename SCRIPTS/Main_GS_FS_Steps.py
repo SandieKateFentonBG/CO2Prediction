@@ -69,9 +69,20 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
     SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
     MLP_LBFG_CONSTRUCTOR = {'name': 'MLP_LBFG', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_param_grid}
     MLP_SGD_CONSTRUCTOR = {'name': 'MLP_SGD', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_param_grid}
+    MLP_LBFG_2_CONSTRUCTOR = {'name': 'MLP_LBFG_2', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_2_param_grid}
+    MLP_SGD_2_CONSTRUCTOR = {'name': 'MLP_SGD_2', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_2_param_grid}
+    MLP_LBFG_10_CONSTRUCTOR = {'name': 'MLP_LBFG_10', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_10_param_grid}
+    MLP_SGD_10_CONSTRUCTOR = {'name': 'MLP_SGD_10', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_10_param_grid}
+    MLP_LBFG_100_CONSTRUCTOR = {'name': 'MLP_LBFG_100', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_100_param_grid}
+    MLP_SGD_100_CONSTRUCTOR = {'name': 'MLP_SGD_100', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_100_param_grid}
+
+
 
     All_CONSTRUCTOR = [LR_CONSTRUCTOR, LR_RIDGE_CONSTRUCTOR, LR_LASSO_CONSTRUCTOR, LR_ELAST_CONSTRUCTOR, KRR_LIN_CONSTRUCTOR,
-                      KRR_RBF_CONSTRUCTOR,KRR_POL_CONSTRUCTOR, SVR_LIN_CONSTRUCTOR, SVR_RBF_CONSTRUCTOR] #MLP_LBFG_CONSTRUCTOR, MLP_SGD_CONSTRUCTOR
+                      KRR_RBF_CONSTRUCTOR,KRR_POL_CONSTRUCTOR, SVR_LIN_CONSTRUCTOR, SVR_RBF_CONSTRUCTOR,
+                       MLP_LBFG_CONSTRUCTOR, MLP_SGD_CONSTRUCTOR,
+                       MLP_LBFG_2_CONSTRUCTOR, MLP_SGD_2_CONSTRUCTOR, MLP_LBFG_10_CONSTRUCTOR, MLP_SGD_10_CONSTRUCTOR,
+                       MLP_LBFG_100_CONSTRUCTOR, MLP_SGD_100_CONSTRUCTOR] #
 
     GS_CONSTRUCTOR = [elem for elem in All_CONSTRUCTOR if elem['name'] in regressors]
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>GS_CONSTRUCTOR', len(GS_CONSTRUCTOR))
@@ -106,10 +117,11 @@ def Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, NBestModel = None):
 
     # WEIGHTS                   #ONLY FOR GS with identical weights
     for GS_FS in GS_FSs:
-        name = GS_FS.predictorName + '_GS_FS'
-        GS_WeightsBarplotAll([GS_FS], GS_FSs, DB_Values['DBpath'], displayParams, target=FORMAT_Values['targetLabels'],
-                             content=name, df_for_empty_labels=baseFormatedDf.trainDf, yLim=4, sorted=True,
-                             key='WeightsScaled')
+        if GS_FS.isLinear == True:
+            name = GS_FS.predictorName + '_GS_FS'
+            GS_WeightsBarplotAll([GS_FS], GS_FSs, DB_Values['DBpath'], displayParams, target=FORMAT_Values['targetLabels'],
+                                 content=name, df_for_empty_labels=baseFormatedDf.trainDf, yLim=4, sorted=True,
+                                 key='WeightsScaled')
     GS_WeightsSummaryPlot(GS_FSs, GS_FSs, target=FORMAT_Values['targetLabels'], displayParams=displayParams,
                           DBpath=DB_Values['DBpath'], content='GS_FSs', sorted=True, yLim=4,
                           df_for_empty_labels=baseFormatedDf.trainDf, fontsize=14, studyFolder='GS_FS/')
@@ -243,7 +255,8 @@ def Run_NBest_Study(import_FS_ref, importNBest = False, OverallBest = False):
 
     print('PLOTTING GS_FS & NBEST')
     # PLOT
-    Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, NBestModels)
+    if displayParams['plot_all']:
+        Plot_GS_FS_Weights(GS_FSs, baseFormatedDf, NBestModels)
 
     return NBestModels
 

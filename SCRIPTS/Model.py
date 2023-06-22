@@ -90,20 +90,23 @@ class ModelGridsearch:
             content = self.Grid.best_estimator_.coef_
             if type(content[0]) == np.ndarray:
                 content = content[0]
+            self.Weights = [round(num, self.rounding) for num in list(content)]
+            self.WeightsScaled = scaledList(self.Weights)
 
         elif hasattr(self.Grid.best_estimator_, 'dual_coef_'): #KRR
             self.isLinear = True
             content = self.Grid.best_estimator_.dual_coef_
             if type(content[0]) == np.ndarray:
                 content = content[0]
+            self.Weights = [round(num, self.rounding) for num in list(content)]
+            self.WeightsScaled = scaledList(self.Weights)
 
         else :
             self.isLinear = False
             content = 'Estimator is non linear - no weights can be querried'
-        weights = [round(num, self.rounding) for num in list(content)]
+            self.Weights = 'Estimator is non linear - no weights can be querried'
+            self.WeightsScaled = 'Estimator is non linear - no weights can be querried'
 
-        self.Weights = weights
-        self.WeightsScaled = scaledList(weights)
 
     def computeSHAP(self, NbFtExtracted):
 

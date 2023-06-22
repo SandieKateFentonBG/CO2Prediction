@@ -43,9 +43,8 @@ for set in studyParams['sets']:
 
         # MODEL PROCESSING
         GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
-
-        regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['LR_RIDGE']) #SVR_RBF
-        model = regressor[0].RFE_RFR
+        regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=[studyParams['Regressors'][0]]) #SVR_RBF
+        model = regressor[0].NoSelector
         #
         # # #
         # # # NBEST PROCESSING

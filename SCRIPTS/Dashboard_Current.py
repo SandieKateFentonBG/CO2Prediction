@@ -7,14 +7,14 @@ ________________________________________________________________________________
 """
 #change when running a test
 sample_nb = 32
-sample_values = list(range(30, 32))
+sample_values = list(range(33, 35))
 displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
 
 set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2'] # ylabel, content, metric
 acronym = 'testtest'
-studyParams = {"sets": [set_1], 'randomvalues': sample_values, 'fl_selectors' : ['spearman', 'pearson'],
-               'RFE_selectors' : ['DTR', 'GBR', 'RFR'], #['spearman', 'pearson', 'NoSelector', 'DTR', 'GBR', 'RFR']
-               "Regressors": ['LR', 'LR_RIDGE']} #['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
+studyParams = {"sets": [set_1], 'randomvalues': sample_values, 'fl_selectors' : [], #'spearman', 'pearson'
+               'RFE_selectors' : ['GBR'], #['spearman', 'pearson', 'NoSelector', 'DTR', 'GBR', 'RFR']
+               "Regressors": ['MLP_LBFG_2', 'MLP_SGD_2', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100'], 'old' : True} #['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
 
 
 
@@ -175,9 +175,25 @@ SVR_param_grid={'C': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_ran
 
 
 MLP_LBFG_param_grid={ 'hidden_layer_sizes': [(2,), (10,), (100,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
-                 'alpha': list(10.0 ** -np.arange(1, 7)), 'verbose' : True}
+                 'alpha': list(10.0 ** -np.arange(1, 7))}
 MLP_SGD_param_grid={ 'hidden_layer_sizes': [(2,), (10,), (100,)], 'activation' : ['relu'], 'solver': ['sgd'],
-                 'alpha': list(10.0 ** -np.arange(1, 7)), 'verbose' : True} #should be further hypertuned
+                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
+
+
+
+MLP_LBFG_2_param_grid={ 'hidden_layer_sizes': [(2,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))}
+MLP_SGD_2_param_grid={ 'hidden_layer_sizes': [(2,)], 'activation' : ['relu'], 'solver': ['sgd'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
+MLP_LBFG_10_param_grid={ 'hidden_layer_sizes': [(10,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))}
+MLP_SGD_10_param_grid={ 'hidden_layer_sizes': [(10,)], 'activation' : ['relu'], 'solver': ['sgd'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
+MLP_LBFG_100_param_grid={ 'hidden_layer_sizes': [(100,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))}
+MLP_SGD_100_param_grid={ 'hidden_layer_sizes': [(100,)], 'activation' : ['relu'], 'solver': ['sgd'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
+
 
 
 # hidden_layer_sizes : array-like of shape(n_layers - 2,), default=(100,)
@@ -215,8 +231,8 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
-              'BestModelNames' : None} #'TestAcc'SVR_RBFLR_RIDGE
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
+              'BestModelNames' : None} #'TestAcc'SVR_RBF LR_RIDGE
 
 
 

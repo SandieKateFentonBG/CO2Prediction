@@ -115,6 +115,8 @@ class Model_Blender:
             X_train, X_test, y_train, y_test, ScaleMean, ScaleStd = fold #todo : added 'ScaleMean, ScaleStd'
             xtrainer, ytrainer = X_train, y_train
 
+            print('xtrainer', xtrainer)
+            print('ytrainer', ytrainer)
 
             # building the final model using the meta features # this should be done by a cv of 5 folds on the training set
             if Gridsearch:
