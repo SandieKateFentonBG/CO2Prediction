@@ -5,8 +5,6 @@
 """""
 
 #DASHBOARD IMPORT
-# from Dashboard_EUCB_FR_v2 import *
-# from Dashboard_EUCB_Structures import *
 from Dashboard_Current import *
 
 #SCRIPT IMPORTS
@@ -33,16 +31,20 @@ for set in studyParams['sets']:
         ref_suffix_single, ref_suffix_combined = '_rd'+ str(PROCESS_VALUES['random_state']) + '/', '_Combined/'
         ref_single, ref_combined = ref_prefix + ref_suffix_single, ref_prefix + ref_suffix_combined
         displayParams["ref_prefix"], displayParams["reference"] = ref_prefix, ref_single
+        if PROCESS_VALUES['selectionStoredinCombined']:#todo : changed here
+            import_FS_ref = ref_combined
+        else:
+            import_FS_ref = ref_single
 
         # ">>IMPORT"
 
         print('Import Study for random_state:', value)
 
         # FEATURE PROCESSING
-        rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(ref_single, show = False)
+        # rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(import_reference=import_FS_ref, show = False)
 
         # MODEL PROCESSING
-        GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
+        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
         #
         # # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels=['KRR_LIN'])
 
@@ -51,12 +53,12 @@ for set in studyParams['sets']:
         print('Run Study for random_state:', value)
         # #
         # # # FEATURE PROCESSING
-        # rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = Run_FS_Study()
+        rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = Run_FS_Study(combined = PROCESS_VALUES['selectionStoredinCombined'])
+        FS = [rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList]
 
-        # todo :  spearmanFilter, pearsonFilter was changed to filterList
         # #
-        # # # MODEL PROCESSING
-        # GS_FSs = Run_GS_FS_Study(ref_single, importMainGSFS=False)
+        # # MODEL PROCESSING
+        GS_FSs = Run_GS_FS_Study(import_FS_ref=import_FS_ref, importMainGSFS=False, importMainFS=False, FS=FS)
 
         # "STORE"
 
@@ -64,18 +66,11 @@ for set in studyParams['sets']:
 
         Filters_CV.append(filterList)
 
-        #
-        # = filterList[i] for
-        #
-        # for name, filter in zip(studyParams['fl_selectors'], filterList):
-        #     if s == 'pearson':
-        #         Filters_Pearson_CV.append(pearsonFilter)
-        #     if s == 'spearman'
-        #         Filters_Spearman_CV.append(spearmanFilter)
-
     # "AVG & NBEST"
 
     RUN_Training_Report(All_CV, Filters_CV, randomvalues, displayParams, studyParams, GSName="All")
+
+    # todo :  spearmanFilter, pearsonFilter was changed to filterList
 
 
 

@@ -160,7 +160,7 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
     ylabel = 'Feature Selection'
 
     yLabels = [elem + '(' + str(len(GS_FSs[0].__getattribute__(elem).selectedLabels)) + ')' for elem in GS_FSs[0].learningDfsList]
-    print(yLabels)
+
     zlabel = score
     title = 'Influence of Feature Selection on Model Performance - (%s)' % score
 
@@ -223,7 +223,7 @@ def heatmap(GS_FSs, displayParams, DBpath, content='GS_FS', score='TestAcc', stu
 
 
     # Turn spines off and create white grid.
-    print(ax.spines)
+
     for k in ['right', 'left', 'top', 'bottom']:
         ax.spines[k].set_visible(False)
 

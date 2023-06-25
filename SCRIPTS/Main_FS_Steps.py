@@ -33,7 +33,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 
 
-def A_RawData():
+def A_RawData(combined):
     """
     GOAL - Import libraries & Load data
     """
@@ -43,20 +43,21 @@ def A_RawData():
                    firstLine=DB_Values['DBfirstLine'], xQualLabels=xQualLabels, xQuantLabels=xQuantLabels,
                    yLabels=yLabels, updateLabels=None)
 
+    # todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
     # VISUALIZE
     for i in range(len(xQualLabels)):
-        rdat.visualize(displayParams, DBpath=DB_Values['DBpath'], dbName=DB_Values['DBname'],
+        rdat.visualize(displayParams, DBpath=DB_Values['DBpath'], combined = combined,
                        yLabel=yLabels[0], xLabel=xQualLabels[i], changeFigName=str(i))
     for i in range(len(xQuantLabels)):
-        rdat.visualize(displayParams, DBpath=DB_Values['DBpath'], dbName=DB_Values['DBname'],
+        rdat.visualize(displayParams, DBpath=DB_Values['DBpath'], combined = combined,
                        yLabel=yLabels[0], xLabel=xQuantLabels[i], changeFigName=xQuantLabels[i])
 
     # STOCK
-    pickleDumpMe(DB_Values['DBpath'], displayParams, rdat, 'DATA', 'rdat')
+    pickleDumpMe(DB_Values['DBpath'], displayParams, rdat, 'DATA', 'rdat', combined = combined)
 
     return rdat
 
-def B_features(rdat):
+def B_features(rdat, combined):
     """
     GOAL - Process data & One hot encoding
     """
@@ -69,15 +70,16 @@ def B_features(rdat):
     print("Full df", df.shape)
     print(df)
 
-    dfAsTable(DB_Values['DBpath'], displayParams, df, objFolder='DATA', name = "DF")
+    dfAsTable(DB_Values['DBpath'], displayParams, df, objFolder='DATA', name = "DF", combined = combined)
 
     # STOCK
-    pickleDumpMe(DB_Values['DBpath'], displayParams, dat, 'DATA', 'dat')
-    pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df')
+    #todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
+    pickleDumpMe(DB_Values['DBpath'], displayParams, dat, 'DATA', 'dat', combined = combined)
+    pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df', combined = combined)
 
     return dat, df
 
-def C_data(dat):
+def C_data(dat, combined):
     """
     GOAL - Remove outliers - only exist/removed on Quantitative features
     Dashboard Input - PROCESS_VALUES : OutlierCutOffThreshhold
@@ -95,24 +97,24 @@ def C_data(dat):
         print("Features removed:")
         for k, v in removedDict.items():
             print(k, v)
-
     else:
         df = dat.asDataframe()
 
+    #todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
+
     learningDf = removeOutliers(df, labels=PROCESS_VALUES['RemoveOutliersFrom'] + yLabels,
                                 cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
-    dfAsTable(DB_Values['DBpath'], displayParams, learningDf, objFolder='DATA', name = "learningDf")
+    dfAsTable(DB_Values['DBpath'], displayParams, learningDf, objFolder='DATA', name = "learningDf", combined = combined)
 
     # REPORT
     print("Outliers removed ", learningDf.shape)
 
     # STOCK
-    pickleDumpMe(DB_Values['DBpath'], displayParams, learningDf, 'DATA', 'learningDf')
-
+    pickleDumpMe(DB_Values['DBpath'], displayParams, learningDf, 'DATA', 'learningDf', combined = combined)
 
     return learningDf
 
-def D_format(learningDf):
+def D_format(learningDf, combined):
     """
     GOAL - Train Test Validate Check Split - Scale
     Dashboard Input - PROCESS_VALUES : test_size  # proportion with validation, random_state, yUnit
@@ -125,17 +127,20 @@ def D_format(learningDf):
                                 train_size=PROCESS_VALUES['train_size'], check_size=PROCESS_VALUES['check_size'],
                                 val_size=PROCESS_VALUES['val_size'], fixed_seed = PROCESS_VALUES['fixed_seed'])
 
-    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.trainDf, objFolder='DATA', name = "trainDf")
-    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.checkDf, objFolder='DATA', name="checkDf")
-    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.valDf, objFolder='DATA', name = "valDf")
-    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.testDf, objFolder='DATA', name = "testDf")
+    #todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
+
+    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.trainDf, objFolder='DATA', name = "trainDf",
+              combined = combined)
+    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.checkDf, objFolder='DATA', name="checkDf", combined = combined)
+    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.valDf, objFolder='DATA', name = "valDf", combined = combined)
+    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.testDf, objFolder='DATA', name = "testDf", combined = combined)
 
     # STOCK
-    pickleDumpMe(DB_Values['DBpath'], displayParams, baseFormatedDf, 'DATA', 'baseFormatedDf')
+    pickleDumpMe(DB_Values['DBpath'], displayParams, baseFormatedDf, 'DATA', 'baseFormatedDf', combined = combined)
 
     return baseFormatedDf
 
-def E_FS_Filter(baseFormatedDf):
+def E_FS_Filter(baseFormatedDf, combined):
 
     """
     GOAL - Remove uncorrelated and redundant features
@@ -156,16 +161,18 @@ def E_FS_Filter(baseFormatedDf):
                                             corrRounding=PROCESS_VALUES['corrRounding'],
                                             lowThreshhold=PROCESS_VALUES['corrLowThreshhold'],
                                             highThreshhold=PROCESS_VALUES['corrHighThreshhold'])
+            # todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
+
             # STOCK
-            pickleDumpMe(DB_Values['DBpath'], displayParams, myFilter, 'FS', fl)
+            pickleDumpMe(DB_Values['DBpath'], displayParams, myFilter, 'FS', fl, combined = combined)
 
             # VISUALIZE
             plotCorrelation(myFilter, myFilter.correlationMatrix_All, DB_Values['DBpath'], displayParams,
-                            filteringName="nofilter")
+                            filteringName="nofilter", combined = combined)
             plotCorrelation(myFilter, myFilter.correlationMatrix_NoUncorrelated, DB_Values['DBpath'], displayParams,
-                            filteringName="dropuncorr")
+                            filteringName="dropuncorr", combined = combined)
             plotCorrelation(myFilter, myFilter.correlationMatrix_NoRedundant, DB_Values['DBpath'], displayParams,
-                            filteringName="dropcolinear")
+                            filteringName="dropcolinear", combined = combined)
 
             fl_selectors.append(myFilter)
 
@@ -190,7 +197,7 @@ def E_FS_Filter(baseFormatedDf):
 
     return fl_selectors
 
-def F_FS_RFE(baseFormatedDf):
+def F_FS_RFE(baseFormatedDf, combined):
     """
     GOAL - select the optimal number of features or combination of features
     """
@@ -219,7 +226,7 @@ def F_FS_RFE(baseFormatedDf):
                                  output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
                                  cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
 
-            pickleDumpMe(DB_Values['DBpath'], displayParams, MyRFE, 'FS', constructor['method'])
+            pickleDumpMe(DB_Values['DBpath'], displayParams, MyRFE, 'FS', constructor['method'], combined = combined)
 
             RFEList.append(MyRFE)
             #
@@ -244,43 +251,43 @@ def F_FS_RFE(baseFormatedDf):
             # RFEs = [RFR_RFE, DTR_RFE, GBR_RFE]
 
         # STOCK
-        pickleDumpMe(DB_Values['DBpath'], displayParams, RFEList, 'FS', 'RFEs')
+        pickleDumpMe(DB_Values['DBpath'], displayParams, RFEList, 'FS', 'RFEs', combined = combined)
 
         # REPORT
-        reportRFE(DB_Values['DBpath'], displayParams, RFEList, objFolder='FS', display=True, process=RFE_VALUES['RFE_process'])
+        reportRFE(DB_Values['DBpath'], displayParams, RFEList, objFolder='FS', display=True, process=RFE_VALUES['RFE_process'], combined = combined)
 
         #VISUALIZE
         if RFE_VALUES['RFE_process'] == 'long':
 
             RFEHyperparameterPlot2D(RFEList,  displayParams, DBpath = DB_Values['DBpath'], yLim = None, figTitle = 'RFEPlot2d',
-                                      title ='Influence of Feature Count on Model Performance', xlabel='Feature Count', log = False)
+                                      title ='Influence of Feature Count on Model Performance', xlabel='Feature Count',
+                                    log = False, combined = combined)
 
             RFEHyperparameterPlot3D(RFEList, displayParams, DBpath = DB_Values['DBpath'], figTitle='RFEPlot3d',
                                         colorsPtsLsBest=['b', 'g', 'c', 'y'],
                                         title='Influence of Feature Count on Model Performance', ylabel='Feature Count',
                                         zlabel='R2 Test score', size=[6, 6],
-                                        showgrid=False, log=False, max=True, ticks=False, lims=False)
+                                        showgrid=False, log=False, max=True, ticks=False, lims=False, combined = combined)
     return RFEList
 
-def Run_Data_Processing():
-    rdat = A_RawData()
-    dat, df = B_features(rdat)
-    learningDf = C_data(dat)
-    baseFormatedDf = D_format(learningDf)
+def Run_Data_Processing(combined):
+    rdat = A_RawData(combined=combined)
+    dat, df = B_features(rdat, combined=combined)
+    learningDf = C_data(dat, combined=combined)
+    baseFormatedDf = D_format(learningDf, combined=combined)
 
     return rdat, dat, df, learningDf, baseFormatedDf
 
-def Run_FS_Study():
+def Run_FS_Study(combined):
 
-    rdat, dat, df, learningDf, baseFormatedDf = Run_Data_Processing()
-    print(baseFormatedDf.yLabel)
+    rdat, dat, df, learningDf, baseFormatedDf = Run_Data_Processing(combined=combined)
 
-    filterList = E_FS_Filter(baseFormatedDf)
+    filterList = E_FS_Filter(baseFormatedDf, combined=combined)
 
-    RFEList = F_FS_RFE(baseFormatedDf)
+    RFEList = F_FS_RFE(baseFormatedDf, combined=combined)
 
     reportProcessing(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf,
-                     filterList, RFEList)
+                     filterList, RFEList, combined=combined)
     # todo : 'dat' was added to all functions
 
     return rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList

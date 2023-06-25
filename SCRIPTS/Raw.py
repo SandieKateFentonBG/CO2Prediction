@@ -84,7 +84,7 @@ class RawData:
                 if value not in self.possibleQualities[label]:
                     self.possibleQualities[label].append(value)
 
-    def visualize(self, displayParams, DBpath, dbName, yLabel, xLabel='Cladding',
+    def visualize(self, displayParams, DBpath, yLabel, xLabel='Cladding',combined = False,
                   title = "Features influencing CO2 footprint of Structures ", figure_size = (8, 10), changeFigName = None):
 
         if displayParams['showPlot'] or displayParams['archive']:
@@ -112,8 +112,13 @@ class RawData:
                 plt.setp(ax.get_xticklabels(), rotation=25, ha="right",
                      rotation_mode="anchor")
             sns.scatterplot(data=df, x=xLabel, y=yLabel, hue=yLabel, ax=ax)
-            reference = displayParams['reference']
             if displayParams['archive']:
+
+                if combined:
+                    reference = displayParams['ref_prefix'] + '_Combined/'
+                else:
+                    reference = displayParams['reference']
+
                 path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/DATA/RAW'
                 import os
                 outputFigPath = path + folder + subFolder

@@ -1,8 +1,13 @@
-def reportRFE(DBpath, displayParams, RFEs, objFolder ='FS', display = True, process = 'short'):
+def reportRFE(DBpath, displayParams, RFEs, objFolder ='FS', display = True, process = 'short', combined = False):
 
     if displayParams['archive']:
         import os
-        reference = displayParams['reference']
+        if combined:
+            reference = displayParams['ref_prefix'] + '_Combined/'
+        else:
+            reference = displayParams['reference']
+
+        # reference = displayParams['reference']
         outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/' + objFolder + '/'
 
         if not os.path.isdir(outputPathStudy):

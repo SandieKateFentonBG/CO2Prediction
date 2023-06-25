@@ -41,24 +41,31 @@ for set in studyParams['sets']:
         ref_single, ref_combined = ref_prefix + ref_suffix_single, ref_prefix + ref_suffix_combined
         displayParams["ref_prefix"], displayParams["reference"] = ref_prefix, ref_single
 
-        # MODEL PROCESSING
-        GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
-        regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=[studyParams['Regressors'][0]]) #SVR_RBF
-        model = regressor[0].NoSelector
+        # # MODEL PROCESSING
+        # GS_FSs = import_Main_GS_FS(ref_single, GS_FS_List_Labels = studyParams['Regressors'])
+        # regressor = import_Main_GS_FS(ref_single, GS_FS_List_Labels=[studyParams['Regressors'][0]]) #SVR_RBF
+        # model = regressor[0].NoSelector
         #
         # # #
         # # # NBEST PROCESSING
         # NBestModels = import_NBest(ref_single, OverallBest = BLE_VALUES['OverallBest'])
         # # #
         # # # # # BLENDER PROCESSING
-        # # # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
+        # Blender_NBest = import_Blender_NBest(ref_single, label = BLE_VALUES['Regressor'] + '_Blender_NBest')
         # LR_RIDGE_BL = import_Blender_NBest(ref_single, label = 'LR_RIDGE' + '_Blender_NBest')
         # SVR_RBF_BL = import_Blender_NBest(ref_single, label = 'SVR_RBF' + '_Blender_NBest')
 
         # ">>RUN"
 
         # # # NBEST PROCESSING
-        NBestModels = Run_NBest_Study(ref_single, importNBest=False, OverallBest = BLE_VALUES['OverallBest'])
+
+        if PROCESS_VALUES['selectionStoredinCombined']:#todo : changed here
+            import_FS_ref = ref_combined
+        else:
+            import_FS_ref = ref_single
+
+        NBestModels = Run_NBest_Study(import_FS_ref=import_FS_ref, import_GS_FS_ref=ref_single, importNBest=False,
+                                      OverallBest = BLE_VALUES['OverallBest'])
         #
         # # BLENDER PROCESSING
         Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single,
@@ -66,22 +73,22 @@ for set in studyParams['sets']:
 
         # ">>STORE"
 
-        regressors_CV.append(regressor)
-        models_CV.append(model)
-        All_CV.append(GS_FSs)
-        NBest_CV.append(NBestModels)
-        Blender_NBests.append(Blender_NBest)
-        # LR_RIDGE_BLs.append(LR_RIDGE_BL)
-        # # SVR_RBF_BLs.append(SVR_RBF_BL)
-
-    Blenders_NBest_CV = [Blender_NBests]
-
-    # Blenders_NBest_CV = [LR_RIDGE_BLs] #,SVR_RBF_BLs
-
-    # COMBINE
-
-    RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, randomvalues, displayParams)
-    # #
+    #     regressors_CV.append(regressor)
+    #     models_CV.append(model)
+    #     All_CV.append(GS_FSs)
+    #     NBest_CV.append(NBestModels)
+    #     Blender_NBests.append(Blender_NBest)
+    #     # LR_RIDGE_BLs.append(LR_RIDGE_BL)
+    #     # # SVR_RBF_BLs.append(SVR_RBF_BL)
+    #
+    # Blenders_NBest_CV = [Blender_NBests]
+    #
+    # # Blenders_NBest_CV = [LR_RIDGE_BLs] #,SVR_RBF_BLs
+    #
+    # # COMBINE
+    #
+    # RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, randomvalues, displayParams)
+    # # #
     # RUN_CombinedResiduals(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, displayParams, FORMAT_Values,
     #                       DB_Values['DBpath'], randomvalues)
     #
@@ -101,7 +108,7 @@ for set in studyParams['sets']:
 
     # META STORE
 
-AccuracyCheck(Blenders_NBest_CV, studyParams['sets'], displayParams, DB_Values['DBpath'], tolerance=PROCESS_VALUES['accuracyTol'])
+# AccuracyCheck(Blenders_NBest_CV, studyParams['sets'], displayParams, DB_Values['DBpath'], tolerance=PROCESS_VALUES['accuracyTol'])
 
     # Studies_CV_BlenderNBest.append(Blenders_NBest_CV)
 

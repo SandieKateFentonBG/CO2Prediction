@@ -67,10 +67,15 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
     KRR_POL_CONSTRUCTOR = {'name' : 'KRR_POL',  'modelPredictor' : KernelRidge(kernel = 'poly'),'param_dict' : KRR_param_grid}
     SVR_LIN_CONSTRUCTOR = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
     SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
+
+
     MLP_LBFG_CONSTRUCTOR = {'name': 'MLP_LBFG', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_param_grid}
     MLP_SGD_CONSTRUCTOR = {'name': 'MLP_SGD', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_param_grid}
-    MLP_LBFG_2_CONSTRUCTOR = {'name': 'MLP_LBFG_2', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_2_param_grid}
-    MLP_SGD_2_CONSTRUCTOR = {'name': 'MLP_SGD_2', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_2_param_grid}
+    MLP_SAG_CONSTRUCTOR = {'name': 'MLP_SAG', 'modelPredictor': MLPRegressor(solver='sag'), 'param_dict': MLP_SAG_param_grid}
+
+
+    MLP_LBFG_20_CONSTRUCTOR = {'name': 'MLP_LBFG_20', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_20_param_grid}
+    MLP_SGD_20_CONSTRUCTOR = {'name': 'MLP_SGD_20', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_20_param_grid}
     MLP_LBFG_10_CONSTRUCTOR = {'name': 'MLP_LBFG_10', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_10_param_grid}
     MLP_SGD_10_CONSTRUCTOR = {'name': 'MLP_SGD_10', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_10_param_grid}
     MLP_LBFG_100_CONSTRUCTOR = {'name': 'MLP_LBFG_100', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_100_param_grid}
@@ -80,9 +85,9 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
 
     All_CONSTRUCTOR = [LR_CONSTRUCTOR, LR_RIDGE_CONSTRUCTOR, LR_LASSO_CONSTRUCTOR, LR_ELAST_CONSTRUCTOR, KRR_LIN_CONSTRUCTOR,
                       KRR_RBF_CONSTRUCTOR,KRR_POL_CONSTRUCTOR, SVR_LIN_CONSTRUCTOR, SVR_RBF_CONSTRUCTOR,
-                       MLP_LBFG_CONSTRUCTOR, MLP_SGD_CONSTRUCTOR,
-                       MLP_LBFG_2_CONSTRUCTOR, MLP_SGD_2_CONSTRUCTOR, MLP_LBFG_10_CONSTRUCTOR, MLP_SGD_10_CONSTRUCTOR,
-                       MLP_LBFG_100_CONSTRUCTOR, MLP_SGD_100_CONSTRUCTOR] #
+                        MLP_SGD_CONSTRUCTOR, MLP_SGD_20_CONSTRUCTOR, MLP_SGD_10_CONSTRUCTOR, MLP_SGD_100_CONSTRUCTOR,
+                       MLP_LBFG_CONSTRUCTOR, MLP_LBFG_20_CONSTRUCTOR,  MLP_LBFG_10_CONSTRUCTOR, MLP_LBFG_100_CONSTRUCTOR,
+                       MLP_SAG_CONSTRUCTOR] #
 
     GS_CONSTRUCTOR = [elem for elem in All_CONSTRUCTOR if elem['name'] in regressors]
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>GS_CONSTRUCTOR', len(GS_CONSTRUCTOR))
@@ -227,11 +232,11 @@ def Run_NBest(GS_FSs, OverallBest = False):
 
     return NBestModels
 
-def Run_NBest_Study(import_FS_ref, importNBest = False, OverallBest = False):
+def Run_NBest_Study(import_FS_ref, import_GS_FS_ref, importNBest = False, OverallBest = False):
 
     # # IMPORT Main_GS_FS
     print('IMPORTING GS_FS')
-    GS_FSs = import_Main_GS_FS(import_FS_ref)
+    GS_FSs = import_Main_GS_FS(import_GS_FS_ref)
 
     baseFormatedDf = pickleLoadMe(path = DB_Values['DBpath'] + 'RESULTS/'+ import_FS_ref +'RECORDS/DATA/baseFormatedDf.pkl', show = False) #check this
 
@@ -241,7 +246,7 @@ def Run_NBest_Study(import_FS_ref, importNBest = False, OverallBest = False):
     if importNBest : #models already calibrated
         print('')
         print('IMPORTING NBEST')
-        NBestModels = import_NBest(import_FS_ref, OverallBest = OverallBest)
+        NBestModels = import_NBest(import_GS_FS_ref, OverallBest = OverallBest)
     else:
         print('')
         print('RUNNING NBEST')
@@ -249,8 +254,8 @@ def Run_NBest_Study(import_FS_ref, importNBest = False, OverallBest = False):
 
     # REPORT
     print('REPORTING GS_FS & NBEST')
-
-    reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, NBestModel=NBestModels)
+    if displayParams['report_all']:
+        reportGS_FeatureWeights(DB_Values['DBpath'], displayParams, GS_FSs, NBestModel=NBestModels)
     reportGS_FeatureSHAP(DB_Values['DBpath'], displayParams, GS_FSs, xQuantLabels, xQualLabels, NBestModel=NBestModels)
 
     print('PLOTTING GS_FS & NBEST')
@@ -260,13 +265,16 @@ def Run_NBest_Study(import_FS_ref, importNBest = False, OverallBest = False):
 
     return NBestModels
 
-def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False):
+def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False, importMainFS=True, FS=None):
     """
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
     # #IMPORT Main_FS
-    rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(import_FS_ref,
-                                                                                               show=False)
+    if importMainFS:
+        rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(import_FS_ref,show=False)
+    else:
+        [rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList] = FS
+
     learning_dfs = [baseFormatedDf] #not sure order counts
     if len(filterList)>0:
         learning_dfs += filterList

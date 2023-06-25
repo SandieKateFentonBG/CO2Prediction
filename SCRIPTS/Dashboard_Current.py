@@ -7,14 +7,14 @@ ________________________________________________________________________________
 """
 #change when running a test
 sample_nb = 32
-sample_values = list(range(33, 35))
-displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
+sample_values = list(range(40, 42))
+displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
 
 set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2'] # ylabel, content, metric
-acronym = 'testtest'
-studyParams = {"sets": [set_1], 'randomvalues': sample_values, 'fl_selectors' : [], #'spearman', 'pearson'
-               'RFE_selectors' : ['GBR'], #['spearman', 'pearson', 'NoSelector', 'DTR', 'GBR', 'RFR']
-               "Regressors": ['MLP_LBFG_2', 'MLP_SGD_2', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100'], 'old' : True} #['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
+acronym = 'migration_test'
+studyParams = {"sets": [set_1], 'randomvalues': sample_values, 'fl_selectors' : ['spearman', 'pearson'], #'spearman', 'pearson'
+               'RFE_selectors': ['GBR', 'RFR'], #[, 'NoSelector', 'DTR', ]
+               "Regressors": ['LR']} #'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
 
 
 
@@ -131,7 +131,7 @@ ________________________________________________________________________________
 PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshhold' : 5, 'removeUnderrepresenteds' : False,
                 'RemoveOutliersFrom' : ['Gross_Floor_Area', 'Users_Total'], 'removeUnderrepresentedsFrom' : xQualLabels,
                   'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
-                'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40,
+                'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40, 'selectionStoredinCombined' : True,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.15, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]} #'corrMethod1' : "spearman", 'corrMethod2' : "pearson",
 
 #todo : check 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]
@@ -174,25 +174,21 @@ SVR_param_grid={'C': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_ran
                 'epsilon': GS_VALUES['margin_range'],  'coef0' : GS_VALUES['coef0_range']}
 
 
-MLP_LBFG_param_grid={ 'hidden_layer_sizes': [(2,), (10,), (100,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
-                 'alpha': list(10.0 ** -np.arange(1, 7))}
-MLP_SGD_param_grid={ 'hidden_layer_sizes': [(2,), (10,), (100,)], 'activation' : ['relu'], 'solver': ['sgd'],
-                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
+MLP_LBFG_param_grid={ 'hidden_layer_sizes': [(20,), (10,), (100,)], 'activation' : ['relu'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))} #'solver': ['lbfgs'],
+MLP_SGD_param_grid={ 'hidden_layer_sizes': [(20,), (10,), (100,)], 'activation' : ['relu'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned  'solver': ['sgd'],
+MLP_SAG_param_grid={ 'hidden_layer_sizes': [(20,), (10,), (100,)], 'activation' : ['relu'],
+                 'alpha': list(10.0 ** -np.arange(1, 7))} #'solver': ['sag'],
 
 
+MLP_LBFG_20_param_grid={'hidden_layer_sizes': [(20,)], 'activation' : ['relu'],'alpha': list(10.0 ** -np.arange(1, 7))} #, 'solver': ['lbfgs']
+MLP_SGD_20_param_grid={'hidden_layer_sizes': [(20,)], 'activation' : ['relu'], 'alpha': list(10.0 ** -np.arange(1, 7))} #'solver': ['sgd'],
+MLP_LBFG_10_param_grid={'hidden_layer_sizes': [(10,)], 'activation' : ['relu'],'alpha': list(10.0 ** -np.arange(1, 7))} #, 'solver': ['lbfgs']
+MLP_SGD_10_param_grid={'hidden_layer_sizes': [(10,)], 'activation' : ['relu'],'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
+MLP_LBFG_100_param_grid={'hidden_layer_sizes': [(100,)], 'activation' : ['relu'],'alpha': list(10.0 ** -np.arange(1, 7))} #, 'solver': ['lbfgs']
+MLP_SGD_100_param_grid={'hidden_layer_sizes': [(100,)], 'activation' : ['relu'], 'alpha': list(10.0 ** -np.arange(1, 7))} #'solver': ['sgd'],
 
-MLP_LBFG_2_param_grid={ 'hidden_layer_sizes': [(2,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
-                 'alpha': list(10.0 ** -np.arange(1, 7))}
-MLP_SGD_2_param_grid={ 'hidden_layer_sizes': [(2,)], 'activation' : ['relu'], 'solver': ['sgd'],
-                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
-MLP_LBFG_10_param_grid={ 'hidden_layer_sizes': [(10,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
-                 'alpha': list(10.0 ** -np.arange(1, 7))}
-MLP_SGD_10_param_grid={ 'hidden_layer_sizes': [(10,)], 'activation' : ['relu'], 'solver': ['sgd'],
-                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
-MLP_LBFG_100_param_grid={ 'hidden_layer_sizes': [(100,)], 'activation' : ['relu'], 'solver': ['lbfgs'],
-                 'alpha': list(10.0 ** -np.arange(1, 7))}
-MLP_SGD_100_param_grid={ 'hidden_layer_sizes': [(100,)], 'activation' : ['relu'], 'solver': ['sgd'],
-                 'alpha': list(10.0 ** -np.arange(1, 7))} #should be further hypertuned
 
 
 

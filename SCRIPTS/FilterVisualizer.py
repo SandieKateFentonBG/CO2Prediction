@@ -1,13 +1,13 @@
 from Filter import *
 
-def plotCorrelation(filterFt, filterMatrix, DBpath, displayParams, filteringName):
+def plotCorrelation(filterFt, filterMatrix, DBpath, displayParams, filteringName, combined):
 
     import matplotlib.pyplot as plt
     import seaborn as sns
     import numpy as np
 
 
-    reference = displayParams['reference']
+    # reference = displayParams['reference']
     mask = np.zeros_like(filterMatrix)
     mask[np.triu_indices_from(mask)] = True
     fig, ax = plt.subplots(figsize=(24,15))
@@ -40,6 +40,12 @@ def plotCorrelation(filterFt, filterMatrix, DBpath, displayParams, filteringName
 
     # sns.set(font_scale=0.5)
     if displayParams['archive']:
+
+        if combined:
+            reference = displayParams['ref_prefix'] + '_Combined/'
+        else:
+            reference = displayParams['reference']
+
         path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/FS/FILTER'
         import os
         outputFigPath = path + folder + subFolder # displayParams["outputPath"] + displayParams["reference"] + str(displayParams['random_state']) +'/correlation'

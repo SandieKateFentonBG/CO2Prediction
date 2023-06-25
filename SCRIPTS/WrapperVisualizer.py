@@ -20,7 +20,7 @@ def Construct3DPoints(ResultsList): #x : featureCount, y : valScore
 
 def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, yLim = None, figTitle = 'RFEPlot2d',
                           title ='Influence of Feature Count on Model Performance', xlabel='Feature Count',
-                            ylabel = 'R2 Test score', log = False):
+                            ylabel = 'R2 Test score', log = False, combined=False):
 
     import seaborn as sns
 
@@ -44,8 +44,13 @@ def RFEHyperparameterPlot2D(RFEs,  displayParams, DBpath, yLim = None, figTitle 
         plt.ylim(-yLim, yLim)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
-    reference = displayParams['reference']
+
     if displayParams['archive']:
+        if combined:
+            reference = displayParams['ref_prefix'] + '_Combined/'
+        else:
+            reference = displayParams['reference']
+
         path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/FS/WRAPPER'#reference + figFolder
         import os
         outputFigPath = path + folder + subFolder
@@ -63,7 +68,7 @@ def RFEHyperparameterPlot3D(RFEs, displayParams, DBpath, figTitle='RFEPlot3d',
                             colorsPtsLsBest=['b', 'g', 'c', 'y'],
                             title='Influence of Feature Count on Model Performance', ylabel='Feature Count',
                             zlabel='R2 Test score', size=[6, 6],
-                            showgrid=False, log=False, max=True, ticks=False, lims=False):
+                            showgrid=False, log=False, max=True, ticks=False, lims=False, combined=False):
 
 
     fig = plt.figure()
@@ -110,8 +115,13 @@ def RFEHyperparameterPlot3D(RFEs, displayParams, DBpath, figTitle='RFEPlot3d',
     ax.set_zlabel(zlabel)
     fig.set_size_inches(size[0], size[1])
     ax.grid(showgrid)
-    reference = displayParams['reference']
+    # reference = displayParams['reference']
     if displayParams['archive']:
+        if combined:
+            reference = displayParams['ref_prefix'] + '_Combined/'
+        else:
+            reference = displayParams['reference']
+
         path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/FS/WRAPPER' #DBpath, "RESULTS/", reference + figFolder
         import os
         outputFigPath = path + folder + subFolder
