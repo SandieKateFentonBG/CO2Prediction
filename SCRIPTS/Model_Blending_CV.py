@@ -256,8 +256,8 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
     import pandas as pd
     if displayParams['archive']:
         import os
-        reference = displayParams['reference']
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'RECORDS/'
+        reference = displayParams['ref_prefix'] + '_Combined/'
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'RECORDS/'
         outputPathStudy = path + folder + subFolder
 
         if not os.path.isdir(outputPathStudy):
@@ -303,7 +303,7 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
         AllDfs.append(Combined_Df)
 
         with pd.ExcelWriter(
-                outputPathStudy + reference[:-6] + '_' + BL_NBest_All[0].GSName + "_BL_Scores_NBest" + ".xlsx", mode='w') as writer:
+                outputPathStudy + displayParams['ref_prefix'] + '_' + BL_NBest_All[0].GSName + "_BL_Scores_NBest" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 

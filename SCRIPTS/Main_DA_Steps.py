@@ -133,7 +133,7 @@ class DataAnalysis:
         # fig.tight_layout(pad=1.08)
 
         if displayParams['archive']:
-            path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA/' + dataname
+            path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/ANALYSIS/' + dataname
             import os
 
             outputFigPath = path + folder + subFolder
@@ -238,7 +238,7 @@ class DataAnalysis:
             import os
 
             reference = displayParams['ref_prefix'] + '_Combined/'
-            outputPathStudy = path + "RESULTS/" + reference + 'RECORDS/' + 'DATA' + '/'
+            outputPathStudy = path + "RESULTS/" + reference + 'RECORDS/' + 'ANALYSIS' + '/'
             if not os.path.isdir(outputPathStudy):
                 os.makedirs(outputPathStudy)
 
@@ -262,7 +262,7 @@ def DataAnalysis_boxPlot (DBpath, ref_prefix, data, x, y, legend = None, name ='
     fig.tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None)
 
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA'
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/ANALYSIS'
         import os
 
         outputFigPath = path + folder + subFolder
@@ -270,11 +270,6 @@ def DataAnalysis_boxPlot (DBpath, ref_prefix, data, x, y, legend = None, name ='
             os.makedirs(outputFigPath)
         plt.savefig(outputFigPath + '/' + 'DA_boxPlot' + name + '.png')
         print(outputFigPath + '/' + 'DA_boxPlot' + name + '.png')
-        # K: / Temp / Sandie / Pycharm / RESULTS / PM_V3_A123 - C34_EC_Combined / VISU / DATA / DA_boxPlotConcrete(
-        #     In - Situ).png
-
-        # K: / Temp / Sandie / Pycharm / RESULTS / PM_V3_A123 - C34_EC_Combined / VISU / DATA / DA_boxPlotTimber
-        # Frame(Glulam / CLT).png
 
     if displayParams['showPlot']:
         plt.show()
@@ -298,7 +293,7 @@ def DataAnalysis_boxPlot_Multi_1D(DBpath, ref_prefix, data, labels, y, legend = 
     fig.tight_layout(pad=1.08)
 
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA'
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/ANALYSIS'
         import os
 
         outputFigPath = path + folder + subFolder
@@ -331,7 +326,7 @@ def DataAnalysis_boxPlot_Multi_2D(DBpath, ref_prefix, data, labels, y, legend = 
     fig.tight_layout(pad=1.08)
 
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/DATA'
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/ANALYSIS'
         import os
 
         outputFigPath = path + folder + subFolder
@@ -345,57 +340,57 @@ def DataAnalysis_boxPlot_Multi_2D(DBpath, ref_prefix, data, labels, y, legend = 
 
 def import_DataAnalysis(ref_prefix, name):
 
-    path = DB_Values['DBpath'] + 'RESULTS/' + ref_prefix + '_Combined/' + 'RECORDS/DATA/' + name + '.pkl'
+    path = DB_Values['DBpath'] + 'RESULTS/' + ref_prefix + '_Combined/' + 'RECORDS/ANALYSIS/' + name + '.pkl'
     DA = pickleLoadMe(path=path, show=False)
 
     return DA
 
-def run_DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
-                     Summed_Labels, Divided_Labels, splittingFt, order, mainTarget,
-                     labels_1D, labels_2D_norm, labels_2D_scale, exploded_ft, splittingFt_focus, splittingFt_2):
+def Run_DA(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
+           Summed_Labels, Divided_Labels, splittingFt, order, mainTarget,
+           labels_1D, labels_2D_norm, labels_2D_scale, exploded_ft, splittingFt_focus, splittingFt_2):
 
     # RUN
     DA = DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels,
                      Summed_Labels, Divided_Labels)
-    dfAsTable(DB_Values['DBpath'], displayParams, DA.workingDf, objFolder='DATA', name = "DA.workingDf", combined = True)
-    dfAsTable(DB_Values['DBpath'], displayParams, DA.rawDf, objFolder='DATA', name = "DA.rawDf", combined = True)
+    dfAsTable(DB_Values['DBpath'], displayParams, DA.workingDf, objFolder='ANALYSIS', name = "DA.workingDf", combined = True)
+    dfAsTable(DB_Values['DBpath'], displayParams, DA.rawDf, objFolder='ANALYSIS', name = "DA.rawDf", combined = True)
 
     DA.DataAnalysis_Scatterplots(DB_Values['DBpath'], displayParams["ref_prefix"], dataname='workingDf', ylabel=mainTarget)
-    # dfAsTable(DB_Values['DBpath'], displayParams, DA.workingDf, objFolder='DATA', name = "mycheck", combined = True)
+    dfAsTable(DB_Values['DBpath'], displayParams, DA.workingDf, objFolder='ANALYSIS', name = "mycheck", combined = True)
 
-    # DA.studyDatabase(path, splittingFt = splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'],
-    #                  orderFt = order)
-    # pickleDumpMe(path, displayParams, DA, 'DATA', 'DataAnalysis' + splittingFt, combined=True)
-    #
+    DA.studyDatabase(path, splittingFt = splittingFt, labels= ['rawDf', 'workingDf', 'scaleDf', 'normalizeDf'],
+                     orderFt = order)
+    pickleDumpMe(path, displayParams, DA, 'ANALYSIS', 'DataAnalysis' + splittingFt, combined=True)
+
     # # IMPORT
-    # # DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
-    #
-    # # SINGLE DF EXPORT TO EXCEL
-    # dfAsTable(DB_Values['DBpath'], displayParams, DA.sortingDfFull, objFolder='DATA', name = "DAi.sortingDfFull", combined = True)
+    # DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
+
+    # SINGLE DF EXPORT TO EXCEL
+    dfAsTable(DB_Values['DBpath'], displayParams, DA.sortingDfFull, objFolder='ANALYSIS', name = "DAi.sortingDfFull", combined = True)
 
 
-    # # #plot normal
-    # DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
-    #                       data=DA.workingDf, x=mainTarget, y=splittingFt, name = focus)
-    # #plot exploded feature
-    # DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
-    #                       data=DA.workingDfsorted, x=mainTarget, y=splittingFt, legend = exploded_ft, name = '_explo' + focus) #DAi.__getattribute__('workingDfsorted')
-    # #plot single feature
-    # DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
-    #                       data=DA.splittingFt[splittingFt_focus], x=mainTarget, y=splittingFt_2, name = focus) #DAi.__getattribute__(splittingFt)
-    # # plot mutliple 1D
-    # DataAnalysis_boxPlot_Multi_1D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.sortingDfFull,
-    #                            labels = labels_1D, y =splittingFt, legend = None, name ='Multi_1D'+ focus)
-    # #plot mutliple 2D
-    # DataAnalysis_boxPlot_Multi_2D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.sortingDfFull,
-    #                            labels = labels_2D_norm, y =splittingFt, legend = None, name ='Multi_2D_norm'+ focus)
-    # #plot mutliple 2D
-    # DataAnalysis_boxPlot_Multi_2D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.sortingDfFull,
-    #                            labels = labels_2D_scale, y =splittingFt, legend = None, name ='Multi_2D_scale'+ focus)
-    #
+    # #plot normal
+    DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+                          data=DA.workingDf, x=mainTarget, y=splittingFt, name = focus)
+    #plot exploded feature
+    DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+                          data=DA.workingDfsorted, x=mainTarget, y=splittingFt, legend = exploded_ft, name = '_explo' + focus) #DAi.__getattribute__('workingDfsorted')
+    #plot single feature
+    DataAnalysis_boxPlot(DB_Values['DBpath'], displayParams["ref_prefix"],
+                          data=DA.splittingFt[splittingFt_focus], x=mainTarget, y=splittingFt_2, name = focus) #DAi.__getattribute__(splittingFt)
+    # plot mutliple 1D
+    DataAnalysis_boxPlot_Multi_1D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.sortingDfFull,
+                               labels = labels_1D, y =splittingFt, legend = None, name ='Multi_1D'+ focus)
+    #plot mutliple 2D
+    DataAnalysis_boxPlot_Multi_2D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.sortingDfFull,
+                               labels = labels_2D_norm, y =splittingFt, legend = None, name ='Multi_2D_norm'+ focus)
+    #plot mutliple 2D
+    DataAnalysis_boxPlot_Multi_2D(DB_Values['DBpath'], displayParams["ref_prefix"], data=DA.sortingDfFull,
+                               labels = labels_2D_scale, y =splittingFt, legend = None, name ='Multi_2D_scale'+ focus)
 
 
-run_DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, DAyLabels,
-                 Summed_Labels, Divided_Labels, splittingFt = splittingFt, order = order, mainTarget = mainTarget,
-                 labels_1D = labels_1D, labels_2D_norm = labels_2D_norm, labels_2D_scale = labels_2D_scale,
-                 exploded_ft = exploded_ft, splittingFt_focus = splittingFt_focus, splittingFt_2 = splittingFt_2)
+
+# run_DataAnalysis(path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, DAyLabels,
+#                  Summed_Labels, Divided_Labels, splittingFt = splittingFt, order = order, mainTarget = mainTarget,
+#                  labels_1D = labels_1D, labels_2D_norm = labels_2D_norm, labels_2D_scale = labels_2D_scale,
+#                  exploded_ft = exploded_ft, splittingFt_focus = splittingFt_focus, splittingFt_2 = splittingFt_2)

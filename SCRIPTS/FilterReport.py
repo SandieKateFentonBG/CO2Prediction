@@ -18,7 +18,6 @@ def reportCV_Filter(CV_AllModels, filterList, seeds, displayParams, studyParams,
     AllDfs = []
 
     sub_lists = split_list(filterList)
-    print('should be the same :' , len(sub_lists), len(studyParams['fl_selectors']))
 
     for CV_Filters in sub_lists: # 2 filters
         #dataframe labels
@@ -76,19 +75,14 @@ def reportCV_Filter(CV_AllModels, filterList, seeds, displayParams, studyParams,
     for name in studyParams['fl_selectors']:
         sheetNames += [name + '-sorted', name + '-rank-sorted']
 
-    print('sheetNames', sheetNames,
-          'should be : ["Spearman", "Spearman-rank", "Pearson", "Pearson-rank", "Spearman-sorted", "Spearman-rank-sorted", "Pearson-sorted", "Pearson-rank-sorted"]')
-
-    # sheetNames = ["Spearman", "Spearman-rank", "Pearson", "Pearson-rank",
-    #               "Spearman-sorted", "Spearman-rank-sorted", "Pearson-sorted", "Pearson-rank-sorted"]
     # export
     if displayParams['archive']:
         import os
-        reference = displayParams['reference']
-        outputPathStudy = DBpath + "RESULTS/" + reference[:-6] + '_Combined/' + 'RECORDS/'
+        reference = displayParams['ref_prefix'] + '_Combined/'
+        outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_Filter" + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + displayParams['ref_prefix'] + "_CV_Filter" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name, freeze_panes=(0, 1))
 

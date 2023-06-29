@@ -83,27 +83,27 @@ for set in studyParams['sets']:
     #
     # Blenders_NBest_CV = [Blender_NBests]
     #
-    # # Blenders_NBest_CV = [LR_RIDGE_BLs] #,SVR_RBF_BLs
+    # # Blenders_NBest_CV = [LR_RIDGE_BLs,SVR_RBF_BLs] #
     #
     # # COMBINE
     #
-    # RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, randomvalues, displayParams)
-    # # #
-    # RUN_CombinedResiduals(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, displayParams, FORMAT_Values,
-    #                       DB_Values['DBpath'], randomvalues)
+    RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, randomvalues, displayParams)
+    # #
+    RUN_CombinedResiduals(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, displayParams, FORMAT_Values,
+                          DB_Values['DBpath'], randomvalues)
     #
     #
-    # ResidualPlot_Scatter_Combined(LR_RIDGE_BLs, displayParams, FORMAT_Values, DB_Values['DBpath'], Blender=True, setyLim=None, setxLim=None,
-    #                               y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = ["R² = 0.03; PA = 100 %"])
-    # ResidualPlot_Scatter_Combined(SVR_RBF_BLs, displayParams, FORMAT_Values, DB_Values['DBpath'], Blender=True, setyLim=None, setxLim=None,
-    #                               y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = ["R² = 0.10; PA = 100 %"])
-    # ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DB_Values['DBpath'], NBest=True, setyLim=None, setxLim=None,
-    #                               y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = ["R² = 0.14; PA = 83 %"])
-    #
-    # # ResidualPlot_Scatter_Combined(All_CV, displayParams, FORMAT_Values, DB_Values['DBpath'], setyLim=None, setxLim=None,
-    # #                               y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth')
-    # ResidualPlot_Scatter_Combined(SVR_RBFs, displayParams, FORMAT_Values, DB_Values['DBpath'], setyLim=None, setxLim=None,
-    #                               y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = ["R² = 0.16; PA = 84 %"])
+    ResidualPlot_Scatter_Combined(LR_RIDGE_BLs, displayParams, FORMAT_Values, DB_Values['DBpath'], Blender=True, setyLim=None, setxLim=None,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = ["R² = 0.03; PA = 100 %"])
+    ResidualPlot_Scatter_Combined(SVR_RBF_BLs, displayParams, FORMAT_Values, DB_Values['DBpath'], Blender=True, setyLim=None, setxLim=None,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = ["R² = 0.10; PA = 100 %"])
+    ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DB_Values['DBpath'], NBest=True, setyLim=None, setxLim=None,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = ["R² = 0.14; PA = 83 %"])
+
+    # ResidualPlot_Scatter_Combined(All_CV, displayParams, FORMAT_Values, DB_Values['DBpath'], setyLim=None, setxLim=None,
+    #                               y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth')
+    ResidualPlot_Scatter_Combined(SVR_RBFs, displayParams, FORMAT_Values, DB_Values['DBpath'], setyLim=None, setxLim=None,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = ["R² = 0.16; PA = 84 %"])
     #
 
     # META STORE

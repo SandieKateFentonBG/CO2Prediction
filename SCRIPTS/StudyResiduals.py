@@ -137,15 +137,15 @@ def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore='TestR2'
     AllDfs = [ResultsDf, sortedDf]
     sheetNames = ['GridsearchResults', 'Sorted_GridsearchResults']
 
-    reference = displayParams['reference']
+    reference = displayParams['ref_prefix'] + '_Combined/'
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'RECORDS/'
+        path, folder, subFolder = DBpath, "RESULTS/", reference+ 'RECORDS/'
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
-        with pd.ExcelWriter(outputFigPath + reference[:-6] + '_CV_ScoresAvg_All' + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputFigPath + displayParams['ref_prefix'] + '_CV_ScoresAvg_All' + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
@@ -266,9 +266,9 @@ def plotCVResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, stud
         plt.title(title, fontsize=14)
         plt.xlabel(x, fontsize=14)
 
-        reference = displayParams['reference']
+        reference = displayParams['ref_prefix'] + '_Combined/'
         if displayParams['archive']:
-            path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
+            path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/Residuals/' + studyFolder
             import os
             outputFigPath = path + folder + subFolder
             if not os.path.isdir(outputFigPath):
@@ -302,9 +302,9 @@ def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBp
     plt.title(title, fontsize=14)
     plt.xlabel(x, fontsize=14)
 
-    reference = displayParams['reference']
+    reference = displayParams['ref_prefix'] + '_Combined/'
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/Residuals/' + studyFolder
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/Residuals/' + studyFolder
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
@@ -525,15 +525,15 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
     AllDfs = [ResidualsDf, sortedDf]
     sheetNames = ['Residuals_MeanVar', 'Sorted_Residuals_MeanVar']
 
-    reference = displayParams['reference']
+    reference = displayParams['ref_prefix'] + '_Combined/'
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'RECORDS/'
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'RECORDS/'
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
 
-        with pd.ExcelWriter(outputFigPath + reference[:-6] + '_CV_Residuals_All' + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputFigPath + displayParams['ref_prefix'] + '_CV_Residuals_All' + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
@@ -739,8 +739,6 @@ def ResidualPlot_Scatter_Distri_Combined(studies, displayParams, DBpath, setyLim
         # Finalize the histogram axes
         hax.axhline(y=0) #, c=line_color
         hax.set_xlabel("Distribution")
-
-
 
         reference, ref_prefix = displayParams['reference'], displayParams['ref_prefix']
 

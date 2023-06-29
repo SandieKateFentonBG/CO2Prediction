@@ -205,11 +205,11 @@ def reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayPar
     # export
     if displayParams['archive']:
         import os
-        reference = displayParams['reference']
-        outputPathStudy = DBpath + "RESULTS/" + reference[:-6] + '_Combined/' + 'RECORDS/'
+        reference = displayParams['ref_prefix'] + '_Combined/'
+        outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_ModelRanking_NBest" +'_' + str(n) + '_' + NBestScore + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + displayParams['ref_prefix'] + "_CV_ModelRanking_NBest" +'_' + str(n) + '_' + NBestScore + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name, freeze_panes=(0, 1))
                 # a = df.to_excel(writer, sheet_name=name, freeze_panes=(0,1))

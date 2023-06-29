@@ -20,7 +20,7 @@ def RUN_Training_Report(CV_AllModels, Filters_CV, randomvalues, displayParams, s
     print("SHAP_Combined")
 
     "Assessment of all Models - ranked table for all seeds and samples - features SHAP values Grouped and Ungrouped - List + Plots"
-    RUN_SHAP_Combined_All(displayParams, DB_Values["DBpath"], CV_AllModels, GSName, xQuantLabels, xQualLabels, randomValues=None)
+    RUN_SHAP_Combined_All(displayParams, DB_Values["DBpath"], CV_AllModels, GSName, xQuantLabels, xQualLabels, randomValues=randomvalues)
 
     print("Avg_Model")
     #AVERAGING
@@ -46,6 +46,5 @@ def RUN_Combine_Report(CV_AllModels, CV_NBest, CV_BlenderNBest, regressors_CV, m
     RUN_CombinedResiduals(CV_AllModels, CV_NBest, CV_BlenderNBest, regressors_CV, models_CV, displayParams, FORMAT_Values,
                           DB_Values['DBpath'], randomvalues, setyLim=[-500, 500], setxLim=[0, 1500])
 
-     # RUN_CombinedResiduals(CV_AllModels, CV_NBest, CV_BlenderNBest, displayParams, FORMAT_Values, DBpath = DB_Values['DBpath'], n= BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
 
 

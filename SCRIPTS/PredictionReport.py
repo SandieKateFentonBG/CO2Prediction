@@ -4,6 +4,7 @@ def reportGS_TxtScores_All (DBpath, displayParams, modelGS, objFolder ='GS_FS', 
 
     if displayParams['archive']:
         import os
+
         reference = displayParams['reference']
         outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/' + objFolder + '/'
 

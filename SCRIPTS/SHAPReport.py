@@ -166,12 +166,12 @@ def reportCV_SHAP(SHAPDf, SHAPGroupDf, displayParams, DBpath, NBest = True, n=No
 
     if displayParams['archive']:
         import os
-        reference = displayParams['reference']
-        outputPathStudy = DBpath + "RESULTS/" + reference[:-6] + '_Combined/' + 'RECORDS/'
+        reference = displayParams['ref_prefix'] + '_Combined/'
+        outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/'
 
         if not os.path.isdir(outputPathStudy):
             os.makedirs(outputPathStudy)
-        with pd.ExcelWriter(outputPathStudy + reference[:-6] + "_CV_SHAP_" + content + ".xlsx", mode='w') as writer:
+        with pd.ExcelWriter(outputPathStudy + displayParams['ref_prefix'] + "_CV_SHAP_" + content + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
@@ -188,9 +188,9 @@ def plotSHAPSummary(SHAPDf, displayParams, DBpath, content='', NBest = True, n=N
 
     plt.suptitle('Summary of SHAP values - ' + content, ha="right", size = 'large' )
     plt.gcf().set_size_inches(12, 6)
-    reference = displayParams['reference']
+    reference = displayParams['ref_prefix'] + '_Combined/'
     if displayParams['archive']:
-        path, folder, subFolder = DBpath, "RESULTS/", reference[:-6] + '_Combined/' + 'VISU/SHAP/'
+        path, folder, subFolder = DBpath, "RESULTS/", reference + 'VISU/SHAP/'
         import os
         outputFigPath = path + folder + subFolder
         if not os.path.isdir(outputFigPath):

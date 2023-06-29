@@ -1,12 +1,14 @@
-def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, FiltersLs, RFEs, objFolder ='FS', display = True, combined=False):
+def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, FiltersLs, RFEs, objFolder ='FS', display = True, combined=False, number=None):
 
     if displayParams['archive']:
         import os
         if combined:
             reference = displayParams['ref_prefix'] + '_Combined/'
+        elif number :
+            reference = displayParams['ref_prefix'] + '_rd' + str(number) + '/'
         else:
             reference = displayParams['reference']
-        # reference = displayParams['reference']
+
         outputPathStudy = DBpath + "RESULTS/" + reference + 'RECORDS/' + objFolder + '/'
 
         if not os.path.isdir(outputPathStudy):
@@ -23,8 +25,9 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
             writer.writerow('')
             writer.writerow(['FORMAT'])
             writer.writerow(["train", type(baseFormatedDf.trainDf), baseFormatedDf.trainDf.shape])
-            writer.writerow(["validate", type(baseFormatedDf.valDf), baseFormatedDf.valDf.shape])
             writer.writerow(["test", type(baseFormatedDf.testDf), baseFormatedDf.testDf.shape])
+            writer.writerow(["validate", type(baseFormatedDf.valDf), baseFormatedDf.valDf.shape])
+            writer.writerow(["check", type(baseFormatedDf.checkDf), baseFormatedDf.checkDf.shape])
             writer.writerow([''])
             writer.writerow(['FILTER'])
             if len(FiltersLs)>0:
@@ -54,8 +57,9 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
             print('')
             print('FORMAT')
             print("train", type(baseFormatedDf.trainDf), baseFormatedDf.trainDf.shape)
-            print("validate", type(baseFormatedDf.valDf), baseFormatedDf.valDf.shape)
             print("test", type(baseFormatedDf.testDf), baseFormatedDf.testDf.shape)
+            print("validate", type(baseFormatedDf.valDf), baseFormatedDf.valDf.shape)
+            print("validate", type(baseFormatedDf.checkDf), baseFormatedDf.checkDf.shape)
             print('')
             print('FILTER')
             for filter in FiltersLs :
@@ -72,7 +76,7 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
                 print("Score on validation :", RFE.rfe_checkScore)
                 print('')
 
-def dfAsTable (DBpath, displayParams, df, objFolder ='DATA', name = "DF", combined = False):
+def dfAsTable (DBpath, displayParams, df, objFolder ='DATA', name = "DF", combined = False, number=None):
 
     import pandas as pd
 
@@ -80,6 +84,8 @@ def dfAsTable (DBpath, displayParams, df, objFolder ='DATA', name = "DF", combin
         import os
         if combined :
             reference = displayParams['ref_prefix'] + '_Combined/'
+        elif number :
+            reference = displayParams['ref_prefix'] + '_rd' + str(number) + '/'
         else:
             reference = displayParams['reference']
 

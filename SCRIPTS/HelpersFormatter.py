@@ -15,6 +15,7 @@ def formatDf(data, model):
     if model.learningDf.droppedLabels != '':
         droppedLabels = model.learningDf.droppedLabels
         XDf = data.drop(columns=droppedLabels)
+
     return XDf
 
 def formatDf_toBlender(data, blender, Scale = True):
@@ -68,10 +69,8 @@ def repackGS_FSs(Model_List): #10 list de 54
     for i in range(len(Model_List[0])):  # 54
         seeds_ls = []
         for j in range(len(Model_List)):  # 10
-             #54
             seeds_ls.append(Model_List[j][i])
         models_ls.append(seeds_ls)
-    print("should be 54", len(models_ls))
-    print("should be 10", len(models_ls[0]))
+
 
     return models_ls

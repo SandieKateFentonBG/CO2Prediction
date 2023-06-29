@@ -117,10 +117,15 @@ def reportGS_Scores_NBest(NBestModels, displayParams, DBpath):
 
 
 
-def import_NBest(import_ref, OverallBest = False): #, random_state
+def import_NBest(import_ref, OverallBest = False, number=None): #, random_state
+
     if OverallBest:
-        path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
-               + '_O_bestModels_rd' + import_ref[-3:-1] + '.pkl'
+        if number:
+            path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/' + str(BLE_VALUES['NCount']) \
+                   + '_O_bestModels_rd' + str(number) + '.pkl'
+        else:
+            path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
+                   + '_O_bestModels_rd' + import_ref[-3:-1] + '.pkl'
     else :
         path = DB_Values['DBpath'] + 'RESULTS/' + import_ref + 'RECORDS/NBEST/'+ str(BLE_VALUES['NCount']) \
                + '_bestModels_rd' + import_ref[-3:-1] + '.pkl'

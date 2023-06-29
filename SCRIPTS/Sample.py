@@ -11,16 +11,22 @@ import shap
 
 
 class Sample:
-    def __init__(self, dbRefName, MyPred_Sample): #, delimiter, firstLine, xQualLabels, xQuantLabels, model):#self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels, updateLabels=None
+    def __init__(self, displayParams, MyPred_Sample): #, delimiter, firstLine, xQualLabels, xQuantLabels, model):#self, path, dbName, delimiter, firstLine, xQualLabels, xQuantLabels, yLabels, updateLabels=None
 
         """
 
         """
 
-        # IMPORT
-        # todo :  spearmanFilter, pearsonFilter was changed to filterList
-        # rdat, df, learningDf, baseFormatedDf, spearmanFilter, pearsonFilter, RFEs = import_Main_FS(dbRefName, show = False)
-        rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList = import_Main_FS(dbRefName, show = False)
+        import_combined_ref = displayParams['ref_prefix'] + '_Combined/'
+        import_single_ref = displayParams['reference']
+
+        rdat = pickleLoadMe(path=DB_Values['DBpath'] + 'RESULTS/' + import_combined_ref + 'RECORDS/DATA/rdat.pkl',
+                            show=False)
+        dat = pickleLoadMe(path=DB_Values['DBpath'] + 'RESULTS/' + import_combined_ref + 'RECORDS/DATA/dat.pkl')
+
+        baseFormatedDf = pickleLoadMe(
+            path=DB_Values['DBpath'] + 'RESULTS/' + import_single_ref + 'RECORDS/DATA/baseFormatedDf.pkl', show=False)
+
         self.mean = baseFormatedDf.MeanStdDf.loc["mean",:]
         self.std = baseFormatedDf.MeanStdDf.loc["std",:]
         self.yLabels = studyParams['sets'][0][0]
@@ -28,7 +34,6 @@ class Sample:
 
         # RAW DATA
         from Raw import open_csv_at_given_line
-        # dbName = MyPred_Sample['DBname']
         header, reader = open_csv_at_given_line(path=MyPred_Sample['DBpath'], dbName=MyPred_Sample['DBname'],
                                                 delimiter=MyPred_Sample['DBdelimiter'],
                                                 firstLine=MyPred_Sample['DBfirstLine'])
@@ -38,6 +43,7 @@ class Sample:
         self.xQuanti = {k: [] for k in rdat.xQuanti.keys()}
         self.y = {k: [] for k in rdat.y.keys()}
         self.possibleQualities = rdat.possibleQualities
+        self.droppedLabels = dat.droppedLabels
 
         for line in reader:
             for (labels, attribute) in [(xQuantLabels, self.xQuanti), (self.yLabels, self.y)]:
@@ -84,6 +90,11 @@ class Sample:
         self.XDf = XDf
         self.yDf.rename(columns={self.yLabels[0]: FORMAT_Values['targetLabels'][0]})
 
+        if self.droppedLabels != []:
+            droppedLabels = self.droppedLabels
+            self.XDf = XDf.drop(columns=droppedLabels)
+            self.XDfunsc = self.XDfunsc.drop(columns=droppedLabels)
+
         #todo : __new__ features object in whicjh attributes provided
         #https://stackoverflow.com/questions/47169489/how-to-create-an-object-inside-class-static-method
         #https://realpython.com/python-class-constructor/
@@ -108,7 +119,6 @@ class Sample:
         x, y, xlabels = self.asArray(powers, mixVariables)
         self.Dataframe = [x, y]
         return pd.DataFrame(np.hstack((x, y)), columns=xlabels + list(self.y.keys()))
-
 
     def SamplePrediction(self, model):
 
@@ -199,10 +209,6 @@ class Sample:
     def group_data(self, model, shap_values):
 
         # compute new SHAP values
-        #TODO : REMOVE PRINTS
-        print(model.GSName)
-        print('CHECK THIS : model.SHAPGroup_RemapDict.keys()', model.SHAPGroup_RemapDict.keys())
-        print('model.SHAPGroup_RemapDict.values()', model.SHAPGroup_RemapDict.values())
 
         #transform data
         SHAPGroupKeys = list(model.SHAPGroup_RemapDict.keys())

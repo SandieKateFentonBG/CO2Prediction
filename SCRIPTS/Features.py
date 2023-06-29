@@ -27,6 +27,7 @@ class Features:
         self.x.update(logitize(rawData.xQuali, rawData.possibleQualities))
         self.y = rawData.y
         self.removedDict = dict()
+        self.droppedLabels = []
 
     def asDataframes(self, batchCount=5, powers=None, mixVariables=None):
         x, y, xlabels = self.asArray(powers, mixVariables)
@@ -53,13 +54,15 @@ class Features:
 
     def removeUnderrepresented(self, df, label, value, cutOffThreshhold):
 
-        removed = None
+        removed_Value, removed_Label_Value = None, None
         info = '_'.join([label, value])
         newdf = df.groupby(info).filter(lambda x: len(x) > cutOffThreshhold)
 
         if newdf.shape != df.shape:
-            removed = value
-        return newdf, removed
+            removed_Value = value
+            removed_Label_Value = info
+
+        return newdf, removed_Value, removed_Label_Value
 
     def removeUnderrepresenteds(self, cutOffThreshhold, removeUnderrepresentedsFrom):
         """
@@ -75,17 +78,18 @@ class Features:
         for label in removeUnderrepresentedsFrom:
             self.removedDict[label] = []
             for value in self.rawData.possibleQualities[label] :
-                noOutlierDf, removed = self.removeUnderrepresented(dataframe, label, value, cutOffThreshhold)
+                noOutlierDf,  removed_Value, removed_Label_Value = self.removeUnderrepresented(dataframe, label, value, cutOffThreshhold)
                 dataframe = noOutlierDf
-                if removed :
-                    self.removedDict[label].append(removed)
+                if removed_Value :
+                    self.removedDict[label].append(removed_Value)
+                    self.droppedLabels.append(removed_Label_Value)
         newdf = noOutlierDf[[i for i in noOutlierDf if len(set(noOutlierDf[i])) > 1]]
         #todo this stepp removes columns with all values identical > remaining when underrrepresented rows are removed
         # > maybe they should be left in to avoid issues when plotting
 
         #todo : maybe these features should be removed from posssible qualities > will generate issues in the plots
 
-        return newdf, self.removedDict
+        return newdf, self.removedDict, self.droppedLabels
 
 
 

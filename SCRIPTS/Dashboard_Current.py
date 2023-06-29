@@ -6,20 +6,20 @@ RUN
 ________________________________________________________________________________________________________________________
 """
 #change when running a test
-sample_nb = 32
+sample_nb = 2
 sample_values = list(range(40, 42))
+
+
 displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
-
+cv=5
 set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2'] # ylabel, content, metric
-acronym = 'migration_test'
-studyParams = {"sets": [set_1], 'randomvalues': sample_values, 'fl_selectors' : ['spearman', 'pearson'], #'spearman', 'pearson'
-               'RFE_selectors': ['GBR', 'RFR'], #[, 'NoSelector', 'DTR', ]
-               "Regressors": ['LR']} #'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
+acronym = 'cv_test3'
+studyParams = {"sets": [set_1], 'randomvalues': sample_values, 'fl_selectors' : ['spearman'], #'spearman', 'pearson'
+               'RFE_selectors': ['GBR'], #[, 'NoSelector', 'DTR',, 'RFR' ]
+               "Regressors": ['LR_RIDGE']} #'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
 
 
 
-#todo : yLabels Format changed from string to list > update if needed ['Embodied_Carbon[kgCO2e_m2]']
-# "Regressors": ['SVR_RBF']
 # sets = [
 #     ['Embodied_Carbon[kgCO2e_m2]','EC','TestR2'],
 #     ['Embodied_Carbon[kgCO2e_m2]','EC','TestAcc'],
@@ -128,7 +128,8 @@ ________________________________________________________________________________
 """
 #parameters chosen for database processing
 
-PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshhold' : 5, 'removeUnderrepresenteds' : False,
+PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshhold' : 5,
+                  'removeUnderrepresenteds' : True, 'removeUnderrepresentedsDict' : dict(),
                 'RemoveOutliersFrom' : ['Gross_Floor_Area', 'Users_Total'], 'removeUnderrepresentedsFrom' : xQualLabels,
                   'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
                 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40, 'selectionStoredinCombined' : True,
@@ -227,8 +228,8 @@ FEATURE SELECTION
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
-              'BestModelNames' : None} #'TestAcc'SVR_RBF LR_RIDGE
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
+              'BestModelNames' : None} #'TestAcc'LR_RIDGE
 
 
 

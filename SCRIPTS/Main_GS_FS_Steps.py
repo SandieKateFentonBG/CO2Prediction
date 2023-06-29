@@ -90,7 +90,7 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
                        MLP_SAG_CONSTRUCTOR] #
 
     GS_CONSTRUCTOR = [elem for elem in All_CONSTRUCTOR if elem['name'] in regressors]
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>GS_CONSTRUCTOR', len(GS_CONSTRUCTOR))
+
     # CONSTRUCT & REPORT
 
     GS_FSs = []
@@ -297,8 +297,8 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False, importMainFS=True, FS
 
     # REPORT
     print('REPORTING GS_FS')
-    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df, learningDf,
-                         baseFormatedDf, FiltersLs=filterList, RFEs=RFEList, GSlist=GS_FSs, GSwithFS=True)
+    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df,
+                         learningDf, baseFormatedDf, FiltersLs=filterList, RFEs=RFEList, GSlist=GS_FSs, GSwithFS=True)
 
     scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
     scoreListMax = [True, False, True, True, True]
@@ -316,6 +316,28 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False, importMainFS=True, FS
 
     return GS_FSs
 
+
+def report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES,
+                 rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs):
+
+    # REPORT
+    print('REPORTING GS_FS')
+    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df, learningDf,
+                         baseFormatedDf, FiltersLs=filterList, RFEs=RFEList, GSlist=GS_FSs, GSwithFS=True)
+
+    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
+    scoreListMax = [True, False, True, True, True]
+    reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=False)
+
+    print('PLOTTING GS_FS')
+    # PLOT
+    Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, plot_all = displayParams['plot_all'])
+
+    Plot_GS_FS_Metrics(GS_FSs, plot_all = False)
+    Plot_GS_FS_PredTruth(GS_FSs, plot_all = False)
+    Plot_GS_FS_Residuals(GS_FSs, plot_all=False)
+    Plot_GS_FS_SHAP(GS_FSs, plot_shap = True, plot_shap_decision = displayParams['plot_all'])
+    Plot_GS_FS_Hyperparam(displayParams['reference'], Plot=False)
 
 def import_Main_GS_FS(import_reference, GS_FS_List_Labels = studyParams['Regressors']): #'SVR_POL'
 

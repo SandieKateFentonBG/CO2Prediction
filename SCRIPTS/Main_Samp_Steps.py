@@ -11,6 +11,7 @@ def Run_Model_Predictions_Explainer(sample, ArchPath, Model_List=None, Blender_L
     if Model_List:
 
         for model in Model_List:
+            print('model.GSName', model.GSName)
             # COMPUTE EXPLAINER
 
             if precomputed : #explainer already computed
@@ -113,7 +114,7 @@ def create_Feature_Samples_2D(MyPred_Sample):
     feature1ordered = MyPred_Sample['orderFtCols']
     feature2ordered = MyPred_Sample['orderFtRows']
 
-    sample = Sample(displayParams["reference"], MyPred_Sample)
+    sample = Sample(displayParams, MyPred_Sample)
 
     samples_ls = []
 
@@ -344,12 +345,15 @@ def RUN_Samp_Steps(MyPred_Sample, DBpath, ref_single, Model_List, Blender_List, 
 
 
     # RUN
-    sample = Sample(displayParams["reference"], MyPred_Sample)
+    print("SAMPLE")
+    sample = Sample(displayParams, MyPred_Sample)
     # STORE
     pickleDumpMe(DBpath, displayParams, sample, 'PREDICTIONS', MyPred_Sample["DBname"])
     # IMPORT
     sample = import_SAMPLE(ref_single, name=MyPred_Sample['DBname'])
     # EXPLAIN
+
+    print("Run_Model_Predictions_Explainer")
     Run_Model_Predictions_Explainer(sample, DBpath, Model_List=Model_List,
                                     Blender_List=Blender_List,precomputed=precomputed)
     # COMPARE
