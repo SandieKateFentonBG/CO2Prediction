@@ -132,6 +132,6 @@ class CrossValDf:
 
         self.selector = SplitDf.selector
         self.droppedLabels = SplitDf.droppedLabels
-        self.selectedLabels = SplitDf.selectedDict
+        self.selectedLabels = SplitDf.selectedLabels
         self.MeanStdDf = SplitDf.MeanStdDf
 

@@ -85,7 +85,7 @@ def GS_averageWeight(target, GS_FSs, key = 'WeightsScaled', df = None):
     for GS_FS in GS_FSs:
         for learningDflabel in GS_FS.learningDfsList:
             GS = GS_FS.__getattribute__(learningDflabel)
-            labelLs,valueLs = GS_modelWeightsList(target, GS.selectedDict, GS.__getattribute__(key), df) #54
+            labelLs,valueLs = GS_modelWeightsList(target, GS.selectedLabels, GS.__getattribute__(key), df) #54
             VList.append(valueLs) #7
 
     for i in range(len(VList[0])): #todo : why vlist 0
@@ -112,7 +112,7 @@ def GS_averageWeight_NBest(target, NBestModel, key ='WeightsScaled', df = None):
 
     for Model in NBestModel.modelList:
 
-            labelLs,valueLs = GS_modelWeightsList(target, Model.selectedDict, Model.__getattribute__(key), df) #54
+            labelLs,valueLs = GS_modelWeightsList(target, Model.selectedLabels, Model.__getattribute__(key), df) #54
             VList.append(valueLs) #7
 
     for i in range(len(VList[0])): #todo : why vlist 0
@@ -149,7 +149,7 @@ def GS_WeightsBarplotAll(GS_FSs, GS_FSs_for_mean, DBpath, displayParams, target,
     for GS_FS in GS_FSs:  # ,LR_LASSO_FS_GS, LR_RIDGE_FS_GS, LR_ELAST_FS_GS
         for learningDflabel in GS_FS.learningDfsList:
             GS = GS_FS.__getattribute__(learningDflabel)
-            f, v = GS_modelWeightsList(target, GS.selectedDict, GS.__getattribute__(key), df_for_empty_labels)
+            f, v = GS_modelWeightsList(target, GS.selectedLabels, GS.__getattribute__(key), df_for_empty_labels)
 
             if sorted:
                 _, v, f = GS_sortedListAccordingToGuide(meanWeights, v, f)
@@ -209,7 +209,7 @@ def GS_WeightsSummaryPlot(GS_FSs, GS_FSs_for_mean, target, df_for_empty_labels, 
         for learningDflabel in GS_FS.learningDfsList:
 
             GS = GS_FS.__getattribute__(learningDflabel)
-            labelLs,valueLs = GS_modelWeightsList(target, GS.selectedDict, GS.__getattribute__('WeightsScaled'), df_for_empty_labels) #54
+            labelLs,valueLs = GS_modelWeightsList(target, GS.selectedLabels, GS.__getattribute__('WeightsScaled'), df_for_empty_labels) #54
             inv_weights.append(valueLs) #7
             #todo - check - changed naming here for labels
             lab = GS.predictorName + '-' + GS.selectorName
@@ -278,7 +278,7 @@ def GS_WeightsSummaryPlot_NBest(NBestModel, target, df_for_empty_labels, display
 
     for Model in NBestModel.modelList:
 
-        labelLs, valueLs = GS_modelWeightsList(target, Model.selectedDict, Model.__getattribute__('WeightsScaled'),
+        labelLs, valueLs = GS_modelWeightsList(target, Model.selectedLabels, Model.__getattribute__('WeightsScaled'),
                                                df_for_empty_labels)  # 54
         inv_weights.append(valueLs)  # 7
         # todo - check - changed naming here for labels

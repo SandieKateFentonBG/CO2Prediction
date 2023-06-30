@@ -50,7 +50,7 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
                 for filter in FiltersLs :
                     writer.writerow(['FILTER ', filter.method])
                     writer.writerow(['LABELS ', filter.trainDf.shape[1]-1]) #todo this was changed - check
-                    writer.writerow([filter.selectedDict])
+                    writer.writerow([filter.selectedLabels])
                     writer.writerow('')
 
             if len(RFEs) > 0:
@@ -58,7 +58,7 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
                 for RFE in RFEs:
                     writer.writerow(["RFE with  ", RFE.method])
                     writer.writerow(["Number of features fixed ", RFE.n_features_to_select])
-                    writer.writerow(['Selected feature labels ', list(RFE.selectedDict)])
+                    writer.writerow(['Selected feature labels ', list(RFE.selectedLabels)])
                     writer.writerow(["Score on training ", RFE.rfe_valScore])
                     writer.writerow(["Score on validation ", RFE.rfe_checkScore])
                     writer.writerow('')

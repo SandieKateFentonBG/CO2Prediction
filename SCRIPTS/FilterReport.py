@@ -28,12 +28,12 @@ def reportCV_Filter(CV_AllModels, filterList, seeds, displayParams, studyParams,
         horizLabels_dropped = []
 
         #vertilabels
-        vertiLabels = CV_AllModels[0][0].__getattribute__('NoSelector').selectedDict
+        vertiLabels = CV_AllModels[0][0].__getattribute__('NoSelector').selectedLabels
 
         #horizlabels
         for filter, seed in zip(CV_Filters, seeds):  # 10studies
             horizTitle = seed  # ex : 38
-            horizLabel_selected = filter.selectedDict
+            horizLabel_selected = filter.selectedLabels
             horizLabel_redundant = filter.redundantLabels
             horizLabel_uncorrelated = filter.uncorrelatedLabels
             horizLabel_dropped = filter.droppedLabels

@@ -7,17 +7,16 @@ ________________________________________________________________________________
 """
 #change when running a test
 sample_nb = 2
-# sample_values = list(range(40, 42))
-
+#READY TO RUN
 
 displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
-cv=1
+cv=5
 
 set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2'] # ylabel, content, metric
 acronym = 'STRUCT_study'
 studyParams = {"sets": [set_1], 'fl_selectors': ['spearman', 'pearson'],  #, 'randomvalues': sample_values
                'RFE_selectors': ['GBR', 'DTR', 'RFR'],
-               "Regressors": ['KRR_RBF', 'KRR_POL','SVR_RBF']} #
+               "Regressors": ['KRR_RBF']} #, 'KRR_POL','SVR_RBF'
 """
 ________________________________________________________________________________________________________________________
 DATABASE

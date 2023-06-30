@@ -7,17 +7,25 @@ ________________________________________________________________________________
 """
 #change when running a test
 sample_nb = 2
-# sample_values = list(range(40, 42))
+sample_values = list(range(40, 42))
 
 
 displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
-cv=1
-
+cv=5
 set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2'] # ylabel, content, metric
-acronym = 'STRUCT_study'
-studyParams = {"sets": [set_1], 'fl_selectors': ['spearman', 'pearson'],  #, 'randomvalues': sample_values
-               'RFE_selectors': ['GBR', 'DTR', 'RFR'],
-               "Regressors": ['KRR_RBF', 'KRR_POL','SVR_RBF']} #
+acronym = 'cv_test3'
+studyParams = {"sets": [set_1], 'randomvalues': sample_values, 'fl_selectors' : ['spearman'], #'spearman', 'pearson'
+               'RFE_selectors': ['GBR'], #[, 'NoSelector', 'DTR',, 'RFR' ]
+               "Regressors": ['LR_RIDGE']} #'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
+
+
+
+# sets = [
+#     ['Embodied_Carbon[kgCO2e_m2]','EC','TestR2'],
+#     ['Embodied_Carbon[kgCO2e_m2]','EC','TestAcc'],
+#     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS', 'TestR2'],
+#     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS','TestAcc']]
+
 """
 ________________________________________________________________________________________________________________________
 DATABASE
@@ -29,19 +37,16 @@ ________________________________________________________________________________
 EUCB-FR
 """
 
-# + "-edit" > changed users total "No Data" to 100000 > make sure they are removed
-
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
-             "DBname" : "EU-ECB_dataset_feature_engineered_sf_mass_fram_str" + "-edit",#EU-ECB_dataset_feature_engineered_sf_framestr
+             "DBname" : "EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-no_floors_ag",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym} #"EU-ECB_dataset_feature_engineered_fr_residential_skf_cleaned-with_floors_ag",CSTB_res_nf_SEC_BleR2
 
-xQualLabels = [
-'Use_Type','Use_Subtype', 'Site_Country', 'Completion_Year', 'QTO_Type', 'bldg_area_interval', 'Structure', 'Roof',
-    'Energy_Class_Country', 'Energy_Class_General', 'Main_Material', 'Second_Material',	'Lifespan',	'Life_Cycle_Scopes', 'LCA_Scope_handling_D']
+xQualLabels = ['Use_Subtype', 'Structure', 'Roof', 'Energy_Class', 'Main_Material']
 
-xQuantLabels = ['Gross_Floor_Area'] #, 'Floors_Above_Ground', 'Floors_Below_Ground', 'Users_Total'
 
-# RemoveOutliersFrom = ['Gross_Floor_Area'] #'Floors_Above_Ground', 'Users_Total'
+xQuantLabels = ['Gross_Floor_Area', 'Users_Total', 'Floors_Below_Ground'] #, 'Floors_Above_Ground'
+
+# RemoveOutliersFrom = ['Gross_Floor_Area', 'Users_Total'] #'Floors_Above_Ground'
 
 yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
 
@@ -53,6 +58,7 @@ FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxV
 """
 SAMPLE
 """
+
 # MyPred_Sample = {"DBpath" : "K:/Temp/Sandie/Pycharm/",  #C:/Users/sfenton/Code/Repositories/CO2Prediction/
 #              "DBname" : "Test-Wood",
 #              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym} #Test-Concrete
@@ -60,39 +66,39 @@ SAMPLE
 
 
 MyPred_Sample_CONCRETEselection = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : "EU-ECB-S-Concrete", #todo
+             "DBname" : "EU-ECB-S-Concrete",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
-                          'orderFtCols' : None, #[]todo 'Stone (granite, limestone, etc)','Ceramics (e.g., fired clay bricks)','Timber, wood','Concrete w/o reinforcement','Other'
-                          "orderFtRows" : None} #[]todo select relevant structure types : 'massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood'
+                          'orderFtCols' : ['Stone (granite, limestone, etc)','Ceramics (e.g., fired clay bricks)','Timber, wood','Concrete w/o reinforcement','Other'],
+                          "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
 
 
 MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : "EU-ECB-S-Concrete", #todo
+             "DBname" : "EU-ECB-S-Concrete",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
-                          'orderFtCols' : None, #[]todo
-                          "orderFtRows" : None} #[]todo
+                          'orderFtCols' : ['Stone (granite, limestone, etc)','Ceramics (e.g., fired clay bricks)','Timber, wood','Concrete w/o reinforcement','Other'],
+                          "orderFtRows" : ['massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood']}
 
 MyPred_Sample_TIMBER = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : "EU-ECB-S-Wood", #todo
+             "DBname" : "EU-ECB-S-Wood",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
-                     "orderFtRows" : None} #[]todo 'massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood'
+                     "orderFtRows" : ['massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood']}
 
 MyPred_Sample_GLT = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : "EU-ECB-S-GLT", #todo
+             "DBname" : "EU-ECB-S-GLT",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
-                     "orderFtRows" : None} #todo['massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood']
+                     "orderFtRows" : ['massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood']}
+
 
 
 """
 DATA ANALYSIS
 """
-DAyLabels = ['Embodied_Carbon[kgCO2e]', 'Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
-DAxQuantLabels = xQuantLabels + ['Users_Total']#
-
+DAyLabels = ['Embodied_Carbon[kgCO2e]', 'Embodied_Carbon[kgCO2e_m2]', 'Embodied_Carbon_Structure[kgCO2e_m2]']
+DAxQuantLabels = xQuantLabels
 DARemoveOutliersFrom = ['Gross_Floor_Area', 'Users_Total'] + DAyLabels
 
 #CHANGES   !! LABELS MUST BE IN INITIAL IMPORT!
@@ -123,13 +129,15 @@ ________________________________________________________________________________
 """
 #parameters chosen for database processing
 
-
 PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshhold' : 5,
                   'removeUnderrepresenteds' : True, 'removeUnderrepresentedsDict' : dict(),
-                'RemoveOutliersFrom' : ['Gross_Floor_Area'], 'removeUnderrepresentedsFrom' : xQualLabels,
+                'RemoveOutliersFrom' : ['Gross_Floor_Area', 'Users_Total'], 'removeUnderrepresentedsFrom' : xQualLabels,
                   'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
-                'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 42, 'selectionStoredinCombined' : True,
+                'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 40, 'selectionStoredinCombined' : True,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.15, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]} #'corrMethod1' : "spearman", 'corrMethod2' : "pearson",
+
+#todo : check 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800]
+
 
 """
 ________________________________________________________________________________________________________________________
@@ -146,8 +154,6 @@ ________________________________________________________________________________
 
 RFE_VALUES = {'RFE_n_features_to_select' : 15, 'RFE_featureCount' : 'list(np.arange(10, len(baseFormatedDf.XTrain)-10, 10))',
               'RFE_process' : 'short', 'output_feature_count':'rfeCV'}
-
-
 
 """
 ________________________________________________________________________________________________________________________
@@ -168,6 +174,7 @@ KRR_param_grid={'alpha': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence
                                                 'coef0' : GS_VALUES['coef0_range']}
 SVR_param_grid={'C': GS_VALUES['regul_range'], 'gamma': GS_VALUES['influence_range'], 'degree' : GS_VALUES['degree'],
                 'epsilon': GS_VALUES['margin_range'],  'coef0' : GS_VALUES['coef0_range']}
+
 
 MLP_LBFG_param_grid={ 'hidden_layer_sizes': [(20,), (10,), (100,)], 'activation' : ['relu'],
                  'alpha': list(10.0 ** -np.arange(1, 7))} #'solver': ['lbfgs'],
@@ -201,6 +208,9 @@ MLP_SGD_100_param_grid={'hidden_layer_sizes': [(100,)], 'activation' : ['relu'],
 # tol : float, default=1e-4 #Tolerance for the optimization.
 # verbose : bool, default=False # print progress messages to stdout.
 
+
+
+
 """
 ________________________________________________________________________________________________________________________
 HYPERPARAM
@@ -213,7 +223,6 @@ KRR_param_grid2={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['polynomial'
 KRR_param_grid3={'gamma': list(10.0 ** np.arange(-3, 3)), 'kernel':['rbf']}
 
 
-
 """
 ________________________________________________________________________________________________________________________
 FEATURE SELECTION
@@ -222,5 +231,155 @@ ________________________________________________________________________________
 
 BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
               'BestModelNames' : None} #'TestAcc'LR_RIDGE
+
+
+
+"""
+steps :
+
+------------------------------------------------------------------------------------------------------------------------
+Clean data:
+
+Filter the CSTB dataframe using df_id_operation_valid, so only valid entries remain
+filtering away low quality cases as defined by CSTB
+#Remove cases where "type_structure_principale"
+Drop all rows which have a missing value
+#Remove cases where "type_structure_principale" is 5 (invalid entry)
+------------------------------------------------------------------------------------------------------------------------
+Rename directly transferable data:
+
+"nb_occupant" to "bldg_users_total"
+"nb_niv_surface" to "bldg_floors_ag"
+"nb_niv_ssol" to "bldg_floors_bg"
+"sdp" to "bldg_area_hfa"
+"niveau_energie" to "bldg_energy_class_country"
+"cef" to "inv_energy_consumption"
+"periode_etude_reference" to "lca_RSP"
+"indicateur_1" to "GHG_sum_em"
+
+------------------------------------------------------------------------------------------------------------------------
+"indicateur_1" : Potentiel de réchauffement climatique [GWP)[kg éq. CO2]
+remove operational energy and water emissions from total to get sum embodied:
+df_CSTB["GHG_sum_em"] = df_CSTB["GHG_sum_em"]-df_CSTB["IND1_ENE"]-df_CSTB["IND1_EAU"]-df_CSTB["IND1_LOT1"]-df_CSTB["IND1_LOT14"]
+
+------------------------------------------------------------------------------------------------------------------------
+Translate and regroup/rename data
+
+"usage_principal" to "bldg_use_subtype"
+
+"type_toiture" to "bldg_roof_type"
+'3 pans et plus' to'Other'
+'2 pans','Gable or saddle roof'
+'Terrasse','Flat roof'
+'Monopente','Single pitched roof'
+
+"type_travaux" to "bldg_project_status"
+'Bâtiments neufs','New Built'
+'Extensions ou surélévations','Renovation'
+
+"date_etude_rsenv" to "bldg_year_complete_interval"
+
+------------------------------------------------------------------------------------------------------------------------
+Transform and derive data through inference
+
+"type_structure_principale" and "materiau_principal" to "bldg_struct_type"
+
+'Maçonnerie Terre cuite','massive brick'
+'Voiles porteurs Béton','Voiles porteurs Béton haute performance'],'massive concrete'
+'Maçonnerie Béton','massive brick'
+'Maçonnerie Autre, à préciser','massive brick'
+'Ossature Bois massif','frame wood'
+'Poteaux/poutres Béton','Poteaux/poutres Béton haute performance'],'frame concrete'
+'Maçonnerie Béton haute performance','massive brick'
+'Poteaux/poutres Autre, à préciser','other'
+'Poteaux/poutres Mixte: bois-béton','mix concrete wood'
+'Ossature Bois massif reconstitué','frame wood'
+'Ossature Mixte: bois-béton','frame concrete/wood'
+'Poteaux/poutres Mixte: béton-acier','frame concrete/steel'
+'Poteaux/poutres Bois massif','Poteaux/poutres Bois massif reconstitué'],'frame wood'
+'Maçonnerie Bois massif reconstitué','Maçonnerie Mixte: bois-béton','Maçonnerie Bois massif'],'massive brick'
+'Ossature Acier','frame steel'
+'Voiles porteurs Béton cellulaire','massive concrete'
+'Ossature Béton','frame concrete'
+'Maçonnerie Pierre','massive brick'
+'Voiles porteurs Terre cuite','massive brick'
+'Maçonnerie Béton cellulaire','massive brick'
+'Maçonnerie Bois massif','massive brick'
+'Ossature Terre cuite','massive brick'
+'Voiles porteurs Bois massif reconstitué','Voiles porteurs Bois massif'],'massive wood'
+
+"materiau_principal" to "inv_mat_1_type"
+
+'Terre cuite','Ceramics (e.g., fired clay bricks)'
+'Béton','Concrete w/o reinforcement'
+'Pierre','Stone (granite, limestone, etc)'
+'Autre, à préciser','Other'
+'Bois massif','Timber, wood'
+'Béton haute performance','Concrete w/o reinforcement'
+'Mixte: bois-béton','Other'
+'Bois massif reconstitué','Timber, wood'
+'Mixte: béton-acier','Other'
+'Acier','Metals (iron, steel)'
+'Béton cellulaire','Other'
+
+
+
+#Infer bldg_use_type (Building type)
+#Copy "bldg_use_subtype"
+df_CSTB['bldg_use_type'] = df_CSTB['bldg_use_subtype']
+
+#Replace entries with infered type
+
+'bldg_use_subtype' :
+'Residential'
+'Single family house' : 341
+'Multi-family house' : 114
+
+'Non-residential' :
+'Office': 15
+'School and Daycare': 14
+'Hospital and Health' : 2
+
+df_CSTB['scope_handling_D'] = 'separately considered'
+
+#Infer GHG_sum_m2a (Sum)
+df_CSTB['GHG_sum_em_m2a'] = df_CSTB['GHG_sum_em']/df_CSTB['bldg_area_gfa']/df_CSTB['lca_RSP']
+
+#Infer GHG_sum_em_m2a (Sum Operational)
+df_CSTB['GHG_sum_op_m2a'] = df_CSTB['co2']
+
+------------------------------------------------------------------------------------------------------------------------
+"Lots" decoding work
+#Use the "lots" to calculate the impact of individual building parts
+
+# "indicateur_1" to "GHG_sum_em"
+
+# "GHG_P1_sum_m2a" > Ground = Lot2: Foundations and infrastructure
+# 'GHG_P2_sum_m2' > Structure = Lot3: Structure and masonry + Lot4: Roof and cover
+# "GHG_P34_sum_m2a" > Envelope = Lot6: Exterior surfaces (facades), components (doors and windows) and joineries
+# "GHG_P4_sum_m2a" > Internal = Lot5: Interior partitions, suspended ceilings, components and joineries + Lot7: Interior coatings (floors, walls and ceilings)
+# "GHG_P56_sum_m2a" > Services =  Lot8: HVAC equipment + Lot10: Electrical equipment + Lot11: Special electrical equipment (systems, controls and communication) + Lot13: Local
+# "GHG_P78_sum_m2a" > Appliances = Lot9: Sanitary installations
+
+
+# a = 50 years > 'GHG_P2_sum_m2' = 50 * 'GHG_P2_sum_m2a'
+# https://github.com/mroeck/Embodied-Carbon-of-European-Buildings-Database/blob/develop/01_Preproc_CSTB.ipynb
+
+------------------------------------------------------------------------------------------------------------------------
+Add empty data columns
+Rearrange columns (drop columns)
+
+Stages included in target
+We need to build a string based on:
+- Ground (1) (i.e. substructure, foundation, basement walls, etc.)
+- Load-bearing structure (2) (i.e. structural frame, walls, floors, roofs, etc.)
+- Envelope (3, 4) (i.e. openings, ext. finishes, etc.)
+- Internal (4) (i.e. partitions, int. finishes, etc.)
+- Services (5,6) (i.e. mechanical, electrical, renew. energy, etc.)
+- Appliances (7,8) (i.e. fixed facilities, mobile fittings, etc.)
+
+
+"""
+
 
 
