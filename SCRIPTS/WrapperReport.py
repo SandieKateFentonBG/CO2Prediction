@@ -38,7 +38,7 @@ def reportRFE(DBpath, displayParams, RFEs, objFolder ='FS', display = True, proc
                     writer.writerow(["RFE with %s :" % RFE.method])
                     writer.writerow(["Number of features fixed %s :" % RFE.n_features_to_select])
                     writer.writerow(["Score on validation %s :" % RFE.rfe_valScore])
-                    writer.writerow(["Selected feature labels %s :" % list(RFE.selectedLabels)])
+                    writer.writerow(["Selected feature labels %s :" % list(RFE.selectedDict)])
                     writer.writerow(["Score on check %s :" % RFE.rfe_checkScore])
                     writer.writerow('')
 
@@ -47,7 +47,7 @@ def reportRFE(DBpath, displayParams, RFEs, objFolder ='FS', display = True, proc
                     writer.writerow(["Number of features based on %s :" % RFE.FtCountFrom])
                     writer.writerow(["Number of features  %s :" % RFE.n_features_to_select])
                     writer.writerow(["Score on validation %s :" % RFE.rfe_valScore])
-                    writer.writerow(["Selected feature labels %s :" % list(RFE.selectedLabels)])
+                    writer.writerow(["Selected feature labels %s :" % list(RFE.selectedDict)])
                     writer.writerow(["Score on check %s :" % RFE.rfe_checkScore])
                     writer.writerow('')
 
@@ -73,7 +73,7 @@ def reportRFE(DBpath, displayParams, RFEs, objFolder ='FS', display = True, proc
                     print("RFE with:", RFE.method)
                     print("Number of features fixed:", RFE.n_features_to_select)
                     print("Score on validation", RFE.rfe_valScore)
-                    print('Selected feature labels', list(RFE.selectedLabels))
+                    print('Selected feature labels', list(RFE.selectedDict))
                     print("Score on check", RFE.rfe_checkScore)
                     print('')
 
@@ -82,6 +82,6 @@ def reportRFE(DBpath, displayParams, RFEs, objFolder ='FS', display = True, proc
                     print("Number of features based on :", RFE.FtCountFrom)
                     print("Number of features :", RFE.n_features_to_select)
                     print("Score on validation", RFE.rfe_valScore)
-                    print('Selected feature labels', list(RFE.selectedLabels))
+                    print('Selected feature labels', list(RFE.selectedDict))
                     print("Score on check", RFE.rfe_checkScore)
                     print('')

@@ -44,6 +44,10 @@ class Sample:
         self.y = {k: [] for k in rdat.y.keys()}
         self.possibleQualities = rdat.possibleQualities
         self.droppedLabels = dat.droppedLabels
+        self.removedDict = dat.removedDict
+        self.selectedDict = dict()
+        for k, v in self.possibleQualities.items():
+            self.selectedDict[k] = [elem for elem in self.possibleQualities[k] if elem not in self.removedDict[k]]
 
         for line in reader:
             for (labels, attribute) in [(xQuantLabels, self.xQuanti), (self.yLabels, self.y)]:

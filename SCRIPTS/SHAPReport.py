@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from Main_GS_FS_Steps import unpackGS_FSs
 
 def CombineAbsSHAP(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels):
-    yLabels_all = studies_GS_FS[0][0].__getattribute__('NoSelector').selectedLabels #ex bldg_area
+    yLabels_all = studies_GS_FS[0][0].__getattribute__('NoSelector').selectedDict #ex bldg_area
 
     yLabels_cat = xQuantLabels + xQualLabels
     xLabels = [] #ex LR_LASSO_Fl_Spearman
@@ -50,7 +50,7 @@ def CombineAbsSHAP(studies_Blender, studies_GS_FS, xQuantLabels, xQualLabels):
     return SHAPDf,SHAPGroupDf
 
 def formatCV_SHAP_toDf(CV_Assembly, studies_GS_FS, xQuantLabels, xQualLabels, randomValues = None, NBest = True):
-    yLabels_all = studies_GS_FS[0][0].__getattribute__('NoSelector').selectedLabels #ex bldg_area - this retrieves all y labels
+    yLabels_all = studies_GS_FS[0][0].__getattribute__('NoSelector').selectedDict #ex bldg_area - this retrieves all y labels
 
     yLabels_cat = xQuantLabels + xQualLabels
     xLabels = [] #ex LR_LASSO_Fl_Spearman

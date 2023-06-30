@@ -21,7 +21,7 @@ class ModelGridsearch:
         self.predictorName = predictorName #ex : SVR
         self.modelPredictor = modelPredictor# ex : SVR()
         self.selectorName = learningDf.selector# ex : 'fl_spearman'
-        self.selectedLabels = learningDf.selectedLabels # ex : ['GIFA', 'Sector']
+        self.selectedLabels = learningDf.selectedDict # ex : ['GIFA', 'Sector']
         self.GSName = self.predictorName + '_' + self.selectorName #ex : SVR_fl_spearman ,
         self.learningDf = learningDf
         self.random_state = learningDf.random_state
@@ -154,7 +154,7 @@ class ModelGridsearch:
         transformList = []
         # xQuantLabels = list(rdat.xQuanti.keys())
         # xQualLabels = list(rdat.xQuali.keys())
-        for sLabel in self.learningDf.selectedLabels:
+        for sLabel in self.learningDf.selectedDict:
             if sLabel in xQuantLabels:
                 transformList.append(sLabel)
             else:

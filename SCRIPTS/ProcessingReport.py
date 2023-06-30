@@ -34,7 +34,7 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
                 for filter in FiltersLs :
                     writer.writerow(['FILTER ', filter.method])
                     writer.writerow(['LABELS ', filter.trainDf.shape, type(filter.trainDf)])
-                    writer.writerow([filter.selectedLabels])
+                    writer.writerow([filter.selectedDict])
                     writer.writerow('')
                 writer.writerow(['RFE'])
             if len(RFEs)>0 :
@@ -42,7 +42,7 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
                     writer.writerow(["RFE with  ", RFE.method])
                     writer.writerow(["Number of features fixed ", RFE.n_features_to_select])
                     writer.writerow(["Score on training ", RFE.rfe_valScore])
-                    writer.writerow(['Selected feature labels ', list(RFE.selectedLabels)])
+                    writer.writerow(['Selected feature labels ', list(RFE.selectedDict)])
                     writer.writerow(["Score on validation ", RFE.rfe_checkScore])
                     writer.writerow('')
 
@@ -65,14 +65,14 @@ def reportProcessing(DBpath, displayParams, df, learningDf, baseFormatedDf, Filt
             for filter in FiltersLs :
                 print('FILTER :', filter.method)
                 print('LABELS :', filter.trainDf.shape, type(filter.trainDf))
-                print(filter.selectedLabels)
+                print(filter.selectedDict)
                 print('')
             print('RFE')
             for RFE in RFEs:
                 print("RFE with :" , RFE.method)
                 print("Number of features fixed :", RFE.n_features_to_select)
                 print("Score on training :", RFE.rfe_valScore)
-                print('Selected feature labels :', list(RFE.selectedLabels))
+                print('Selected feature labels :', list(RFE.selectedDict))
                 print("Score on validation :", RFE.rfe_checkScore)
                 print('')
 

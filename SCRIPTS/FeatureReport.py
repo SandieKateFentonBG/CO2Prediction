@@ -3,7 +3,7 @@ import pandas as pd
 
 def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, NBestModel = None):
 
-    yLabels_all = GS_FSs[0].__getattribute__('NoSelector').selectedLabels #ex bldg_area
+    yLabels_all = GS_FSs[0].__getattribute__('NoSelector').selectedDict #ex bldg_area
     xLabels = [] #ex LR_LASSO_Fl_Spearman
 
     weightLabelsLs = []
@@ -17,7 +17,7 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, NBestModel = None):
             name = Model.GSName
             xLabels.append(name)
 
-            weightLabelsLs.append(Model.selectedLabels)
+            weightLabelsLs.append(Model.selectedDict)
             weightsLs.append(Model.Weights) #replace with Model.ModelWeights
             weightsScaledLs.append(Model.WeightsScaled)
 
@@ -29,7 +29,7 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, NBestModel = None):
                 name = Model.GSName
                 xLabels.append(name)
 
-                weightLabelsLs.append(Model.selectedLabels)
+                weightLabelsLs.append(Model.selectedDict)
                 weightsLs.append(Model.Weights)
                 weightsScaledLs.append(Model.WeightsScaled)
 
@@ -73,7 +73,7 @@ def reportGS_FeatureWeights(DBpath, displayParams, GS_FSs, NBestModel = None):
 
 def reportGS_FeatureSHAP(DBpath, displayParams, GS_FSs, xQuantLabels, xQualLabels, NBestModel = None):
 
-    yLabels_all = GS_FSs[0].__getattribute__('NoSelector').selectedLabels #ex bldg_area
+    yLabels_all = GS_FSs[0].__getattribute__('NoSelector').selectedDict #ex bldg_area
     yLabels_cat = xQuantLabels + xQualLabels
     xLabels = [] #ex LR_LASSO_Fl_Spearman
 

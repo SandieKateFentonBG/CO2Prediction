@@ -16,3 +16,9 @@ for s in [MyPred_Sample_CONCRETEselection, MyPred_Sample_CONCRETE, MyPred_Sample
     print(">>>s", s)
 
     sample = RUN_Samp_Steps(s, DBpath=DB_Values["DBpath"], ref_single = displayParams["reference"], Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR], precomputed = False)
+
+#!! WHY DO FEATURES DROPPED APPEAR IN MY PREDICTION 2D > REMOVE THEM FROM ALL APPLICATIONS
+# RE-RUN WHOLE SCRIPT WITH IASS DATA/UPDATE DATA
+# SAME FOR PMV3
+# SAME FOR CSTB
+# SAME FOR ALL 3 WITH MLP REG + DECISION TREES

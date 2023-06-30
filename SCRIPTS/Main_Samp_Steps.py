@@ -91,10 +91,10 @@ def create_Feature_Samples_1D(MyPred_Sample, feature1, feature2):
     sample = Sample(displayParams["reference"], MyPred_Sample)
     samples = []
 
-    for i in range(len(sample.possibleQualities[feature1])) :
+    for i in range(len(sample.selectedDict[feature1])) :
 
         newSample = copy(sample)
-        value = newSample.possibleQualities[feature1][i]
+        value = newSample.selectedDict[feature1][i]
         newxQuanti = newSample.xQuantiDict.copy()
         newxQuali = newSample.xQualiDict.copy()
         newxQuali[feature1] = [value]
@@ -120,12 +120,13 @@ def create_Feature_Samples_2D(MyPred_Sample):
 
     if feature2 in sample.xQuali.keys() and feature1 in sample.xQuali.keys():
 
-        for j in range(len(sample.possibleQualities[feature2])):
+
+        for j in range(len(sample.selectedDict[feature2])):
             samples = []
-            for i in range(len(sample.possibleQualities[feature1])):
+            for i in range(len(sample.selectedDict[feature1])):
                 newSample = copy(sample)
-                value_j = newSample.possibleQualities[feature2][j]
-                value_i = newSample.possibleQualities[feature1][i]
+                value_j = newSample.selectedDict[feature2][j]
+                value_i = newSample.selectedDict[feature1][i]
                 newxQuanti = newSample.xQuantiDict.copy()
                 newxQuali = newSample.xQualiDict.copy()
 
@@ -139,14 +140,14 @@ def create_Feature_Samples_2D(MyPred_Sample):
 
     if feature2 in sample.xQuali.keys() and feature1 in sample.xQuanti.keys():
 
-        for j in range(len(sample.possibleQualities[feature2])):
+        for j in range(len(sample.selectedDict[feature2])):
             samples = []
             for i in range(len(feature1_values)):
                 newSample = copy(sample)
                 newxQuanti = newSample.xQuantiDict.copy()
                 newxQuali = newSample.xQualiDict.copy()
 
-                newxQuali[feature2] = [newSample.possibleQualities[feature2][j]]
+                newxQuali[feature2] = [newSample.selectedDict[feature2][j]]
                 newxQuanti[feature1] = [feature1_values[i]]
 
                 newSample.createSample(newxQuali, newxQuanti)
@@ -154,24 +155,22 @@ def create_Feature_Samples_2D(MyPred_Sample):
 
             samples_ls.append(samples)
 
-
     if feature2 in sample.xQuanti.keys() and feature1 in sample.xQuali.keys():
 
         for j in range(len(feature2_values)):
             samples = []
-            for i in range(len(sample.possibleQualities[feature1])):
+            for i in range(len(sample.selectedDict[feature1])):
                 newSample = copy(sample)
                 newxQuanti = newSample.xQuantiDict.copy()
                 newxQuali = newSample.xQualiDict.copy()
 
                 newxQuanti[feature2] = [feature2_values[j]]
-                newxQuali[feature1] = [newSample.possibleQualities[feature1][i]]
+                newxQuali[feature1] = [newSample.selectedDict[feature1][i]]
 
                 newSample.createSample(newxQuali, newxQuanti)
                 samples.append(newSample)
 
             samples_ls.append(samples)
-
 
     if feature2 in sample.xQuanti.keys() and feature1 in sample.xQuanti.keys():
 
@@ -208,16 +207,17 @@ def create_Feature_Predictions_2D (MyPred_Sample, model):
 
     if feature2 in samples_ls[0][0].xQuali.keys() and feature1 in samples_ls[0][0].xQuali.keys():
 
-        cols = samples_ls[0][0].possibleQualities[feature1]
-        idxs = samples_ls[0][0].possibleQualities[feature2]
+        cols = samples_ls[0][0].selectedDict[feature1]
+        idxs = samples_ls[0][0].selectedDict[feature2]
+
 
     elif feature2 in samples_ls[0][0].xQuali.keys() and feature1 in samples_ls[0][0].xQuanti.keys():
 
         cols = [str(elem) for elem in feature1_values]
-        idxs = samples_ls[0][0].possibleQualities[feature2]
+        idxs = samples_ls[0][0].selectedDict[feature2]
 
     elif feature2 in samples_ls[0][0].xQuanti.keys() and feature1 in samples_ls[0][0].xQuali.keys():
-        cols = samples_ls[0][0].possibleQualities[feature1]
+        cols = samples_ls[0][0].selectedDict[feature1]
         idxs = [str(elem) for elem in feature2_values]
 
     elif feature2 in samples_ls[0][0].xQuanti.keys() and feature1 in samples_ls[0][0].xQuanti.keys():
@@ -243,15 +243,14 @@ def create_Feature_Predictions_2D (MyPred_Sample, model):
         PredDf.loc[name, :] = preds
 
     if feature2ordered:
-        PredDf = PredDf.loc[feature2ordered, :]
-        PredDf = PredDf.reindex(index=feature2ordered)
-        # PredDf = PredDf.reindex(index=feature2ordered)
+        order = [elem for elem in MyPred_Sample['orderFtRows'] if elem not in samples_ls[0][0].removedDict[feature2]]
+        PredDf = PredDf.loc[order, :]
+        PredDf = PredDf.reindex(index=order)
 
     if feature1ordered:
-        PredDf = PredDf.loc[:, feature1ordered]
-        PredDf = PredDf.reindex(columns=feature1ordered)
-        # PredDf = PredDf.reindex(columns=feature1ordered)
-
+        order = [elem for elem in MyPred_Sample['orderFtCols'] if elem not in samples_ls[0][0].removedDict[feature1]]
+        PredDf = PredDf.loc[:, order]
+        PredDf = PredDf.reindex(columns=order)
 
     return PredDf
 

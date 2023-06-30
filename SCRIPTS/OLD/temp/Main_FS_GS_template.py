@@ -46,7 +46,7 @@ spearmanFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Pred
 pearsonFilter = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/pearsonFilter.pkl', show = False)
 RFEs = pickleLoadMe(path = 'C:/Users/sfenton/Code/Repositories/CO2Prediction/RESULTS/'+ import_reference +'RECORDS/FS/RFEs.pkl', show = False)
 
-print('baseFormatedDf', len(baseFormatedDf.selectedLabels), baseFormatedDf.selectedLabels)
+print('baseFormatedDf', len(baseFormatedDf.selectedDict), baseFormatedDf.selectedDict)
 
 #>>>
 learning_dfs = [spearmanFilter, pearsonFilter] + RFEs + [baseFormatedDf]
