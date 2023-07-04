@@ -4,12 +4,12 @@ import pandas as pd
 
 #features = columns
 
-def logitize(xQuali, possibleValues):
+def logitize(xQuali, possibleValues, splitter = '='):
 
     output = dict()
     for label, column in xQuali.items():
         for sublabel in possibleValues[label]:
-            output['_'.join([label, sublabel])] = [1 if value == possibleValues[label].index(sublabel) else 0 for value in column]
+            output[splitter.join([label, sublabel])] = [1 if value == possibleValues[label].index(sublabel) else 0 for value in column]
     return output
 
 def countPowers(powers):
@@ -28,6 +28,11 @@ class Features:
         self.y = rawData.y
         self.removedDict = dict()
         self.droppedLabels = []
+        self.selectedDict = dict()
+        self.remainingLabels = []
+        self.allDict = dict()
+        self.allLabels = []
+
 
     def asDataframes(self, batchCount=5, powers=None, mixVariables=None):
         x, y, xlabels = self.asArray(powers, mixVariables)
@@ -52,10 +57,14 @@ class Features:
 
         return pd.DataFrame(np.hstack((x, y)), columns=xlabels + list(self.y.keys()))
 
-    def removeUnderrepresented(self, df, label, value, cutOffThreshhold):
+    def removeUnderrepresented(self, df, label, value, cutOffThreshhold, splitter = '='):
+
+        """this removes rows of categories with too few features"""
 
         removed_Value, removed_Label_Value = None, None
-        info = '_'.join([label, value])
+        # info = '='.join([label, value]) #changed here
+        info = splitter.join([label, value]) #changed here
+
         newdf = df.groupby(info).filter(lambda x: len(x) > cutOffThreshhold)
 
         if newdf.shape != df.shape:
@@ -64,8 +73,9 @@ class Features:
 
         return newdf, removed_Value, removed_Label_Value
 
-    def removeUnderrepresenteds(self, cutOffThreshhold, removeUnderrepresentedsFrom):
+    def removeUnderrepresenteds(self, cutOffThreshhold, removeUnderrepresentedsFrom, splitter = '='):
         """
+        this removes columns of categories with too few features
 
         :param labels: labels to remove underrepresented values from - here we take xQuali
         :param cutOffThreshhold: default 1.5
@@ -80,14 +90,24 @@ class Features:
             for value in self.rawData.possibleQualities[label] :
                 noOutlierDf,  removed_Value, removed_Label_Value = self.removeUnderrepresented(dataframe, label, value, cutOffThreshhold)
                 dataframe = noOutlierDf
-                if removed_Value :
-                    self.removedDict[label].append(removed_Value)
-                    self.droppedLabels.append(removed_Label_Value)
-        newdf = noOutlierDf[[i for i in noOutlierDf if len(set(noOutlierDf[i])) > 1]]
-        #todo this stepp removes columns with all values identical > remaining when underrrepresented rows are removed
-        # > maybe they should be left in to avoid issues when plotting
+                # if removed_Value :
+                #     self.removedDict[label].append(removed_Value)
+                    # self.droppedLabels.append(removed_Label_Value)
 
-        #todo : maybe these features should be removed from posssible qualities > will generate issues in the plots
+        newdf = noOutlierDf[[i for i in noOutlierDf if len(set(noOutlierDf[i])) > 1]]
+        self.remainingLabels = newdf.columns
+        self.allLabels = dataframe.columns
+        self.droppedLabels = [elem for elem in self.allLabels if elem not in self.remainingLabels]
+        for label_value in self.droppedLabels:
+            lab, val = label_value.split(splitter)
+            self.removedDict[lab].append(val)
+        for label_value in self.remainingLabels:
+            lab, val = label_value.split(splitter)
+            self.selectedDict[lab].append(val)
+        for label_value in self.allLabels:
+            lab, val = label_value.split(splitter)
+            self.allDict[lab].append(val)
+
 
         return newdf, self.removedDict, self.droppedLabels
 

@@ -12,6 +12,7 @@ for set in studyParams['sets']:
     displayParams["ref_prefix"] = acronym + '_' + studyParams['sets'][0][1]
 
     for i in range(1, cv + 1):
+
         displayParams["reference"] = displayParams["ref_prefix"] + '_rd' + str(i) + '/'
 
         # NBEST PROCESSING

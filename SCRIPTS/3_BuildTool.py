@@ -11,13 +11,13 @@ Blender_LR = import_Blender_NBest(displayParams["reference"], label='LR_RIDGE' +
 
 B_M = Blender_LR.modelList
 
-for s in [MyPred_Sample_CONCRETEselection, MyPred_Sample_CONCRETE, MyPred_Sample_TIMBER, MyPred_Sample_GLT]: #
+for s in [MyPred_Sample_SELECTION, MyPred_Sample_CONCRETE, MyPred_Sample_TIMBER, MyPred_Sample_GLT]: #
 
-    print(">>>s", s)
+    print(">>>", s)
 
     sample = RUN_Samp_Steps(s, DBpath=DB_Values["DBpath"], ref_single = displayParams["reference"], Model_List=B_M, Blender_List=[Blender_SVR]+[Blender_LR], precomputed = False)
 
-#!! WHY DO FEATURES DROPPED APPEAR IN MY PREDICTION 2D > REMOVE THEM FROM ALL APPLICATIONS
+
 # RE-RUN WHOLE SCRIPT WITH IASS DATA/UPDATE DATA
 # SAME FOR PMV3
 # SAME FOR CSTB

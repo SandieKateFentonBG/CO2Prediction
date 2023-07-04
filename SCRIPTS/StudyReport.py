@@ -37,12 +37,20 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
 
             writer.writerow(["Full df ", df.shape])
             writer.writerow(["Outliers removed ", learningDf.shape])
-            writer.writerow(["Under represented features removed ", dat.removedDict])
+            writer.writerow(["All dictionnary ", dat.allDict])
+            writer.writerow(["All labels", dat.allLabels])
+            writer.writerow(["Selected dictionnary ", dat.selectedDict])
+            writer.writerow(["Selected labels", dat.remainingLabels])
+            writer.writerow(["Removed dictionnary ", dat.removedDict])
+            writer.writerow(["Removed labels", dat.droppedLabels])
+
             writer.writerow('')
             writer.writerow(['FORMAT'])
             writer.writerow(["train", baseFormatedDf.trainDf.shape])
-            writer.writerow(["validate", baseFormatedDf.valDf.shape])
             writer.writerow(["test", baseFormatedDf.testDf.shape])
+            writer.writerow(["validate", baseFormatedDf.valDf.shape])
+            writer.writerow(["check", baseFormatedDf.checkDf.shape])
+
             writer.writerow([''])
 
             if len(FiltersLs)>0:

@@ -92,6 +92,7 @@ class Sample:
         yDf = np.multiply(self.asDataframe()[self.yLabels], FORMAT_Values['yUnitFactor'])
         self.yDf = yDf
         self.XDf = XDf
+
         self.yDf.rename(columns={self.yLabels[0]: FORMAT_Values['targetLabels'][0]})
 
         if self.droppedLabels != []:
@@ -125,7 +126,6 @@ class Sample:
         return pd.DataFrame(np.hstack((x, y)), columns=xlabels + list(self.y.keys()))
 
     def SamplePrediction(self, model):
-
         XDf = formatDf(self.XDf, model)
         yPred = model.Estimator.predict(XDf)
         return yPred

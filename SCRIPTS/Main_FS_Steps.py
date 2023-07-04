@@ -81,7 +81,7 @@ def B_encodeFeatures(rdat):
     dfAsTable(DB_Values['DBpath'], displayParams, df, objFolder='DATA', name = "DF", combined = True)
 
     # STOCK
-    pickleDumpMe(DB_Values['DBpath'], displayParams, dat, 'DATA', 'dat', combined = True)
+    # pickleDumpMe(DB_Values['DBpath'], displayParams, dat, 'DATA', 'dat', combined = True)
     pickleDumpMe(DB_Values['DBpath'], displayParams, df, 'DATA', 'df', combined = True)
 
     return dat, df
@@ -110,10 +110,16 @@ def C_cleanData(dat):
 
     learningDf = removeOutliers(df, labels=PROCESS_VALUES['RemoveOutliersFrom'] + yLabels,
                                 cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
+
+
     dfAsTable(DB_Values['DBpath'], displayParams, learningDf, objFolder='DATA', name = "learningDf", combined = True)
 
     # REPORT
     print("Outliers removed ", learningDf.shape)
+
+
+
+
 
     # STOCK
     pickleDumpMe(DB_Values['DBpath'], displayParams, dat, 'DATA', 'dat', combined = True) #overwrite previous dat
@@ -127,185 +133,185 @@ V1 - MAYBE OLD
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 """
 
-def D_format(learningDf, combined):
-    """
-    GOAL - Train Test Validate Check Split - Scale
-    Dashboard Input - PROCESS_VALUES : test_size  # proportion with validation, random_state, yUnit
-    """
-
-    # CONSTRUCT
-    baseFormatedDf = formatedDf(learningDf, xQuantLabels, xQualLabels, yLabels,
-                                yUnitFactor=FORMAT_Values['yUnitFactor'], targetLabels=FORMAT_Values['targetLabels'],
-                                random_state=PROCESS_VALUES['random_state'], test_size=PROCESS_VALUES['test_size'],
-                                train_size=PROCESS_VALUES['train_size'], check_size=PROCESS_VALUES['check_size'],
-                                val_size=PROCESS_VALUES['val_size'], fixed_seed = PROCESS_VALUES['fixed_seed'])
-
-    #todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
-
-    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.trainDf, objFolder='DATA', name = "trainDf",
-              combined = combined)
-    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.checkDf, objFolder='DATA', name="checkDf", combined = combined)
-    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.valDf, objFolder='DATA', name = "valDf", combined = combined)
-    dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.testDf, objFolder='DATA', name = "testDf", combined = combined)
-
-    # STOCK
-    pickleDumpMe(DB_Values['DBpath'], displayParams, baseFormatedDf, 'DATA', 'baseFormatedDf', combined = combined)
-
-    return baseFormatedDf
-
-def E_FS_Filter(baseFormatedDf, combined):
-
-    """
-    GOAL - Remove uncorrelated and redundant features
-    Dashboard Input - PROCESS_VALUES : corrMethod, corrRounding, corrLowThreshhold, corrHighThreshhold
-    """
-    """
-    SPEARMAN
-    """
-
-    fl_selectors = []
-
-    if studyParams['fl_selectors'] :
-
-        for fl in studyParams['fl_selectors'] :
-
-            # CONSTRUCT
-            myFilter = FilterFeatures(baseFormatedDf, baseLabels=xQuantLabels, method=fl,
-                                            corrRounding=PROCESS_VALUES['corrRounding'],
-                                            lowThreshhold=PROCESS_VALUES['corrLowThreshhold'],
-                                            highThreshhold=PROCESS_VALUES['corrHighThreshhold'])
-            # todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
-
-            # STOCK
-            pickleDumpMe(DB_Values['DBpath'], displayParams, myFilter, 'FS', fl, combined = combined)
-
-            # VISUALIZE
-            plotCorrelation(myFilter, myFilter.correlationMatrix_All, DB_Values['DBpath'], displayParams,
-                            filteringName="nofilter", combined = combined)
-            plotCorrelation(myFilter, myFilter.correlationMatrix_NoUncorrelated, DB_Values['DBpath'], displayParams,
-                            filteringName="dropuncorr", combined = combined)
-            plotCorrelation(myFilter, myFilter.correlationMatrix_NoRedundant, DB_Values['DBpath'], displayParams,
-                            filteringName="dropcolinear", combined = combined)
-
-            fl_selectors.append(myFilter)
-
-            # """
-            # PEARSON
-            # """
-            # # CONSTRUCT
-            # pearsonFilter = FilterFeatures(baseFormatedDf, baseLabels=xQuantLabels, method=PROCESS_VALUES['corrMethod2'],
-            #                                corrRounding=PROCESS_VALUES['corrRounding'],
-            #                                lowThreshhold=PROCESS_VALUES['corrLowThreshhold'],
-            #                                highThreshhold=PROCESS_VALUES['corrHighThreshhold'])
-            # # STOCK
-            # pickleDumpMe(DB_Values['DBpath'], displayParams, pearsonFilter, 'FS', 'pearsonFilter')
-            #
-            # # VISUALIZE
-            # plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_All, DB_Values['DBpath'], displayParams,
-            #                 filteringName="nofilter")
-            # plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_NoUncorrelated, DB_Values['DBpath'], displayParams,
-            #                 filteringName="dropuncorr")
-            # plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_NoRedundant, DB_Values['DBpath'], displayParams,
-            #                 filteringName="dropcolinear")
-
-    return fl_selectors
-
-def F_FS_RFE(baseFormatedDf, combined):
-    """
-    GOAL - select the optimal number of features or combination of features
-    """
-
-    RFEList = []
-
-    if studyParams['RFE_selectors']:
-
-        rfe_hyp_feature_count = list(np.arange(10, len(baseFormatedDf.XVal) - 10, 10))
-
-        # for RFE in studyParams['RFE_selectors'] :
-
-        # CONSTRUCT
-        random_state = PROCESS_VALUES['fixed_seed']
-        RFR_RFE_CONSTRUCTOR = {'method' : 'RFR', 'estimator' : RandomForestRegressor(random_state=random_state) }
-        DTR_RFE_CONSTRUCTOR = {'method' : 'DTR', 'estimator' : DecisionTreeRegressor(random_state=random_state)}
-        GBR_RFE_CONSTRUCTOR = {'method' : 'GBR', 'estimator' : GradientBoostingRegressor(random_state=random_state)}
-
-        All_CONSTRUCTOR = [RFR_RFE_CONSTRUCTOR, DTR_RFE_CONSTRUCTOR, GBR_RFE_CONSTRUCTOR]
-        RFE_CONSTRUCTOR = [elem for elem in All_CONSTRUCTOR if elem['method'] in studyParams['RFE_selectors']]
-
-        for constructor in RFE_CONSTRUCTOR:
-
-            MyRFE = WrapFeatures(method=constructor['method'], estimator=constructor['estimator'], formatedDf=baseFormatedDf,
-                                 rfe_hyp_feature_count=rfe_hyp_feature_count, min_features_to_select = RFE_VALUES['RFE_n_features_to_select'],
-                                 output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
-                                 cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
-
-            pickleDumpMe(DB_Values['DBpath'], displayParams, MyRFE, 'FS', constructor['method'], combined = combined)
-
-            RFEList.append(MyRFE)
-            #
-            #
-            # RFR_RFE = WrapFeatures(method=RFE, estimator=RandomForestRegressor(random_state=PROCESS_VALUES['fixed_seed']),
-            #                        formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
-            #                        min_features_to_select = RFE_VALUES['RFE_n_features_to_select'],
-            #                        output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
-            #                        cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
-            # DTR_RFE = WrapFeatures(method='DTR', estimator=DecisionTreeRegressor(random_state=PROCESS_VALUES['fixed_seed']),
-            #                        formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
-            #                        min_features_to_select=RFE_VALUES['RFE_n_features_to_select'],
-            #                        output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
-            #                        cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
-            # GBR_RFE = WrapFeatures(method='GBR',
-            #                        estimator=GradientBoostingRegressor(random_state=PROCESS_VALUES['fixed_seed']),
-            #                        formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
-            #                        min_features_to_select=RFE_VALUES['RFE_n_features_to_select'],
-            #                        output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
-            #                        cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
-
-            # RFEs = [RFR_RFE, DTR_RFE, GBR_RFE]
-
-        # STOCK
-        pickleDumpMe(DB_Values['DBpath'], displayParams, RFEList, 'FS', 'RFEs', combined = combined)
-
-        # REPORT
-        reportRFE(DB_Values['DBpath'], displayParams, RFEList, objFolder='FS', display=True, process=RFE_VALUES['RFE_process'], combined = combined)
-
-        #VISUALIZE
-        if RFE_VALUES['RFE_process'] == 'long':
-
-            RFEHyperparameterPlot2D(RFEList,  displayParams, DBpath = DB_Values['DBpath'], yLim = None, figTitle = 'RFEPlot2d',
-                                      title ='Influence of Feature Count on Model Performance', xlabel='Feature Count',
-                                    log = False, combined = combined)
-
-            RFEHyperparameterPlot3D(RFEList, displayParams, DBpath = DB_Values['DBpath'], figTitle='RFEPlot3d',
-                                        colorsPtsLsBest=['b', 'g', 'c', 'y'],
-                                        title='Influence of Feature Count on Model Performance', ylabel='Feature Count',
-                                        zlabel='R2 Test score', size=[6, 6],
-                                        showgrid=False, log=False, max=True, ticks=False, lims=False, combined = combined)
-    return RFEList
-
-def Run_Data_Processing(combined):
-    rdat = A_RawData(combined=combined)
-    dat, df = B_encodeFeatures(rdat, combined=combined)
-    learningDf = C_cleanData(dat, combined=combined)
-    baseFormatedDf = D_format(learningDf, combined=combined)
-
-    return rdat, dat, df, learningDf, baseFormatedDf
-
-def Run_FS_Study(combined):
-
-    rdat, dat, df, learningDf, baseFormatedDf = Run_Data_Processing(combined=combined)
-
-    filterList = E_FS_Filter(baseFormatedDf, combined=combined)
-
-    RFEList = F_FS_RFE(baseFormatedDf, combined=combined)
-
-    reportProcessing(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf,
-                     filterList, RFEList, combined=combined)
-    # todo : 'dat' was added to all functions
-
-    return rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList
-
-    # todo :  spearmanFilter, pearsonFilter was changed to filterList
+# def D_format(learningDf, combined):
+#     """
+#     GOAL - Train Test Validate Check Split - Scale
+#     Dashboard Input - PROCESS_VALUES : test_size  # proportion with validation, random_state, yUnit
+#     """
+#
+#     # CONSTRUCT
+#     baseFormatedDf = formatedDf(learningDf, xQuantLabels, xQualLabels, yLabels,
+#                                 yUnitFactor=FORMAT_Values['yUnitFactor'], targetLabels=FORMAT_Values['targetLabels'],
+#                                 random_state=PROCESS_VALUES['random_state'], test_size=PROCESS_VALUES['test_size'],
+#                                 train_size=PROCESS_VALUES['train_size'], check_size=PROCESS_VALUES['check_size'],
+#                                 val_size=PROCESS_VALUES['val_size'], fixed_seed = PROCESS_VALUES['fixed_seed'])
+#
+#     #todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
+#
+#     dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.trainDf, objFolder='DATA', name = "trainDf",
+#               combined = combined)
+#     dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.checkDf, objFolder='DATA', name="checkDf", combined = combined)
+#     dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.valDf, objFolder='DATA', name = "valDf", combined = combined)
+#     dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.testDf, objFolder='DATA', name = "testDf", combined = combined)
+#
+#     # STOCK
+#     pickleDumpMe(DB_Values['DBpath'], displayParams, baseFormatedDf, 'DATA', 'baseFormatedDf', combined = combined)
+#
+#     return baseFormatedDf
+#
+# def E_FS_Filter(baseFormatedDf, combined):
+#
+#     """
+#     GOAL - Remove uncorrelated and redundant features
+#     Dashboard Input - PROCESS_VALUES : corrMethod, corrRounding, corrLowThreshhold, corrHighThreshhold
+#     """
+#     """
+#     SPEARMAN
+#     """
+#
+#     fl_selectors = []
+#
+#     if studyParams['fl_selectors'] :
+#
+#         for fl in studyParams['fl_selectors'] :
+#
+#             # CONSTRUCT
+#             myFilter = FilterFeatures(baseFormatedDf, baseLabels=xQuantLabels, method=fl,
+#                                             corrRounding=PROCESS_VALUES['corrRounding'],
+#                                             lowThreshhold=PROCESS_VALUES['corrLowThreshhold'],
+#                                             highThreshhold=PROCESS_VALUES['corrHighThreshhold'])
+#             # todo : migration of selection to combined : combined = PROCESS_VALUES['selectionStoredinCombined']
+#
+#             # STOCK
+#             pickleDumpMe(DB_Values['DBpath'], displayParams, myFilter, 'FS', fl, combined = combined)
+#
+#             # VISUALIZE
+#             plotCorrelation(myFilter, myFilter.correlationMatrix_All, DB_Values['DBpath'], displayParams,
+#                             filteringName="nofilter", combined = combined)
+#             plotCorrelation(myFilter, myFilter.correlationMatrix_NoUncorrelated, DB_Values['DBpath'], displayParams,
+#                             filteringName="dropuncorr", combined = combined)
+#             plotCorrelation(myFilter, myFilter.correlationMatrix_NoRedundant, DB_Values['DBpath'], displayParams,
+#                             filteringName="dropcolinear", combined = combined)
+#
+#             fl_selectors.append(myFilter)
+#
+#             # """
+#             # PEARSON
+#             # """
+#             # # CONSTRUCT
+#             # pearsonFilter = FilterFeatures(baseFormatedDf, baseLabels=xQuantLabels, method=PROCESS_VALUES['corrMethod2'],
+#             #                                corrRounding=PROCESS_VALUES['corrRounding'],
+#             #                                lowThreshhold=PROCESS_VALUES['corrLowThreshhold'],
+#             #                                highThreshhold=PROCESS_VALUES['corrHighThreshhold'])
+#             # # STOCK
+#             # pickleDumpMe(DB_Values['DBpath'], displayParams, pearsonFilter, 'FS', 'pearsonFilter')
+#             #
+#             # # VISUALIZE
+#             # plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_All, DB_Values['DBpath'], displayParams,
+#             #                 filteringName="nofilter")
+#             # plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_NoUncorrelated, DB_Values['DBpath'], displayParams,
+#             #                 filteringName="dropuncorr")
+#             # plotCorrelation(pearsonFilter, pearsonFilter.correlationMatrix_NoRedundant, DB_Values['DBpath'], displayParams,
+#             #                 filteringName="dropcolinear")
+#
+#     return fl_selectors
+#
+# def F_FS_RFE(baseFormatedDf, combined):
+#     """
+#     GOAL - select the optimal number of features or combination of features
+#     """
+#
+#     RFEList = []
+#
+#     if studyParams['RFE_selectors']:
+#
+#         rfe_hyp_feature_count = list(np.arange(10, len(baseFormatedDf.XVal) - 10, 10))
+#
+#         # for RFE in studyParams['RFE_selectors'] :
+#
+#         # CONSTRUCT
+#         random_state = PROCESS_VALUES['fixed_seed']
+#         RFR_RFE_CONSTRUCTOR = {'method' : 'RFR', 'estimator' : RandomForestRegressor(random_state=random_state) }
+#         DTR_RFE_CONSTRUCTOR = {'method' : 'DTR', 'estimator' : DecisionTreeRegressor(random_state=random_state)}
+#         GBR_RFE_CONSTRUCTOR = {'method' : 'GBR', 'estimator' : GradientBoostingRegressor(random_state=random_state)}
+#
+#         All_CONSTRUCTOR = [RFR_RFE_CONSTRUCTOR, DTR_RFE_CONSTRUCTOR, GBR_RFE_CONSTRUCTOR]
+#         RFE_CONSTRUCTOR = [elem for elem in All_CONSTRUCTOR if elem['method'] in studyParams['RFE_selectors']]
+#
+#         for constructor in RFE_CONSTRUCTOR:
+#
+#             MyRFE = WrapFeatures(method=constructor['method'], estimator=constructor['estimator'], formatedDf=baseFormatedDf,
+#                                  rfe_hyp_feature_count=rfe_hyp_feature_count, min_features_to_select = RFE_VALUES['RFE_n_features_to_select'],
+#                                  output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
+#                                  cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
+#
+#             pickleDumpMe(DB_Values['DBpath'], displayParams, MyRFE, 'FS', constructor['method'], combined = combined)
+#
+#             RFEList.append(MyRFE)
+#             #
+#             #
+#             # RFR_RFE = WrapFeatures(method=RFE, estimator=RandomForestRegressor(random_state=PROCESS_VALUES['fixed_seed']),
+#             #                        formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
+#             #                        min_features_to_select = RFE_VALUES['RFE_n_features_to_select'],
+#             #                        output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
+#             #                        cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
+#             # DTR_RFE = WrapFeatures(method='DTR', estimator=DecisionTreeRegressor(random_state=PROCESS_VALUES['fixed_seed']),
+#             #                        formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
+#             #                        min_features_to_select=RFE_VALUES['RFE_n_features_to_select'],
+#             #                        output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
+#             #                        cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
+#             # GBR_RFE = WrapFeatures(method='GBR',
+#             #                        estimator=GradientBoostingRegressor(random_state=PROCESS_VALUES['fixed_seed']),
+#             #                        formatedDf=baseFormatedDf, rfe_hyp_feature_count=rfe_hyp_feature_count,
+#             #                        min_features_to_select=RFE_VALUES['RFE_n_features_to_select'],
+#             #                        output_feature_count=RFE_VALUES['output_feature_count'], process=RFE_VALUES['RFE_process'],
+#             #                        cv = KFold(n_splits=5, shuffle=True, random_state= PROCESS_VALUES['fixed_seed']))
+#
+#             # RFEs = [RFR_RFE, DTR_RFE, GBR_RFE]
+#
+#         # STOCK
+#         pickleDumpMe(DB_Values['DBpath'], displayParams, RFEList, 'FS', 'RFEs', combined = combined)
+#
+#         # REPORT
+#         reportRFE(DB_Values['DBpath'], displayParams, RFEList, objFolder='FS', display=True, process=RFE_VALUES['RFE_process'], combined = combined)
+#
+#         #VISUALIZE
+#         if RFE_VALUES['RFE_process'] == 'long':
+#
+#             RFEHyperparameterPlot2D(RFEList,  displayParams, DBpath = DB_Values['DBpath'], yLim = None, figTitle = 'RFEPlot2d',
+#                                       title ='Influence of Feature Count on Model Performance', xlabel='Feature Count',
+#                                     log = False, combined = combined)
+#
+#             RFEHyperparameterPlot3D(RFEList, displayParams, DBpath = DB_Values['DBpath'], figTitle='RFEPlot3d',
+#                                         colorsPtsLsBest=['b', 'g', 'c', 'y'],
+#                                         title='Influence of Feature Count on Model Performance', ylabel='Feature Count',
+#                                         zlabel='R2 Test score', size=[6, 6],
+#                                         showgrid=False, log=False, max=True, ticks=False, lims=False, combined = combined)
+#     return RFEList
+#
+# def Run_Data_Processing(combined):
+#     rdat = A_RawData(combined=combined)
+#     dat, df = B_encodeFeatures(rdat, combined=combined)
+#     learningDf = C_cleanData(dat, combined=combined)
+#     baseFormatedDf = D_format(learningDf, combined=combined)
+#
+#     return rdat, dat, df, learningDf, baseFormatedDf
+#
+# def Run_FS_Study(combined):
+#
+#     rdat, dat, df, learningDf, baseFormatedDf = Run_Data_Processing(combined=combined)
+#
+#     filterList = E_FS_Filter(baseFormatedDf, combined=combined)
+#
+#     RFEList = F_FS_RFE(baseFormatedDf, combined=combined)
+#
+#     reportProcessing(DB_Values['DBpath'], displayParams, df, learningDf, baseFormatedDf,
+#                      filterList, RFEList, combined=combined)
+#     # todo : 'dat' was added to all functions
+#
+#     return rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList
+#
+#     # todo :  spearmanFilter, pearsonFilter was changed to filterList
 
 
 """
@@ -333,7 +339,6 @@ def D_processData(learningDf, cv):
 
     kfolds = splitDf.split_cv(X=splitDf.XR, y=splitDf.yR, k=cv)
 
-    print(len(kfolds))
     # kfolds = [fold,..., fold, fold]
     # fold =  [X_train,X_test, y_train, y_test]
 
@@ -342,7 +347,6 @@ def D_processData(learningDf, cv):
     for i in range(len(kfolds)):
 
         baseFormatedDf = CrossValDf(splitDf, kfolds[i], i)
-        print(baseFormatedDf)
 
         dfAsTable(DB_Values['DBpath'], displayParams, baseFormatedDf.trainDf, objFolder='DATA', name="trainDf",
                   combined=False, number=baseFormatedDf.random_state)
