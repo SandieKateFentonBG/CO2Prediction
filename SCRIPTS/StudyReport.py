@@ -37,9 +37,10 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
 
             writer.writerow(["Full df ", df.shape])
             writer.writerow(["Outliers removed ", learningDf.shape])
-            writer.writerow(["All dictionnary ", dat.allDict])
+            # ycol = learningDf.loc[baseFormatedDf.yLabel] #TODO CHECK THIS
+            # writer.writerow(["Target min, max, mean, std ", ycol.min(), ycol.max(), ycol.mean(), ycol.std()]) #TODO CHECK THIS
+
             writer.writerow(["All labels", dat.allLabels])
-            writer.writerow(["Selected dictionnary ", dat.selectedDict])
             writer.writerow(["Selected labels", dat.remainingLabels])
             writer.writerow(["Removed dictionnary ", dat.removedDict])
             writer.writerow(["Removed labels", dat.droppedLabels])

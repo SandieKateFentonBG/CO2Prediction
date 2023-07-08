@@ -28,9 +28,7 @@ class Features:
         self.y = rawData.y
         self.removedDict = dict()
         self.droppedLabels = []
-        self.selectedDict = dict()
         self.remainingLabels = []
-        self.allDict = dict()
         self.allLabels = []
 
 
@@ -90,24 +88,15 @@ class Features:
             for value in self.rawData.possibleQualities[label] :
                 noOutlierDf,  removed_Value, removed_Label_Value = self.removeUnderrepresented(dataframe, label, value, cutOffThreshhold)
                 dataframe = noOutlierDf
-                # if removed_Value :
-                #     self.removedDict[label].append(removed_Value)
-                    # self.droppedLabels.append(removed_Label_Value)
+
 
         newdf = noOutlierDf[[i for i in noOutlierDf if len(set(noOutlierDf[i])) > 1]]
-        self.remainingLabels = newdf.columns
-        self.allLabels = dataframe.columns
+        self.remainingLabels = [elem for elem in newdf.columns]
+        self.allLabels = [elem for elem in dataframe.columns]
         self.droppedLabels = [elem for elem in self.allLabels if elem not in self.remainingLabels]
         for label_value in self.droppedLabels:
             lab, val = label_value.split(splitter)
             self.removedDict[lab].append(val)
-        for label_value in self.remainingLabels:
-            lab, val = label_value.split(splitter)
-            self.selectedDict[lab].append(val)
-        for label_value in self.allLabels:
-            lab, val = label_value.split(splitter)
-            self.allDict[lab].append(val)
-
 
         return newdf, self.removedDict, self.droppedLabels
 

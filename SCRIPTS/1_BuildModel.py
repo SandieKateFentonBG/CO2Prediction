@@ -12,10 +12,10 @@ for set in studyParams['sets']:
     yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
     displayParams["ref_prefix"] = acronym + '_' + studyParams['sets'][0][1]
 
-    # # 0 ANALYZE
+    # # # 0 ANALYZE
     # print("Analyze Data")
     #
-    # RUN
+    # # RUN
     # Run_DA(path=DB_Values['DBpath'], dbName=DB_Values['DBname'], delimiter=DB_Values['DBdelimiter'],
     #        firstLine=DB_Values['DBfirstLine'], xQualLabels=xQualLabels, xQuantLabels=DAxQuantLabels, yLabels=DAyLabels,
     #        Summed_Labels=Summed_Labels, Divided_Labels=Divided_Labels, splittingFt=splittingFt, order=order, mainTarget=mainTarget,
@@ -24,14 +24,20 @@ for set in studyParams['sets']:
     #
     # # IMPORT
     # DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
-
-    # 1 SELECT DATA
-    print("Select Data for :", set)
-
-    # RUN
+    #
+    # # 1 SELECT DATA
+    # print("Select Data for :", set)
+    #
+    # # RUN
     # Run_FS_CVStudy(cv=cv)
+
     # IMPORT
     rdat, dat, df, learningDf = import_input_data()
+
+    # ycol = learningDf.loc[baseFormatedDf.yLabel]  # TODO CHECK THIS >> Study report L40
+    # print(ycol)
+    # print(["Target min, max, mean, std ", ycol.min(), ycol.max(), ycol.mean(), ycol.std()])  # TODO CHECK THIS
+
 
     #2 MODEL DATA
 
@@ -48,14 +54,14 @@ for set in studyParams['sets']:
         if len(RFEList) > 0:
             learning_dfs += RFEList
 
-        print('Fitting regression for fold : ', str(i))
-        GS_FSs = Run_GS_FS(learning_dfs, regressors=studyParams['Regressors'])
+        # print('Fitting regression for fold : ', str(i))
+        # GS_FSs = Run_GS_FS(learning_dfs, regressors=studyParams['Regressors'])
 
         # IMPORT
-        # GS_FSs = import_Main_GS_FS(displayParams["reference"] , GS_FS_List_Labels = studyParams['Regressors'])
+        GS_FSs = import_Main_GS_FS(displayParams["reference"] , GS_FS_List_Labels = studyParams['Regressors'])
 
-        report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES,
-                     rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs)
+        # report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES,
+        #              rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs)
 
         All_CV.append(GS_FSs)
         Filters_CV.append(filterList)
@@ -64,3 +70,6 @@ for set in studyParams['sets']:
 
     RUN_Training_Report(All_CV, Filters_CV, randomvalues=list(range(1, cv+1)), displayParams = displayParams,
                         studyParams = studyParams, GSName="All")
+
+
+

@@ -47,7 +47,7 @@ MyPred_Sample_SELECTION = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : "IASS-EU-ECB-S-Sel",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
-                          'orderFtCols' : ['Timber, wood', 'Ceramics (e.g., fired clay bricks)', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','Concrete w/o reinforcement','Concrete reinforced', 'Other','No data'],
+                          'orderFtCols' : ['Timber, wood', 'Ceramics (e.g., fired clay bricks)','Concrete w/o reinforcement','Concrete reinforced', 'Other'], #, 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','No data'
                           "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
 
 MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",

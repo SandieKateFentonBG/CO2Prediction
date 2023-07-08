@@ -11,7 +11,6 @@ def Run_Model_Predictions_Explainer(sample, ArchPath, Model_List=None, Blender_L
     if Model_List:
 
         for model in Model_List:
-            print('model.GSName', model.GSName)
             # COMPUTE EXPLAINER
 
             if precomputed : #explainer already computed

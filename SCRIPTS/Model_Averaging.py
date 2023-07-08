@@ -69,7 +69,7 @@ def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combine
     # FIND NBEST
     BestModelNames = find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
 
-    # return GS_FSs
+    return GS_FSs
 
 
 
