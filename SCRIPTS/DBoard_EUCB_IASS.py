@@ -11,13 +11,10 @@ displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report
 cv=5
 
 set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestR2'] # ylabel, content, metric
-acronym = 'EU-ECB_Europe_EC'
+acronym = 'STRUCT_study'
 studyParams = {"sets": [set_1], 'fl_selectors': ['spearman', 'pearson'],
                'RFE_selectors': ['GBR', 'DTR', 'RFR'],
-               "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN',
-                              'SVR_RBF']}  # 'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
-
-
+               "Regressors": ['KRR_RBF', 'KRR_POL','SVR_RBF']} #
 """
 ________________________________________________________________________________________________________________________
 DATABASE #parameters specific to the database processed
@@ -28,11 +25,8 @@ ________________________________________________________________________________
 EUCB-FR
 """
 
-# '//fs-par-001/commun/'
-
-
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : acronym,# + "-edit" > changed database content : users total "No Data" set to 100000 > make sure they are removed
+             "DBname" : "EU-ECB_dataset_feature_engineered_sf_mass_fram_str-edit",# + "-edit" > changed database content : users total "No Data" set to 100000 > make sure they are removed
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym}
 
 xQualLabels = [
@@ -50,27 +44,27 @@ SAMPLE
 """
 
 MyPred_Sample_SELECTION = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : acronym + "-S-Sel",
+             "DBname" : "IASS-EU-ECB-S-Sel",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
                           'orderFtCols' : ['Timber, wood', 'Ceramics (e.g., fired clay bricks)','Concrete w/o reinforcement','Concrete reinforced', 'Other'], #, 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','No data'
                           "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
 
 MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : acronym + "-S-Concrete",
+             "DBname" : "IASS-EU-ECB-S-Concrete",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
                           'orderFtCols' :  ['Timber, wood', 'Ceramics (e.g., fired clay bricks)', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','Concrete w/o reinforcement','Concrete reinforced', 'Other','No data'],
                           "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #[]todo
 
 MyPred_Sample_TIMBER = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : acronym + "-S-Wood",
+             "DBname" : "IASS-EU-ECB-S-Wood",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
                      "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #Nonetodo
 
 MyPred_Sample_GLT = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
-             "DBname" : acronym + "-S-MassWood",
+             "DBname" : "IASS-EU-ECB-S-MassWood",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
                      "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #todo['massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood']
@@ -197,7 +191,7 @@ BLENDER
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
-              'BestModelNames' : None} #'TestAcc'SVR_RBF
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
+              'BestModelNames' : None} #'TestAcc'LR_RIDGE
 
 

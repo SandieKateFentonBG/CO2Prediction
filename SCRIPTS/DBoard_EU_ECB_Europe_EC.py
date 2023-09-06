@@ -28,9 +28,6 @@ ________________________________________________________________________________
 EUCB-FR
 """
 
-# '//fs-par-001/commun/'
-
-
 DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
              "DBname" : acronym,# + "-edit" > changed database content : users total "No Data" set to 100000 > make sure they are removed
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym}
@@ -197,7 +194,7 @@ BLENDER
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'LR_RIDGE', 'OverallBest' : True,
-              'BestModelNames' : None} #'TestAcc'SVR_RBF
+BLE_VALUES = {'NBestScore': 'TestR2', 'NCount' : 10, 'Regressor' : 'SVR_RBF', 'OverallBest' : True,
+              'BestModelNames' : None} #'TestAcc'LR_RIDGE
 
 

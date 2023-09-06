@@ -13,9 +13,11 @@ def pickleDumpMe( DBpath, displayParams, obj, objFolder, objName, combined = Fal
         import os
         import pickle
         outputFigPath = DBpath + "RESULTS/" + reference + 'RECORDS/' + objFolder
+
         if not os.path.isdir(outputFigPath):
             os.makedirs(outputFigPath)
         outputFigPath = f'{outputFigPath}/{objName}.pkl'
+        print('FILE has been saved here :', outputFigPath) #remove
 
 
         with open(outputFigPath, 'wb') as handle:
