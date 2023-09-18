@@ -91,7 +91,7 @@ class NBestModel:
 
         return nBestModels
 
-def reportGS_Scores_NBest(NBestModels, displayParams, DBpath):
+def reportGS_Scores_NBest(NBestModels, displayParams, DBpath): #todo : check
 
     if displayParams['archive']:
         import os
@@ -102,14 +102,14 @@ def reportGS_Scores_NBest(NBestModels, displayParams, DBpath):
             os.makedirs(outputPathStudy)
 
         index = [model.GSName for model in NBestModels.modelList]
-        columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestR2', 'TestAcc', 'ResidMean', 'ResidVariance']  #
+        columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance']
         BestModelDf = pd.DataFrame(columns=columns, index=index)
-        for col in columns[:-1]:
+        # for col in columns[:-1]:
+        for col in columns:
             BestModelDf[col] = [model.__getattribute__(col) for model in NBestModels.modelList]
 
         AllDfs = [BestModelDf]
         sheetNames = ['Residuals_MeanVar']
-
 
         with pd.ExcelWriter(outputPathStudy + reference[:-1] + "_GS_Scores_" + NBestModels.GSName + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):

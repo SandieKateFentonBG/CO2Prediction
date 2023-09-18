@@ -16,7 +16,7 @@ def computeAccuracy(yTrue, yPred, tolerance):
 
 class ModelGridsearch:
 
-    def __init__(self, predictorName, learningDf, modelPredictor, param_dict, acc, xQtQlLabels = None):
+    def __init__(self, predictorName, learningDf, modelPredictor, param_dict, acc, refit, xQtQlLabels = None): #todo refit changed for MSE
 
         self.predictorName = predictorName #ex : SVR
         self.modelPredictor = modelPredictor# ex : SVR()
@@ -30,7 +30,7 @@ class ModelGridsearch:
         self.param_dict = param_dict
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
         self.rounding = 3
-        self.refit = 'r2' # criteria for best performing param / used for plotting
+        self.refit = refit #'r2' # criteria for best performing param / used for plotting   #todo refit changed for MSE
 
         # refit = True means that after performing k - fold Cv (i.e., training on a subset of the data),
         # it refits the model using the best hyperparameters from the gridsearch, on the complete training set.

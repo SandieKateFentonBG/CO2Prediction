@@ -37,8 +37,9 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
 
             writer.writerow(["Full df ", df.shape])
             writer.writerow(["Outliers removed ", learningDf.shape])
-            # ycol = learningDf.loc[baseFormatedDf.yLabel] #TODO CHECK THIS
-            # writer.writerow(["Target min, max, mean, std ", ycol.min(), ycol.max(), ycol.mean(), ycol.std()]) #TODO CHECK THIS
+            ylabel = [k for k in rdat.y]
+            ycol = learningDf.loc[:, ylabel[0]]
+            writer.writerow(["Target min, max, mean, std ", ycol.min(), ycol.max(), ycol.mean(), ycol.std()])
 
             writer.writerow(["All labels", dat.allLabels])
             writer.writerow(["Selected labels", dat.remainingLabels])
@@ -126,7 +127,7 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
 
 
 def reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath,
-                                numericLabels = ['TestAcc', 'TestR2', 'TrainScore', 'ResidMean', 'ResidVariance'], ordinalCountLabels = ['selectedLabels'],
+                                numericLabels = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance'], ordinalCountLabels = ['selectedLabels'],
                                 ordinalLabels = ['selectorName'], n = 10, NBestScore = 'TestR2'):
 
     import pandas as pd

@@ -26,9 +26,36 @@ for set in studyParams['sets']:
         # BLENDER PROCESSING
         # RUN
         Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single=displayParams["reference"],
-                                           ConstructorKey=BLE_VALUES['Regressor'])
+                                           ConstructorKey=BLE_VALUES['Regressor'][0])
         # # IMPORT
-        # Blender_NBest = import_Blender_NBest(ref_single=displayParams["reference"], label=BLE_VALUES['Regressor'] + '_Blender_NBest')
+        # Blender_NBest = import_Blender_NBest(ref_single=displayParams["reference"], label=BLE_VALUES['Regressor'][0] + '_Blender_NBest')
+
+
+for set in studyParams['sets']:
+
+    yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
+    displayParams["ref_prefix"] = acronym + '_' + studyParams['sets'][0][1]
+
+    for i in range(1, cv + 1):
+
+        displayParams["reference"] = displayParams["ref_prefix"] + '_rd' + str(i) + '/'
+
+        # NBEST PROCESSING
+
+        # RUN
+        NBestModels = Run_NBest_Study(import_FS_ref=displayParams["reference"], import_GS_FS_ref=displayParams["reference"],
+                                      importNBest=False, OverallBest=BLE_VALUES['OverallBest'])
+        # # IMPORT
+        # NBestModels = import_NBest(displayParams["reference"] , OverallBest=BLE_VALUES['OverallBest'], number = i)
+
+        # BLENDER PROCESSING
+        # RUN
+        Blender_NBest = Run_Blending_NBest(NBestModels.modelList, displayParams, DB_Values['DBpath'], ref_single=displayParams["reference"],
+                                           ConstructorKey=BLE_VALUES['Regressor'][1])
+        # # IMPORT
+        # Blender_NBest = import_Blender_NBest(ref_single=displayParams["reference"], label=BLE_VALUES['Regressor'][1] + '_Blender_NBest')
+
+
 
 
 # 0 REPORT

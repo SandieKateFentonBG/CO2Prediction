@@ -26,16 +26,18 @@ def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
         for learningDflabel in predictor.learningDfsList:  # 6
             GS = predictor.__getattribute__(learningDflabel)
 
-            TestAcc, TestAccStd, TestMSE, TestMSEStd, Resid, ResidStd, ResidVariance, \
-            ResidVarianceStd, TrainScore, TrainScoreStd, TestR2, TestR2Std = AvgDict.loc[GS.GSName, :]
+            TestAcc, TestAccStd, TestMSE, TestMSEStd, TestR2, TestR2Std , Resid, ResidStd, ResidVariance, \
+            ResidVarianceStd, TrainScore, TrainScoreStd, TestScore, TestScoreStd= AvgDict.loc[GS.GSName, :]
 
-            setattr(GS, 'TrainScore', TrainScore)
-            setattr(GS, 'TestScore', TestR2)
             setattr(GS, 'TestAcc', TestAcc)
             setattr(GS, 'TestMSE', TestMSE)
             setattr(GS, 'TestR2', TestR2)
             setattr(GS, 'ResidMean', Resid)
             setattr(GS, 'ResidVariance', ResidVariance)
+            setattr(GS, 'TrainScore', TrainScore)
+            setattr(GS, 'TestScore', TestScore)
+
+
             setattr(predictor, learningDflabel, GS)
 
         pickleDumpMe(DBpath, displayParams, predictor, 'GS_FS', predictor.predictorName, combined=True)

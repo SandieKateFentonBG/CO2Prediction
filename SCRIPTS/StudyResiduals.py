@@ -80,6 +80,7 @@ def computeCV_Scores_Avg_All(studies):
 
     TestAccDict = AssembleCVResults(studies, 'TestAcc')
     TestMSEDict = AssembleCVResults(studies, 'TestMSE')
+    TestR2Dict = AssembleCVResults(studies, 'TestR2')
     ResidMeanDict = AssembleCVResults(studies, 'ResidMean')
     ResidVarianceDict = AssembleCVResults(studies, 'ResidVariance')
     TrainScoreDict = AssembleCVResults(studies, 'TrainScore')
@@ -90,6 +91,8 @@ def computeCV_Scores_Avg_All(studies):
         stdAcc1 = round(np.std(TestAccDict[k]), 3)
         avgAcc2 = round(np.mean(TestMSEDict[k]), 3)
         stdAcc2 = round(np.std(TestMSEDict[k]), 3)
+        avgAcc2b = round(np.mean(TestR2Dict[k]), 3)
+        stdAcc2b = round(np.std(TestR2Dict[k]), 3)
         avgAcc3 = round(np.mean(ResidMeanDict[k]), 3)
         stdAcc3 = round(np.std(ResidMeanDict[k]), 3)
 
@@ -99,13 +102,13 @@ def computeCV_Scores_Avg_All(studies):
         stdAcc5 = round(np.std(TrainScoreDict[k]), 3)
         avgAcc6 = round(np.mean(TestScoreDict[k]), 3)
         stdAcc6 = round(np.std(TestScoreDict[k]), 3)
-        SummaryDict[k] = [avgAcc1, stdAcc1, avgAcc2, stdAcc2, avgAcc3, stdAcc3,
+        SummaryDict[k] = [avgAcc1, stdAcc1, avgAcc2, stdAcc2, avgAcc2b, stdAcc2b, avgAcc3, stdAcc3,
                           avgAcc4, stdAcc4, avgAcc5, stdAcc5, avgAcc6, stdAcc6]
 
     # track results
-    columns = ['TestAcc-Mean', 'TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std', 'Resid-Mean', 'Resid-Std',
-               'ResidVariance-Mean', 'ResidVariance-Std', 'TrainScore-Mean', 'TrainScore-Std', 'TestR2-Mean',
-               'TestR2-Std']
+    columns = ['TestAcc-Mean', 'TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std', 'TestR2-Mean', 'TestR2-Std', 'Resid-Mean', 'Resid-Std',
+               'ResidVariance-Mean', 'ResidVariance-Std', 'TrainScore-Mean', 'TrainScore-Std', 'TestScore-Mean',
+               'TestScore-Std']
     ResultsDf = pd.DataFrame(columns=columns, index=SummaryDict.keys())
     for i in range(len(columns)):
         ResultsDf[columns[i]] = [SummaryDict[k][i] for k in SummaryDict.keys()]
@@ -113,9 +116,14 @@ def computeCV_Scores_Avg_All(studies):
     return ResultsDf
 
 
-def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=10, NBestScore='TestR2'):
+def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=10, NBestScore='TestR2'): #
 
-    sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=False)
+    if NBestScore == 'TestMSE':
+        asc_direction = True
+    else:
+        asc_direction = False
+
+    sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=asc_direction)
     BestModelNames = list(sortedDf.index[0:n])
     print("The ", str(n), 'Models with Best ', NBestScore, "are:")
     print(BestModelNames)

@@ -96,8 +96,10 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
     GS_FSs = []
     for constructor in GS_CONSTRUCTOR :
         GS_FS = ModelFeatureSelectionGridsearch(predictorName=constructor['name'], learningDfs=learning_dfs,
-                                            modelPredictor=constructor['modelPredictor'], param_dict=constructor['param_dict'],
-                                                xQtQlLabels = (xQuantLabels, xQualLabels), acc = PROCESS_VALUES['accuracyTol'])
+                                            modelPredictor=constructor['modelPredictor'], param_dict=constructor['param_dict']
+                                                , acc = PROCESS_VALUES['accuracyTol'],
+                                                refit = PROCESS_VALUES['refit'],
+                                                xQtQlLabels = (xQuantLabels, xQualLabels))
         GS_FSs.append(GS_FS)
         reportGS_TxtScores_All(DB_Values['DBpath'], displayParams, GS_FS, objFolder='GS_FS', display=True)
 
@@ -228,7 +230,7 @@ def Run_NBest(GS_FSs, OverallBest = False):
 
         NBestModels = OBestModel(GS_FSs, NBestScore=BLE_VALUES['NBestScore'], NCount=BLE_VALUES['NCount'], BestModelNames = BestModelNames)
     else:
-        NBestModels = NBestModel(GS_FSs, NBestScore =  BLE_VALUES['NBestScore'], NCount = BLE_VALUES['NCount'])
+        NBestModels = NBestModel(GS_FSs, NBestScore =  BLE_VALUES['NBestScore'], NCount = BLE_VALUES['NCount']) #todo model selection changed for MSE
     pickleDumpMe(DB_Values['DBpath'], displayParams, NBestModels, 'NBEST', NBestModels.GSName)
     reportGS_Scores_NBest(NBestModels, displayParams, DBpath=DB_Values['DBpath'])
 

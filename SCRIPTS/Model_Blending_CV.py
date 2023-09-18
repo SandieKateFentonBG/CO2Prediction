@@ -1,12 +1,13 @@
 # SCRIPT IMPORTS
 from Model import *
 from HelpersFormatter import *
-from SCRIPTS.UNUSED.BlendingReport import *
+# from SCRIPTS.UNUSED.BlendingReport import *
 # from Dashboard_EUCB_Structures import *
 from Dashboard_Current import *
 
 #LIBRARY IMPORTS
 from sklearn.model_selection import KFold
+import pandas as pd
 
 def prepare_blending_cv(modelList):
 
@@ -76,7 +77,7 @@ def Blend_Learning_Data(modelList, type = 'XVal'):
 
 class Model_Blender:
 
-    def __init__(self, modelList, blendingConstructor, acc, Gridsearch = True, Type ='NBest'):
+    def __init__(self, modelList, blendingConstructor, acc, refit, Gridsearch = True, Type ='NBest'):
 
         self.modelList = modelList
         self.GSName = blendingConstructor['name'] + '_Blender_' + Type
@@ -85,7 +86,7 @@ class Model_Blender:
         self.modelPredictor = blendingConstructor['modelPredictor']
         self.param_dict = blendingConstructor['param_dict']
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
-        self.refit = 'r2'  # Score used for refitting the blender
+        self.refit = refit  # 'r2'Score used for refitting the blender  #todo refit changed for MSE
         self.accuracyTol = acc
         self.rounding = 3
 
@@ -274,7 +275,8 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
 
 
         index = [model.GSName for model in BL_NBest_All[0].modelList] #+ ['NBest_Avg'] + [BLE_VALUES['Regressor'] + "_Blender_NBest"]
-        columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance', 'ModelWeights']
+        columns = [ 'TestAcc', 'TestMSE', 'TestR2','TrainScore', 'TestScore','ResidMean', 'ResidVariance', 'ModelWeights']
+
         Avgdf = pd.DataFrame(columns=columns, index=index, dtype=float)
         for id in index:
             for col in columns:
@@ -293,7 +295,7 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
             Avgdf.loc[id_blender + '_Std', col] = np.std(lists_bl)
 
         index = ['', 'BlenderAvg-BestModelAvg', 'BlenderAvg-NBestAvg']
-        columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance', 'ModelWeights']
+        columns = [ 'TestAcc', 'TestMSE', 'TestR2','TrainScore', 'TestScore','ResidMean', 'ResidVariance', 'ModelWeights']
         ExtraDf = pd.DataFrame(columns=columns, index=index, dtype=float)
         ExtraDf.loc['BlenderAvg-BestModelAvg', :] = (Avgdf.loc[id_blender + "_Avg", :] - Avgdf.iloc[0, :])
         ExtraDf.loc['BlenderAvg-NBestAvg', :] = (Avgdf.loc[id_blender + "_Avg", :] - Avgdf.loc['NBest_Avg', :])
@@ -310,8 +312,8 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
 def construct_NBest_Df(blendModel):
 
     index = [model.GSName for model in blendModel.modelList]
-    columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance',
-               'ModelWeights']  #
+    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
+
     NBestDf = pd.DataFrame(columns=columns, index=index)
     for col in columns[:-1]:
         NBestDf[col] = [model.__getattribute__(col) for model in blendModel.modelList]
@@ -319,7 +321,6 @@ def construct_NBest_Df(blendModel):
             NBestDf['ModelWeights'] = [round(elem, 3) for elem in list(blendModel.ModelWeights)]
         else:
             NBestDf['ModelWeights'] = [0 for elem in list(blendModel.modelList)]
-    # NBestDf.loc['NBest_Avg', :] = NBestDf.mean(axis=0)
     ExtraDf = pd.DataFrame(columns=columns)
     ExtraDf.loc['NBest_Avg', :] = NBestDf.mean(axis=0)
     Combined_Df = pd.concat([NBestDf, ExtraDf])
@@ -329,7 +330,7 @@ def construct_NBest_Df(blendModel):
 def construct_Blender_Df(blendModel):
 
     index = [blendModel.GSName]
-    columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights']  #
+    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
     BlendingDf = pd.DataFrame(columns=columns, index=index)
     for col in columns[:-1]:
         BlendingDf[col] = [blendModel.__getattribute__(col)]
@@ -340,10 +341,12 @@ def construct_CVAnalysis_Blender_Df(blendModel):
     from statistics import mean, stdev
 
     index = ['Blender Fold' + str(elem) for elem in list(range(len(blendModel.Estimators)))] + ['Blender_Mean', 'Blender_Std']
-    columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights']  #
+    columns = [ 'TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
+
     AnalysisDf = pd.DataFrame(columns=columns, index=index)
-    for col, name in zip(['TrainScores', 'TestScores', 'TestMSEs', 'TestAccs', 'ResidMeans', 'ResidVariances'],
-                         ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance']):
+
+    for col, name in zip([ 'TestAccs', 'TestMSEs', 'TestR2s', 'TrainScores', 'TestScores','ResidMeans', 'ResidVariances'],
+                         ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance']):
         AnalysisDf[name] = blendModel.__getattribute__(col) + [mean(blendModel.__getattribute__(col))] + [stdev(blendModel.__getattribute__(col))]  #[i] for i in range(len())] + [self.__getattribute__(col)]
 
     return AnalysisDf
@@ -354,7 +357,8 @@ def construct_Blending_Df(blendModel):
     Blender_Df = construct_Blender_Df(blendModel)
     CVAnalysis_Blender_Df = construct_CVAnalysis_Blender_Df(blendModel)
     index = ['', 'BestBlender-BestModel', 'BestBlender-NBestAvg', 'AvgBlender-BestModel', 'AvgBlender-NBestAvg']
-    columns = ['TrainScore', 'TestScore', 'TestMSE', 'TestAcc', 'ResidMean', 'ResidVariance','ModelWeights']
+    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
+
     ExtraDf = pd.DataFrame(columns=columns, index=index)
     ExtraDf.loc['BestBlender-BestModel', :] = (Blender_Df.loc[blendModel.GSName, :] - NBest_Df.iloc[0, :])
     ExtraDf.loc['BestBlender-NBestAvg', :] = (Blender_Df.loc[blendModel.GSName, :] - NBest_Df.iloc[-1, :])

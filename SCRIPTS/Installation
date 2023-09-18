@@ -1,0 +1,42 @@
+1. Install Anaconda: Download and install Anaconda from the link below (choose
+the right version for your OS):
+https://www.anaconda.com/download/
+
+2. Open anaconda command prompt
+
+3. Create new anaconda environment named ’ml labs’:
+(conda create −−name ml_labs #for latest pandas version)
+conda create −−name ml_labs python=3.8 #for specific python version
+
+4. (Optional) Enter the newly created environment:
+conda activate ml_labs
+
+5. Install required packages by sequentially executing:
+
+conda install numpy=1.19.2
+conda install scikit−learn=0.23.2
+conda install matplotlib=3.3.4
+conda install notebook=6.2.0
+conda install pandas=1.2.3
+conda install seaborn=0.11.1
+conda install shap=0.41.0
+conda install openpyxl=3.0.9
+conda install yellowbrick=1.3
+
+To check if the installation was correctly executed, you can try to import the installed
+libraries in a Python script. This can be easily done as follows:
+1. Invoke Python in your anaconda environment:
+
+python
+
+2. Import sequentially the installed libraries:
+
+import numpy
+import matplotlib
+import sklearn
+
+To install environment in Pycharm
+1. Bottom right of window > clic on
+Python > Interpreter Settings > Python Interpreter > Add interpreter
+Find the folder and clic on the python.exe file
+
