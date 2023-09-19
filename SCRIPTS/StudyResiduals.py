@@ -116,7 +116,7 @@ def computeCV_Scores_Avg_All(studies):
     return ResultsDf
 
 
-def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=10, NBestScore='TestR2'): #
+def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n, NBestScore): #=10='TestR2'
 
     if NBestScore == 'TestMSE':
         asc_direction = True
@@ -127,14 +127,14 @@ def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=10, NBestScore=
     BestModelNames = list(sortedDf.index[0:n])
     print("The ", str(n), 'Models with Best ', NBestScore, "are:")
     print(BestModelNames)
-
+    print('Sorted in ascending direction:', asc_direction)
     pickleDumpMe(DBpath, displayParams, BestModelNames, 'GS_FS', 'BestModelNames', combined=True)
 
 
     return BestModelNames
 
 
-def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore='TestR2'): #ResultsDf
+def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore): #ResultsDf='TestR2'
 
     """    create a dictionary compiling model accuracies for all 10 studies,
     as well as average accuracy, residual Mean and Residual Variance"""
@@ -386,7 +386,11 @@ def ResidualPlot_Distri_Indiv(studies, displayParams, FORMAT_Values, DBpath, ada
             fig, ax = plt.subplots()
 
             # plot the histplot and the kde
-            ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
+            try:  # https://github.com/mwaskom/seaborn/issues/2325 - only becauseLR has high error!
+                ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
+            except np.core._exceptions._ArrayMemoryError: # this is usually when residuals are very high >> bad prediction
+                ax = sns.histplot(v, kde=True, legend=False, bins='sturges', label="Residuals kde curve")
+
             for u in ['right', 'top']:
                 ax.spines[u].set_visible(False)
 
@@ -481,7 +485,11 @@ def ResidualPlot_Distri_Combined(studies, displayParams, FORMAT_Values, DBpath,
     fig, ax = plt.subplots()
 
     # plot the histplot and the kde
-    ax = sns.histplot(listResVal, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve") #
+    try:
+        ax = sns.histplot(listResVal, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve") #
+    except np.core._exceptions._ArrayMemoryError:
+        ax = sns.histplot(listResVal, kde=True, legend=False, bins='sturges', label="Residuals kde curve") #
+
     for k in ['right', 'top']:
         ax.spines[k].set_visible(False)
 

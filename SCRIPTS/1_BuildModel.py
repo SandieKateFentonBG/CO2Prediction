@@ -12,24 +12,24 @@ for set in studyParams['sets']:
     yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
     displayParams["ref_prefix"] = acronym + '_' + studyParams['sets'][0][1]
 
-    # # 0 ANALYZE
-    print("Analyze Data")
-
-    # RUN
-    Run_DA(path=DB_Values['DBpath'], dbName=DB_Values['DBname'], delimiter=DB_Values['DBdelimiter'],
-           firstLine=DB_Values['DBfirstLine'], xQualLabels=xQualLabels, xQuantLabels=DAxQuantLabels, yLabels=DAyLabels,
-           Summed_Labels=Summed_Labels, Divided_Labels=Divided_Labels, splittingFt=splittingFt, order=order, mainTarget=mainTarget,
-           labels_1D=labels_1D, labels_2D_norm=labels_2D_norm, labels_2D_scale=labels_2D_scale,
-           exploded_ft=exploded_ft, splittingFt_focus=splittingFt_focus, splittingFt_2=splittingFt_2)
-
-    # IMPORT
-    DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
+    # # # 0 ANALYZE
+    # print("Analyze Data")
+    #
+    # # RUN
+    # Run_DA(path=DB_Values['DBpath'], dbName=DB_Values['DBname'], delimiter=DB_Values['DBdelimiter'],
+    #        firstLine=DB_Values['DBfirstLine'], xQualLabels=xQualLabels, xQuantLabels=DAxQuantLabels, yLabels=DAyLabels,
+    #        Summed_Labels=Summed_Labels, Divided_Labels=Divided_Labels, splittingFt=splittingFt, order=order, mainTarget=mainTarget,
+    #        labels_1D=labels_1D, labels_2D_norm=labels_2D_norm, labels_2D_scale=labels_2D_scale,
+    #        exploded_ft=exploded_ft, splittingFt_focus=splittingFt_focus, splittingFt_2=splittingFt_2)
+    #
+    # # IMPORT
+    # DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
 
     # 1 SELECT DATA
     print("Select Data for :", set)
 
     # RUN
-    Run_FS_CVStudy(cv=cv)
+    # Run_FS_CVStudy(cv=cv)
 
     # IMPORT
     rdat, dat, df, learningDf = import_input_data()
@@ -51,14 +51,14 @@ for set in studyParams['sets']:
         if len(RFEList) > 0:
             learning_dfs += RFEList
 
-        print('Fitting regression for fold : ', str(i))
-        GS_FSs = Run_GS_FS(learning_dfs, regressors=studyParams['Regressors'])
+        # print('Fitting regression for fold : ', str(i))
+        # GS_FSs = Run_GS_FS(learning_dfs, regressors=studyParams['Regressors'])
 
         # IMPORT
         GS_FSs = import_Main_GS_FS(displayParams["reference"] , GS_FS_List_Labels = studyParams['Regressors'])
 
-        report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES,
-                     rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs)
+        # report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES,
+        #              rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs)
 
         All_CV.append(GS_FSs)
         Filters_CV.append(filterList)

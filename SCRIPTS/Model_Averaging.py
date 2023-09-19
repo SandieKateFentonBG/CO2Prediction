@@ -48,6 +48,7 @@ def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
 
 
 def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combined =  None):
+    print(BLE_VALUES['NBestScore'])
 
     if not studies:
         All_CV = import_Main_GS_FS(ref_combined,
