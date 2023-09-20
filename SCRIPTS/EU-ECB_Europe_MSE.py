@@ -5,18 +5,40 @@ ________________________________________________________________________________
 RUN
 ________________________________________________________________________________________________________________________
 """
-#change when running a test
-sample_nb = 2
-displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
-cv=5
 
-set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestMSE'] # ylabel, content, metric
-acronym = 'EU-ECB_Europe_MSE' #todo : here
+# NAMING
+
+acronym = 'EU-ECB_Europe_MSE'
+
+# REFIT & SELECTION
+
+# base_refit = 'neg_mean_squared_error'
+# base_select = 'TestMSE'
+# ble_refit = 'neg_mean_squared_error'
+# ble_select = ['TestMSEs', True]
+
+base_refit = 'r2'
+base_select = 'TestR2'
+ble_refit = 'r2'
+ble_select = ['TestR2s', False]
+
+# UNITS, SELECTORS, REGRESSORS
+
+set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC',base_select] # ylabel, content, metric
 
 studyParams = {"sets": [set_1], 'fl_selectors': ['spearman', 'pearson'],
                'RFE_selectors': ['GBR', 'DTR', 'RFR'],
                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN',
                               'SVR_RBF']}  # 'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
+
+# CROSS VALIDATION
+
+sample_nb = 2
+cv=5
+
+# DISPLAY
+
+displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
 
 
 """
@@ -32,7 +54,7 @@ EUCB-FR
 # '//fs-par-001/commun/'
 
 
-DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+DB_Values = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
              "DBname" : acronym,# + "-edit" > changed database content : users total "No Data" set to 100000 > make sure they are removed
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym}
 
@@ -50,27 +72,27 @@ FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxV
 SAMPLE
 """
 
-MyPred_Sample_SELECTION = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+MyPred_Sample_SELECTION = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Sel",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
                           'orderFtCols' : ['Timber, wood', 'Ceramics (e.g., fired clay bricks)','Concrete w/o reinforcement','Concrete reinforced', 'Other'], #, 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','No data'
                           "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
 
-MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+MyPred_Sample_CONCRETE = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Concrete",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
                           'orderFtCols' :  ['Timber, wood', 'Ceramics (e.g., fired clay bricks)', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','Concrete w/o reinforcement','Concrete reinforced', 'Other','No data'],
                           "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #[]todo
 
-MyPred_Sample_TIMBER = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+MyPred_Sample_TIMBER = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Wood",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
                      "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #Nonetodo
 
-MyPred_Sample_GLT = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+MyPred_Sample_GLT = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-MassWood",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
@@ -117,7 +139,7 @@ PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshho
                   'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
                 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 42, 'selectionStoredinCombined' : True,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.15, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800],
-                  'refit' : 'neg_mean_squared_error'} #r2
+                  'refit' : base_refit}
 
 """
 ________________________________________________________________________________________________________________________
@@ -200,6 +222,9 @@ ________________________________________________________________________________
 """
 
 BLE_VALUES = {'NBestScore': 'TestMSE', 'NCount' : 10, 'Regressor' : ['SVR_RBF', 'LR_RIDGE'], 'OverallBest' : True,
-              'BestModelNames' : None, 'refit' : 'neg_mean_squared_error'} #'TestAcc'LR_RIDGE
+              'BestModelNames' : None, 'refit' : ble_refit, 'grid_select' : ble_select}
+
+
+
 
 

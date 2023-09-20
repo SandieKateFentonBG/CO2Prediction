@@ -55,9 +55,6 @@ for set in studyParams['sets']:
         # # IMPORT
         # Blender_NBest = import_Blender_NBest(ref_single=displayParams["reference"], label=BLE_VALUES['Regressor'][1] + '_Blender_NBest')
 
-
-
-
 # 0 REPORT
 
 Studies_CV_BlenderNBest = []

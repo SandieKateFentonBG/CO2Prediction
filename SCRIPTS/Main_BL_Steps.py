@@ -35,8 +35,12 @@ def Run_Blending_NBest(modelList, displayParams, DBpath, ref_single, Constructor
 
     # CONSTRUCT & REPORT
     print('RUNNING BLENDING')
-    blendModel = Model_Blender(modelList, CONSTRUCTOR, refit = BLE_VALUES['refit'],
-                               acc = PROCESS_VALUES['accuracyTol'],  Gridsearch = True, Type='NBest')
+
+    print('Run_Blending_NBest > BLE_VALUES[refit]', BLE_VALUES['refit']) #todo :
+
+    blendModel = Model_Blender(modelList, CONSTRUCTOR, acc = PROCESS_VALUES['accuracyTol'], refit = BLE_VALUES['refit'],
+                               grid_select = BLE_VALUES['grid_select'],
+                                 Gridsearch = True, Type='NBest') #todo : changed to fit BLE_Values input for grid fold selection
     report_Blending_NBest(blendModel, displayParams, DBpath)
     pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName)
 
@@ -118,8 +122,11 @@ def Run_Blending_CV(displayParams, DBpath, ref_prefix, ConstructorKey = 'LR_RIDG
         # CONSTRUCT BLENDER & ARCHIVE
         for ModelList in Blending_Models:
             print('RUNNING BLENDING')
-            blendModel = Model_Blender(ModelList, CONSTRUCTOR, acc = PROCESS_VALUES['accuracyTol'], refit = BLE_VALUES['refit'], Gridsearch = True, Type=ModelList[0].GSName)
+            blendModel = Model_Blender(ModelList, CONSTRUCTOR, acc = PROCESS_VALUES['accuracyTol'],
+                                       refit = BLE_VALUES['refit'], grid_select=BLE_VALUES['grid_select'],
+                                       Gridsearch = True, Type=ModelList[0].GSName) # todo : changed to fit BLE_Values input for grid fold selection
             pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName, combined=True)
+
 
     blender_name_list =[ConstructorKey + '_Blender_' + name for name in GS_name_list]
 

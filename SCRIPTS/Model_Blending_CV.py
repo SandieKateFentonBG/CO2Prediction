@@ -77,7 +77,7 @@ def Blend_Learning_Data(modelList, type = 'XVal'):
 
 class Model_Blender:
 
-    def __init__(self, modelList, blendingConstructor, acc, refit, Gridsearch = True, Type ='NBest'):
+    def __init__(self, modelList, blendingConstructor, acc, refit, grid_select, Gridsearch = True, Type ='NBest'):
 
         self.modelList = modelList
         self.GSName = blendingConstructor['name'] + '_Blender_' + Type
@@ -86,7 +86,8 @@ class Model_Blender:
         self.modelPredictor = blendingConstructor['modelPredictor']
         self.param_dict = blendingConstructor['param_dict']
         self.scoring = {'neg_mean_squared_error': 'neg_mean_squared_error', 'r2': 'r2'}
-        self.refit = refit  # 'r2'Score used for refitting the blender  #todo refit changed for MSE
+        self.refit = refit  # 'r2'Score used for refitting the blender  #todo : changed to fit BLE_Values input
+        self.grid_select = grid_select #[metric, minimize] #todo : changed to fit BLE_Values input
         self.accuracyTol = acc
         self.rounding = 3
 
@@ -113,7 +114,7 @@ class Model_Blender:
         self.ScaleStds = []
 
         for fold in kfolds:
-            X_train, X_test, y_train, y_test, ScaleMean, ScaleStd = fold #todo : added 'ScaleMean, ScaleStd'
+            X_train, X_test, y_train, y_test, ScaleMean, ScaleStd = fold
             xtrainer, ytrainer = X_train, y_train
 
             # print('xtrainer', xtrainer)
@@ -123,9 +124,11 @@ class Model_Blender:
             if Gridsearch:
                 njobs = os.cpu_count() - 1
                 print("RUNNING GRIDSEARCH")
-                grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring, refit=self.refit,
+                grid = GridSearchCV(self.modelPredictor, param_grid=self.param_dict, scoring=self.scoring,
+                                    refit=self.refit,
                                     n_jobs=njobs, return_train_score=True)
                 grid.fit(xtrainer, ytrainer)
+                self.Grid = grid
                 Param = grid.best_params_
                 Estimator = grid.best_estimator_
 
@@ -134,8 +137,11 @@ class Model_Blender:
                 Param = None
 
             yPred = Estimator.predict(X_test)
-            TrainScore = round(Estimator.score(xtrainer, ytrainer), self.rounding)
-            TestScore = round(Estimator.score(X_test, y_test), self.rounding)
+            TrainScore = round(self.Grid.best_score_, self.rounding)
+            # cross-validated score using the specified scoring function
+            # how well the model generalizes to different subsets of the training data (cross-validation folds)
+            TestScore = round(self.Grid.score(X_test, y_test), self.rounding)
+            # score on the test data using the same scoring function
             TestAcc = round(computeAccuracy(y_test, yPred, self.accuracyTol), self.rounding)
             TestMSE = round(mean_squared_error(y_test, yPred), self.rounding)
             TestR2 = round(r2_score(y_test, yPred), self.rounding)
@@ -158,12 +164,17 @@ class Model_Blender:
             self.blendXtests.append(X_test)
             self.yTrains.append(y_train)
             self.yTests.append(y_test)
-            self.ScaleMeans.append(ScaleMean) #todo : added 'ScaleMean, ScaleStd'
-            self.ScaleStds.append(ScaleStd) #todo : added 'ScaleMean, ScaleStd'
+            self.ScaleMeans.append(ScaleMean)
+            self.ScaleStds.append(ScaleStd)
 
         "Best Blender Model is selected as model with lowest variance residual "
 
-        idx = get_minvalue(self.ResidVariances)
+        metric = self.grid_select[0]
+        minimize = self.grid_select[1]
+        if minimize:
+            idx = get_minvalue(self.__getattribute__(metric))
+        else :
+            idx = get_maxvalue(self.__getattribute__(metric))
 
         self.Estimator = self.Estimators[idx]
         self.Param = self.Params[idx]
@@ -388,7 +399,7 @@ def report_Blending_NBest(blendModel, displayParams, DBpath):
 
         with pd.ExcelWriter(outputPathStudy + reference[:-1] + '_' + blendModel.GSName + "_Scores" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
-                df.to_excel(writer, sheet_name=name) #todo :BLE_VALUES['Regressor']
+                df.to_excel(writer, sheet_name=name)
 
 
 
