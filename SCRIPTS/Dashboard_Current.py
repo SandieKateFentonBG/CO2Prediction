@@ -6,11 +6,22 @@ RUN #change when running a test
 ________________________________________________________________________________________________________________________
 """
 
+
+# base_refit = 'neg_mean_squared_error'
+# base_select = 'TestMSE'
+# ble_refit = 'neg_mean_squared_error'
+# ble_select = ['TestMSEs', True]
+
+base_refit = 'r2'
+base_select = 'TestR2'
+ble_refit = 'r2'
+ble_select = ['TestR2s', False]
+
 sample_nb = 2
 displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
 cv=5
 
-set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC','TestMSE'] # ylabel, content, metric
+set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC', base_select] # ylabel, content, metric
 acronym = 'EU-ECB_France_MSE'
 studyParams = {"sets": [set_1], 'fl_selectors': ['spearman', 'pearson'],
                'RFE_selectors': ['GBR', 'DTR', 'RFR'],
@@ -28,7 +39,7 @@ DATABASE #parameters specific to the database processed
 ________________________________________________________________________________________________________________________
 """
 
-DB_Values = {"DBpath" : "K:/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
+DB_Values = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/", #C:/Users/sfenton/Code/Repositories/CO2Prediction/
              "DBname" : acronym,
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym}
 
@@ -45,27 +56,27 @@ FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxV
 SAMPLE
 """
 
-MyPred_Sample_SELECTION = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+MyPred_Sample_SELECTION = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Sel",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
                           'orderFtCols' : ['Stone (granite, limestone, etc)','Ceramics (e.g., fired clay bricks)','Timber, wood','Concrete w/o reinforcement','Other'],
                           "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
 
-MyPred_Sample_CONCRETE = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+MyPred_Sample_CONCRETE = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Concrete",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
                           'orderFtCols' : ['Stone (granite, limestone, etc)','Ceramics (e.g., fired clay bricks)','Timber, wood','Concrete w/o reinforcement','Other'],
                           "orderFtRows" : ['massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood']}
 
-MyPred_Sample_TIMBER = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+MyPred_Sample_TIMBER = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Wood",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
                      "orderFtRows" : ['massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood']}
 
-MyPred_Sample_GLT = {"DBpath" : "K:/Temp/Sandie/Pycharm/",
+MyPred_Sample_GLT = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-GLT",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
@@ -111,7 +122,7 @@ PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshho
                   'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
                 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 42, 'selectionStoredinCombined' : True,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.15, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800],
-                  'refit' : 'neg_mean_squared_error'} #'corrMethod1' : "spearman", 'corrMethod2' : "pearson",
+                  'refit' : base_refit} #'corrMethod1' : "spearman", 'corrMethod2' : "pearson",
 
 
 """
@@ -193,8 +204,9 @@ BLENDER
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': [set_1], 'NCount' : 10, 'Regressor' : ['SVR_RBF', 'LR_RIDGE'], 'OverallBest' : True,
-              'BestModelNames' : None} #'SVR_RBFTestAcc'
+BLE_VALUES = {'NBestScore': [set_1], 'NCount' : 10, 'Regressor' : ['LR_RIDGE', 'SVR_RBF'], 'OverallBest' : True,
+              'BestModelNames' : None, 'refit' : ble_refit, 'grid_select' : ble_select} #'SVR_RBFTestAcc'
+
 
 
 

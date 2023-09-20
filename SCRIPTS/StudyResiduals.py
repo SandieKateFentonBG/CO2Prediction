@@ -81,6 +81,13 @@ def computeCV_Scores_Avg_All(studies):
     TestAccDict = AssembleCVResults(studies, 'TestAcc')
     TestMSEDict = AssembleCVResults(studies, 'TestMSE')
     TestR2Dict = AssembleCVResults(studies, 'TestR2')
+
+    lazy_models = []  # remove models that always predict the same value
+    for k, vs in TestR2Dict.items():
+        for v in vs:
+            if -0.0000000001 < v < 0.0000000001:
+                lazy_models.append(k)
+
     ResidMeanDict = AssembleCVResults(studies, 'ResidMean')
     ResidVarianceDict = AssembleCVResults(studies, 'ResidVariance')
     TrainScoreDict = AssembleCVResults(studies, 'TrainScore')
@@ -113,10 +120,10 @@ def computeCV_Scores_Avg_All(studies):
     for i in range(len(columns)):
         ResultsDf[columns[i]] = [SummaryDict[k][i] for k in SummaryDict.keys()]
 
-    return ResultsDf
+    return ResultsDf, lazy_models
 
 
-def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n, NBestScore): #=10='TestR2'
+def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, lazy_labels, n, NBestScore): #=10='TestR2'
 
     if NBestScore == 'TestMSE':
         asc_direction = True
@@ -124,7 +131,9 @@ def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n, NBestScore): #
         asc_direction = False
 
     sortedDf = ResultsDf.sort_values(NBestScore + '-Mean', ascending=asc_direction)
-    BestModelNames = list(sortedDf.index[0:n])
+    filteredDf = sortedDf.drop(index = lazy_labels) # remove models that always predict the same value
+
+    BestModelNames = list(filteredDf.index[0:n])
     print("The ", str(n), 'Models with Best ', NBestScore, "are:")
     print(BestModelNames)
     print('Sorted in ascending direction:', asc_direction)

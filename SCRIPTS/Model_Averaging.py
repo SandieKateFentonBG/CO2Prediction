@@ -9,11 +9,10 @@ def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
     "#todo : fix this : either provide studies = list of GS OR provide ResultsDf"
 
     if studies:
-        AvgDict = computeCV_Scores_Avg_All(studies) # creates ResultsDf
+        AvgDict, lazy_models = computeCV_Scores_Avg_All(studies) # creates ResultsDf
     else:
         AvgDict = ResultsDf
 
-    print("AvgDict", AvgDict)
     # studies = 10 * 9 * 6 - GS_FSs
     # Gsearch = 9 * 6 - GS_FS
     # PSearch = 6 - FS
@@ -57,7 +56,7 @@ def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combine
         All_CV = studies
 
     # CREATE AVG MODEL
-    ResultsDf = computeCV_Scores_Avg_All(All_CV)
+    ResultsDf, lazy_models = computeCV_Scores_Avg_All(All_CV)
 
     GS_FSs = avgModel(DBpath, displayParams, studies=All_CV, ResultsDf = ResultsDf) #
 
@@ -70,7 +69,7 @@ def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combine
     Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, combined=True, plot_all=displayParams['plot_all'])
 
     # FIND NBEST
-    BestModelNames = find_Overall_Best_Models(DBpath, displayParams, ResultsDf, n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
+    BestModelNames = find_Overall_Best_Models(DBpath, displayParams, ResultsDf, lazy_labels = lazy_models, n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
 
     return GS_FSs
 
