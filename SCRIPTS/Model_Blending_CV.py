@@ -1,13 +1,14 @@
 # SCRIPT IMPORTS
 from Model import *
 from HelpersFormatter import *
-# from SCRIPTS.UNUSED.BlendingReport import *
-# from Dashboard_EUCB_Structures import *
 from Dashboard_Current import *
 
 #LIBRARY IMPORTS
 from sklearn.model_selection import KFold
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 def prepare_blending_cv(modelList):
 
@@ -281,6 +282,7 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
         for blendModel in BL_NBest_All:
             BlendingDf = construct_Blending_Df(blendModel)
             AllDfs.append(BlendingDf)
+            # print(BlendingDf) #todo
 
         sheetNames += ['Avg']
 
@@ -366,7 +368,10 @@ def construct_Blending_Df(blendModel):
 
     NBest_Df = construct_NBest_Df(blendModel)
     Blender_Df = construct_Blender_Df(blendModel)
+
     CVAnalysis_Blender_Df = construct_CVAnalysis_Blender_Df(blendModel)
+
+
     index = ['', 'BestBlender-BestModel', 'BestBlender-NBestAvg', 'AvgBlender-BestModel', 'AvgBlender-NBestAvg']
     columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
 
@@ -400,6 +405,164 @@ def report_Blending_NBest(blendModel, displayParams, DBpath):
         with pd.ExcelWriter(outputPathStudy + reference[:-1] + '_' + blendModel.GSName + "_Scores" + ".xlsx", mode='w') as writer:
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
+
+
+def plot_distri_blender(studies_Blender, DBpath,displayParams, focus = 'TestAcc', unit = '[%]', setxLim = [0.5, 1],
+                        fontsize = 12, adaptXLim = True, binwidth = 0.05):
+
+    from scipy.stats import norm
+
+
+    listResVal = []
+    for blendModel in studies_Blender:
+        CVAnalysis_Blender_Df = construct_CVAnalysis_Blender_Df(blendModel)
+        listResVal += CVAnalysis_Blender_Df.loc['Blender Fold0':'Blender Fold4', focus].tolist()
+    listResVal = [elem*100 for elem in listResVal]
+
+    extra = studies_Blender[0].GSName
+    title = focus + ' distribution for ' + extra
+    arr = np.array(listResVal)
+    mean = np.mean(arr)
+    variance = np.var(arr)
+    sigma = np.sqrt(variance)
+
+    if adaptXLim :
+        resmin, resmax = min(listResVal), max(listResVal)
+        if resmax > setxLim[1]:
+            import math
+            setxLim[1] = math.ceil(resmax / 100) * 100
+            print("residuals out of binrange  :", resmax)
+            print("bin max changed to :", setxLim[1])
+        if resmin < setxLim[0]:
+            import math
+            setxLim[0] = math.floor(resmin / 100) * 100
+            print("residuals out of binrange  :", resmin)
+            print("bin min changed to :", setxLim[0])
+
+    x = focus + unit
+    fig, ax = plt.subplots()
+    # plot the histplot and the kde
+    try:
+        ax = sns.histplot(listResVal, kde=True, legend=False) #binwidth=binwidth
+
+    except np.core._exceptions._ArrayMemoryError:
+        ax = sns.histplot(listResVal, kde=True, legend=False, bins='sturges', label="Residuals kde curve") #
+
+    for k in ['right', 'top']:
+        ax.spines[k].set_visible(False)
+
+    plt.setp(ax.patches, linewidth=0)
+    plt.title(title, fontsize=fontsize)
+    plt.xlabel(x, fontsize=fontsize)
+    plt.ylabel("Count (" + extra + ")", fontsize=fontsize)
+
+    plt.figure(1)
+    if setxLim:
+        xLim = (setxLim[0], setxLim[1])
+    else:
+        xLim = (min(arr), max(arr))
+    plt.xlim(xLim)
+
+    ref_prefix = displayParams["ref_prefix"]
+    reference = displayParams['reference']
+
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/",  ref_prefix + '_Combined/' + 'VISU/' + focus
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/' + 'Distri_Combined' + '-' + extra + '.png')
+
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()
+
+    return listResVal
+
+def plot_distri_blenders(Blenders_NBest_CV, DBpath, displayParams, focus = 'TestAcc', unit = '[%]', setxLim = [0.5, 1],
+                        fontsize = 12, adaptXLim = True, binwidth = 0.05):
+    blender_results = []
+    detail = []
+    for blender_type in Blenders_NBest_CV:
+
+        listResVal = plot_distri_blender(blender_type, DBpath = DBpath, displayParams =displayParams, focus=focus,
+                            unit=unit, setxLim=setxLim,
+                            fontsize=fontsize, adaptXLim=adaptXLim, binwidth=binwidth)
+        blender_results.append(listResVal)
+        arr = np.array(listResVal)
+        mean = round(np.mean(arr), 2)
+        variance = np.var(arr)
+        sigma = round(np.sqrt(variance), 2)
+        detail.append([mean, sigma])
+
+
+    columns = [studies_Blender[0].GSName for studies_Blender in Blenders_NBest_CV]
+    df = pd.DataFrame(blender_results, index = columns)
+
+    title = focus + ' distribution'
+    x = 'Blended Models'
+    # fig = plt.figure(figsize=(10, 5))figsize=(5, 5)
+
+    fig, ax = plt.subplots()
+
+    ax = sns.boxplot(data=df.T, showmeans=True) #todo
+
+    ax_2 = ax.axes
+    lines = ax_2.get_lines()
+    categories = ax_2.get_xticks()
+
+    for cat, det in zip(categories,detail) :
+        # every 4th line at the interval of 6 is median line
+        # 0 -> p25 1 -> p75 2 -> lower whisker 3 -> upper whisker 4 -> p50 5 -> upper extreme value
+        # y = round(lines[4 + cat * 6].get_ydata()[0], 1)
+        y = det[0]
+
+        ax_2.text(
+            cat,
+            y,
+            f'{y}',
+            ha='center',
+            va='center',
+            fontweight='bold',
+            size=10,
+            color='white',
+            bbox=dict(facecolor='#445A64'))
+
+    for k in ['right', 'top']:
+        ax.spines[k].set_visible(False)
+
+    plt.setp(ax.patches, linewidth=0)
+    plt.title(title, fontsize=fontsize)
+    plt.xlabel(x, fontsize=fontsize)
+    plt.ylabel(focus + ' ' + unit, fontsize=fontsize)
+
+    ax.figure.tight_layout()
+
+    ref_prefix = displayParams["ref_prefix"]
+    reference = displayParams['reference']
+
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/",  ref_prefix + '_Combined/' + 'VISU/' + focus
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/' + 'BoxPlot' + focus + '.png')
+
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()
+
+def RUN_Blender_Combined_NBest(CV_BlenderNBest, displayParams, DBpath, randomvalues, focus = 'TestAcc', unit = '[%]'):
+
+    for blender_type in CV_BlenderNBest:
+        report_BL_NBest_CV(blender_type, displayParams, DBpath, randomvalues)
+
+    plot_distri_blenders(CV_BlenderNBest, DBpath= DBpath, displayParams =displayParams,
+                         focus = focus, unit = unit, setxLim = [50,100],
+                        fontsize = 12, adaptXLim = False, binwidth = 0.05)
+
 
 
 

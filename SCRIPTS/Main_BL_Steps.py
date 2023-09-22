@@ -36,8 +36,6 @@ def Run_Blending_NBest(modelList, displayParams, DBpath, ref_single, Constructor
     # CONSTRUCT & REPORT
     print('RUNNING BLENDING')
 
-    print('Run_Blending_NBest > BLE_VALUES[refit]', BLE_VALUES['refit']) #todo :
-
     blendModel = Model_Blender(modelList, CONSTRUCTOR, acc = PROCESS_VALUES['accuracyTol'], refit = BLE_VALUES['refit'],
                                grid_select = BLE_VALUES['grid_select'],
                                  Gridsearch = True, Type='NBest') #todo : changed to fit BLE_Values input for grid fold selection

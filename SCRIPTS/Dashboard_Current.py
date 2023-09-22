@@ -6,23 +6,26 @@ RUN #change when running a test
 ________________________________________________________________________________________________________________________
 """
 
+# NAMING
 
-# base_refit = 'neg_mean_squared_error'
-# base_select = 'TestMSE'
-# ble_refit = 'neg_mean_squared_error'
-# ble_select = ['TestMSEs', True]
+acronym = 'EU-ECB_France_MSE'
 
-base_refit = 'r2'
-base_select = 'TestR2'
-ble_refit = 'r2'
-ble_select = ['TestR2s', False]
+# REFIT & SELECTION
 
-sample_nb = 2
-displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
-cv=5
+base_refit = 'neg_mean_squared_error'
+base_select = 'TestMSE'
+ble_refit = 'neg_mean_squared_error'
+ble_select = ['TestMSEs', True]
+
+# base_refit = 'r2'
+# base_select = 'TestR2'
+# ble_refit = 'r2'
+# ble_select = ['TestR2s', False]
+
+# UNITS, SELECTORS, REGRESSORS
 
 set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC', base_select] # ylabel, content, metric
-acronym = 'EU-ECB_France_MSE'
+
 studyParams = {"sets": [set_1], 'fl_selectors': ['spearman', 'pearson'],
                'RFE_selectors': ['GBR', 'DTR', 'RFR'],
                "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF']} #'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
@@ -32,6 +35,16 @@ studyParams = {"sets": [set_1], 'fl_selectors': ['spearman', 'pearson'],
 #     ['Embodied_Carbon[kgCO2e_m2]','EC','TestAcc'],
 #     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS', 'TestR2'],
 #     ['Embodied_Carbon_Structure[kgCO2e_m2]','ECS','TestAcc']]
+
+# CROSS VALIDATION
+
+sample_nb = 2
+cv=5
+
+# DISPLAY
+
+displayParams = {"reference" : None, 'showPlot': False, 'archive': True, 'report_all': False, 'showCorr' : False, 'plot_all': False, "ref_prefix" : None}
+
 
 """
 ________________________________________________________________________________________________________________________
@@ -204,10 +217,9 @@ BLENDER
 ________________________________________________________________________________________________________________________
 """
 
+
 BLE_VALUES = {'NBestScore': [set_1], 'NCount' : 10, 'Regressor' : ['LR_RIDGE', 'SVR_RBF'], 'OverallBest' : True,
-              'BestModelNames' : None, 'refit' : ble_refit, 'grid_select' : ble_select} #'SVR_RBFTestAcc'
-
-
+              'BestModelNames' : None, 'refit' : ble_refit, 'grid_select' : ble_select}
 
 
 """

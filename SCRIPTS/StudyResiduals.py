@@ -205,6 +205,8 @@ def AssembleBlenderElements(studies_Blender, element):
     return residualsDict
 
 
+
+
 def AssembleSingleElements(studies_single, element):
     residualsDict = dict()
     residualsDict[element] = []
@@ -587,12 +589,12 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, studies
     # ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=setyLim, fontsize=12)
 
     # todo : this should be updated
-    bl_lr_labels = ["R² = 0.5; PA =  30%"]
+    bl_lr_labels = ["R² = ; PA =  %"]
     bl_svr_labels = ["R² = ; PA =  %"]
-    bl_labels = [bl_lr_labels]#, bl_svr_labels
-    nb_labels = ["R² = 0.28; PA =  31%"]
-    rg_labels = ["R² = 0.289; PA =  31%"]
-    md_labels = ["R² = 0.289; PA =  31%"]
+    bl_labels = [bl_lr_labels, bl_svr_labels]#
+    nb_labels = ["R² = ; PA =  %"]
+    rg_labels = ["R² = ; PA =  %"]
+    md_labels = ["R² = ; PA =  %"]
 
     for blender_type, lab in zip(studies_Blender, bl_labels):
         ResidualPlot_Scatter_Combined(blender_type, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=None, setxLim=None,
