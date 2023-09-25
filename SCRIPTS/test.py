@@ -1,61 +1,58 @@
-baseFormatedDf.selectedLabels 66
+# 1 LR_RIDGE_Blender_NBest
+y1=[599.6864332768943, 599.067572403355, 573.2323221167238, 603.0672694870549, 581.2001174639905, 579.751609141545, 592.8099242912734, 606.2121309862978, 588.5123471296104, 579.0041653742378, 572.2123664971618, 585.939416020329, 596.4094968644588, 595.4017542791903, 603.7935298748325, 636.4655058601305, 622.684582774869, 627.8324039568646, 603.6425220120286, 653.2856124946913, 566.2268664740731, 582.4364973699654, 610.9537213311606, 626.2880254438774, 596.3711482119066, 599.1412098942984, 584.7263749705287, 622.9672154809697, 625.1024543806766, 611.01239056853, 585.6278101968143, 620.2934196778593, 585.1933277180636, 589.905580575749, 597.2464598215151, 599.4214637332282, 594.2543357483082, 590.6579981287375, 579.5935200476074, 624.0722230395563, 599.4565629984144, 558.2724522243906, 604.8527431782704, 653.0626278806199, 561.0729063306235, 587.5245263524954, 637.264307361784, 621.1323664157366, 598.0306686202609, 601.3653285590168, 585.8178982389707, 606.2741429263381, 602.6963540605261, 607.8057637996437, 596.1130927670413, 635.0771380732645, 574.913059019624, 600.6337418787202, 605.5531749272129, 607.1206965667157]
+x1=[606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374, 606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374, 606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374, 606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374, 606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374]
+# 1 SVR_RBF_Blender_NBest
+y2=[589.6089903913762, 587.6354932890707, 551.4060680557735, 590.426543638805, 566.3177232183151, 568.1552859424265, 586.6907760616845, 602.4187849073929, 578.1846485270073, 569.2176993624221, 582.5249631034104, 577.0787331320548, 608.6264090221048, 613.2327886054302, 585.8602839528808, 611.1322352093658, 575.4703765602035, 607.7976553437989, 606.975008393615, 602.4779275272488, 606.5742993859564, 602.7993611021644, 560.8783373346256, 598.4206454747115, 589.4758713099486, 589.8124632928993, 565.0218435955442, 616.8617395714247, 616.6396857614307, 593.8242849524403, 584.191281705542, 617.8928753020814, 582.3792176279983, 575.4853147850251, 612.2473503411377, 596.8509667674978, 593.7280390598307, 593.1625140941873, 572.0569365700196, 604.1888960784497, 575.0424212648115, 556.392636608681, 583.9673966139043, 622.0846641232469, 569.3299486962702, 578.4090042729605, 603.5237354382945, 600.7921687390809, 588.4644618914092, 591.2119169373551, 568.7553053099382, 597.7189424310151, 583.794946607143, 590.182192437055, 594.4198162944491, 636.0088616290101, 579.5905204013741, 585.7455365325485, 620.4052348974941, 595.0332979766282]
+x2=[606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374, 606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374, 606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374, 606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374, 606.444, 608.658654, 625.957198, 584.7814285, 607.8070255, 544.93, 641.841087, 614.547293, 655.6913685, 559.2100085, 646.929709, 583.68374]
+# 1 NBest
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
 
+setyLim = [0, 30]  # None
+setxLim = [500,700]  # None
 
-['Gross_Floor_Area',
- 10/ 'Use_Type_Non-residential', 'Use_Type_Residential', 'Use_Subtype_Office', 'Use_Subtype_Hotel & Resort', 'Use_Subtype_Mixed use', 'Use_Subtype_Single family house', 'Use_Subtype_Multi-family house', 'Use_Subtype_Semi-detached', 'Use_Subtype_Row house', 'Use_Subtype_School and Daycare',
- 5/ 'Site_Country_Germany', 'Site_Country_United Kingdom', 'Site_Country_Belgium', 'Site_Country_Finland', 'Site_Country_France',
- 3/ 'Completion_Year_2015-2019', 'Completion_Year_No data', 'Completion_Year_2020-Today',
- 4/ 'QTO_Type_Detailed design', 'QTO_Type_Conceptual design', 'QTO_Type_As-built measurement', 'QTO_Type_No data',
- 4/ 'bldg_area_interval_10001-15000', 'bldg_area_interval_0-5000', 'bldg_area_interval_20001-25000', 'bldg_area_interval_5001-10000',
- 6/ 'Structure_frame concrete', 'Structure_frame wood', 'Structure_frame concrete/wood', 'Structure_massive concrete', 'Structure_massive wood', 'Structure_massive brick',
- 6/ 'Roof_Flat roof', 'Roof_Unknown', 'Roof_Other', 'Roof_Gable or saddle roof', 'Roof_Single pitched roof', 'Roof_', #here
- 6/ 'Energy_Class_Country_A', 'Energy_Class_Country_No data', 'Energy_Class_Country_B', 'Energy_Class_Country_3', 'Energy_Class_Country_2', 'Energy_Class_Country_1',
- 5/ 'Energy_Class_General_New Standard', 'Energy_Class_General_New Advanced', 'Energy_Class_General_Existing Standard', 'Energy_Class_General_No data', 'Energy_Class_General_No Data', #here
- 7/ 'Main_Material_No data', 'Main_Material_Concrete reinforced', 'Main_Material_Concrete w/o reinforcement', 'Main_Material_Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Main_Material_Timber, wood', 'Main_Material_Other', 'Main_Material_Ceramics (e.g., fired clay bricks)',
- 3/ 'Second_Material_No data', 'Second_Material_Concrete reinforced', 'Second_Material_Concrete w/o reinforcement',
- 2/ 'Lifespan_50', 'Lifespan_60',
- 2/ 'Life_Cycle_Scopes_ABCD', 'Life_Cycle_Scopes_ABC',
- 2/ 'LCA_Scope_handling_D_separately considered', 'LCA_Scope_handling_D_not in scope']
+# index =
+columns = ['SVR_truth', 'SVR_pred', 'LR_truth', 'LR_pred']
+content = [x1, y1, x2, y2]
+Df = pd.DataFrame(columns=columns) #, index=index
+for name, val in zip(columns, content):
+    Df[name] = val
 
+columns = ['SVR_truth', 'SVR_pred']
+content = [x1, y1]
+SVR_Df = pd.DataFrame(columns=columns) #, index=index
+for name, val in zip(columns, content):
+    SVR_Df[name] = val
 
-Site_Country 2: 'Austria', 'Denmark',
-Energy_Class_Country 1: '2020'
-Main_Material 1:  'Metals (iron, steel)',
-Second_Material 5: 'Metals (iron, steel)', 'Ceramics (e.g., fired clay bricks)', 'Cement mortar, plaster', 'Other', 'Stone wool (e.g. insulation)',
-Lifespan 3: '25', '80', '100'
-#13
-77-66=11
+columns = ['LR_truth', 'LR_pred']
+content = [x2, y2]
+LR_Df = pd.DataFrame(columns=columns) #, index=index
+for name, val in zip(columns, content):
+    LR_Df[name] = val
 
-10/ 'Non-residential', 'Residential', 'Office', 'Hotel & Resort', 'Mixed use', 'Single family house', 'Multi-family house', 'Semi-detached', 'Row house', 'School and Daycare',
-7/ 'Austria', 'Germany', 'United Kingdom', 'Belgium', 'Finland', 'France', 'Denmark', #ici 2 'Austria', 'Denmark',
-3/ '2015-2019', 'No data', '2020-Today',
-4/ 'Detailed design', 'Conceptual design', 'As-built measurement', 'No data',
-4/ '10001-15000', '0-5000', '20001-25000', '5001-10000',
-6/ 'frame concrete', 'frame wood', 'frame concrete/wood', 'massive concrete', 'massive wood', 'massive brick',
-6/ 'Flat roof', 'Unknown', 'Other', 'Gable or saddle roof', 'Single pitched roof', '',
-7/ 'A', 'No data', 'B', '3', '2', '1','2020', #ici 1'2020'
+print(LR_Df)
+# sns.scatterplot(y = y1, x = x1)
+# sns.scatterplot(y = y1, x = y1)
+# sns.scatterplot(y = x1, x = x1)
 
-5/ 'New Standard', 'New Advanced', 'Existing Standard', 'No data', 'No Data', #ici
-8/ 'No data', 'Concrete reinforced', 'Concrete w/o reinforcement', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Timber, wood', 'Other', 'Metals (iron, steel)', 'Ceramics (e.g., fired clay bricks)', #ici 1 'Metals (iron, steel)',
-8/ 'No data', 'Metals (iron, steel)', 'Concrete reinforced', 'Concrete w/o reinforcement', 'Ceramics (e.g., fired clay bricks)', 'Cement mortar, plaster', 'Other', 'Stone wool (e.g. insulation)', #ici 5 'Metals (iron, steel)', 'Ceramics (e.g., fired clay bricks)', 'Cement mortar, plaster', 'Other', 'Stone wool (e.g. insulation)',
-5/ '50', '60', '25', '80', '100', #ici 3 '25', '80', '100'
-2/ 'ABCD', 'ABC',
-2/ 'separately considered', 'not in scope']
+# fig, ax = plt.subplots()
 
+# sns.displot(Df, x='LR_pred', binwidth=5, multiple="layer", palette = "vlag") #x="predicted",
 
+sns.displot(SVR_Df, binwidth=5, multiple="layer", palette = "vlag")
+sns.displot(LR_Df, binwidth=5, multiple="layer", palette = "vlag")
 
+# sns.displot(Df, x='SVR_truth',  binwidth=10) #x="predicted",
+# sns.displot(Df, x='SVR_truth',  binwidth=10) #x="predicted",
+# sns.displot(x=x1,  binwidth=10) #x="groundtruth",
 
+if setxLim:
+    xLim = (setxLim[0], setxLim[1])
+    plt.xlim(xLim)
 
->>>s {'DBpath': 'K:/Temp/Sandie/Pycharm/', 'DBname': 'IASS-EU-ECB-S-Concrete', 'DBdelimiter': ';', 'DBfirstLine': 5, 'acronym': 'STRUCT_study', 'Cols': 'Main_Material', 'Rows': 'Structure', 'col_values': None, 'row_values': None, 'orderFtCols': None, 'orderFtRows': ['frame concrete', 'frame concrete/wood', 'frame wood']}
-SAMPLE
-removedDict 23 ['Retail and Restaurant', 'Techonology & Science', 'Hospital and Health', 'Switzerland', '35001-40000', '15001-20000', '50001-55000', '40001-45000', '30001-35000', '55001-60000', '25001-30000', 'frame steel', 'No data', '2015', 'A+', 'Stone (granite, limestone, etc)', 'Steel (reinforcement)', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Timber, wood', 'Gypsum', 'Stone (granite, limestone, etc)', '14', 'substracted (credit)']
-selectedDict 77 ['Non-residential', 'Residential', 'Office', 'Hotel & Resort', 'Mixed use', 'Single family house', 'Multi-family house', 'Semi-detached', 'Row house', 'School and Daycare', 'Austria', 'Germany', 'United Kingdom', 'Belgium', 'Finland', 'France', 'Denmark', '2015-2019', 'No data', '2020-Today', 'Detailed design', 'Conceptual design', 'As-built measurement', 'No data', '10001-15000', '0-5000', '20001-25000', '5001-10000', 'frame concrete', 'frame wood', 'frame concrete/wood', 'massive concrete', 'massive wood', 'massive brick', 'Flat roof', 'Unknown', 'Other', 'Gable or saddle roof', 'Single pitched roof', '', 'A', 'No data', 'B', '3', '2', '1', '2020', 'New Standard', 'New Advanced', 'Existing Standard', 'No data', 'No Data', 'No data', 'Concrete reinforced', 'Concrete w/o reinforcement', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Timber, wood', 'Other', 'Metals (iron, steel)', 'Ceramics (e.g., fired clay bricks)', 'No data', 'Metals (iron, steel)', 'Concrete reinforced', 'Concrete w/o reinforcement', 'Ceramics (e.g., fired clay bricks)', 'Cement mortar, plaster', 'Other', 'Stone wool (e.g. insulation)', '50', '60', '25', '80', '100', 'ABCD', 'ABC', 'separately considered', 'not in scope']
-baseFormatedDf.selectedLabels 66 ['Gross_Floor_Area', 'Use_Type_Non-residential', 'Use_Type_Residential', 'Use_Subtype_Office', 'Use_Subtype_Hotel & Resort', 'Use_Subtype_Mixed use', 'Use_Subtype_Single family house', 'Use_Subtype_Multi-family house', 'Use_Subtype_Semi-detached', 'Use_Subtype_Row house', 'Use_Subtype_School and Daycare', 'Site_Country_Germany', 'Site_Country_United Kingdom', 'Site_Country_Belgium', 'Site_Country_Finland', 'Site_Country_France', 'Completion_Year_2015-2019', 'Completion_Year_No data', 'Completion_Year_2020-Today', 'QTO_Type_Detailed design', 'QTO_Type_Conceptual design', 'QTO_Type_As-built measurement', 'QTO_Type_No data', 'bldg_area_interval_10001-15000', 'bldg_area_interval_0-5000', 'bldg_area_interval_20001-25000', 'bldg_area_interval_5001-10000', 'Structure_frame concrete', 'Structure_frame wood', 'Structure_frame concrete/wood', 'Structure_massive concrete', 'Structure_massive wood', 'Structure_massive brick', 'Roof_Flat roof', 'Roof_Unknown', 'Roof_Other', 'Roof_Gable or saddle roof', 'Roof_Single pitched roof', 'Roof_', 'Energy_Class_Country_A', 'Energy_Class_Country_No data', 'Energy_Class_Country_B', 'Energy_Class_Country_3', 'Energy_Class_Country_2', 'Energy_Class_Country_1', 'Energy_Class_General_New Standard', 'Energy_Class_General_New Advanced', 'Energy_Class_General_Existing Standard', 'Energy_Class_General_No data', 'Energy_Class_General_No Data', 'Main_Material_No data', 'Main_Material_Concrete reinforced', 'Main_Material_Concrete w/o reinforcement', 'Main_Material_Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Main_Material_Timber, wood', 'Main_Material_Other', 'Main_Material_Ceramics (e.g., fired clay bricks)', 'Second_Material_No data', 'Second_Material_Concrete reinforced', 'Second_Material_Concrete w/o reinforcement', 'Lifespan_50', 'Lifespan_60', 'Life_Cycle_Scopes_ABCD', 'Life_Cycle_Scopes_ABC', 'LCA_Scope_handling_D_separately considered', 'LCA_Scope_handling_D_not in scope']
-a 77 ['Non-residential', 'Residential', 'Office', 'Hotel & Resort', 'Mixed use', 'Single family house', 'Multi-family house', 'Semi-detached', 'Row house', 'School and Daycare', 'Austria', 'Germany', 'United Kingdom', 'Belgium', 'Finland', 'France', 'Denmark', '2015-2019', 'No data', '2020-Today', 'Detailed design', 'Conceptual design', 'As-built measurement', 'No data', '10001-15000', '0-5000', '20001-25000', '5001-10000', 'frame concrete', 'frame wood', 'frame concrete/wood', 'massive concrete', 'massive wood', 'massive brick', 'Flat roof', 'Unknown', 'Other', 'Gable or saddle roof', 'Single pitched roof', '', 'A', 'No data', 'B', '3', '2', '1', '2020', 'New Standard', 'New Advanced', 'Existing Standard', 'No data', 'No Data', 'No data', 'Concrete reinforced', 'Concrete w/o reinforcement', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Timber, wood', 'Other', 'Metals (iron, steel)', 'Ceramics (e.g., fired clay bricks)', 'No data', 'Metals (iron, steel)', 'Concrete reinforced', 'Concrete w/o reinforcement', 'Ceramics (e.g., fired clay bricks)', 'Cement mortar, plaster', 'Other', 'Stone wool (e.g. insulation)', '50', '60', '25', '80', '100', 'ABCD', 'ABC', 'separately considered', 'not in scope']
-droppedLabels 23 ['Use_Subtype_Retail and Restaurant', 'Use_Subtype_Techonology & Science', 'Use_Subtype_Hospital and Health', 'Site_Country_Switzerland', 'bldg_area_interval_35001-40000', 'bldg_area_interval_15001-20000', 'bldg_area_interval_50001-55000', 'bldg_area_interval_40001-45000', 'bldg_area_interval_30001-35000', 'bldg_area_interval_55001-60000', 'bldg_area_interval_25001-30000', 'Structure_frame steel', 'Roof_No data', 'Energy_Class_Country_2015', 'Energy_Class_Country_A+', 'Main_Material_Stone (granite, limestone, etc)', 'Second_Material_Steel (reinforcement)', 'Second_Material_Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Second_Material_Timber, wood', 'Second_Material_Gypsum', 'Second_Material_Stone (granite, limestone, etc)', 'Lifespan_14', 'LCA_Scope_handling_D_substracted (credit)']
-removedDict {'Use_Type': [], 'Use_Subtype': ['Retail and Restaurant', 'Techonology & Science', 'Hospital and Health'], 'Site_Country': ['Switzerland'], 'Completion_Year': [], 'QTO_Type': [], 'bldg_area_interval': ['35001-40000', '15001-20000', '50001-55000', '40001-45000', '30001-35000', '55001-60000', '25001-30000'], 'Structure': ['frame steel'], 'Roof': ['No data'], 'Energy_Class_Country': ['2015', 'A+'], 'Energy_Class_General': [], 'Main_Material': ['Stone (granite, limestone, etc)'], 'Second_Material': ['Steel (reinforcement)', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Timber, wood', 'Gypsum', 'Stone (granite, limestone, etc)'], 'Lifespan': ['14'], 'Life_Cycle_Scopes': [], 'LCA_Scope_handling_D': ['substracted (credit)']}
-selectedDict {'Use_Type': ['Non-residential', 'Residential'], 'Use_Subtype': ['Office', 'Hotel & Resort', 'Mixed use', 'Single family house', 'Multi-family house', 'Semi-detached', 'Row house', 'School and Daycare'], 'Site_Country': ['Austria', 'Germany', 'United Kingdom', 'Belgium', 'Finland', 'France', 'Denmark'], 'Completion_Year': ['2015-2019', 'No data', '2020-Today'], 'QTO_Type': ['Detailed design', 'Conceptual design', 'As-built measurement', 'No data'], 'bldg_area_interval': ['10001-15000', '0-5000', '20001-25000', '5001-10000'], 'Structure': ['frame concrete', 'frame wood', 'frame concrete/wood', 'massive concrete', 'massive wood', 'massive brick'], 'Roof': ['Flat roof', 'Unknown', 'Other', 'Gable or saddle roof', 'Single pitched roof', ''], 'Energy_Class_Country': ['A', 'No data', 'B', '3', '2', '1', '2020'], 'Energy_Class_General': ['New Standard', 'New Advanced', 'Existing Standard', 'No data', 'No Data'], 'Main_Material': ['No data', 'Concrete reinforced', 'Concrete w/o reinforcement', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)', 'Timber, wood', 'Other', 'Metals (iron, steel)', 'Ceramics (e.g., fired clay bricks)'], 'Second_Material': ['No data', 'Metals (iron, steel)', 'Concrete reinforced', 'Concrete w/o reinforcement', 'Ceramics (e.g., fired clay bricks)', 'Cement mortar, plaster', 'Other', 'Stone wool (e.g. insulation)'], 'Lifespan': ['50', '60', '25', '80', '100'], 'Life_Cycle_Scopes': ['ABCD', 'ABC'], 'LCA_Scope_handling_D': ['separately considered', 'not in scope']}
-baseFormatedDf <Split.CrossValDf object at 0x0000024F6B064E20>
-createSample (1, 101)
-createSample2 (1, 78)
-Take 2
+if setyLim:
+    yLim = (setyLim[0], setyLim[1])
+    plt.ylim(yLim)
+
+plt.show()

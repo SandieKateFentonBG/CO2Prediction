@@ -49,7 +49,6 @@ def AssembleCVResiduals_NBest(studies, studies_Blender):
 
     return residualsDict
 
-
 def AssembleCVResults(studies, label):
     resultsDict = dict()
 
@@ -66,7 +65,6 @@ def AssembleCVResults(studies, label):
                 resultsDict[model.GSName].append(model.__getattribute__(label))
 
     return resultsDict
-
 
 def computeCV_Scores_Avg_All(studies):
     import numpy as np
@@ -122,7 +120,6 @@ def computeCV_Scores_Avg_All(studies):
 
     return ResultsDf, lazy_models
 
-
 def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, lazy_labels, n, NBestScore): #=10='TestR2'
 
     if NBestScore == 'TestMSE':
@@ -139,9 +136,7 @@ def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, lazy_labels, n, N
     print('Sorted in ascending direction:', asc_direction)
     pickleDumpMe(DBpath, displayParams, BestModelNames, 'GS_FS', 'BestModelNames', combined=True)
 
-
     return BestModelNames
-
 
 def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore): #ResultsDf='TestR2'
 
@@ -166,9 +161,7 @@ def reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore): #Resul
             for df, name in zip(AllDfs, sheetNames):
                 df.to_excel(writer, sheet_name=name)
 
-
     return ResultsDf
-
 
 def AssembleNBestResiduals(studies_Blender): #todo : naming was changed
     residualsDict = dict()
@@ -203,9 +196,6 @@ def AssembleBlenderElements(studies_Blender, element):
         residualsDict[k] = mergeList(v)
 
     return residualsDict
-
-
-
 
 def AssembleSingleElements(studies_single, element):
     residualsDict = dict()
@@ -279,7 +269,8 @@ def plotCVResidualsHistogram(studies, displayParams, FORMAT_Values, DBpath, stud
         x = "Residuals [%s]" % FORMAT_Values['targetLabels']
         fig, ax = plt.subplots()
 
-        ax = sns.histplot(v, kde=True, bins=14, binrange = (-100, 100), legend = False)
+        ax = sns.histplot(v, kde=True, bins=14, binrange = (-100, 100), legend = False, palette="vlag")
+        sns.color_palette("vlag")  # todo
         plt.setp(ax.patches, linewidth=0)
 
         plt.title(title, fontsize=14)
@@ -315,7 +306,8 @@ def plotCVResidualsHistogram_Combined(studies, displayParams, FORMAT_Values, DBp
     x = "Residuals [%s]" % FORMAT_Values['targetLabels']
     fig, ax = plt.subplots()
 
-    ax = sns.histplot(mergedList, kde=True, bins=14, binrange=(-100, 100), legend=False)
+    ax = sns.histplot(mergedList, kde=True, bins=14, binrange=(-100, 100), legend=False, palette="vlag")
+    sns.color_palette("vlag") #todo
     plt.setp(ax.patches, linewidth=0)
 
     plt.title(title, fontsize=14)
@@ -398,10 +390,10 @@ def ResidualPlot_Distri_Indiv(studies, displayParams, FORMAT_Values, DBpath, ada
 
             # plot the histplot and the kde
             try:  # https://github.com/mwaskom/seaborn/issues/2325 - only becauseLR has high error!
-                ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve")
+                ax = sns.histplot(v, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve", palette="vlag")
             except np.core._exceptions._ArrayMemoryError: # this is usually when residuals are very high >> bad prediction
-                ax = sns.histplot(v, kde=True, legend=False, bins='sturges', label="Residuals kde curve")
-
+                ax = sns.histplot(v, kde=True, legend=False, bins='sturges', label="Residuals kde curve", palette="vlag")
+            sns.color_palette("vlag")  # todo
             for u in ['right', 'top']:
                 ax.spines[u].set_visible(False)
 
@@ -497,10 +489,11 @@ def ResidualPlot_Distri_Combined(studies, displayParams, FORMAT_Values, DBpath,
 
     # plot the histplot and the kde
     try:
-        ax = sns.histplot(listResVal, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve") #
+        ax = sns.histplot(listResVal, kde=True, legend=False, binwidth=binwidth, label="Residuals kde curve", palette="vlag") #
     except np.core._exceptions._ArrayMemoryError:
-        ax = sns.histplot(listResVal, kde=True, legend=False, bins='sturges', label="Residuals kde curve") #
+        ax = sns.histplot(listResVal, kde=True, legend=False, bins='sturges', label="Residuals kde curve", palette="vlag") #
 
+    sns.color_palette("vlag") #todo
     for k in ['right', 'top']:
         ax.spines[k].set_visible(False)
 
@@ -565,30 +558,28 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
                 df.to_excel(writer, sheet_name=name)
 
 def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, studies_regressor, studies_model, displayParams,
-                          FORMAT_Values, DBpath, randomvalues, setyLim=[-300, 300], setxLim=[0, 1500]): #setyLim=[-300, 300], setxLim=[400, 900]
+                          FORMAT_Values, DBpath, randomvalues, ResidLim = [-300, 300], PredLim = [400, 900],
+                          CountLimS = [0, 30], CountBinWidthS = 5, CountLimM = [0, 50], CountBinWidthM = 20):
+                           #setyLim=[-300, 300], setxLim=[400, 900]setyLim=[-300, 300], setxLim=[0, 1500]
 
     models, means, variances = analyzeCVResiduals(studies_GS_FS)
-    reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
+    # reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
+    #
+    "Histogram Plot of Residual distribution for combined seeds folders"
 
-
-    ResidualPlot_Scatter_Distri_Combined(studies_NBest, displayParams, DBpath, NBest=True, setyLim=setyLim, setxLim=setxLim)
+    ResidualPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, adaptXLim = False, setxLim=ResidLim)
     for blender_type in studies_Blender:
-        ResidualPlot_Scatter_Distri_Combined(blender_type, displayParams,  DBpath, Blender=True, setyLim=setyLim, setxLim=setxLim)
-    ResidualPlot_Scatter_Distri_Combined(studies_GS_FS, displayParams, DBpath, setyLim=setyLim, setxLim=setxLim)
+        ResidualPlot_Distri_Combined(blender_type, displayParams, FORMAT_Values, DBpath, Blender=True, adaptXLim = False,  setxLim=ResidLim)
+    # ResidualPlot_Distri_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim = False,  setxLim=ResidLim)
 
-    for blender_type in studies_Blender:
-        ResidualPlot_Scatter_Distri_Indiv(blender_type, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=True)
-    # ResidualPlot_Scatter_Distri_Indiv(studies_GS_FS, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=False)
+    for blender_type in studies_Blender: #"Histogram Plot of Residual distribution combining results per individual seeds "
+        ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=ResidLim, fontsize=12, studies_Blender=blender_type)
+    # ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=ResidLim, fontsize=12)
 
-    ResidualPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, adaptXLim = False, setxLim=setyLim)
-    for blender_type in studies_Blender:
-        ResidualPlot_Distri_Combined(blender_type, displayParams, FORMAT_Values, DBpath, Blender=True, adaptXLim = False,  setxLim=setyLim)
-    # ResidualPlot_Distri_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim = False,  setxLim=setyLim)
-    for blender_type in studies_Blender:
-        ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=setyLim, fontsize=12, studies_Blender=blender_type)
-    # ResidualPlot_Distri_Indiv(studies_GS_FS, displayParams, FORMAT_Values, DBpath, adaptXLim=False, setxLim=setyLim, fontsize=12)
+    # "Scatter Plot of yPred vs yTest for combined seeds folders"
+    yLabel, xLabel = 'Predicted value', 'Groundtruth'
 
-    # todo : this should be updated
+    # # todo : below should be updated
     bl_lr_labels = ["R² = ; PA =  %"]
     bl_svr_labels = ["R² = ; PA =  %"]
     bl_labels = [bl_lr_labels, bl_svr_labels]#
@@ -597,40 +588,68 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, studies
     md_labels = ["R² = ; PA =  %"]
 
     for blender_type, lab in zip(studies_Blender, bl_labels):
-        ResidualPlot_Scatter_Combined(blender_type, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=None, setxLim=None,
-                                      y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = lab)
-    ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, setyLim=None, setxLim=None,
-                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = nb_labels)
-    ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=None, setxLim=None,
-                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth')
-    ResidualPlot_Scatter_Combined(studies_regressor, displayParams, FORMAT_Values, DBpath, setyLim=None, setxLim=None,
-                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = rg_labels)
-    ResidualPlot_Scatter_Combined(studies_model, displayParams, FORMAT_Values, DBpath, setyLim=None, setxLim=None, SingleModel = True,
-                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Predicted value', xLabel = 'Groundtruth', labels = md_labels)
+        ResidualPlot_Scatter_Combined(blender_type, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=PredLim, setxLim=PredLim,
+                                      y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, labels = lab)
+    ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, setyLim=PredLim, setxLim=PredLim,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, labels = nb_labels)
+    ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=PredLim, setxLim=PredLim,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel)
+    ResidualPlot_Scatter_Combined(studies_regressor, displayParams, FORMAT_Values, DBpath, setyLim=PredLim, setxLim=PredLim, SingleRegressor = True,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, labels = rg_labels)
+    ResidualPlot_Scatter_Combined(studies_model, displayParams, FORMAT_Values, DBpath, setyLim=PredLim, setxLim=PredLim, SingleModel = True,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, labels = md_labels)
+
+
+    "Histogram Plot of the count of y values (yPred & yTest combined) for combined seeds folders"
+
+    yLabel, xLabel  = 'Count', 'y_value'
+
+    for blender_type in studies_Blender:
+        YPlot_Distri_Combined(blender_type, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=CountLimS, setxLim=PredLim,
+                                      y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, binwidth = CountBinWidthS)
+    YPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, setyLim=CountLimM, setxLim=PredLim,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, binwidth = CountBinWidthM)
+    YPlot_Distri_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=CountLimM, setxLim=PredLim,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, binwidth = CountBinWidthM)
+    YPlot_Distri_Combined(studies_regressor, displayParams, FORMAT_Values, DBpath, setyLim=CountLimM, setxLim=PredLim, SingleRegressor = True,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, binwidth = CountBinWidthM)
+    YPlot_Distri_Combined(studies_model, displayParams, FORMAT_Values, DBpath, setyLim=CountLimS, setxLim=PredLim, SingleModel = True,
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = yLabel, xLabel = xLabel, binwidth = CountBinWidthS)
+
+
+    if displayParams['plot_all']:
+
+        "Histogram Plot of residuals for all models "
+
+        plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                 studyFolder='Histplot_indivModels')
+        plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
+                                          studyFolder='Histplot_groupedModels')
+        # plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
+        #                                   studyFolder='Histplot_NBest_', blended=True)  # + str(n) + '_' + NBestScore #tofix
+
+        "Tailored Histogram Plot of residuals for all models "
+
+        ResidualPlot_Scatter_Tailored(studies_GS_FS, displayParams, FORMAT_Values, DBpath,setyLim=PredLim, name='All',setxLim=ResidLim) #+ str(value)
+
+        "scatter plot and distribution (yellowbrick) for combined seeds folders"
+
+        ResidualPlot_Scatter_Distri_Combined(studies_NBest, displayParams, DBpath, NBest=True, setyLim=ResidLim,
+                                             setxLim=PredLim)
+        for blender_type in studies_Blender:
+            ResidualPlot_Scatter_Distri_Combined(blender_type, displayParams, DBpath, Blender=True, setyLim=ResidLim,
+                                                 setxLim=PredLim)
+        ResidualPlot_Scatter_Distri_Combined(studies_GS_FS, displayParams, DBpath, setyLim=ResidLim, setxLim=PredLim)
+
+        "scatter plot and distribution (yellowbrick) for individual seeds folders"
+
+        for blender_type in studies_Blender:
+            ResidualPlot_Scatter_Distri_Indiv(blender_type, randomvalues, displayParams, DBpath, yLim=None, xLim=None,
+                                              fontsize=None, Blender=True)
+        # ResidualPlot_Scatter_Distri_Indiv(studies_GS_FS, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=False)
 
 
 
-
-    # ResidualPlot_Scatter_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, setyLim=[400, 900], setxLim=[-300, 300])
-    # ResidualPlot_Scatter_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath, Blender=True, setyLim=[400, 900], setxLim=[-300, 300])
-    # ResidualPlot_Scatter_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath, setyLim=[400, 900], setxLim=[-300, 300])
-
-
-
-
-
-    # if displayParams['plot_all']:
-    #     plotCVResidualsHistogram(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-    #                              studyFolder='Histplot_indivModels')
-    #     plotCVResidualsHistogram_Combined(studies_GS_FS, displayParams, FORMAT_Values, DBpath,
-    #                                       studyFolder='Histplot_groupedModels')
-    #     plotCVResidualsHistogram_Combined(studies_Blender, displayParams, FORMAT_Values, DBpath,
-    #                                       studyFolder='Histplot_NBest_' + str(n) + '_' + NBestScore, blended=True)
-
-
-    # ResidualPlot_Scatter_Tailored(studies_GS_FS, displayParams, FORMAT_Values, DB_Values['DBpath'],
-    #                                   setyLim=[400, 900], name='All' + str(value),
-    #                                   setxLim=[-300, 300])
 
 def ResidualPlot_Scatter_Distri_Indiv(studies, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None, Blender=False):
 
@@ -787,8 +806,8 @@ def ResidualPlot_Scatter_Distri_Combined(studies, displayParams, DBpath, setyLim
 
 
 def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
-                                  binwidth=25, setyLim=[400, 900], labels = None, SingleModel = False,
-                                  setxLim=[-300, 300], fontsize=12, NBest=False, Blender=False, folder = 'Combined',
+                                  binwidth=25, setyLim=[400, 900], labels = None, SingleModel = False, SingleRegressor = False,
+                                  setxLim=[400, 900], fontsize=12, NBest=False, Blender=False, folder = 'Combined',
                                   y_axis = 'yPred', x_axis = 'Resid', yLabel = 'Predicted value', xLabel = 'Residuals'):
 
     """ Plot Residual distribution of merged models - Scatter plot """
@@ -818,6 +837,13 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
         extra = studies[0].GSName
         a = studies[0].GSName
 
+    elif SingleRegressor : # takes all models
+        yAxis = AssembleCVElements(studies, y_axis)
+        xAxis = AssembleCVElements(studies, x_axis)
+        title = 'Residuals distribution for ' + studies[0][0].predictorName + ' regressor over 10 runs'
+        extra = studies[0][0].predictorName
+        a = studies[0][0].predictorName
+
     else:  # takes all models
         yAxis = AssembleCVElements(studies, y_axis)
         xAxis = AssembleCVElements(studies, x_axis)
@@ -830,16 +856,18 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
 
     yAxis_arr = np.array(yAxis)
     xAxis_arr = np.array(xAxis)
-    x = xLabel + " %s" % FORMAT_Values['targetLabels']
+
 
     fig, ax = plt.subplots()
-    ax = sns.scatterplot(y = yAxis, x = xAxis, edgecolor = None, size = 10)
+    ax = sns.scatterplot(y = yAxis, x = xAxis, edgecolor = None, size = 10, palette="vlag")
+    sns.color_palette("vlag") #todo
     if labels:
         plt.legend(labels=labels)
 
     for k in ['right', 'top']:
         ax.spines[k].set_visible(False)
 
+    x = xLabel + " %s" % FORMAT_Values['targetLabels']
     plt.setp(ax.patches, linewidth=0)
     plt.xlabel(x, fontsize=fontsize)
     plt.ylabel(yLabel + "(" + a + ")", fontsize=fontsize)
@@ -852,6 +880,9 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
     if setyLim:
         yLim = (setyLim[0], setyLim[1])
         plt.ylim(yLim)
+
+    # Add the title to the plot #todo
+    ax.set_title(title)
 
     ref_prefix = displayParams["ref_prefix"]
 
@@ -869,9 +900,107 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
     plt.close()
 
 
+
+
+def YPlot_Distri_Combined(studies, displayParams, FORMAT_Values, DBpath,
+                                  binwidth=5, setyLim=[0,100], setxLim=[200, 1000], labels = None, SingleModel = False,
+                          SingleRegressor = False, fontsize=12, NBest=False, Blender=False, folder = 'Combined',
+                                  y_axis = 'yPred', x_axis = 'yTest', yLabel = 'Count', xLabel = 'y Value'):
+
+    """ Plot Residual distribution of merged models - Scatter plot """
+
+    from scipy.stats import norm
+    import seaborn as sns
+
+
+    if SingleModel:  # only takes single model ex SVR_RBF.RFE_RFR
+        title = 'Residuals distribution for ' + studies[0].GSName + ' models over 10 runs'
+        yAxis = AssembleSingleElements(studies, y_axis)
+        xAxis = AssembleSingleElements(studies, x_axis)
+        a = studies[0].GSName
+        extra = studies[0].GSName
+
+    elif NBest:  # only takes nBestmodels
+        title = 'Residuals distribution for 10 best models over 10 runs'
+        yAxis = AssembleNBestElements(studies, y_axis)
+        xAxis = AssembleNBestElements(studies, x_axis)
+        a = '10 selected models'
+        extra = 'NBest'
+
+    elif Blender:  # only takes Blender results
+        title = 'Residuals distribution for Blender Models over 10 runs ' + studies[0].GSName
+        yAxis = AssembleBlenderElements(studies, y_axis)
+        xAxis = AssembleBlenderElements(studies, x_axis)
+        extra = studies[0].GSName
+        a = studies[0].GSName
+
+    elif SingleRegressor : # takes all models
+        yAxis = AssembleCVElements(studies, y_axis)
+        xAxis = AssembleCVElements(studies, x_axis)
+        title = 'Residuals distribution for ' + studies[0][0].predictorName + ' regressor over 10 runs'
+        extra = studies[0][0].predictorName
+        a = studies[0][0].predictorName
+
+    else:  # takes all models
+        yAxis = AssembleCVElements(studies, y_axis)
+        xAxis = AssembleCVElements(studies, x_axis)
+        title = 'Residuals distribution for all models over 10 runs'
+        extra = 'All'
+        a = 'All Models'
+
+    yAxis = mergeList(list(yAxis.values()))
+    xAxis = mergeList(list(xAxis.values()))
+
+    columns = [extra + '_truth', extra +'_pred']
+    content = [xAxis, yAxis]
+    Df = pd.DataFrame(columns=columns)  # , index=index
+    for name, val in zip(columns, content):
+        Df[name] = val
+
+    # Create a subplot
+    plt.figure(figsize=(8, 6))  # Adjust the figsize as per your desired size
+    plt.subplot(1, 1, 1)  # This is a 1x1 grid of subplots, and we're selecting the first (and only) subplot
+
+    # Create the distplot
+    sns.histplot(data=Df, binwidth=binwidth, multiple="layer", palette="vlag", edgecolor=None)
+
+    # Set a title
+    plt.title(title)
+
+    if labels:
+        plt.legend(labels=labels)
+    x = xLabel + " %s" % FORMAT_Values['targetLabels']
+    plt.xlabel(x, fontsize=fontsize)
+    plt.ylabel(yLabel + "(" + a + ")", fontsize=fontsize)
+
+    if setxLim:
+        xLim = (setxLim[0], setxLim[1])
+        plt.xlim(xLim)
+
+    if setyLim:
+        yLim = (setyLim[0], setyLim[1])
+        plt.ylim(yLim)
+
+    ref_prefix = displayParams["ref_prefix"]
+
+    reference = displayParams['reference']
+    if displayParams['archive']:
+        path, folder, subFolder = DBpath, "RESULTS/", ref_prefix + '_Combined/' + 'VISU/Residuals/' + folder
+        import os
+        outputFigPath = path + folder + subFolder
+        if not os.path.isdir(outputFigPath):
+            os.makedirs(outputFigPath)
+        plt.savefig(outputFigPath + '/' + 'Distplot_Combined' + '-' + x_axis + '-' + y_axis + '-' + extra + '.png')
+
+    if displayParams['showPlot']:
+        plt.show()
+    plt.close()
+
+
 def ResidualPlot_Scatter_Tailored(studies, displayParams, FORMAT_Values, DBpath,
                                    setyLim=[400, 900], name = 'test', labels = None,
-                                  setxLim=[-300, 300], fontsize=12, folder = 'Combined', y_axis = 'yPred', x_axis = 'Resid', yLabel = 'Predicted value', xLabel = 'Residuals'):
+                                  setxLim=[-300, 300], fontsize=12, folder = 'Combined', y_axis = 'yPred', x_axis = 'Resid',
+                                  yLabel = 'Predicted value', xLabel = 'Residuals'):
 
     """ Plot Residual distribution of merged base models (not blender or nbest) - and tailor naming / folder
      - Scatter plot - studies should be from GS_FS for tailored single random seed or sigle model"""
