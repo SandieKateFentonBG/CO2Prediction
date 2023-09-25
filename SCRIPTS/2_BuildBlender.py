@@ -92,7 +92,6 @@ for set in studyParams['sets']:
     # COMBINE
     RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, randomvalues=list(range(1, cv+1)), displayParams=displayParams)
 
+    Studies_CV_BlenderNBest.append(Blenders_NBest_CV)
 
-#     Studies_CV_BlenderNBest.append(Blenders_NBest_CV)
-#
-# AccuracyCheck(Blenders_NBest_CV, studyParams['sets'], displayParams, DB_Values['DBpath'], tolerance=PROCESS_VALUES['accuracyTol'])
+AccuracyCheck(Blenders_NBest_CV, studyParams['sets'], displayParams, DB_Values['DBpath'], tolerance=PROCESS_VALUES['accuracyTol'])

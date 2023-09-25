@@ -54,7 +54,7 @@ EUCB-FR
 # '//fs-par-001/commun/'
 
 
-DB_Values = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
+DB_Values = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym,# + "-edit" > changed database content : users total "No Data" set to 100000 > make sure they are removed
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym}
 
@@ -72,27 +72,27 @@ FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxV
 SAMPLE
 """
 
-MyPred_Sample_SELECTION = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
+MyPred_Sample_SELECTION = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Sel",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
                           'orderFtCols' : ['Timber, wood', 'Ceramics (e.g., fired clay bricks)','Concrete w/o reinforcement','Concrete reinforced', 'Other'], #, 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','No data'
                           "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
 
-MyPred_Sample_CONCRETE = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
+MyPred_Sample_CONCRETE = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Concrete",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
             'col_values' : None, 'row_values' : None,
                           'orderFtCols' :  ['Timber, wood', 'Ceramics (e.g., fired clay bricks)', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','Concrete w/o reinforcement','Concrete reinforced', 'Other','No data'],
                           "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #[]todo
 
-MyPred_Sample_TIMBER = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
+MyPred_Sample_TIMBER = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Wood",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
                      "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #Nonetodo
 
-MyPred_Sample_GLT = {"DBpath" : "//fs-par-001/Temp/Sandie/Pycharm/",
+MyPred_Sample_GLT = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-MassWood",
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
             'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,

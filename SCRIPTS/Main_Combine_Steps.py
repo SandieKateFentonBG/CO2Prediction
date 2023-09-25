@@ -32,18 +32,18 @@ def RUN_Training_Report(CV_AllModels, Filters_CV, randomvalues, displayParams, s
 def RUN_Combine_Report(CV_AllModels, CV_NBest, CV_BlenderNBest, regressors_CV, models_CV, randomvalues, displayParams):
 
     #
-    # "Assessment of NBest Models - ranked table for all seeds : 'TestAcc', 'TestMSE', 'Resid','Variance', 'selectedLabels', 'selector'"
-    # reportCV_ModelRanking_NBest(CV_AllModels, CV_NBest, seeds = randomvalues, displayParams = displayParams, DBpath =DB_Values['DBpath'], n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
-    # "Assessment of NBest Models - ranked table for all seeds and samples - features SHAP values Grouped and Ungrouped - List + Plots"
-    # RUN_SHAP_Combined_NBest(displayParams, DB_Values["DBpath"], CV_NBest, CV_AllModels, xQuantLabels, xQualLabels, n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
+    "Assessment of NBest Models - ranked table for all seeds : 'TestAcc', 'TestMSE', 'Resid','Variance', 'selectedLabels', 'selector'"
+    reportCV_ModelRanking_NBest(CV_AllModels, CV_NBest, seeds = randomvalues, displayParams = displayParams, DBpath =DB_Values['DBpath'], n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
+    "Assessment of NBest Models - ranked table for all seeds and samples - features SHAP values Grouped and Ungrouped - List + Plots"
+    RUN_SHAP_Combined_NBest(displayParams, DB_Values["DBpath"], CV_NBest, CV_AllModels, xQuantLabels, xQualLabels, n = BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'], randomValues = randomvalues)
 
     #BLENDER PROCESSING
     "Assessment of Blender models made from NBest models - sheet per seed - Score metrics, weights and increases - list"\
     "Boxplot of CV results for blended models - 'TestAcc' for 5 folds over 5 runs"
-    # for blender_type in CV_BlenderNBest:
-    #     report_BL_NBest_CV(blender_type, displayParams,  DB_Values['DBpath'], randomvalues)
+    for blender_type in CV_BlenderNBest:
+        report_BL_NBest_CV(blender_type, displayParams,  DB_Values['DBpath'], randomvalues)
 
-    # RUN_Blender_Combined_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], randomvalues, focus='TestAcc', unit='[%]')
+    RUN_Blender_Combined_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], randomvalues, focus='TestAcc', unit='[%]')
 
     "Assessment of Model residuals - All, Nbest, Blender_NBest, single regressor, single model   - List, Gaussian Plot, Hist plot, "
     RUN_CombinedResiduals(CV_AllModels, CV_NBest, CV_BlenderNBest, regressors_CV, models_CV, displayParams, FORMAT_Values,

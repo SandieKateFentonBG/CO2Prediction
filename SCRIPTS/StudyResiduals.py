@@ -211,7 +211,6 @@ def AssembleSingleElements(studies_single, element):
 
     return residualsDict
 
-
 def AssembleNBestElements(studies_Blender, element): #todo : naming was changed
     residualsDict = dict()
     residualsDict[element] = []
@@ -440,7 +439,6 @@ def ResidualPlot_Distri_Indiv(studies, displayParams, FORMAT_Values, DBpath, ada
 
     # return models, means, variances
 
-
 def ResidualPlot_Distri_Combined(studies, displayParams, FORMAT_Values, DBpath,
                                  binwidth=25, adaptXLim = True,
                                  setxLim=[-300, 300], fontsize=12, NBest = False, Blender = False):
@@ -647,9 +645,6 @@ def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, studies
             ResidualPlot_Scatter_Distri_Indiv(blender_type, randomvalues, displayParams, DBpath, yLim=None, xLim=None,
                                               fontsize=None, Blender=True)
         # ResidualPlot_Scatter_Distri_Indiv(studies_GS_FS, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None,Blender=False)
-
-
-
 
 def ResidualPlot_Scatter_Distri_Indiv(studies, randomvalues, displayParams, DBpath, yLim=None, xLim=None, fontsize=None, Blender=False):
 
@@ -899,9 +894,6 @@ def ResidualPlot_Scatter_Combined(studies, displayParams, FORMAT_Values, DBpath,
         plt.show()
     plt.close()
 
-
-
-
 def YPlot_Distri_Combined(studies, displayParams, FORMAT_Values, DBpath,
                                   binwidth=5, setyLim=[0,100], setxLim=[200, 1000], labels = None, SingleModel = False,
                           SingleRegressor = False, fontsize=12, NBest=False, Blender=False, folder = 'Combined',
@@ -995,7 +987,6 @@ def YPlot_Distri_Combined(studies, displayParams, FORMAT_Values, DBpath,
     if displayParams['showPlot']:
         plt.show()
     plt.close()
-
 
 def ResidualPlot_Scatter_Tailored(studies, displayParams, FORMAT_Values, DBpath,
                                    setyLim=[400, 900], name = 'test', labels = None,
