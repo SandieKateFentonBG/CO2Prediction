@@ -74,6 +74,9 @@ def B_encodeFeatures(rdat):
     dat = Features(rdat)
     df = dat.asDataframe()
 
+    # shuffle the DataFrame rows and reindex them #todo this was changed
+    df = df.sample(frac=1).reset_index(drop=True)
+
     # REPORT
     print("Full df", df.shape)
     print(df)
@@ -110,6 +113,8 @@ def C_cleanData(dat):
 
     learningDf = removeOutliers(df, labels=PROCESS_VALUES['RemoveOutliersFrom'] + yLabels,
                                 cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
+
+
 
 
     dfAsTable(DB_Values['DBpath'], displayParams, learningDf, objFolder='DATA', name = "learningDf", combined = True)

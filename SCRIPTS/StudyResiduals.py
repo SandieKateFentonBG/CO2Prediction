@@ -954,7 +954,10 @@ def YPlot_Distri_Combined(studies, displayParams, FORMAT_Values, DBpath,
     plt.subplot(1, 1, 1)  # This is a 1x1 grid of subplots, and we're selecting the first (and only) subplot
 
     # Create the distplot
-    sns.histplot(data=Df, binwidth=binwidth, multiple="layer", palette="vlag", edgecolor=None)
+    try:
+        sns.histplot(data=Df, binwidth=binwidth, multiple="layer", palette="vlag", edgecolor=None)
+    except np.core._exceptions._ArrayMemoryError:  # this is usually when residuals are very high >> bad prediction
+        sns.histplot(data=Df, multiple="layer", bins='sturges', palette="vlag", edgecolor=None)
 
     # Set a title
     plt.title(title)
