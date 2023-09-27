@@ -321,13 +321,13 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False, importMainFS=True, FS
     return GS_FSs
 
 
-def report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES,
+def report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, BLE_VALUES,
                  rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs):
 
     # REPORT
     print('REPORTING GS_FS')
-    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df, learningDf,
-                         baseFormatedDf, FiltersLs=filterList, RFEs=RFEList, GSlist=GS_FSs, GSwithFS=True)
+    reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, BLE_VALUES, rdat,
+                         dat, df, learningDf, baseFormatedDf, FiltersLs=filterList, RFEs=RFEList, GSlist=GS_FSs, GSwithFS=True)
 
     scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
     scoreListMax = [True, False, True, True, True]

@@ -1,5 +1,6 @@
-def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df, learningDf,
-                         baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = True):
+def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, BLE_VALUES,
+                         rdat, dat, df, learningDf, baseFormatedDf, FiltersLs, RFEs, GSlist, GSwithFS = True):
+
 
     if displayParams['archive']:
 
@@ -31,6 +32,7 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
             writer.writerow(['PROCESS_VALUES', PROCESS_VALUES])
             writer.writerow(['RFE_VALUES', RFE_VALUES])
             writer.writerow(['GS_VALUES', GS_VALUES])
+            writer.writerow(['BLE_VALUES', BLE_VALUES])
             writer.writerow('')
 
             writer.writerow(['PREPROCESSED DATA'])
@@ -77,6 +79,11 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
 
             writer.writerow(['GRIDSEARCH DATA'])
 
+            writer.writerow(['BASE REFIT', PROCESS_VALUES['refit']])
+            writer.writerow(['BASE SELECT', PROCESS_VALUES['grid_select']])
+            writer.writerow(['BLENDER REFIT', BLE_VALUES['refit']])
+            writer.writerow(['BLENDER SELECT', BLE_VALUES['grid_select']])
+
             keys = ['predictorName', 'selectorName',  'selectedLabels',
                  'param_dict', 'GridR2', 'GridR2Rank',  'GridMSERank',
                  'scoring', 'Index', 'Estimator','Param', 'Weights', 'WeightsScaled', 'SHAPScoreDict', 'SHAPGroupScoreDict',
@@ -96,6 +103,7 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
                         allModels.append(v)
 
                 sortedModels_Acc = sorted(allModels, key=lambda x: x[-1], reverse=True)
+                sortedModels_R2 = sorted(allModels, key=lambda x: x[-2], reverse=True)
                 sortedModels_MSE = sorted(allModels, key=lambda x: x[-3], reverse=True)
 
             else : # then GSlist should be GSs
@@ -106,6 +114,7 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
                     allModels.append(v)
                 # sortedModels = sorted(allModels, key=lambda x: x[-1], reverse=True)
                 sortedModels_Acc = sorted(allModels, key=lambda x: x[-1], reverse=True)
+                sortedModels_R2 = sorted(allModels, key=lambda x: x[-2], reverse=True)
                 sortedModels_MSE = sorted(allModels, key=lambda x: x[-3], reverse=True)
 
             writer.writerow('')
@@ -118,6 +127,11 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
             writer.writerow(['SORTED GRIDSEARCH DATA - MSE'])
             writer.writerow(keys)
             for elem in sortedModels_MSE:
+                writer.writerow(elem)
+
+            writer.writerow(['SORTED GRIDSEARCH DATA - R2'])
+            writer.writerow(keys)
+            for elem in sortedModels_R2:
                 writer.writerow(elem)
 
             writer.writerow('')

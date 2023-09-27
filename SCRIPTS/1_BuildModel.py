@@ -52,13 +52,13 @@ for set in studyParams['sets']:
             learning_dfs += RFEList
 
         # print('Fitting regression for fold : ', str(i))
-        # GS_FSs = Run_GS_FS(learning_dfs, regressors=studyParams['Regressors'])
+        GS_FSs = Run_GS_FS(learning_dfs, regressors=studyParams['Regressors'])
 
         # IMPORT
         GS_FSs = import_Main_GS_FS(displayParams["reference"] , GS_FS_List_Labels = studyParams['Regressors'])
 
-        # report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES,
-        #              rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs)
+        report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, BLE_VALUES,
+                     rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs)
 
         All_CV.append(GS_FSs)
         Filters_CV.append(filterList)

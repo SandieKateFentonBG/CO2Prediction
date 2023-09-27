@@ -139,7 +139,7 @@ PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshho
                   'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
                 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 42, 'selectionStoredinCombined' : True,
                      'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.15, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800],
-                  'refit' : base_refit}
+                  'refit' : base_refit, 'grid_select' : base_select}
 
 """
 ________________________________________________________________________________________________________________________
