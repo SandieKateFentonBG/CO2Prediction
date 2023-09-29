@@ -78,9 +78,6 @@ def B_encodeFeatures(rdat):
     df = df.sample(frac=1).reset_index(drop=True)
 
     # REPORT
-    print("Full df", df.shape)
-    print(df)
-
     dfAsTable(DB_Values['DBpath'], displayParams, df, objFolder='DATA', name = "DF", combined = True)
 
     # STOCK
@@ -94,36 +91,31 @@ def C_cleanData(dat):
     GOAL - Remove outliers - on Quantitative features and Underrepresented on qualitative
     Dashboard Input - PROCESS_VALUES : OutlierCutOffThreshhold
     """
-    # CONSTRUCT
+    # CONSTRUCT #todo : this part was changed
+
+    df = dat.asDataframe()
+
+    nouOutlDf = removeOutliers(df, labels=PROCESS_VALUES['RemoveOutliersFrom'] + yLabels,
+                                cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
+    # REPORT
+    print("Outliers removed ", nouOutlDf.shape)
 
     if PROCESS_VALUES['removeUnderrepresenteds']:
 
-        df, removedDict, removed_list = dat.removeUnderrepresenteds(
+        learningDf, removedDict, removed_list = dat.removeUnderrepresenteds(df =nouOutlDf,
             cutOffThreshhold=PROCESS_VALUES['UnderrepresentedCutOffThreshhold'],
             removeUnderrepresentedsFrom=PROCESS_VALUES['removeUnderrepresentedsFrom'])
 
         # REPORT
-        print("Underrepresented removed", df.shape)
+        print("Underrepresented removed", learningDf.shape)
         print("Features removed:")
 
         PROCESS_VALUES['removeUnderrepresentedsDict'] = removed_list
 
     else:
-        df = dat.asDataframe()
-
-    learningDf = removeOutliers(df, labels=PROCESS_VALUES['RemoveOutliersFrom'] + yLabels,
-                                cutOffThreshhold=PROCESS_VALUES['OutlierCutOffThreshhold'])
-
-
-
+         learningDf = nouOutlDf
 
     dfAsTable(DB_Values['DBpath'], displayParams, learningDf, objFolder='DATA', name = "learningDf", combined = True)
-
-    # REPORT
-    print("Outliers removed ", learningDf.shape)
-
-
-
 
 
     # STOCK
@@ -460,10 +452,14 @@ def Run_FS_CVStudy(cv):
     print('Process data')
     rdat = A_RawData()
     dat, df = B_encodeFeatures(rdat)
+
     learningDf = C_cleanData(dat)
+    print('learningDf', learningDf)
+
     print('Split data into ', str(cv), 'folds')
 
     splitDf, baseFormatedDfs = D_processData(learningDf, cv=cv)  # this is a list of len cv
+
     print('Filter features')
     fl_selectorsData = E_FS_FilterData(splitDf)
     print('RFE of features')

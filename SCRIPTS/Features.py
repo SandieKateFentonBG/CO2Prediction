@@ -71,7 +71,7 @@ class Features:
 
         return newdf, removed_Value, removed_Label_Value
 
-    def removeUnderrepresenteds(self, cutOffThreshhold, removeUnderrepresentedsFrom, splitter = '='):
+    def removeUnderrepresenteds(self, df, cutOffThreshhold, removeUnderrepresentedsFrom, splitter = '='):
         """
         this removes columns of categories with too few features
 
@@ -80,8 +80,14 @@ class Features:
         :return: Dataframe without outliers
 
         """
+        # if df == "default":
 
-        dataframe = self.asDataframe()
+        # else:
+        #     print("true")
+
+
+        # dataframe = self.asDataframe()
+        dataframe = df
 
         for label in removeUnderrepresentedsFrom:
             self.removedDict[label] = []

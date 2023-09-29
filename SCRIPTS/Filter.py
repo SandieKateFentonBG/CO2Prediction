@@ -28,16 +28,18 @@ class FilterFeaturesCV:
     def __init__(self, splitDf, baseLabels, method="spearman", corrRounding=2,
                  lowThreshhold=0.1, highThreshhold=0.65):
 
+        FullDf = pd.concat([splitDf.RDf, splitDf.checkDf, splitDf.valDf], axis=0)
         valDf = splitDf.valDf
         self.yLabel = splitDf.yLabel
         # self.random_state = splitDf.random_state
-
         self.method = method
         self.lowThreshhold = lowThreshhold
         self.highThreshhold = highThreshhold
         self.corrRounding = corrRounding
 
-        self.filterUncorrelated(valDf, baseLabels, self.yLabel, method, lowThreshhold)
+        self.filterUncorrelated(FullDf, baseLabels, self.yLabel, method, lowThreshhold)
+        # todo :  this was changed to have more data to compute correlation on / avoid having columns of 0
+        # self.filterUncorrelated(valDf, baseLabels, self.yLabel, method, lowThreshhold)
 
         # Generates :
         # self.correlationMatrix_All = correlationMatrix_All
@@ -81,6 +83,7 @@ class FilterFeaturesCV:
 
         # correlation
         self.correlationMatrix_All = df.corr(method=method).round(self.corrRounding)
+
         unfilteredCorrelationMatrixAbs = self.correlationMatrix_All.abs()
         # labels
         highCorMatrix = unfilteredCorrelationMatrixAbs.loc[

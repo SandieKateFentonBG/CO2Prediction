@@ -12,15 +12,20 @@ acronym = 'EU-ECB_Europe_MSE'
 
 # REFIT & SELECTION
 
-# base_refit = 'neg_mean_squared_error'
-# base_select = 'TestMSE'
-# ble_refit = 'neg_mean_squared_error'
-# ble_select = ['TestMSEs', True]
+base_refit = 'neg_mean_squared_error'
+base_select = 'TestMSE'
+ble_refit = 'neg_mean_squared_error'
+ble_select = ['TestMSEs', True] #smallerisbetter
 
-base_refit = 'r2'
-base_select = 'TestR2'
-ble_refit = 'r2'
-ble_select = ['TestR2s', False]
+# base_refit = 'neg_mean_squared_error'
+# base_select = 'TestAcc'
+# ble_refit = 'neg_mean_squared_error'
+# ble_select = ['TestAccs', False]
+
+# base_refit = 'r2'
+# base_select = 'TestR2'
+# ble_refit = 'r2'
+# ble_select = ['TestR2s', False]
 
 # UNITS, SELECTORS, REGRESSORS
 
@@ -221,7 +226,7 @@ BLENDER
 ________________________________________________________________________________________________________________________
 """
 
-BLE_VALUES = {'NBestScore': 'TestMSE', 'NCount' : 10, 'Regressor' : ['SVR_RBF', 'LR_RIDGE'], 'OverallBest' : True,
+BLE_VALUES = {'NBestScore': [set_1], 'NCount' : 10, 'Regressor' : ['SVR_RBF', 'LR_RIDGE'], 'OverallBest' : True,
               'BestModelNames' : None, 'refit' : ble_refit, 'grid_select' : ble_select}
 
 

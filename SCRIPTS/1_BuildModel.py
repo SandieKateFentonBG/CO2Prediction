@@ -12,18 +12,18 @@ for set in studyParams['sets']:
     yLabels, yLabelsAc, BLE_VALUES['NBestScore'] = set
     displayParams["ref_prefix"] = acronym + '_' + studyParams['sets'][0][1]
 
-    # # # 0 ANALYZE
-    # print("Analyze Data")
-    #
-    # # # RUN
-    # Run_DA(path=DB_Values['DBpath'], dbName=DB_Values['DBname'], delimiter=DB_Values['DBdelimiter'],
-    #        firstLine=DB_Values['DBfirstLine'], xQualLabels=xQualLabels, xQuantLabels=DAxQuantLabels, yLabels=DAyLabels,
-    #        Summed_Labels=Summed_Labels, Divided_Labels=Divided_Labels, splittingFt=splittingFt, order=order, mainTarget=mainTarget,
-    #        labels_1D=labels_1D, labels_2D_norm=labels_2D_norm, labels_2D_scale=labels_2D_scale,
-    #        exploded_ft=exploded_ft, splittingFt_focus=splittingFt_focus, splittingFt_2=splittingFt_2)
+    # # 0 ANALYZE
+    print("Analyze Data")
 
-    # # IMPORT
-    # DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
+    # # RUN
+    Run_DA(path=DB_Values['DBpath'], dbName=DB_Values['DBname'], delimiter=DB_Values['DBdelimiter'],
+           firstLine=DB_Values['DBfirstLine'], xQualLabels=xQualLabels, xQuantLabels=DAxQuantLabels, yLabels=DAyLabels,
+           Summed_Labels=Summed_Labels, Divided_Labels=Divided_Labels, splittingFt=splittingFt, order=order, mainTarget=mainTarget,
+           labels_1D=labels_1D, labels_2D_norm=labels_2D_norm, labels_2D_scale=labels_2D_scale,
+           exploded_ft=exploded_ft, splittingFt_focus=splittingFt_focus, splittingFt_2=splittingFt_2)
+
+    # IMPORT
+    DA = import_DataAnalysis(displayParams["ref_prefix"], name = 'DataAnalysis' + splittingFt)
 
     # 1 SELECT DATA
     print("Select Data for :", set)
