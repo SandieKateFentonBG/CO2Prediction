@@ -26,7 +26,7 @@ def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
             GS = predictor.__getattribute__(learningDflabel)
 
             TestAcc, TestAccStd, TestMSE, TestMSEStd, TestR2, TestR2Std , Resid, ResidStd, ResidVariance, \
-            ResidVarianceStd, TrainScore, TrainScoreStd, TestScore, TestScoreStd= AvgDict.loc[GS.GSName, :]
+            ResidVarianceStd, TrainScore, TrainScoreStd, TestScore, TestScoreStd, yPredStd= AvgDict.loc[GS.GSName, :]
 
             setattr(GS, 'TestAcc', TestAcc)
             setattr(GS, 'TestMSE', TestMSE)
@@ -35,7 +35,7 @@ def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
             setattr(GS, 'ResidVariance', ResidVariance)
             setattr(GS, 'TrainScore', TrainScore)
             setattr(GS, 'TestScore', TestScore)
-
+            setattr(GS, 'yPredStd', yPredStd)
 
             setattr(predictor, learningDflabel, GS)
 

@@ -80,16 +80,32 @@ def computeCV_Scores_Avg_All(studies):
     TestMSEDict = AssembleCVResults(studies, 'TestMSE')
     TestR2Dict = AssembleCVResults(studies, 'TestR2')
 
-    lazy_models = []  # remove models that always predict the same value
+    lazy_models_1 = []  # remove models that always predict the same value based on R2
     for k, vs in TestR2Dict.items():
         for v in vs:
             if -0.0000000001 < v < 0.0000000001:
-                lazy_models.append(k)
+                lazy_models_1.append(k)
+    print("lazy_models_1", lazy_models_1)
 
     ResidMeanDict = AssembleCVResults(studies, 'ResidMean')
     ResidVarianceDict = AssembleCVResults(studies, 'ResidVariance')
     TrainScoreDict = AssembleCVResults(studies, 'TrainScore')
     TestScoreDict = AssembleCVResults(studies, 'TestScore')
+    yPredDict = AssembleCVResults(studies, 'yPred')
+
+    lazy_models_2 = []
+    for k, vs in yPredDict.items(): #54
+        new_vals = []
+        for v in vs: #5
+            new_val = round(np.std(v), 3)
+            new_vals.append(new_val)
+        yPredDict[k] = new_vals
+        lazy_value = np.mean(new_vals)
+        if lazy_value < 5:
+            lazy_models_2.append(k)
+    print("lazy_models_2", lazy_models_2)
+
+    lazy_models = list(set(lazy_models_1 + lazy_models_2))
 
     for k in TestAccDict.keys():
         avgAcc1 = round(np.mean(TestAccDict[k]), 3)
@@ -107,13 +123,15 @@ def computeCV_Scores_Avg_All(studies):
         stdAcc5 = round(np.std(TrainScoreDict[k]), 3)
         avgAcc6 = round(np.mean(TestScoreDict[k]), 3)
         stdAcc6 = round(np.std(TestScoreDict[k]), 3)
+        avgAcc7 = round(np.mean(yPredDict[k]), 3)
+
         SummaryDict[k] = [avgAcc1, stdAcc1, avgAcc2, stdAcc2, avgAcc2b, stdAcc2b, avgAcc3, stdAcc3,
-                          avgAcc4, stdAcc4, avgAcc5, stdAcc5, avgAcc6, stdAcc6]
+                          avgAcc4, stdAcc4, avgAcc5, stdAcc5, avgAcc6, stdAcc6, avgAcc7]
 
     # track results
     columns = ['TestAcc-Mean', 'TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std', 'TestR2-Mean', 'TestR2-Std', 'Resid-Mean', 'Resid-Std',
                'ResidVariance-Mean', 'ResidVariance-Std', 'TrainScore-Mean', 'TrainScore-Std', 'TestScore-Mean',
-               'TestScore-Std']
+               'TestScore-Std', 'yPred-Std']
     ResultsDf = pd.DataFrame(columns=columns, index=SummaryDict.keys())
     for i in range(len(columns)):
         ResultsDf[columns[i]] = [SummaryDict[k][i] for k in SummaryDict.keys()]
