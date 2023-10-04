@@ -71,7 +71,8 @@ xQuantLabels = ['Gross_Floor_Area'] #, 'Floors_Above_Ground', 'Floors_Below_Grou
 
 yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
 
-FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500]}#'yUnitFactor' converts yLabel unit to target Label unit: ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
+FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500],
+                 'ResidLim' : [-300, 300], 'PredLim' : [400, 900]}#'yUnitFactor' converts yLabel unit to target Label unit: ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
 
 """
 SAMPLE

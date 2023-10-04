@@ -574,13 +574,16 @@ def reportCV_Residuals_All(models, means, variances, displayParams, DBpath):
                 df.to_excel(writer, sheet_name=name)
 
 def RUN_CombinedResiduals(studies_GS_FS, studies_NBest, studies_Blender, studies_regressor, studies_model, displayParams,
-                          FORMAT_Values, DBpath, randomvalues, ResidLim = [-300, 300], PredLim = [400, 900],
+                          FORMAT_Values, DBpath, randomvalues,
                           CountLimS = [0, 30], CountBinWidthS = 5, CountLimM = [0, 50], CountBinWidthM = 20):
                            #setyLim=[-300, 300], setxLim=[400, 900]setyLim=[-300, 300], setxLim=[0, 1500]
 
+
+    ResidLim = FORMAT_Values['ResidLim']
+    PredLim = FORMAT_Values['PredLim']
     models, means, variances = analyzeCVResiduals(studies_GS_FS)
-    # reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
-    #
+    reportCV_Residuals_All(models, means, variances, displayParams, DBpath)
+
     "Histogram Plot of Residual distribution for combined seeds folders"
 
     ResidualPlot_Distri_Combined(studies_NBest, displayParams, FORMAT_Values, DBpath, NBest=True, adaptXLim = False, setxLim=ResidLim)

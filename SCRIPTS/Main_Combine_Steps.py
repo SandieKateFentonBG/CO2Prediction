@@ -47,7 +47,7 @@ def RUN_Combine_Report(CV_AllModels, CV_NBest, CV_BlenderNBest, regressors_CV, m
 
     "Assessment of Model residuals - All, Nbest, Blender_NBest, single regressor, single model   - List, Gaussian Plot, Hist plot, "
     RUN_CombinedResiduals(CV_AllModels, CV_NBest, CV_BlenderNBest, regressors_CV, models_CV, displayParams, FORMAT_Values,
-                          DB_Values['DBpath'], randomvalues, ResidLim = [-300, 300], PredLim = [400, 900],
+                          DB_Values['DBpath'], randomvalues,
                           CountLimS = None, CountBinWidthS = 10, CountLimM = None, CountBinWidthM = 10)
 
 
