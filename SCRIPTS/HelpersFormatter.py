@@ -45,7 +45,8 @@ def formatDf_toModellist(data, modelList):
     for model in modelList:
 
         XDf = formatDf(data, model).to_numpy()
-        blend_train_i = model.Estimator.predict(XDf)
+        # blend_train_i = model.Estimator.predict(XDf)
+        blend_train_i = model.Estimator.predict(XDf.values)  # todo
         blend_train_i = pd.DataFrame(blend_train_i)
         blend_sample_sets.append(blend_train_i)
 

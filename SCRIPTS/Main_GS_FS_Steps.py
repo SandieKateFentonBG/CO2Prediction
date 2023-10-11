@@ -71,8 +71,7 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
 
     MLP_LBFG_CONSTRUCTOR = {'name': 'MLP_LBFG', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_param_grid}
     MLP_SGD_CONSTRUCTOR = {'name': 'MLP_SGD', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_param_grid}
-    MLP_SAG_CONSTRUCTOR = {'name': 'MLP_SAG', 'modelPredictor': MLPRegressor(solver='sag'), 'param_dict': MLP_SAG_param_grid}
-
+    MLP_ADAM_CONSTRUCTOR = {'name': 'MLP_ADAM', 'modelPredictor': MLPRegressor(solver='adam'), 'param_dict': MLP_ADAM_param_grid}
 
     MLP_LBFG_20_CONSTRUCTOR = {'name': 'MLP_LBFG_20', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_20_param_grid}
     MLP_SGD_20_CONSTRUCTOR = {'name': 'MLP_SGD_20', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_20_param_grid}

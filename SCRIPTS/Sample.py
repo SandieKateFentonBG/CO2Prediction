@@ -127,7 +127,8 @@ class Sample:
 
     def SamplePrediction(self, model):
         XDf = formatDf(self.XDf, model)
-        yPred = model.Estimator.predict(XDf)
+        # yPred = model.Estimator.predict(XDf)
+        yPred = model.Estimator.predict(XDf.values)  # todo
         return yPred
 
     def SamplePredictionBlender(self, blender):
@@ -166,8 +167,10 @@ class Sample:
                 SHAPGroupKeys, SHAPGroupvalues = self.group_data(model, exp[idx].values)
                 myExplainer.__setattr__('feature_names', SHAPGroupKeys)
                 myExplainer.__setattr__('values', SHAPGroupvalues)
-                myExplainer.__setattr__('features', formatDf(self.input, model))
-                myExplainer.__setattr__('data', formatDf(self.input, model).T.squeeze())
+                features = formatDf(self.input, model)[SHAPGroupKeys]
+                data = features.T.squeeze()
+                myExplainer.__setattr__('features', features)
+                myExplainer.__setattr__('data', data)
                 extra = '_Grouped'
 
                 # todo : pickledump this myExplainer >
