@@ -138,9 +138,9 @@ def computeCV_Scores_Avg_All(studies):
 
     return ResultsDf, lazy_models
 
-def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, lazy_labels, n, NBestScore): #=10='TestR2'
+def find_Overall_Best_Models(DBpath, displayParams, ResultsDf, lazy_labels, n, NBestScore, smallerisbetter): #=10='TestR2'
 
-    if NBestScore == 'TestMSE':
+    if smallerisbetter: # NBestScore == 'TestMSE'
         asc_direction = True
     else:
         asc_direction = False

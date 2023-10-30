@@ -46,7 +46,7 @@ def avgModel( DBpath, displayParams, studies = None, ResultsDf = None):
 
 
 
-def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combined =  None):
+def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combined =  None, smallerisbetter = False):
     print(BLE_VALUES['NBestScore'])
 
     if not studies:
@@ -64,12 +64,18 @@ def RUN_Avg_Model(DBpath, displayParams, BLE_VALUES, studies = None, ref_combine
     reportCV_ScoresAvg_All(ResultsDf, displayParams, DBpath, NBestScore=BLE_VALUES['NBestScore'])
 
     #PLOT
-    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
-    scoreListMax = [True, False, True, True, True]
+
+    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std']
+    if smallerisbetter:
+        scoreListMax = [True, False, True, False, False, True, True]
+    else:
+        scoreListMax = [True, False, True, True, True, True, True]
+
     Plot_GS_FS_Scores(GS_FSs, scoreList, scoreListMax, combined=True, plot_all=displayParams['plot_all'])
 
     # FIND NBEST
-    BestModelNames = find_Overall_Best_Models(DBpath, displayParams, ResultsDf, lazy_labels = lazy_models, n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'])
+    BestModelNames = find_Overall_Best_Models(DBpath, displayParams, ResultsDf, lazy_labels = lazy_models,
+                        n=BLE_VALUES['NCount'], NBestScore=BLE_VALUES['NBestScore'], smallerisbetter = smallerisbetter)
 
     return GS_FSs
 

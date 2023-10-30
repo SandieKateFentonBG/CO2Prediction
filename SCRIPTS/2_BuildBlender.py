@@ -87,11 +87,16 @@ for set in studyParams['sets']:
         LR_RIDGE_BLs.append(LR_RIDGE_BL)
         SVR_RBF_BLs.append(SVR_RBF_BL)
 
+        # print(SVR_RBF_BLs.modelList)
+
     Blenders_NBest_CV = [LR_RIDGE_BLs,SVR_RBF_BLs] #[Blender_NBests]
 
-    # COMBINE
-    RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, randomvalues=list(range(1, cv+1)), displayParams=displayParams)
+    # # COMBINE
+    # RUN_Combine_Report(All_CV, NBest_CV, Blenders_NBest_CV, regressors_CV, models_CV, randomvalues=list(range(1, cv+1)), displayParams=displayParams)
 
-    Studies_CV_BlenderNBest.append(Blenders_NBest_CV)
 
-AccuracyCheck(Blenders_NBest_CV, studyParams['sets'], displayParams, DB_Values['DBpath'], tolerance=PROCESS_VALUES['accuracyTol'])
+AccuracyCheck(LR_RIDGE_BLs, displayParams, DB_Values['DBpath'], tolerance=PROCESS_VALUES['accuracyTol'])
+
+AccuracyCheck_Comparison(Blenders_NBest_CV, displayParams, DB_Values['DBpath'],
+                         metrics= ['TestAcc', 'TestAcc_mean', 'TestAcc_std'],
+                         tolerances= [PROCESS_VALUES['accuracyTol'], PROCESS_VALUES['accuracyTol_mean'], PROCESS_VALUES['accuracyTol_std']])

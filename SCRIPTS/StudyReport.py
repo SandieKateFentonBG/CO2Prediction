@@ -141,7 +141,8 @@ def reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES
 
 
 def reportCV_ModelRanking_NBest(CV_AllModels, CV_BlenderNBest, seeds, displayParams, DBpath,
-                                numericLabels = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance'], ordinalCountLabels = ['selectedLabels'],
+                                numericLabels = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std', 'ResidMean', 'ResidVariance']
+                                , ordinalCountLabels = ['selectedLabels'],
                                 ordinalLabels = ['selectorName'], n = 10, NBestScore = 'TestR2'):
 
     import pandas as pd

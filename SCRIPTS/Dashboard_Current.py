@@ -8,7 +8,7 @@ ________________________________________________________________________________
 
 # NAMING
 
-acronym = 'EU-ECB_Europe_MSE'
+acronym = 'rmt_PM_V3_A123-C34_TEST'
 
 # REFIT & SELECTION
 
@@ -29,12 +29,13 @@ ble_select = ['TestMSEs', True] #smallerisbetter
 
 # UNITS, SELECTORS, REGRESSORS
 
-set_1 = [['Embodied_Carbon[kgCO2e_m2]'],'EC',base_select] # ylabel, content, metric
+set_1 = [['A123-C34_Rate_kgCO2e-m2'],'EC',base_select] # ylabel, content, metric
 
-studyParams = {"sets": [set_1], 'fl_selectors': ['spearman', 'pearson'],
-               'RFE_selectors': ['GBR', 'DTR', 'RFR'],
-               "Regressors": ['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN',
-                              'SVR_RBF']}  # 'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG', 'MLP_ADAM']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
+studyParams = {"sets": [set_1], 'fl_selectors': [],
+               'RFE_selectors': [],
+               "Regressors": ['LR']}  # 'MLP_SGD''MLP_LBFG_20', 'MLP_LBFG_10', 'MLP_SGD_10', 'MLP_LBFG_100', 'MLP_SGD_100', 'MLP_SGD','MLP_LBFG', ['MLP_LBFG', 'MLP_SGD']['MLP_SGD','MLP_LBFG']['LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN', 'SVR_RBF'] #MLP_SGD #'MLP_LBFG'
+# 'LR', 'LR_RIDGE', 'LR_LASSO', 'LR_ELAST', 'KRR_RBF', 'KRR_LIN', 'KRR_POL', 'SVR_LIN','SVR_RBF'
+
 
 # CROSS VALIDATION
 
@@ -63,16 +64,17 @@ DB_Values = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym,# + "-edit" > changed database content : users total "No Data" set to 100000 > make sure they are removed
              "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym}
 
-xQualLabels = [
-'Use_Type','Use_Subtype', 'Site_Country', 'Completion_Year', 'QTO_Type', 'bldg_area_interval', 'Structure', 'Roof',
-    'Energy_Class_Country', 'Energy_Class_General', 'Main_Material', 'Second_Material',	'Lifespan',	'Life_Cycle_Scopes', 'LCA_Scope_handling_D']
+xQualLabels = ['Stage', 'Sector', 'Construction', 'Foundation', 'Ground_Floor', 'Superstructure', 'Cladding',
+               'Basement','Fire_Rating', 'Passive', 'Calculation_Year','Value_Type']#'Location','SCORS_Rating'
 
-xQuantLabels = ['Gross_Floor_Area'] #, 'Floors_Above_Ground', 'Floors_Below_Ground', 'Users_Total'
+xQuantLabels = ['Floor_Area',  'Value', 'Storeys']
 
-yLabels = ['Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
+yLabels = set_1[0]
+# Calculation_Year	Stage	Location	Location_Precise	Floor_Area	Value	Value_Type	Sector	Building_site
+# Storeys	Passive	Basement	Foundation	Ground_Floor	Superstructure	Cladding	Fire_Rating
 
-FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1500],
-                 'ResidLim' : [-300, 300], 'PredLim' : [400, 900]}#'yUnitFactor' converts yLabel unit to target Label unit: ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
+FORMAT_Values = {'yUnitFactor': 1, 'targetLabels': ['kgCO2e/m2'], 'TargetMinMaxVal': [0, 1000],
+                 'ResidLim' : [-300, 300], 'PredLim' : [0, 900]}#'yUnitFactor' converts yLabel unit to target Label unit: ex : - if yLabel in kgCO2e : 1; if yLabel in tCO2e : 1000
 
 """
 SAMPLE
@@ -80,58 +82,108 @@ SAMPLE
 
 MyPred_Sample_SELECTION = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
              "DBname" : acronym + "-S-Sel",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
-            'col_values' : None, 'row_values' : None,
-                          'orderFtCols' : ['Timber, wood', 'Ceramics (e.g., fired clay bricks)','Concrete w/o reinforcement','Concrete reinforced', 'Other'], #, 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','No data'
-                          "orderFtRows" : ['frame concrete','frame concrete/wood','frame wood']}
+                           "DBdelimiter": ';', "DBfirstLine": 5, 'acronym': acronym, 'Cols': 'Cladding',
+                           'Rows': 'Superstructure',
+                           'col_values': None, 'row_values': None, 'orderFtCols': None,
+                           "orderFtRows": ['Concrete_Precast',
+                                           'Concrete_PT', 'Timber_Frame_Glulam-CLT', 'Timber_Frame_Softwood',
+                                           'Steel_Frame-Precast',
+                                           'Steel_Frame-Composite', 'Steel_Frame-Timber', 'Steel_Frame-Other']}
 
 MyPred_Sample_CONCRETE = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
-             "DBname" : acronym + "-S-Concrete",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Main_Material', 'Rows':'Structure',
-            'col_values' : None, 'row_values' : None,
-                          'orderFtCols' :  ['Timber, wood', 'Ceramics (e.g., fired clay bricks)', 'Earth (e.g., unfired clay, adobe, rammed earth, etc.)','Concrete w/o reinforcement','Concrete reinforced', 'Other','No data'],
-                          "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #[]todo
+                          "DBname": acronym + "-S-CONCRETE",
+                          "DBdelimiter": ';', "DBfirstLine": 5, 'acronym': acronym, 'Cols': 'Cladding',
+                          'Rows': 'Superstructure',
+                          'col_values': None, 'row_values': None, 'orderFtCols': None,
+                          "orderFtRows": ['Concrete_Precast',
+                                          'Concrete_In-Situ', 'Concrete_PT', 'Timber_Frame_Glulam-CLT',
+                                          'Timber_Frame_Softwood', 'Steel_Frame-Precast',
+                                          'Steel_Frame-Composite', 'Steel_Frame-Timber', 'Steel_Frame-Other',
+                                          'Masonry-Concrete', 'Masonry-Timber', 'Other']}
 
 MyPred_Sample_TIMBER = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
-             "DBname" : acronym + "-S-Wood",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
-            'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
-                     "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #Nonetodo
-
+                        "DBname": acronym + "-S-TIMBER",
+                        "DBdelimiter": ';', "DBfirstLine": 5, 'acronym': acronym, 'Cols': 'Cladding',
+                        'Rows': 'Superstructure',
+                        'col_values': None, 'row_values': None, 'orderFtCols': None, "orderFtRows": ['Concrete_Precast',
+                                                                                                     'Concrete_In-Situ',
+                                                                                                     'Concrete_PT',
+                                                                                                     'Timber_Frame_Glulam-CLT',
+                                                                                                     'Timber_Frame_Softwood',
+                                                                                                     'Steel_Frame-Precast',
+                                                                                                     'Steel_Frame-Composite',
+                                                                                                     'Steel_Frame-Timber',
+                                                                                                     'Steel_Frame-Other',
+                                                                                                     'Masonry-Concrete',
+                                                                                                     'Masonry-Timber',
+                                                                                                     'Other']}
 MyPred_Sample_GLT = {"DBpath" : "//fs-par-001/commun/Temp/Sandie/Pycharm/",
-             "DBname" : acronym + "-S-MassWood",
-             "DBdelimiter" : ';', "DBfirstLine" : 5 , 'acronym' : acronym, 'Cols':'Gross_Floor_Area', 'Rows':'Structure',
-            'col_values' : list(range(100, 1000, 100)), 'row_values' : None, 'orderFtCols' : None,
-                     "orderFtRows" : ['massive brick','massive concrete','massive wood','frame concrete/wood','frame concrete','frame wood']} #todo['massive brick','massive concrete','frame concrete','frame concrete/wood','massive wood','frame wood']
+                     "DBname": acronym + "-S-GLT",
+                     "DBdelimiter": ';', "DBfirstLine": 5, 'acronym': acronym, 'Cols': 'Cladding',
+                     'Rows': 'Superstructure',
+                     'col_values': None, 'row_values': None, 'orderFtCols': None, "orderFtRows": ['Concrete_Precast',
+                                                                                                  'Concrete_In-Situ',
+                                                                                                  'Concrete_PT',
+                                                                                                  'Timber_Frame_Glulam-CLT',
+                                                                                                  'Timber_Frame_Softwood',
+                                                                                                  'Steel_Frame-Precast',
+                                                                                                  'Steel_Frame-Composite',
+                                                                                                  'Steel_Frame-Timber',
+                                                                                                  'Steel_Frame-Other',
+                                                                                                  'Masonry-Concrete',
+                                                                                                  'Masonry-Timber',
+                                                                                                  'Other']}
 
 """
 DATA ANALYSIS
 """
-DAyLabels = ['Embodied_Carbon[kgCO2e]', 'Embodied_Carbon[kgCO2e_m2]'] #, 'Embodied_Carbon_Structure[kgCO2e_m2]'
-DAxQuantLabels = xQuantLabels + ['Users_Total']#
+DAyLabels = ['Carbon_A1-A3_kgCO2e',	'Sequestration_A1-A3_kgCO2e','Carbon_Total_A1-A5_kgCO2e',	'Carbon_C3-C4_kgCO2e',
+	'Carbon_D_kgCO2e',	'Carbon_Total_A1-D_kgCO2e',	'A1-A3_Rate_kgCO2e-m2',	'A1-A5_Rate_kgCO2e-m2', 'A1-D_Rate_kgCO2e-m2',
+             'A123-C34_Rate_kgCO2e-m2']
 
-DARemoveOutliersFrom = ['Gross_Floor_Area', 'Users_Total'] + DAyLabels
+# ['Carbon_A1-A3_kgCO2e',	'Sequestration_A1-A3_kgCO2e',	'Carbon_A4_kgCO2e',	'Carbon_A5a_kgCO2e',	'Carbon_A5w_kgCO2e',
+# 'Carbon_Total_A1-A5_kgCO2e',	'Carbon_B1_kgCO2e',	'Carbon_C1_kgCO2e',	'Carbon_C2_kgCO2e',	'Carbon_C3-C4_kgCO2e',
+# 'Carbon_Total_A1-C4_kgCO2e',	'Carbon_D_kgCO2e',	'Carbon_Total_A1-D_kgCO2e',	'A1-A3_Rate_kgCO2e-m2',	'A1-A5_Rate_kgCO2e-m2',
+# 'A1-C4_Rate_kgCO2e-m2',	'A1-D_Rate_kgCO2e-m2',	'A123-C34_Rate_kgCO2e-m2',	'SCORS_Rating']
 
-#CHANGES
-Summed_Labels = dict() #SUMMED{'test' : ['Embodied_Carbon[kgCO2e]', 'Embodied_Carbon[kgCO2e_m2]']}
-Divided_Labels = {'GIFA_user[m2_u]' : ['Gross_Floor_Area', 'Users_Total'], 'Embodied_Carbon_user[kgCO2e_u]' : ['Embodied_Carbon[kgCO2e]', 'Users_Total'],
-                  'Embodied_Carbon_user_m2[kgCO2e_u_m2]' : ['Embodied_Carbon[kgCO2e_m2]', 'Users_Total']} #SUMMED LABELS MUST BE IN INITIAL IMPORT!
-# AddedLabels = [k for k in Summed_Labels.keys()] + [k for k in Divided_Labels.keys()]
-splittingFt = 'Structure'
-order = ['massive brick','massive concrete','frame concrete','massive wood','frame wood','frame concrete/wood']
-mainTarget = 'Embodied_Carbon[kgCO2e_m2]'
-labels_1D = ['Embodied_Carbon[kgCO2e]', 'Embodied_Carbon[kgCO2e_m2]', 'Embodied_Carbon_user[kgCO2e_u]', 'Embodied_Carbon_user_m2[kgCO2e_u_m2]']
+DAxQuantLabels = xQuantLabels
+DARemoveOutliersFrom = xQuantLabels + DAyLabels
 
-labels_2D_norm = [['Embodied_Carbon[kgCO2e]', 'Embodied_Carbon[kgCO2e_m2]', 'Embodied_Carbon[kgCO2e]_normalize', 'Embodied_Carbon[kgCO2e_m2]_normalize'],
-['Embodied_Carbon_user[kgCO2e_u]', 'Embodied_Carbon_user_m2[kgCO2e_u_m2]', 'Embodied_Carbon_user[kgCO2e_u]_normalize', 'Embodied_Carbon_user_m2[kgCO2e_u_m2]_normalize']]
+#CHANGES   !! LABELS MUST BE IN INITIAL IMPORT!
+Summed_Labels = {'Carbon_A123-C34_kgCO2e' : ['Carbon_A1-A3_kgCO2e', 'Carbon_C3-C4_kgCO2e']}
+Divided_Labels = {'A123-C34_Rate_kgCO2e-m2' : ['Carbon_A123-C34_kgCO2e', 'Floor_Area']} #SUMMED LABELS MUST BE IN INITIAL IMPORT!
+splittingFt = 'Superstructure'
+order = ['Concrete_In-Situ', 'Concrete_Precast','Concrete_PT','Timber_Frame_Glulam-CLT',
+         'Timber_Frame_Softwood','Steel_Frame-Precast', 'Steel_Frame-Composite','Steel_Frame-Timber',
+         'Steel_Frame-Other', 'Masonry-Concrete','Masonry-Timber','Other']
+mainTarget = 'A123-C34_Rate_kgCO2e-m2'
+labels_1D = ['Carbon_A1-A3_kgCO2e', 'A1-A3_Rate_kgCO2e-m2', 'Carbon_A123-C34_kgCO2e', 'A123-C34_Rate_kgCO2e-m2']
 
-labels_2D_scale = [['Embodied_Carbon[kgCO2e]', 'Embodied_Carbon[kgCO2e_m2]', 'Embodied_Carbon[kgCO2e]_scale', 'Embodied_Carbon[kgCO2e_m2]_scale'],
-['Embodied_Carbon_user[kgCO2e_u]', 'Embodied_Carbon_user_m2[kgCO2e_u_m2]', 'Embodied_Carbon_user[kgCO2e_u]_scale', 'Embodied_Carbon_user_m2[kgCO2e_u_m2]_scale']]
+labels_2D_norm = [['Carbon_A1-A3_kgCO2e', 'A1-A3_Rate_kgCO2e-m2', 'Carbon_A1-A3_kgCO2e_normalize', 'A1-A3_Rate_kgCO2e-m2_normalize'],
+                    ['Carbon_Total_A1-A5_kgCO2e', 'A1-A5_Rate_kgCO2e-m2', 'Carbon_Total_A1-A5_kgCO2e_normalize', 'A1-A5_Rate_kgCO2e-m2_normalize'],
+                  ['Carbon_A123-C34_kgCO2e', 'A123-C34_Rate_kgCO2e-m2', 'Carbon_A123-C34_kgCO2e_normalize', 'A123-C34_Rate_kgCO2e-m2_normalize']]
 
-exploded_ft = 'Use_Subtype' #qual feature with few different values
-splittingFt_focus = 'massive wood' #order[0]
-focus = 'Structure=massive_wood'
-splittingFt_2 = 'Main_Material'
+labels_2D_scale = [['Carbon_A1-A3_kgCO2e', 'A1-A3_Rate_kgCO2e-m2', 'Carbon_A1-A3_kgCO2e_scale', 'A1-A3_Rate_kgCO2e-m2_scale'],
+                    ['Carbon_Total_A1-A5_kgCO2e', 'A1-A5_Rate_kgCO2e-m2', 'Carbon_Total_A1-A5_kgCO2e_scale', 'A1-A5_Rate_kgCO2e-m2_scale'],
+                  ['Carbon_A123-C34_kgCO2e', 'A123-C34_Rate_kgCO2e-m2', 'Carbon_A123-C34_kgCO2e_scale', 'A123-C34_Rate_kgCO2e-m2_scale']]
+
+
+exploded_ft = 'Calculation_Year' #qual feature with few different values
+splittingFt_focus = 'Concrete_In-Situ' #order[0]
+focus = 'Concrete_In-Situ'
+splittingFt_2 = 'Cladding'
+
+#
+# ## VARIANT
+#
+# # labels_2D_norm = []
+# # labels_2D_scale = []
+# # exploded_ft ='Stage'
+# # focus = 'Timber_Frame_Glulam-CLT'  #!! no '/' in your name !!'TimberFrameGlulamCLT'
+# # mainTarget = 'Storeys'
+# # labels_1D = ['Storeys', 'Storeys_scale', 'Storeys_normalize']
+# # splittingFt_focus = 'Timber_Frame_Glulam-CLT'
+# # splittingFt_2 = 'Foundation'
 
 """
 ________________________________________________________________________________________________________________________
@@ -141,10 +193,12 @@ ________________________________________________________________________________
 
 PROCESS_VALUES = {'OutlierCutOffThreshhold' : 3, 'UnderrepresentedCutOffThreshhold' : 5,
                   'removeUnderrepresenteds' : True, 'removeUnderrepresentedsDict' : dict(),
-                'RemoveOutliersFrom' : ['Gross_Floor_Area'], 'removeUnderrepresentedsFrom' : xQualLabels,
+                'RemoveOutliersFrom' : xQuantLabels, 'removeUnderrepresentedsFrom' : xQualLabels,
                   'random_state' : sample_nb, 'test_size' : float(1/8), 'train_size': float(7/8), 'check_size': 0.1, 'val_size': float(1/9),
                 'corrRounding' : 2, 'corrLowThreshhold' : 0.1, 'fixed_seed' : 42, 'selectionStoredinCombined' : True,
-                     'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75, 'accuracyTol' : 0.15, 'residualsYLim': [-500, 500], 'residualsXLim': [0, 800],
+                     'corrHighThreshhold' : 0.65, 'corrHighThreshholdSpearman' : 0.75,
+                  'accuracyTol' : 0.15, 'accuracyTol_mean' : 0.15, 'accuracyTol_std' : 0.5,
+                  'residualsYLim': [-500, 500], 'residualsXLim': [0, 800],
                   'refit' : base_refit, 'grid_select' : base_select}
 
 """

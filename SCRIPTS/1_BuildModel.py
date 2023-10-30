@@ -58,7 +58,7 @@ for set in studyParams['sets']:
         GS_FSs = import_Main_GS_FS(displayParams["reference"] , GS_FS_List_Labels = studyParams['Regressors'])
 
         report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, BLE_VALUES,
-                     rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs)
+                     rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs, smallerisbetter=set[2][1])
 
         All_CV.append(GS_FSs)
         Filters_CV.append(filterList)

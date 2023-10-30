@@ -10,13 +10,38 @@ from sklearn.preprocessing import MinMaxScaler
 def computeAccuracy(yTrue, yPred, tolerance):
     #https: // scikit - learn.org / stable / modules / model_evaluation.html  # scoring
     validated = [1 if abs(yPred[i] - yTrue[i]) < abs(yTrue[i]) * tolerance else 0 for i in range(len(yTrue))]
-    #todo : remove print below
+
+    return sum(validated) / len(validated)
+
+def computeAccuracy_std(yTrue, yPred, learningDf, tolerance):
+
+    std = learningDf.ydf.std().values[0] # std = learningDf.MeanStdDf.loc[learningDf.yLabel, 'std'] # or  'std',learningDf.yLabel
+    val = std * tolerance
+    validated = [1 if abs(yPred[i] - yTrue[i]) < val else 0 for i in range(len(yTrue))]
+    #todo check this > insert it > in exports > compare results
+
+    return sum(validated) / len(validated)
+
+def computeAccuracy_mean(yTrue, yPred, learningDf, tolerance):
+
+    mea = learningDf.ydf.mean().values[0]
+    val = mea * tolerance
+    validated = [1 if abs(yPred[i] - yTrue[i]) < val else 0 for i in range(len(yTrue))]
+    #todo check this
+
+    return sum(validated) / len(validated)
+
+def computeAccuracy_rev(yTrue, yPred, comparison, tolerance):
+
+    val = comparison * tolerance
+    validated = [1 if abs(yPred[i] - yTrue[i]) < val else 0 for i in range(len(yTrue))]
+    #todo check this
 
     return sum(validated) / len(validated)
 
 class ModelGridsearch:
 
-    def __init__(self, predictorName, learningDf, modelPredictor, param_dict, acc, refit, xQtQlLabels = None): #todo refit changed for MSE
+    def __init__(self, predictorName, learningDf, modelPredictor, param_dict, acc, acc_mean, acc_std, refit, xQtQlLabels = None): #todo refit changed for MSE
 
         self.predictorName = predictorName #ex : SVR
         self.modelPredictor = modelPredictor# ex : SVR()
@@ -38,6 +63,8 @@ class ModelGridsearch:
         print('Calibrating hyperparameters')
         self.paramGridsearch(learningDf)
         self.accuracyTol = acc
+        self.accuracyTol_mean = acc_mean
+        self.accuracyTol_std = acc_std
 
         print('Retrieving best results')
         self.computeBestModel(learningDf)
@@ -80,6 +107,13 @@ class ModelGridsearch:
         self.TrainScore = round(self.Grid.score(XTrain, yTrain), self.rounding)
         self.TestScore = round(self.Grid.score(XTest, yTest), self.rounding)
         self.TestAcc = round(computeAccuracy(yTest, self.Grid.predict(XTest), self.accuracyTol), self.rounding)
+
+        mea = self.learningDf.ydf.mean().values[0]
+        std = self.learningDf.ydf.std().values[0]
+
+        self.TestAcc_std = round(computeAccuracy_rev(yTest, self.Grid.predict(XTest), std, self.accuracyTol_std), self.rounding)
+        self.TestAcc_mean = round(computeAccuracy_rev(yTest, self.Grid.predict(XTest), mea, self.accuracyTol_mean), self.rounding)
+
         self.TestMSE = round(mean_squared_error(yTest, self.yPred), self.rounding)
         self.TestR2 = round(r2_score(yTest, self.yPred), self.rounding)
         self.Resid = yTest - self.yPred
@@ -192,45 +226,8 @@ class ModelGridsearch:
             SHAPGroupScoreDict[list(topNFeatures)[i]] = NbFtExtracted-i
         self.SHAPGroupScoreDict = SHAPGroupScoreDict
 
-def computePrediction(GS):
-
-    predictor = GS.Estimator
-    learningDf = GS.learningDf
-    rounding = 3
-    accuracyTol = 0.15
-
-    XTrain, yTrain = learningDf.XTrain.to_numpy(), learningDf.yTrain.to_numpy().ravel()
-    XTest, yTest = learningDf.XTest.to_numpy(), learningDf.yTest.to_numpy().ravel()
-    yPred = predictor.predict(XTest)
-
-    TrainScore = round(predictor.score(XTrain, yTrain), rounding)
-    TestScore = round(predictor.score(XTest, yTest), rounding)
-    TestAcc = round(computeAccuracy(yTest, predictor.predict(XTest), accuracyTol), rounding)
-    TestMSE = round(mean_squared_error(yTest, yPred), rounding)
-    TestR2 = round(r2_score(yTest, yPred), rounding)
-    Resid = yTest - yPred
-
-    PredictionDict = dict()
-    PredictionDict['GS.GSName'] = GS.GSName
-    PredictionDict['GS.XTrain.shape'] = XTrain.shape
-    PredictionDict['GS.XTest.shape'] = XTest.shape
-    PredictionDict['yPred'] = yPred
-    PredictionDict['yTest'] = yTest
-    PredictionDict['Resid'] = Resid
-
-    PredictionDict['TrainScore'] = TrainScore
-    PredictionDict['TestScore'] = TestScore
-    PredictionDict['TestMSE'] = TestMSE
-    PredictionDict['TestAcc'] = TestAcc
 
 
-    return yPred, PredictionDict
-
-def computePrediction_NBest(CV_BlenderNBest):
-
-    for BlenderNBest in CV_BlenderNBest:
-        for Model in BlenderNBest.modelList:
-            yPred, PredictionDict = computePrediction(Model)
 
 
 

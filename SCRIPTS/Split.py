@@ -78,6 +78,30 @@ class SplitDf:
 
         self.MeanStdDf = pd.DataFrame(data=mydict, index=['mean', 'std'])
 
+    def scaleDf(self, xQuantLabels, yLabels):
+        #todo : this can be done instead of scaleXDf to ensure my target values have the same std -
+        # in whuch case i would have to retransform my target values after prediction
+
+        mydict = dict()
+        for l in xQuantLabels:
+            colMean, colStd = dfColMeanStd(self.XVal, l)
+
+            self.XR[l] = (self.XR[l] - colMean) / colStd
+            self.XVal[l] = (self.XVal[l] - colMean) / colStd
+            self.XCheck[l] = (self.XCheck[l] - colMean) / colStd
+            mydict[l] = [colMean, colStd]
+
+        for l in yLabels:
+
+            colMean, colStd = dfColMeanStd(self.yVal, l)
+            self.yR[l] = (self.yR[l] - colMean) / colStd
+            self.yVal[l] = (self.yVal[l] - colMean) / colStd
+            self.yCheck[l] = (self.yCheck[l] - colMean) / colStd
+            mydict[l] = [colMean, colStd]
+
+        self.MeanStdDf = pd.DataFrame(data=mydict, index=['mean', 'std'])
+
+
     def split_cv(self, X, y, k):
 
         kf = KFold(n_splits=k, random_state=None)

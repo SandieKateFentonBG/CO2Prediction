@@ -44,6 +44,7 @@ from sklearn.linear_model import Lasso, Ridge, ElasticNet
 from sklearn.svm import SVR
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.neural_network import MLPRegressor
+from sklearn.dummy import DummyRegressor
 import shap
 
 
@@ -67,7 +68,7 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
     KRR_POL_CONSTRUCTOR = {'name' : 'KRR_POL',  'modelPredictor' : KernelRidge(kernel = 'poly'),'param_dict' : KRR_param_grid}
     SVR_LIN_CONSTRUCTOR = {'name' : 'SVR_LIN',  'modelPredictor' : SVR(kernel ='linear'),'param_dict' : SVR_param_grid}
     SVR_RBF_CONSTRUCTOR = {'name' : 'SVR_RBF',  'modelPredictor' : SVR(kernel ='rbf'),'param_dict' : SVR_param_grid}
-
+    DUM_CONSTRUCTOR = {'name': 'DUM', 'modelPredictor': DummyRegressor(strategy='mean', constant=None), 'param_dict': dict()}
 
     MLP_LBFG_CONSTRUCTOR = {'name': 'MLP_LBFG', 'modelPredictor': MLPRegressor(solver='lbfgs'), 'param_dict': MLP_LBFG_param_grid}
     MLP_SGD_CONSTRUCTOR = {'name': 'MLP_SGD', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_param_grid}
@@ -81,12 +82,11 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
     MLP_SGD_100_CONSTRUCTOR = {'name': 'MLP_SGD_100', 'modelPredictor': MLPRegressor(solver='sgd'), 'param_dict': MLP_SGD_100_param_grid}
 
 
-
     All_CONSTRUCTOR = [LR_CONSTRUCTOR, LR_RIDGE_CONSTRUCTOR, LR_LASSO_CONSTRUCTOR, LR_ELAST_CONSTRUCTOR, KRR_LIN_CONSTRUCTOR,
                       KRR_RBF_CONSTRUCTOR,KRR_POL_CONSTRUCTOR, SVR_LIN_CONSTRUCTOR, SVR_RBF_CONSTRUCTOR,
                         MLP_SGD_CONSTRUCTOR, MLP_SGD_20_CONSTRUCTOR, MLP_SGD_10_CONSTRUCTOR, MLP_SGD_100_CONSTRUCTOR,
                        MLP_LBFG_CONSTRUCTOR, MLP_LBFG_20_CONSTRUCTOR,  MLP_LBFG_10_CONSTRUCTOR, MLP_LBFG_100_CONSTRUCTOR,
-                       MLP_SAG_CONSTRUCTOR] #
+                       MLP_ADAM_CONSTRUCTOR, DUM_CONSTRUCTOR] #
 
     GS_CONSTRUCTOR = [elem for elem in All_CONSTRUCTOR if elem['name'] in regressors]
 
@@ -96,7 +96,8 @@ def Run_GS_FS(learning_dfs, regressors): #, xQtQlLabels = (xQuantLabels, xQualLa
     for constructor in GS_CONSTRUCTOR :
         GS_FS = ModelFeatureSelectionGridsearch(predictorName=constructor['name'], learningDfs=learning_dfs,
                                             modelPredictor=constructor['modelPredictor'], param_dict=constructor['param_dict']
-                                                , acc = PROCESS_VALUES['accuracyTol'],
+                                                , acc = PROCESS_VALUES['accuracyTol'], acc_mean = PROCESS_VALUES['accuracyTol_mean'],
+                                                acc_std = PROCESS_VALUES['accuracyTol_std'],
                                                 refit = PROCESS_VALUES['refit'],
                                                 xQtQlLabels = (xQuantLabels, xQualLabels))
         GS_FSs.append(GS_FS)
@@ -268,7 +269,7 @@ def Run_NBest_Study(import_FS_ref, import_GS_FS_ref, importNBest = False, Overal
 
     return NBestModels
 
-def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False, importMainFS=True, FS=None):
+def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False, importMainFS=True, FS=None, smallerisbetter = False):
     """
     MODEL x FEATURE SELECTION GRIDSEARCH
     """
@@ -303,8 +304,11 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False, importMainFS=True, FS
     reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, rdat, dat, df,
                          learningDf, baseFormatedDf, FiltersLs=filterList, RFEs=RFEList, GSlist=GS_FSs, GSwithFS=True)
 
-    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
-    scoreListMax = [True, False, True, True, True]
+    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std']
+    if smallerisbetter:
+        scoreListMax = [True, False, True, False, False, True, True]
+    else:
+        scoreListMax = [True, False, True, True, True, True, True]
     reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=False)
 
     print('PLOTTING GS_FS')
@@ -321,15 +325,20 @@ def Run_GS_FS_Study(import_FS_ref, importMainGSFS = False, importMainFS=True, FS
 
 
 def report_GS_FS(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, BLE_VALUES,
-                 rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs):
+                 rdat, dat, df, learningDf, baseFormatedDf, filterList, RFEList, GS_FSs, smallerisbetter = False):
 
     # REPORT
     print('REPORTING GS_FS')
     reportGS_Details_All(displayParams, DB_Values, FORMAT_Values, PROCESS_VALUES, RFE_VALUES, GS_VALUES, BLE_VALUES, rdat,
                          dat, df, learningDf, baseFormatedDf, FiltersLs=filterList, RFEs=RFEList, GSlist=GS_FSs, GSwithFS=True)
 
-    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore']
-    scoreListMax = [True, False, True, True, True]
+
+    scoreList = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std']
+    if smallerisbetter:
+        scoreListMax = [True, False, True, False, False, True, True]
+    else:
+        scoreListMax = [True, False, True, True, True, True, True]
+
     reportGS_Scores_All(DB_Values['DBpath'], displayParams, GS_FSs, scoreList=scoreList, display=False)
 
     print('PLOTTING GS_FS')

@@ -15,6 +15,8 @@ def prepare_blending_cv(modelList):
     blend_elem_sets = []
 
     for model in modelList:
+        target_mean = model.learningDf.ydf.mean().values[0]
+        target_std = model.learningDf.ydf.std().values[0]
         XVal = model.learningDf.__getattribute__('XVal').to_numpy()
         XCheck = model.learningDf.__getattribute__('XCheck').to_numpy()
         yVal = model.learningDf.__getattribute__('yVal').to_numpy().ravel()
@@ -28,7 +30,7 @@ def prepare_blending_cv(modelList):
 
     blendDf = pd.concat(blend_elem_sets, axis=1)
 
-    return blendDf, yMeta
+    return blendDf, yMeta, target_mean, target_std
 
 def split_blending_cv(X, y, k = 5):
 
@@ -78,7 +80,7 @@ def Blend_Learning_Data(modelList, type = 'XVal'):
 
 class Model_Blender:
 
-    def __init__(self, modelList, blendingConstructor, acc, refit, grid_select, Gridsearch = True, Type ='NBest'):
+    def __init__(self, modelList, blendingConstructor, acc, acc_mean, acc_std, refit, grid_select, Gridsearch = True, Type ='NBest'):
 
         self.modelList = modelList
         self.GSName = blendingConstructor['name'] + '_Blender_' + Type
@@ -90,10 +92,14 @@ class Model_Blender:
         self.refit = refit  # 'r2'Score used for refitting the blender  #todo : changed to fit BLE_Values input
         self.grid_select = grid_select #[metric, minimize] #todo : changed to fit BLE_Values input
         self.accuracyTol = acc
+        self.accuracyTol_mean = acc_mean
+        self.accuracyTol_std = acc_std
         self.rounding = 3
 
         #prepare data for outer loop - Cross-Validation
-        blendDf, yMeta = prepare_blending_cv(modelList)
+        blendDf, yMeta, target_mean, target_std = prepare_blending_cv(modelList)
+        self.target_mean = target_mean
+        self.target_std = target_std
         kfolds = split_blending_cv(blendDf, yMeta, k = 5)
 
         #kfolds = [fold,..., fold, fold]
@@ -105,6 +111,8 @@ class Model_Blender:
         self.TrainScores = []
         self.TestScores = []
         self.TestAccs = []
+        self.TestAcc_stds = []
+        self.TestAcc_means = []
         self.TestMSEs = []
         self.TestR2s = []
         self.Resids = []
@@ -144,6 +152,10 @@ class Model_Blender:
             TestScore = round(self.Grid.score(X_test, y_test), self.rounding)
             # score on the test data using the same scoring function
             TestAcc = round(computeAccuracy(y_test, yPred, self.accuracyTol), self.rounding)
+
+            TestAcc_std = round(computeAccuracy_rev(y_test, yPred, self.target_std, self.accuracyTol_std), self.rounding)
+            TestAcc_mean = round(computeAccuracy_rev(y_test, yPred, self.target_mean, self.accuracyTol_mean), self.rounding)
+
             TestMSE = round(mean_squared_error(y_test, yPred), self.rounding)
             TestR2 = round(r2_score(y_test, yPred), self.rounding)
             Resid = y_test - yPred
@@ -156,6 +168,8 @@ class Model_Blender:
             self.TrainScores.append(TrainScore)
             self.TestScores.append(TestScore)
             self.TestAccs.append(TestAcc)
+            self.TestAcc_stds.append(TestAcc_std)
+            self.TestAcc_means.append(TestAcc_mean)
             self.TestMSEs.append(TestMSE)
             self.TestR2s.append(TestR2)
             self.Resids.append(Resid)
@@ -183,6 +197,8 @@ class Model_Blender:
         self.TrainScore = self.TrainScores[idx]
         self.TestScore = self.TestScores[idx]
         self.TestAcc = self.TestAccs[idx]
+        self.TestAcc_std = self.TestAcc_stds[idx]
+        self.TestAcc_mean = self.TestAcc_means[idx]
         self.TestMSE = self.TestMSEs[idx]
         self.TestR2 = self.TestR2s[idx]
         self.Resid = self.Resids[idx]
@@ -288,7 +304,7 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
 
 
         index = [model.GSName for model in BL_NBest_All[0].modelList] #+ ['NBest_Avg'] + [BLE_VALUES['Regressor'] + "_Blender_NBest"]
-        columns = [ 'TestAcc', 'TestMSE', 'TestR2','TrainScore', 'TestScore','ResidMean', 'ResidVariance', 'ModelWeights']
+        columns = [ 'TestAcc', 'TestMSE', 'TestR2','TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std', 'ResidMean', 'ResidVariance', 'ModelWeights']
 
         Avgdf = pd.DataFrame(columns=columns, index=index, dtype=float)
         for id in index:
@@ -308,7 +324,7 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
             Avgdf.loc[id_blender + '_Std', col] = np.std(lists_bl)
 
         index = ['', 'BlenderAvg-BestModelAvg', 'BlenderAvg-NBestAvg']
-        columns = [ 'TestAcc', 'TestMSE', 'TestR2','TrainScore', 'TestScore','ResidMean', 'ResidVariance', 'ModelWeights']
+        columns = [ 'TestAcc', 'TestMSE', 'TestR2','TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std', 'ResidMean', 'ResidVariance', 'ModelWeights']
         ExtraDf = pd.DataFrame(columns=columns, index=index, dtype=float)
         ExtraDf.loc['BlenderAvg-BestModelAvg', :] = (Avgdf.loc[id_blender + "_Avg", :] - Avgdf.iloc[0, :])
         ExtraDf.loc['BlenderAvg-NBestAvg', :] = (Avgdf.loc[id_blender + "_Avg", :] - Avgdf.loc['NBest_Avg', :])
@@ -325,7 +341,7 @@ def report_BL_NBest_CV(BL_NBest_All, displayParams, DBpath, random_seeds):
 def construct_NBest_Df(blendModel):
 
     index = [model.GSName for model in blendModel.modelList]
-    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
+    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std','ResidMean', 'ResidVariance','ModelWeights']
 
     NBestDf = pd.DataFrame(columns=columns, index=index)
     for col in columns[:-1]:
@@ -343,7 +359,7 @@ def construct_NBest_Df(blendModel):
 def construct_Blender_Df(blendModel):
 
     index = [blendModel.GSName]
-    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
+    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std', 'ResidMean', 'ResidVariance','ModelWeights']
     BlendingDf = pd.DataFrame(columns=columns, index=index)
     for col in columns[:-1]:
         BlendingDf[col] = [blendModel.__getattribute__(col)]
@@ -354,12 +370,12 @@ def construct_CVAnalysis_Blender_Df(blendModel):
     from statistics import mean, stdev
 
     index = ['Blender Fold' + str(elem) for elem in list(range(len(blendModel.Estimators)))] + ['Blender_Mean', 'Blender_Std']
-    columns = [ 'TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
+    columns = [ 'TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std', 'ResidMean', 'ResidVariance','ModelWeights']
 
     AnalysisDf = pd.DataFrame(columns=columns, index=index)
 
-    for col, name in zip([ 'TestAccs', 'TestMSEs', 'TestR2s', 'TrainScores', 'TestScores','ResidMeans', 'ResidVariances'],
-                         ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance']):
+    for col, name in zip([ 'TestAccs', 'TestMSEs', 'TestR2s', 'TrainScores', 'TestScores','TestAcc_means', 'TestAcc_stds', 'ResidMeans', 'ResidVariances'],
+                         ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std', 'ResidMean', 'ResidVariance']):
         AnalysisDf[name] = blendModel.__getattribute__(col) + [mean(blendModel.__getattribute__(col))] + [stdev(blendModel.__getattribute__(col))]  #[i] for i in range(len())] + [self.__getattribute__(col)]
 
     return AnalysisDf
@@ -373,7 +389,7 @@ def construct_Blending_Df(blendModel):
 
 
     index = ['', 'BestBlender-BestModel', 'BestBlender-NBestAvg', 'AvgBlender-BestModel', 'AvgBlender-NBestAvg']
-    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance','ModelWeights']
+    columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std', 'ResidMean', 'ResidVariance','ModelWeights']
 
     ExtraDf = pd.DataFrame(columns=columns, index=index)
     ExtraDf.loc['BestBlender-BestModel', :] = (Blender_Df.loc[blendModel.GSName, :] - NBest_Df.iloc[0, :])
@@ -554,13 +570,13 @@ def plot_distri_blenders(Blenders_NBest_CV, DBpath, displayParams, focus = 'Test
         plt.show()
     plt.close()
 
-def RUN_Blender_Combined_NBest(CV_BlenderNBest, displayParams, DBpath, randomvalues, focus = 'TestAcc', unit = '[%]'):
+def RUN_Blender_Combined_NBest(CV_BlenderNBest, displayParams, DBpath, randomvalues, focus = ['TestAcc'], unit = '[%]'):
 
     for blender_type in CV_BlenderNBest:
         report_BL_NBest_CV(blender_type, displayParams, DBpath, randomvalues)
-
-    plot_distri_blenders(CV_BlenderNBest, DBpath= DBpath, displayParams =displayParams,
-                         focus = focus, unit = unit, setxLim = [50,100],
+    for f in focus:
+        plot_distri_blenders(CV_BlenderNBest, DBpath= DBpath, displayParams =displayParams,
+                         focus = f, unit = unit, setxLim = [50,100],
                         fontsize = 12, adaptXLim = False, binwidth = 0.05)
 
 

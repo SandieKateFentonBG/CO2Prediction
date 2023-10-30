@@ -102,7 +102,8 @@ def reportGS_Scores_NBest(NBestModels, displayParams, DBpath): #todo : check
             os.makedirs(outputPathStudy)
 
         index = [model.GSName for model in NBestModels.modelList]
-        columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'ResidMean', 'ResidVariance']
+
+        columns = ['TestAcc', 'TestMSE', 'TestR2', 'TrainScore', 'TestScore', 'TestAcc_mean', 'TestAcc_std', 'ResidMean', 'ResidVariance']
         BestModelDf = pd.DataFrame(columns=columns, index=index)
         # for col in columns[:-1]:
         for col in columns:

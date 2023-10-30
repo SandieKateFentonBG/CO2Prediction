@@ -43,7 +43,8 @@ def RUN_Combine_Report(CV_AllModels, CV_NBest, CV_BlenderNBest, regressors_CV, m
     for blender_type in CV_BlenderNBest:
         report_BL_NBest_CV(blender_type, displayParams,  DB_Values['DBpath'], randomvalues)
 
-    RUN_Blender_Combined_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], randomvalues, focus='TestAcc', unit='[%]')
+    RUN_Blender_Combined_NBest(CV_BlenderNBest, displayParams, DB_Values['DBpath'], randomvalues, focus=['TestAcc',
+                                                                            'TestAcc_mean', 'TestAcc_std'], unit='[%]')
 
     "Assessment of Model residuals - All, Nbest, Blender_NBest, single regressor, single model   - List, Gaussian Plot, Hist plot, "
     RUN_CombinedResiduals(CV_AllModels, CV_NBest, CV_BlenderNBest, regressors_CV, models_CV, displayParams, FORMAT_Values,

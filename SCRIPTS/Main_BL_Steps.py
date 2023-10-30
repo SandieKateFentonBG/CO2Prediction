@@ -32,13 +32,13 @@ def Run_Blending_NBest(modelList, displayParams, DBpath, ref_single, Constructor
 
     CONSTRUCTOR = CONSTRUCTOR_DICT[ConstructorKey]
 
-
     # CONSTRUCT & REPORT
     print('RUNNING BLENDING')
 
     blendModel = Model_Blender(modelList, CONSTRUCTOR, acc = PROCESS_VALUES['accuracyTol'], refit = BLE_VALUES['refit'],
-                               grid_select = BLE_VALUES['grid_select'],
-                                 Gridsearch = True, Type='NBest') #todo : changed to fit BLE_Values input for grid fold selection
+                               grid_select = BLE_VALUES['grid_select'],Gridsearch = True, Type='NBest',
+                               acc_mean= PROCESS_VALUES['accuracyTol_mean'], acc_std = PROCESS_VALUES['accuracyTol_std'])
+                                #todo : changed to fit BLE_Values input for grid fold selection
     report_Blending_NBest(blendModel, displayParams, DBpath)
     pickleDumpMe(DBpath, displayParams, blendModel, 'BLENDER', blendModel.GSName)
 
