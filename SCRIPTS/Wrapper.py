@@ -21,6 +21,9 @@ class WrapFeaturesCV:
         self.estimator = estimator #unfit estimator # ex : LinearRegression()
         self.FtCountFrom = output_feature_count # ex : 'rfeHyp' > defines the number of feature for the output RFE
 
+        self.y_mea = splitDf.y_mea
+        self.y_std = splitDf.y_std
+
         self.random_state = None
         self.trainDf = None
         self.testDf = None

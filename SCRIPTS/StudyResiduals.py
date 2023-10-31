@@ -77,6 +77,8 @@ def computeCV_Scores_Avg_All(studies):
             SummaryDict[model.GSName] = []
 
     TestAccDict = AssembleCVResults(studies, 'TestAcc')
+    TestAccMeanDict = AssembleCVResults(studies, 'TestAcc_mean')
+    TestAccStdDict = AssembleCVResults(studies, 'TestAcc_std')
     TestMSEDict = AssembleCVResults(studies, 'TestMSE')
     TestR2Dict = AssembleCVResults(studies, 'TestR2')
 
@@ -110,6 +112,10 @@ def computeCV_Scores_Avg_All(studies):
     for k in TestAccDict.keys():
         avgAcc1 = round(np.mean(TestAccDict[k]), 3)
         stdAcc1 = round(np.std(TestAccDict[k]), 3)
+        avgAcc1b = round(np.mean(TestAccMeanDict[k]), 3)
+        stdAcc1b = round(np.std(TestAccMeanDict[k]), 3)
+        avgAcc1c = round(np.mean(TestAccStdDict[k]), 3)
+        stdAcc1c = round(np.std(TestAccStdDict[k]), 3)
         avgAcc2 = round(np.mean(TestMSEDict[k]), 3)
         stdAcc2 = round(np.std(TestMSEDict[k]), 3)
         avgAcc2b = round(np.mean(TestR2Dict[k]), 3)
@@ -125,11 +131,11 @@ def computeCV_Scores_Avg_All(studies):
         stdAcc6 = round(np.std(TestScoreDict[k]), 3)
         avgAcc7 = round(np.mean(yPredDict[k]), 3)
 
-        SummaryDict[k] = [avgAcc1, stdAcc1, avgAcc2, stdAcc2, avgAcc2b, stdAcc2b, avgAcc3, stdAcc3,
+        SummaryDict[k] = [avgAcc1, stdAcc1, avgAcc1b, stdAcc1b, avgAcc1c, stdAcc1c, avgAcc2, stdAcc2, avgAcc2b, stdAcc2b, avgAcc3, stdAcc3,
                           avgAcc4, stdAcc4, avgAcc5, stdAcc5, avgAcc6, stdAcc6, avgAcc7]
 
     # track results
-    columns = ['TestAcc-Mean', 'TestAcc-Std', 'TestMSE-Mean', 'TestMSE-Std', 'TestR2-Mean', 'TestR2-Std', 'Resid-Mean', 'Resid-Std',
+    columns = ['TestAcc-Mean', 'TestAcc-Std', 'TestAccMean-Mean', 'TestAccMean-Std', 'TestAccStd-Mean', 'TestAccStd-Std', 'TestMSE-Mean', 'TestMSE-Std', 'TestR2-Mean', 'TestR2-Std', 'Resid-Mean', 'Resid-Std',
                'ResidVariance-Mean', 'ResidVariance-Std', 'TrainScore-Mean', 'TrainScore-Std', 'TestScore-Mean',
                'TestScore-Std', 'yPred-Std']
     ResultsDf = pd.DataFrame(columns=columns, index=SummaryDict.keys())

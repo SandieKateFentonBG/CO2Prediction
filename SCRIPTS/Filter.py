@@ -37,6 +37,9 @@ class FilterFeaturesCV:
         self.highThreshhold = highThreshhold
         self.corrRounding = corrRounding
 
+        self.y_mea = FullDf[self.yLabel].mean()
+        self.y_std = FullDf[self.yLabel].std()
+
         self.filterUncorrelated(FullDf, baseLabels, self.yLabel, method, lowThreshhold)
         # todo :  this was changed to have more data to compute correlation on / avoid having columns of 0
         # self.filterUncorrelated(valDf, baseLabels, self.yLabel, method, lowThreshhold)
@@ -150,12 +153,17 @@ class FilterFeatures:
     def __init__(self, baseFormatedDf, baseLabels, method ="spearman", corrRounding = 2,
                  lowThreshhold = 0.1, highThreshhold = 0.65):
         trainDf = baseFormatedDf.trainDf
-
         valDf = baseFormatedDf.valDf
         testDf = baseFormatedDf.testDf
         checkDf = baseFormatedDf.checkDf
+
+
         self.yLabel = baseFormatedDf.yLabel
         self.random_state = baseFormatedDf.random_state
+
+        FullDf = pd.concat([trainDf, valDf, testDf, checkDf], axis=0)
+        self.y_mea = FullDf[self.yLabel].mean()
+        self.y_std = FullDf[self.yLabel].std()
 
         self.method = method
         self.lowThreshhold = lowThreshhold

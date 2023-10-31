@@ -28,6 +28,8 @@ class SplitDf:
         self.xdf = xDf
         self.ydf.rename(columns={yLabels[0]:targetLabels[0]})
         targetLabel = targetLabels[0]
+        self.y_mea = self.ydf.mean().values[0]
+        self.y_std = self.ydf.std().values[0]
 
         self.splitSets(targetLabels)
         self.scaleXDf(xQuantLabels)
@@ -136,6 +138,8 @@ class CrossValDf:
         self.val_size = SplitDf.val_size  # 10%
         self.ydf = SplitDf.ydf
         self.xdf = SplitDf.xdf
+        self.y_mea = self.ydf.mean().values[0]
+        self.y_std = self.ydf.std().values[0]
 
         self.yLabel = SplitDf.yLabel
         self.valDf = SplitDf.valDf

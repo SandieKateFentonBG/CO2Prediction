@@ -15,7 +15,7 @@ def computeAccuracy(yTrue, yPred, tolerance):
 
 def computeAccuracy_std(yTrue, yPred, learningDf, tolerance):
 
-    std = learningDf.ydf.std().values[0] # std = learningDf.MeanStdDf.loc[learningDf.yLabel, 'std'] # or  'std',learningDf.yLabel
+    std = learningDf.y_std #ydf.std().values[0] std = learningDf.MeanStdDf.loc[learningDf.yLabel, 'std'] # or  'std',learningDf.yLabel
     val = std * tolerance
     validated = [1 if abs(yPred[i] - yTrue[i]) < val else 0 for i in range(len(yTrue))]
     #todo check this > insert it > in exports > compare results
@@ -24,7 +24,7 @@ def computeAccuracy_std(yTrue, yPred, learningDf, tolerance):
 
 def computeAccuracy_mean(yTrue, yPred, learningDf, tolerance):
 
-    mea = learningDf.ydf.mean().values[0]
+    mea = learningDf.y_mea #ydf.mean().values[0]
     val = mea * tolerance
     validated = [1 if abs(yPred[i] - yTrue[i]) < val else 0 for i in range(len(yTrue))]
     #todo check this
@@ -108,11 +108,8 @@ class ModelGridsearch:
         self.TestScore = round(self.Grid.score(XTest, yTest), self.rounding)
         self.TestAcc = round(computeAccuracy(yTest, self.Grid.predict(XTest), self.accuracyTol), self.rounding)
 
-        mea = self.learningDf.ydf.mean().values[0]
-        std = self.learningDf.ydf.std().values[0]
-
-        self.TestAcc_std = round(computeAccuracy_rev(yTest, self.Grid.predict(XTest), std, self.accuracyTol_std), self.rounding)
-        self.TestAcc_mean = round(computeAccuracy_rev(yTest, self.Grid.predict(XTest), mea, self.accuracyTol_mean), self.rounding)
+        self.TestAcc_std = round(computeAccuracy_rev(yTest, self.Grid.predict(XTest), self.learningDf.y_std, self.accuracyTol_std), self.rounding)
+        self.TestAcc_mean = round(computeAccuracy_rev(yTest, self.Grid.predict(XTest), self.learningDf.y_mea, self.accuracyTol_mean), self.rounding)
 
         self.TestMSE = round(mean_squared_error(yTest, self.yPred), self.rounding)
         self.TestR2 = round(r2_score(yTest, self.yPred), self.rounding)
